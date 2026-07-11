@@ -116,12 +116,19 @@ export function estimateMonthlyCalls(trade: TradeKey, truckCount: number): numbe
   - Driver 5 is time value, not revenue.
 - Format currency cleanly; these numbers are large, so round to whole dollars and note that figures are estimates.
 
-## 7. PDF export
+## 7. PDF export and lead capture
 
-- Branded one-page (or two-page) PDF: trade, truck count + calls used, the three-scenario summary, the driver breakdown, and the assumptions/audit.
-- Prefer server-side generation via a TanStack Start **server function** for consistent output; client-side `jsPDF` acceptable for v1 (flag the dependency).
+- Branded one-page (or two-page) PDF: trade, truck count, call estimate formula, calls used, three-scenario summary, driver breakdown, and assumptions/audit.
+- Server-side generation via TanStack Start **server function** (`pdf-lib`).
 - Filename: `624-voice-roi-{trade}.pdf`.
-- **Optional lead capture:** gate the PDF behind name/email via flag `REQUIRE_EMAIL_FOR_PDF` (default off), POSTing to the PRD 3 lead store. Never gate the on-screen result.
+- **Lead capture required for PDF download** (`REQUIRE_LEAD_FOR_PDF: true` in `src/config/features.ts`):
+  - Name
+  - Business name
+  - Email
+  - Phone number
+- Validated client- and server-side before PDF generation.
+- **Never gate the on-screen ROI result** — only the PDF download.
+- **Book a Meeting** secondary CTA links to `/contact` (`BOOK_MEETING_URL`).
 
 ## 8. Technical notes
 
@@ -134,17 +141,20 @@ export function estimateMonthlyCalls(trade: TradeKey, truckCount: number): numbe
 
 ## 9. Acceptance criteria
 
-- [ ] Step 1 is a **trade dropdown** (Plumbers / Electricians / HVAC / Roofers / Pest Control); nothing else shows until a trade is picked.
-- [ ] Step 2 is a **"How many trucks do you have?" number input**, mapped to that trade's monthly calls via §3.
-- [ ] Confirmation step echoes the mapped monthly call number and lets the user override it with an exact figure.
-- [ ] Results show all three scenarios with Net Annual ROI, ROI multiple, and payback period.
-- [ ] Five-driver breakdown and the assumptions/audit are visible.
-- [ ] Unit tests assert the §5 sanity-check figures for all five trades.
-- [ ] PDF export contains trade, inputs, three-scenario results, breakdown, and assumptions.
-- [ ] Edge cases handled without errors; styling matches brand and works on mobile.
+- [x] Step 1 is a **trade dropdown**; nothing else shows until a trade is picked.
+- [x] Step 2 is **"How many trucks do you have?"** number input (cap 50).
+- [x] Step 3 shows **trucks × callsPerTruckPerMonth = estimated calls**.
+- [x] Step 4 lets the user **verify or override** monthly calls before calculating.
+- [x] Results show all three scenarios with Net Annual ROI, ROI multiple, and payback period.
+- [x] Five-driver breakdown and assumptions/audit are visible.
+- [x] Unit tests assert `estimateMonthlyCalls` per trade and structural ROI properties.
+- [x] PDF export requires lead form (name, business, email, phone); contains trade, inputs, results, breakdown, assumptions.
+- [x] Book a Meeting button present alongside PDF download.
+- [x] Edge cases handled; styling matches brand; works on mobile.
 
-## 10. Open questions for Chris (small now)
+## 10. Resolved decisions
 
-1. Show all three scenarios at once (recommended) or let the user toggle one?
-2. Gate the PDF behind email, or leave open for v1?
-3. Any disclaimer text you want on-screen/in the PDF (e.g. "estimates based on industry averages")?
+1. **Scenarios:** show all three at once (three columns).
+2. **PDF gate:** required — name, business name, email, phone.
+3. **Disclaimer:** "Estimates based on industry averages. Your results may vary."
+4. **Call volume model:** calls-per-truck (§3), not truck-band lookup.

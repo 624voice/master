@@ -44,7 +44,9 @@ Put these in Tailwind theme / CSS variables and use them everywhere so the featu
 These are the things Cursor can't invent. Have them ready or the specs will stall on placeholders.
 
 **ROI Calculator**
-- Math is **final** — all assumptions come from `624 ROI Calculators Home Services final (1).xlsx` (five trades, three scenarios, five drivers, $1,500/mo price) and are embedded in the PRD as a ready-to-use config. No numbers to supply. Only small UX decisions remain (see the PRD's open questions).
+- Five-driver ROI math is **final** — from `624 ROI Calculators Home Services final (1).xlsx` (five trades, three scenarios, $1,500/mo price), embedded in the PRD config.
+- **Call volume** uses trade-specific **calls-per-truck** rates (not band lookup). See `01-roi-calculator-PRD.md` §3.
+- **Shipped:** `/roi-calculator` with 4-step flow, lead-gated PDF, and Book a Meeting CTA.
 
 **Vapi Voice Demo**
 - A Vapi account with a published assistant.
