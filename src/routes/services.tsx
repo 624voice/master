@@ -13,6 +13,7 @@ import {
   StarIcon,
   ChecklistIcon,
 } from "~/components/icons";
+import { GoogleSchedulingButton } from "~/components/GoogleSchedulingButton";
 
 export const Route = createFileRoute("/services")({
   component: Services,
@@ -285,25 +286,7 @@ function Services() {
                 <strong className="text-white">Free integrations:</strong> GHL, Jobber, Housecall Pro
               </p>
             </div>
-            <a
-              href="/contact"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-            >
-              Get Started
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </a>
+            <GoogleSchedulingButton className="mt-8" />
           </div>
         </div>
       </section>
@@ -328,25 +311,7 @@ function Services() {
               90-day initial commitment required. Month-to-month after that with 30 days' notice.
             </p>
           </div>
-          <a
-            href="/contact"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-          >
-            Start Risk-Free Today
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </a>
+          <GoogleSchedulingButton className="mt-8" />
         </div>
       </section>
     </main>

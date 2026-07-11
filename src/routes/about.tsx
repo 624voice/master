@@ -7,6 +7,7 @@ import {
   RevenueIcon,
   StarIcon,
 } from "~/components/icons";
+import { GoogleSchedulingButton } from "~/components/GoogleSchedulingButton";
 
 export const Route = createFileRoute("/about")({
   component: About,
@@ -154,25 +155,7 @@ function About() {
           <p className="mt-4 text-lg text-gray-300">
             Let's talk about what freedom looks like for you.
           </p>
-          <a
-            href="/contact"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-          >
-            Start the Conversation
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </a>
+          <GoogleSchedulingButton className="mt-8" />
         </div>
       </section>
     </main>

@@ -13,6 +13,7 @@ import {
   RevenueIcon,
   FloatingTradeIcons,
 } from "~/components/icons";
+import { GoogleSchedulingButton } from "~/components/GoogleSchedulingButton";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -50,12 +51,7 @@ function Home() {
             and grows the revenue. 24/7. On the first ring.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-            <a
-              href="/contact"
-              className="rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30"
-            >
-              See It In Action
-            </a>
+            <GoogleSchedulingButton />
             <a
               href="/services"
               className="rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
@@ -415,12 +411,7 @@ function Home() {
                   90-day initial commitment required. Month-to-month after that with 30 days' notice.
                 </p>
               </div>
-              <a
-                href="/contact"
-                className="mt-6 flex w-full items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-              >
-                Get Started Today
-              </a>
+              <GoogleSchedulingButton className="mt-6 flex w-full justify-center" />
             </div>
           </div>
         </div>
@@ -537,25 +528,7 @@ function Home() {
                 90-day initial commitment required. Month-to-month after that with 30 days' notice.
               </p>
             </div>
-            <a
-              href="/contact"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-            >
-              Start Your Risk-Free Trial
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </a>
+            <GoogleSchedulingButton className="mt-8" />
           </div>
         </div>
       </section>
@@ -611,12 +584,7 @@ function Home() {
             their evenings, weekends, and peace of mind back.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <a
-              href="/contact"
-              className="rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-            >
-              Schedule Your Demo
-            </a>
+            <GoogleSchedulingButton />
           </div>
         </div>
       </section>
