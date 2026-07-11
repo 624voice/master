@@ -16,31 +16,33 @@ The original guide described a single "trucks → calls → one ROI number" flow
 - **Three scenarios** shown side by side: Conservative, Moderate, Aggressive.
 - **Five value drivers** summed into the total, not one.
 - Fixed platform price **$1,500/mo ($18,000/yr)** baked into ROI.
-- The "how many trucks" question is the primary input, mapped to monthly calls via a **per-trade truck → call lookup**.
+- The "how many trucks" question is the primary input. Monthly calls are estimated as **trucks × callsPerTruckPerMonth** (trade-specific rate).
 
 ## 2. User flow
 
-1. **Select trade (dropdown) — FIRST.** A `<select>` with Plumbers / Electricians / HVAC / Roofers / Pest Control. This drives every assumption in the model. Nothing else appears until a trade is chosen.
-2. **"How many trucks do you have?" (number input) — SECOND.** The owner types their truck count. We map it to that trade's typical monthly call volume using the §3 table (the count falls into a band → that band's call figure). This is the streamlined path from the original design guide — a question any owner can answer instantly.
-3. **Validate:** show the mapped number back — *"You get about **{calls}** calls a month — is that right?"* — user confirms, or edits the call number directly. This override is where an owner who knows their exact call volume can type it in.
-4. **Show results:** three scenario columns (Conservative / Moderate / Aggressive), each with Net Annual ROI, ROI multiple, and payback period, plus the five-driver breakdown.
-5. **Show assumptions + audit** (the "no double-counting" logic) so it's transparent.
-6. **Download PDF** of the full result.
+1. **Select trade (dropdown) — FIRST.** A `<select>` with Plumbers / Electricians / HVAC / Roofers / Pest Control. Nothing else appears until a trade is chosen.
+2. **"How many trucks do you have?" (number input) — SECOND.** The owner types their truck count.
+3. **Show calculated calls — THIRD.** Display transparent math: `{trucks} × {callsPerTruckPerMonth} = {estimatedCalls}` calls/month.
+4. **Verify — FOURTH.** *"Is that about how many calls you take?"* — pre-filled editable input; user confirms or enters their actual monthly call volume.
+5. **Show results:** three scenario columns (Conservative / Moderate / Aggressive), each with Net Annual ROI, ROI multiple, and payback period, plus the five-driver breakdown.
+6. **Show assumptions + audit** (the "no double-counting" logic) so it's transparent.
+7. **Download PDF** of the full result (gated behind lead capture).
 
-Keep it fast and on one screen — trade dropdown, then trucks, then results. No login for the on-screen result.
+Keep it fast and on one screen. No login for the on-screen result.
 
-## 3. Truck count → monthly calls lookup (per trade)
+## 3. Calls per truck per month (per trade)
 
-Owners always know their truck count but rarely their call count. Map the entered truck number into its band, then use that band's call figure (from the sheet's input notes):
+Monthly calls are estimated as `trucks × callsPerTruckPerMonth`:
 
-| Trucks | Plumbers | Electricians | HVAC | Roofers | Pest Control |
-|--------|----------|--------------|------|---------|--------------|
-| 1–2    | 135      | 100          | 135  | 70      | 200          |
-| 3–6    | 425      | 325          | 400  | 200     | 550          |
-| 7–20   | 1450     | 1150         | 1450 | 475     | 1650         |
-| 20–50  | 3500     | 3150         | 3850 | 1350    | 4250         |
+| Trade | Calls per truck per month |
+|-------|---------------------------|
+| Plumbers | 60 |
+| HVAC | 70 |
+| Electricians | 30 |
+| Pest Control | 35 |
+| Roofers | 20 |
 
-Mapping rule: 1–2 trucks → first row, 3–6 → second, 7–20 → third, 21–50 → fourth. Cap the truck input at 50; for counts above the top band, use the 20–50 figure (or invite them to enter exact calls). The mapped number pre-fills the call field in step 3 and stays overridable.
+Cap truck input at 50. The estimated total pre-fills the verify step and stays overridable.
 
 ## 4. The five value drivers (formulas)
 
@@ -88,28 +90,19 @@ export const SHARED = {
 
 // Order this object so it also drives the trade dropdown
 export const TRADES = {
-  Plumbers:     { label: 'Plumbers',     avgJobValue: 350,  missedCallRate: 0.315, noShowRate: 0.15, baseBookingConv: 0.55, avgUpsellValue: 125, campaignJobs: [2, 4, 6],
-                  trucksToCalls: { '1-2': 135, '3-6': 425, '7-20': 1450, '20-50': 3500 } },
-  Electricians: { label: 'Electricians', avgJobValue: 450,  missedCallRate: 0.225, noShowRate: 0.18, baseBookingConv: 0.50, avgUpsellValue: 200, campaignJobs: [2, 4, 6],
-                  trucksToCalls: { '1-2': 100, '3-6': 325, '7-20': 1150, '20-50': 3150 } },
-  HVAC:         { label: 'HVAC',         avgJobValue: 550,  missedCallRate: 0.30,  noShowRate: 0.20, baseBookingConv: 0.60, avgUpsellValue: 300, campaignJobs: [3, 5, 8],
-                  trucksToCalls: { '1-2': 135, '3-6': 400, '7-20': 1450, '20-50': 3850 } },
-  Roofers:      { label: 'Roofers',      avgJobValue: 3500, missedCallRate: 0.35,  noShowRate: 0.10, baseBookingConv: 0.35, avgUpsellValue: 750, campaignJobs: [1, 2, 3],
-                  trucksToCalls: { '1-2': 70,  '3-6': 200, '7-20': 475,  '20-50': 1350 } },
-  PestControl:  { label: 'Pest Control', avgJobValue: 220,  missedCallRate: 0.26,  noShowRate: 0.12, baseBookingConv: 0.65, avgUpsellValue: 80,  campaignJobs: [4, 7, 10],
-                  trucksToCalls: { '1-2': 200, '3-6': 550, '7-20': 1650, '20-50': 4250 } },
+  Plumbers:     { label: 'Plumbers',     callsPerTruckPerMonth: 60,  avgJobValue: 350,  ... },
+  Electricians: { label: 'Electricians', callsPerTruckPerMonth: 30,  avgJobValue: 450,  ... },
+  HVAC:         { label: 'HVAC',         callsPerTruckPerMonth: 70,  avgJobValue: 550,  ... },
+  Roofers:      { label: 'Roofers',      callsPerTruckPerMonth: 20,  avgJobValue: 3500, ... },
+  PestControl:  { label: 'Pest Control', callsPerTruckPerMonth: 35,  avgJobValue: 220,  ... },
 } as const;
 
-// Map a truck count to its band key
-export function trucksToBand(n: number): '1-2' | '3-6' | '7-20' | '20-50' {
-  if (n <= 2) return '1-2';
-  if (n <= 6) return '3-6';
-  if (n <= 20) return '7-20';
-  return '20-50';
+export function estimateMonthlyCalls(trade: TradeKey, truckCount: number): number {
+  return truckCount * TRADES[trade].callsPerTruckPerMonth;
 }
 ```
 
-**Sanity check (Cursor: assert these in a unit test).** With default 7–20 truck volumes, Conservative Net Annual ROI should be: Plumbers ≈ $414,164; Electricians ≈ $373,149; HVAC = $752,040; Roofers ≈ $1,242,469; Pest Control ≈ $272,396.
+**Unit tests:** assert `estimateMonthlyCalls` for each trade (e.g. Plumbers 5 trucks → 300, HVAC 10 trucks → 700) and structural ROI properties.
 
 ## 6. Results display
 
@@ -134,7 +127,7 @@ export function trucksToBand(n: number): '1-2' | '3-6' | '7-20' | '20-50' {
 
 - Route: `src/routes/roi-calculator.tsx`.
 - Extract `computeRoi(trade, calls, scenarioIndex)` and `computeAllScenarios(trade, calls)` as pure functions with unit tests — this is the credibility-critical code.
-- Trade dropdown is populated from `TRADES` (keeps UI and model in sync). Truck input drives `trucksToBand` → `trucksToCalls`.
+- Trade dropdown is populated from `TRADES`. Truck input drives `estimateMonthlyCalls(trade, truckCount)`.
 - All numbers come from `roiModel.ts`; never hardcode in JSX so screen + PDF always agree.
 - Guard inputs (blank/0/huge trucks; unknown trade). Cap trucks at 50.
 - Style with brand tokens (see 00-README).

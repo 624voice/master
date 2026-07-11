@@ -23,10 +23,10 @@ import {
   formatPaybackMonths,
 } from "~/lib/roi/formatCurrency";
 import {
+  estimateMonthlyCalls,
   getTradeKeys,
   SCENARIOS,
   TRADES,
-  trucksToCalls,
   type TradeKey,
 } from "~/lib/roi/roiModel";
 import { generateRoiPdf } from "~/server/generateRoiPdf";
@@ -59,13 +59,18 @@ export function RoiCalculator() {
     ? Math.min(truckCount, MAX_TRUCK_COUNT)
     : null;
 
-  const mappedCalls =
+  const estimatedCalls =
     trade !== "" && clampedTrucks !== null
-      ? trucksToCalls(trade, clampedTrucks)
+      ? estimateMonthlyCalls(trade, clampedTrucks)
       : null;
 
+  const callsPerTruck =
+    trade !== "" ? TRADES[trade].callsPerTruckPerMonth : null;
+
   const effectiveCallsInput =
-    callsTouched && callsInput !== "" ? callsInput : String(mappedCalls ?? "");
+    callsTouched && callsInput !== ""
+      ? callsInput
+      : String(estimatedCalls ?? "");
 
   const monthlyCalls = parseInt(effectiveCallsInput, 10);
   const hasValidCalls = Number.isFinite(monthlyCalls) && monthlyCalls > 0;
@@ -213,18 +218,48 @@ export function RoiCalculator() {
             </div>
           )}
 
-          {/* Step 3: Confirm calls */}
-          {trade !== "" && hasValidTrucks && mappedCalls !== null && (
+          {/* Step 3: Show calculated calls */}
+          {trade !== "" &&
+            hasValidTrucks &&
+            clampedTrucks !== null &&
+            estimatedCalls !== null &&
+            callsPerTruck !== null && (
+            <div className="animate-fade-in rounded-xl border border-gray-200 bg-brand-accent-light p-6">
+              <p className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
+                Step 3 — Estimated monthly calls
+              </p>
+              <p className="mt-3 text-sm text-gray-700">
+                <span className="font-semibold text-brand-secondary">
+                  {clampedTrucks.toLocaleString("en-US")}
+                </span>{" "}
+                trucks ×{" "}
+                <span className="font-semibold text-brand-secondary">
+                  {callsPerTruck}
+                </span>{" "}
+                calls/truck ={" "}
+                <span className="font-semibold text-brand-primary">
+                  {estimatedCalls.toLocaleString("en-US")}
+                </span>{" "}
+                calls/month
+              </p>
+            </div>
+          )}
+
+          {/* Step 4: Verify calls */}
+          {trade !== "" &&
+            hasValidTrucks &&
+            estimatedCalls !== null && (
             <div className="animate-fade-in rounded-xl bg-[#18222f] p-6 text-white">
               <p className="font-[family-name:var(--font-heading)] text-lg font-medium">
-                Step 3 — Confirm your call volume
+                Step 4 — Verify your call volume
               </p>
               <p className="mt-2 text-sm text-gray-300">
-                You get about{" "}
+                Is{" "}
                 <strong className="text-brand-primary">
-                  {mappedCalls.toLocaleString("en-US")}
+                  {estimatedCalls.toLocaleString("en-US")}
                 </strong>{" "}
-                calls a month — is that right?
+                about how many calls you take per month? If not, enter your
+                actual monthly call volume below.
               </p>
               <label
                 htmlFor="calls"

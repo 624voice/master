@@ -18,6 +18,7 @@ export function getAssumptionLines(trade: TradeKey): string[] {
   const t = TRADES[trade];
   return [
     `Trade: ${t.label}`,
+    `Estimated ${t.callsPerTruckPerMonth} calls per truck per month`,
     `Average job value: ${t.avgJobValue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}`,
     `Missed call rate: ${(t.missedCallRate * 100).toFixed(1)}%`,
     `No-show rate: ${(t.noShowRate * 100).toFixed(0)}%`,

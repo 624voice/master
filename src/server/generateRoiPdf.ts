@@ -121,9 +121,10 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     drawText(`Prepared for: ${normalizedLead.name}`, { size: 11 });
     drawText(`Business: ${normalizedLead.businessName}`, { size: 11 });
     drawText(`Trucks: ${truckCount}`, { size: 11 });
-    drawText(`Monthly inbound calls used: ${monthlyCalls.toLocaleString("en-US")}`, {
-      size: 11,
-    });
+    drawText(
+      `Call estimate: ${truckCount} trucks × ${TRADES[trade].callsPerTruckPerMonth} calls/truck = ${monthlyCalls.toLocaleString("en-US")} calls/mo`,
+      { size: 11 },
+    );
     y -= 8;
 
     drawText("Three-Scenario Summary", { size: 13, bold: true });

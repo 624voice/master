@@ -1,65 +1,42 @@
 import { describe, expect, test } from "bun:test";
 import { computeAllScenarios, computeRoi } from "./computeRoi";
-import {
-  TRADES,
-  trucksToBand,
-  trucksToCalls,
-  type TradeKey,
-} from "./roiModel";
+import { estimateMonthlyCalls, type TradeKey } from "./roiModel";
 
-const SANITY_CHECKS: Record<TradeKey, number> = {
-  Plumbers: 414_164,
-  Electricians: 373_149,
-  HVAC: 752_040,
-  Roofers: 1_242_469,
-  PestControl: 272_396,
-};
-
-const TRUCK_COUNT_7_20 = 10;
-
-describe("trucksToBand", () => {
-  test("maps truck counts to correct bands", () => {
-    expect(trucksToBand(1)).toBe("1-2");
-    expect(trucksToBand(2)).toBe("1-2");
-    expect(trucksToBand(3)).toBe("3-6");
-    expect(trucksToBand(7)).toBe("7-20");
-    expect(trucksToBand(21)).toBe("20-50");
-    expect(trucksToBand(50)).toBe("20-50");
-  });
-});
-
-describe("trucksToCalls", () => {
-  test("returns band call volumes for each trade at 7-20 band", () => {
-    expect(trucksToCalls("Plumbers", TRUCK_COUNT_7_20)).toBe(1450);
-    expect(trucksToCalls("Electricians", TRUCK_COUNT_7_20)).toBe(1150);
-    expect(trucksToCalls("HVAC", TRUCK_COUNT_7_20)).toBe(1450);
-    expect(trucksToCalls("Roofers", TRUCK_COUNT_7_20)).toBe(475);
-    expect(trucksToCalls("PestControl", TRUCK_COUNT_7_20)).toBe(1650);
+describe("estimateMonthlyCalls", () => {
+  test("Plumbers 5 trucks → 300", () => {
+    expect(estimateMonthlyCalls("Plumbers", 5)).toBe(300);
   });
 
-  test("maps band boundaries correctly for plumbers", () => {
-    expect(trucksToCalls("Plumbers", 1)).toBe(135);
-    expect(trucksToCalls("Plumbers", 3)).toBe(425);
-    expect(trucksToCalls("Plumbers", 21)).toBe(3500);
+  test("HVAC 10 trucks → 700", () => {
+    expect(estimateMonthlyCalls("HVAC", 10)).toBe(700);
   });
-});
 
-describe("computeRoi sanity checks (Conservative, 7-20 truck band)", () => {
-  for (const trade of Object.keys(TRADES) as TradeKey[]) {
-    test(`${trade} matches spreadsheet Conservative net annual ROI`, () => {
-      const calls = trucksToCalls(trade, TRUCK_COUNT_7_20);
-      const result = computeRoi(trade, calls, 0);
-      expect(result.netAnnualROI).toBeCloseTo(SANITY_CHECKS[trade], -1);
-    });
-  }
+  test("Electricians 3 trucks → 90", () => {
+    expect(estimateMonthlyCalls("Electricians", 3)).toBe(90);
+  });
+
+  test("PestControl 4 trucks → 140", () => {
+    expect(estimateMonthlyCalls("PestControl", 4)).toBe(140);
+  });
+
+  test("Roofers 2 trucks → 40", () => {
+    expect(estimateMonthlyCalls("Roofers", 2)).toBe(40);
+  });
 });
 
 describe("computeAllScenarios", () => {
-  test("returns three scenarios in order", () => {
-    const results = computeAllScenarios("HVAC", 1450);
+  test("returns three scenarios in increasing order", () => {
+    const results = computeAllScenarios("HVAC", 700);
     expect(results).toHaveLength(3);
     expect(results[0]!.netAnnualROI).toBeLessThan(results[1]!.netAnnualROI);
     expect(results[1]!.netAnnualROI).toBeLessThan(results[2]!.netAnnualROI);
+  });
+});
+
+describe("computeRoi spot-check", () => {
+  test("HVAC conservative at 700 calls/mo", () => {
+    const result = computeRoi("HVAC", 700, 0);
+    expect(result.netAnnualROI).toBe(368_640);
   });
 });
 
@@ -71,13 +48,8 @@ describe("edge cases", () => {
     expect(result.drivers.timeSavings.annualValue).toBeGreaterThan(0);
   });
 
-  test("HVAC conservative is exact at 752040", () => {
-    const result = computeRoi("HVAC", 1450, 0);
-    expect(result.netAnnualROI).toBe(752_040);
-  });
-
   test("driver breakdown sums to total annual benefit", () => {
-    const result = computeRoi("Roofers", 475, 1);
+    const result = computeRoi("Roofers", 40, 1);
     const driverSum =
       result.drivers.missedCallRecovery.annualValue +
       result.drivers.noShowReduction.annualValue +
@@ -86,4 +58,20 @@ describe("edge cases", () => {
       result.drivers.timeSavings.annualValue;
     expect(driverSum).toBe(result.totalAnnualBenefit);
   });
+});
+
+describe("estimateMonthlyCalls scales linearly", () => {
+  for (const trade of [
+    "Plumbers",
+    "HVAC",
+    "Electricians",
+    "Roofers",
+    "PestControl",
+  ] as TradeKey[]) {
+    test(`${trade} doubles when truck count doubles`, () => {
+      expect(estimateMonthlyCalls(trade, 4)).toBe(
+        estimateMonthlyCalls(trade, 2) * 2,
+      );
+    });
+  }
 });
