@@ -33,7 +33,7 @@ export const Route = createRootRoute({
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600&family=Comfortaa:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap",
       },
     ],
   }),
@@ -95,6 +95,12 @@ function Nav() {
             Services
           </a>
           <a
+            href="/roi-calculator"
+            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
+          >
+            ROI Calculator
+          </a>
+          <a
             href="/contact"
             className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
           >
@@ -145,6 +151,12 @@ function Nav() {
                 className="text-sm font-medium text-gray-600 hover:text-brand-primary"
               >
                 Services
+              </a>
+              <a
+                href="/roi-calculator"
+                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
+              >
+                ROI Calculator
               </a>
               <a
                 href="/contact"
@@ -199,6 +211,12 @@ function Footer() {
                 className="text-sm text-gray-400 transition-colors hover:text-white"
               >
                 Services
+              </a>
+              <a
+                href="/roi-calculator"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                ROI Calculator
               </a>
               <a
                 href="/contact"

@@ -323,7 +323,13 @@ function Home() {
             />
           </div>
           <div className="mt-12 text-center">
-            <p className="text-sm text-gray-500">
+            <a
+              href="/roi-calculator"
+              className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
+            >
+              Calculate Your ROI
+            </a>
+            <p className="mt-4 text-sm text-gray-500">
               *Based on average results across our client portfolio. Your results may vary.
             </p>
           </div>
