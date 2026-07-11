@@ -98,7 +98,7 @@ function Nav() {
             href="/roi-calculator"
             className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
           >
-            ROI Calculator
+            See What You&apos;re Missing
           </a>
           <a
             href="/contact"
@@ -156,7 +156,7 @@ function Nav() {
                 href="/roi-calculator"
                 className="text-sm font-medium text-gray-600 hover:text-brand-primary"
               >
-                ROI Calculator
+                See What You&apos;re Missing
               </a>
               <a
                 href="/contact"
@@ -216,7 +216,7 @@ function Footer() {
                 href="/roi-calculator"
                 className="text-sm text-gray-400 transition-colors hover:text-white"
               >
-                ROI Calculator
+                See What You&apos;re Missing
               </a>
               <a
                 href="/contact"

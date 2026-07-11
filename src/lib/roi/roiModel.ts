@@ -1,4 +1,13 @@
-export const SCENARIOS = ["Conservative", "Moderate", "Aggressive"] as const;
+import {
+  estimateMonthlyCalls,
+  getTradeKeys,
+  tradeToSlug,
+  type TradeKey,
+} from "./callVolume";
+import { SCENARIOS } from "./scenarioDisplay";
+
+export { estimateMonthlyCalls, getTradeKeys, tradeToSlug, type TradeKey };
+export { SCENARIOS };
 
 export const SHARED = {
   recoveredBookingRate: [0.15, 0.25, 0.35],
@@ -62,20 +71,4 @@ export const TRADES = {
   },
 } as const;
 
-export type TradeKey = keyof typeof TRADES;
 export type ScenarioIndex = 0 | 1 | 2;
-
-export function estimateMonthlyCalls(
-  trade: TradeKey,
-  truckCount: number,
-): number {
-  return truckCount * TRADES[trade].callsPerTruckPerMonth;
-}
-
-export function getTradeKeys(): TradeKey[] {
-  return Object.keys(TRADES) as TradeKey[];
-}
-
-export function tradeToSlug(trade: TradeKey): string {
-  return trade.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}

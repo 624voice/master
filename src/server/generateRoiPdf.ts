@@ -7,17 +7,18 @@ import {
 } from "~/lib/lead/validateLead";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import {
-  AUDIT_NOTES,
-  getAssumptionLines,
+  getSlippingAwayAnnual,
+  getUntappedUpsideAnnual,
   SCENARIO_LABELS,
 } from "~/lib/roi/formatAssumptions";
-import { formatCurrency, formatMultiple, formatPaybackMonths } from "~/lib/roi/formatCurrency";
+import { formatCurrency } from "~/lib/roi/formatCurrency";
 import {
   SCENARIOS,
   TRADES,
   tradeToSlug,
   type TradeKey,
 } from "~/lib/roi/roiModel";
+import { saveLead } from "~/server/leads";
 
 export type PdfRequest = {
   trade: TradeKey;
@@ -49,6 +50,14 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     if (!TRADES[trade]) {
       throw new Error("Invalid trade");
     }
+
+    await saveLead({
+      ...normalizedLead,
+      trade,
+      monthlyCalls,
+      truckCount,
+      source: "missing_money_pdf",
+    });
 
     const scenarios = computeAllScenarios(trade, monthlyCalls);
     const tradeLabel = TRADES[trade].label;
@@ -108,7 +117,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       height: 36,
       color: emerald,
     });
-    page.drawText("624 Voice — ROI Estimate", {
+    page.drawText("624 Voice — Revenue You're Missing", {
       x: margin + 8,
       y: y - 8,
       size: 18,
@@ -127,19 +136,38 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     );
     y -= 8;
 
-    drawText("Three-Scenario Summary", { size: 13, bold: true });
+    drawText("Here's the money you're missing every year.", {
+      size: 13,
+      bold: true,
+    });
 
     for (let i = 0; i < scenarios.length; i++) {
       const result = scenarios[i]!;
+      const scenarioPrefix =
+        i === 0
+          ? `${SCENARIOS[i]} (${SCENARIO_LABELS[i]})`
+          : `${SCENARIOS[i]} — and up to ${SCENARIO_LABELS[i]}`;
+
+      drawText(scenarioPrefix, { size: 11, bold: true, indent: 8 });
       drawText(
-        `${SCENARIOS[i]} (${SCENARIO_LABELS[i]})`,
-        { size: 11, bold: true, indent: 8 },
-      );
-      drawText(`Net Annual ROI: ${formatCurrency(result.netAnnualROI)}`, { indent: 16 });
-      drawText(`ROI Multiple: ${formatMultiple(result.roiMultiple)}`, { indent: 16 });
-      drawText(
-        `Payback: ${formatPaybackMonths(result.paybackMonths)}`,
+        `Revenue you're missing / year: ${formatCurrency(result.totalAnnualBenefit)}`,
         { indent: 16 },
+      );
+      drawText(
+        `Slipping away right now: ${formatCurrency(getSlippingAwayAnnual(result.drivers))}/yr`,
+        { indent: 16, color: gray },
+      );
+      drawText(
+        `  Missed-Call Recovery + No-Show Reduction`,
+        { size: 10, indent: 16, color: gray },
+      );
+      drawText(
+        `Untapped upside: ${formatCurrency(getUntappedUpsideAnnual(result.drivers))}/yr`,
+        { indent: 16, color: gray },
+      );
+      drawText(
+        `  Outbound Campaigns + Job-Closer Upsells + Time Savings`,
+        { size: 10, indent: 16, color: gray },
       );
     }
 
@@ -155,21 +183,9 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       );
     }
 
-    y -= 8;
-    drawText("Assumptions", { size: 13, bold: true });
-    for (const line of getAssumptionLines(trade)) {
-      drawText(line, { size: 10, indent: 8, color: gray });
-    }
-
-    y -= 4;
-    drawText("Audit — No Double Counting", { size: 13, bold: true });
-    for (const note of AUDIT_NOTES) {
-      drawText(note, { size: 10, indent: 8, color: gray });
-    }
-
     const pdfBytes = await pdf.save();
     const base64 = Buffer.from(pdfBytes).toString("base64");
-    const filename = `624-voice-roi-${tradeToSlug(trade)}.pdf`;
+    const filename = `624-voice-missing-revenue-${tradeToSlug(trade)}.pdf`;
 
     return { base64, filename };
   });

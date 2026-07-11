@@ -5,31 +5,25 @@ import {
   BOOK_MEETING_URL,
   FEATURE_FLAGS,
   MAX_TRUCK_COUNT,
-  ROI_DISCLAIMER,
 } from "~/config/features";
 import {
   validateLeadInfo,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
-import { computeAllScenarios } from "~/lib/roi/computeRoi";
-import {
-  AUDIT_NOTES,
-  getAssumptionLines,
-  SCENARIO_LABELS,
-} from "~/lib/roi/formatAssumptions";
-import {
-  formatCurrency,
-  formatMultiple,
-  formatPaybackMonths,
-} from "~/lib/roi/formatCurrency";
 import {
   estimateMonthlyCalls,
   getTradeKeys,
-  SCENARIOS,
   TRADES,
   type TradeKey,
-} from "~/lib/roi/roiModel";
+} from "~/lib/roi/callVolume";
+import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { generateRoiPdf } from "~/server/generateRoiPdf";
+import {
+  getFullBreakdown,
+  getTeaserRevenue,
+  unlockRevenue,
+  type ScenarioBreakdown,
+} from "~/server/revenueResults";
 
 const inputClassName =
   "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
@@ -41,13 +35,171 @@ const emptyLead: LeadInfo = {
   phone: "",
 };
 
+const DRIVER_LABELS = [
+  "Missed-Call Recovery",
+  "No-Show Reduction",
+  "Outbound SMS Campaigns",
+  "Job-Closer Upsells",
+  "Time Savings",
+] as const;
+
+function LockedBreakdownSkeleton() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none select-none space-y-8">
+      <div className="grid gap-4 md:grid-cols-3">
+        {["Conservative", "Moderate", "Aggressive"].map((name, index) => (
+          <div
+            key={name}
+            className={`rounded-xl border p-5 ${
+              index === 0
+                ? "border-brand-primary bg-emerald-50/50"
+                : "border-gray-200 bg-white"
+            }`}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-accent">
+              {name}
+            </p>
+            <div className="mt-3 h-8 w-3/4 rounded bg-gray-200" />
+            <div className="mt-2 h-4 w-1/2 rounded bg-gray-100" />
+            <div className="mt-4 space-y-3 border-t border-gray-200 pt-4">
+              <div className="h-4 w-full rounded bg-gray-100" />
+              <div className="h-6 w-2/3 rounded bg-gray-200" />
+              <div className="h-4 w-full rounded bg-gray-100" />
+              <div className="h-6 w-2/3 rounded bg-gray-200" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="rounded-lg border border-gray-200 p-4">
+        <div className="h-5 w-1/2 rounded bg-gray-200" />
+        <div className="mt-4 space-y-3">
+          {DRIVER_LABELS.map((label) => (
+            <div key={label} className="flex justify-between gap-4">
+              <div className="h-4 w-1/3 rounded bg-gray-100" />
+              <div className="h-4 w-1/4 rounded bg-gray-200" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BreakdownResults({
+  scenarios,
+  showDrivers,
+  onToggleDrivers,
+}: {
+  scenarios: ScenarioBreakdown[];
+  showDrivers: boolean;
+  onToggleDrivers: () => void;
+}) {
+  const moderate = scenarios[1];
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-3">
+        {scenarios.map((result, index) => (
+          <div
+            key={result.scenario}
+            className={`rounded-xl border p-5 ${
+              index === 0
+                ? "border-brand-primary bg-emerald-50/50 ring-2 ring-brand-primary/20"
+                : "border-gray-200 bg-white"
+            }`}
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-accent">
+              {result.scenario}
+            </p>
+            <p className="text-sm text-gray-500">
+              {index === 0
+                ? result.scenarioLabel
+                : `And up to ${result.scenarioLabel}`}
+            </p>
+            <p className="mt-3 text-2xl font-bold text-brand-secondary">
+              {formatCurrency(result.total)}
+            </p>
+            <p className="mt-1 text-sm text-gray-600">
+              Revenue you&apos;re missing / year
+            </p>
+            <div className="mt-4 space-y-3 border-t border-gray-200 pt-4 text-sm">
+              <div>
+                <p className="font-semibold text-brand-secondary">
+                  Slipping away right now
+                </p>
+                <p className="mt-0.5 font-semibold text-brand-primary">
+                  {formatCurrency(result.missingNow)}/yr
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Missed-Call Recovery + No-Show Reduction
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-brand-secondary">
+                  Untapped upside
+                </p>
+                <p className="mt-0.5 font-semibold text-brand-primary">
+                  {formatCurrency(result.upside)}/yr
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Outbound Campaigns + Job-Closer Upsells + Time Savings
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={onToggleDrivers}
+          className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-brand-secondary hover:bg-gray-50"
+        >
+          <span>Five value drivers (Moderate scenario)</span>
+          <span className="text-brand-accent">{showDrivers ? "−" : "+"}</span>
+        </button>
+        {showDrivers && moderate && (
+          <div className="mt-2 space-y-3 rounded-lg border border-gray-100 bg-brand-accent-light p-4">
+            {moderate.drivers.map((driver) => (
+              <div
+                key={driver.key}
+                className="flex flex-col gap-1 border-b border-gray-200 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-medium text-brand-secondary">
+                    {driver.label}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {driver.monthlyUnits}{" "}
+                    {driver.label === "Time Savings"
+                      ? "admin hrs/mo"
+                      : "jobs or appts/mo"}
+                  </p>
+                </div>
+                <p className="text-sm font-semibold text-brand-primary">
+                  {formatCurrency(driver.annualValue)}/yr
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function RoiCalculator() {
   const [trade, setTrade] = useState<TradeKey | "">("");
   const [truckInput, setTruckInput] = useState("");
   const [callsInput, setCallsInput] = useState("");
   const [callsTouched, setCallsTouched] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
+  const [hero, setHero] = useState<number | null>(null);
+  const [breakdown, setBreakdown] = useState<ScenarioBreakdown[] | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
   const [showDrivers, setShowDrivers] = useState(false);
+  const [loadingTeaser, setLoadingTeaser] = useState(false);
+  const [loadingUnlock, setLoadingUnlock] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<LeadInfo>(emptyLead);
@@ -75,55 +227,99 @@ export function RoiCalculator() {
   const monthlyCalls = parseInt(effectiveCallsInput, 10);
   const hasValidCalls = Number.isFinite(monthlyCalls) && monthlyCalls > 0;
 
-  const results =
-    confirmed && trade !== "" && hasValidCalls
-      ? computeAllScenarios(trade, monthlyCalls)
-      : null;
+  const resultsGateActive =
+    FEATURE_FLAGS.REQUIRE_LEAD_FOR_RESULTS && !unlocked;
+  const showResults = hero !== null;
 
-  const leadError = validateLeadInfo(lead);
-  const canDownloadPdf = leadError === null;
+  const resetResults = () => {
+    setHero(null);
+    setBreakdown(null);
+    setUnlocked(false);
+    setShowDrivers(false);
+    setError(null);
+  };
 
   const handleTradeChange = (value: string) => {
     setTrade(value as TradeKey | "");
     setTruckInput("");
     setCallsInput("");
     setCallsTouched(false);
-    setConfirmed(false);
-    setShowDrivers(false);
-    setError(null);
+    resetResults();
   };
 
   const handleTruckChange = (value: string) => {
     setTruckInput(value);
     setCallsTouched(false);
     setCallsInput("");
-    setConfirmed(false);
-    setShowDrivers(false);
-    setError(null);
+    resetResults();
   };
 
   const handleCallsChange = (value: string) => {
     setCallsInput(value);
     setCallsTouched(true);
-    setConfirmed(false);
-    setShowDrivers(false);
+    resetResults();
   };
 
-  const handleConfirm = () => {
-    if (hasValidCalls) {
-      setConfirmed(true);
-      setError(null);
+  const handleConfirm = async () => {
+    if (!trade || !hasValidCalls) return;
+
+    setLoadingTeaser(true);
+    setError(null);
+    resetResults();
+
+    try {
+      const { hero: teaserHero } = await getTeaserRevenue({
+        data: { trade, monthlyCalls },
+      });
+      setHero(teaserHero);
+
+      if (!FEATURE_FLAGS.REQUIRE_LEAD_FOR_RESULTS) {
+        const { scenarios } = await getFullBreakdown({
+          data: { trade, monthlyCalls },
+        });
+        setBreakdown(scenarios);
+        setUnlocked(true);
+      }
+    } catch {
+      setError("Could not load your estimate. Please try again.");
+    } finally {
+      setLoadingTeaser(false);
     }
   };
 
-  const handleDownloadPdf = async () => {
-    if (!trade || !clampedTrucks || !hasValidCalls || !results) return;
+  const handleUnlock = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!trade || !hasValidCalls) return;
 
     const validationError = validateLeadInfo(lead);
     if (validationError) {
       setError(validationError);
       return;
     }
+
+    setLoadingUnlock(true);
+    setError(null);
+
+    try {
+      const { scenarios } = await unlockRevenue({
+        data: { trade, monthlyCalls, lead },
+      });
+      setBreakdown(scenarios);
+      setUnlocked(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not unlock your breakdown. Please try again.",
+      );
+    } finally {
+      setLoadingUnlock(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!trade || !clampedTrucks || !hasValidCalls || !unlocked || !breakdown)
+      return;
 
     setDownloading(true);
     setError(null);
@@ -151,8 +347,12 @@ export function RoiCalculator() {
       link.download = filename;
       link.click();
       URL.revokeObjectURL(url);
-    } catch {
-      setError("Could not generate PDF. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not generate PDF. Please try again.",
+      );
     } finally {
       setDownloading(false);
     }
@@ -164,14 +364,13 @@ export function RoiCalculator() {
   };
 
   return (
-    <div className="font-[family-name:var(--font-body)]">
+    <div>
       <Card className="mx-auto max-w-5xl">
         <div className="space-y-8">
-          {/* Step 1: Trade */}
           <div>
             <label
               htmlFor="trade"
-              className="block font-[family-name:var(--font-emphasis)] text-sm font-bold text-brand-secondary"
+              className="block text-sm font-bold text-brand-secondary"
             >
               Step 1 — Select your trade
             </label>
@@ -190,12 +389,11 @@ export function RoiCalculator() {
             </select>
           </div>
 
-          {/* Step 2: Trucks */}
           {trade !== "" && (
             <div className="animate-fade-in">
               <label
                 htmlFor="trucks"
-                className="block font-[family-name:var(--font-emphasis)] text-sm font-bold text-brand-secondary"
+                className="block text-sm font-bold text-brand-secondary"
               >
                 Step 2 — How many trucks do you have?
               </label>
@@ -218,14 +416,13 @@ export function RoiCalculator() {
             </div>
           )}
 
-          {/* Step 3: Show calculated calls */}
           {trade !== "" &&
             hasValidTrucks &&
             clampedTrucks !== null &&
             estimatedCalls !== null &&
             callsPerTruck !== null && (
             <div className="animate-fade-in rounded-xl border border-gray-200 bg-brand-accent-light p-6">
-              <p className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
+              <p className="text-lg font-semibold text-brand-secondary">
                 Step 3 — Estimated monthly calls
               </p>
               <p className="mt-3 text-sm text-gray-700">
@@ -245,12 +442,9 @@ export function RoiCalculator() {
             </div>
           )}
 
-          {/* Step 4: Verify calls */}
-          {trade !== "" &&
-            hasValidTrucks &&
-            estimatedCalls !== null && (
+          {trade !== "" && hasValidTrucks && estimatedCalls !== null && (
             <div className="animate-fade-in rounded-xl bg-[#18222f] p-6 text-white">
-              <p className="font-[family-name:var(--font-heading)] text-lg font-medium">
+              <p className="text-lg font-semibold">
                 Step 4 — Verify your call volume
               </p>
               <p className="mt-2 text-sm text-gray-300">
@@ -279,241 +473,205 @@ export function RoiCalculator() {
                 <Button
                   type="button"
                   onClick={handleConfirm}
-                  disabled={!hasValidCalls}
+                  disabled={!hasValidCalls || loadingTeaser}
                 >
-                  Calculate ROI
+                  {loadingTeaser
+                    ? "Calculating…"
+                    : "Show Me What I'm Missing"}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Results */}
-          {results && (
+          {showResults && hero !== null && (
             <div className="animate-slide-up space-y-8">
-              <div>
-                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-medium text-brand-secondary">
-                  Your estimated annual ROI
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
+              <div className="rounded-xl border border-brand-primary/30 bg-emerald-50/60 p-8 text-center">
+                <p className="text-sm font-semibold uppercase tracking-wider text-brand-accent">
+                  Conservative estimate
+                </p>
+                <p className="mt-3 text-4xl font-extrabold tracking-tight text-brand-secondary sm:text-5xl">
+                  You&apos;re missing about{" "}
+                  <span className="text-brand-primary">
+                    {formatCurrency(hero)}+
+                  </span>{" "}
+                  every year
+                </p>
+                <p className="mt-3 text-sm text-gray-600">
                   {TRADES[trade].label} · {clampedTrucks} trucks ·{" "}
                   {monthlyCalls.toLocaleString("en-US")} calls/mo
                 </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                {results.map((result, index) => (
-                  <div
-                    key={SCENARIOS[index]}
-                    className={`rounded-xl border p-5 ${
-                      index === 1
-                        ? "border-brand-primary bg-emerald-50/50"
-                        : "border-gray-200 bg-white"
-                    }`}
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-wider text-brand-accent">
-                      {SCENARIOS[index]}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {SCENARIO_LABELS[index]}
-                    </p>
-                    <p className="mt-3 font-[family-name:var(--font-emphasis)] text-2xl font-bold text-brand-secondary">
-                      {formatCurrency(result.netAnnualROI)}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600">
-                      Net Annual ROI
-                    </p>
-                    <div className="mt-4 space-y-1 text-sm text-gray-600">
-                      <p>
-                        ROI multiple:{" "}
-                        <span className="font-semibold text-brand-primary">
-                          {formatMultiple(result.roiMultiple)}
-                        </span>
-                      </p>
-                      <p>
-                        Payback:{" "}
-                        <span className="font-semibold">
-                          {formatPaybackMonths(result.paybackMonths)}
-                        </span>
-                      </p>
+              <div className="relative">
+                {resultsGateActive ? (
+                  <>
+                    <div className="blur-sm">
+                      <LockedBreakdownSkeleton />
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setShowDrivers((v) => !v)}
-                  className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-brand-secondary hover:bg-gray-50"
-                >
-                  <span>Five value drivers (Moderate scenario)</span>
-                  <span className="text-brand-accent">{showDrivers ? "−" : "+"}</span>
-                </button>
-                {showDrivers && (
-                  <div className="mt-2 space-y-3 rounded-lg border border-gray-100 bg-brand-accent-light p-4">
-                    {(
-                      Object.values(results[1]!.drivers) as Array<{
-                        label: string;
-                        monthlyUnits: number;
-                        annualValue: number;
-                      }>
-                    ).map((driver) => (
-                      <div
-                        key={driver.label}
-                        className="flex flex-col gap-1 border-b border-gray-200 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-brand-secondary">
-                            {driver.label}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {driver.monthlyUnits}{" "}
-                            {driver.label === "Time Savings"
-                              ? "admin hrs/mo"
-                              : "jobs or appts/mo"}
-                          </p>
-                        </div>
-                        <p className="text-sm font-semibold text-brand-primary">
-                          {formatCurrency(driver.annualValue)}/yr
+                    <div className="absolute inset-0 flex items-start justify-center bg-white/40 p-4 pt-8 backdrop-blur-[2px] sm:items-center sm:p-8">
+                      <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+                        <h3 className="text-xl font-bold tracking-tight text-brand-secondary">
+                          Unlock your full breakdown
+                        </h3>
+                        <p className="mt-2 text-sm text-gray-600">
+                          See all three scenarios, bucket totals, and per-driver
+                          detail — plus download your PDF report.
                         </p>
+                        <form
+                          onSubmit={handleUnlock}
+                          className="mt-6 grid gap-4 sm:grid-cols-2"
+                        >
+                          <div className="sm:col-span-2">
+                            <label
+                              htmlFor="unlock-name"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Name
+                            </label>
+                            <input
+                              id="unlock-name"
+                              type="text"
+                              value={lead.name}
+                              onChange={(e) =>
+                                updateLead("name", e.target.value)
+                              }
+                              placeholder="John Smith"
+                              className={inputClassName}
+                              autoComplete="name"
+                              required
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label
+                              htmlFor="unlock-business"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Business name
+                            </label>
+                            <input
+                              id="unlock-business"
+                              type="text"
+                              value={lead.businessName}
+                              onChange={(e) =>
+                                updateLead("businessName", e.target.value)
+                              }
+                              placeholder="Your Company LLC"
+                              className={inputClassName}
+                              autoComplete="organization"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label
+                              htmlFor="unlock-email"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Email
+                            </label>
+                            <input
+                              id="unlock-email"
+                              type="email"
+                              value={lead.email}
+                              onChange={(e) =>
+                                updateLead("email", e.target.value)
+                              }
+                              placeholder="john@yourcompany.com"
+                              className={inputClassName}
+                              autoComplete="email"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label
+                              htmlFor="unlock-phone"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Phone number
+                            </label>
+                            <input
+                              id="unlock-phone"
+                              type="tel"
+                              value={lead.phone}
+                              onChange={(e) =>
+                                updateLead("phone", e.target.value)
+                              }
+                              placeholder="(555) 123-4567"
+                              className={inputClassName}
+                              autoComplete="tel"
+                              required
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <Button
+                              type="submit"
+                              disabled={loadingUnlock}
+                              className="w-full"
+                            >
+                              {loadingUnlock
+                                ? "Unlocking…"
+                                : "Unlock Full Breakdown"}
+                            </Button>
+                          </div>
+                        </form>
+                        {error && (
+                          <p className="mt-3 text-sm text-red-600" role="alert">
+                            {error}
+                          </p>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                  </>
+                ) : (
+                  breakdown && (
+                    <BreakdownResults
+                      scenarios={breakdown}
+                      showDrivers={showDrivers}
+                      onToggleDrivers={() => setShowDrivers((v) => !v)}
+                    />
+                  )
+                )}
+              </div>
+
+              {unlocked && breakdown && (
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <h3 className="text-lg font-semibold text-brand-secondary">
+                    Your full report
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Download a PDF of your complete revenue gap estimate or book
+                    a call with our team.
+                  </p>
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                    <a href={BOOK_MEETING_URL}>
+                      <Button type="button">Book a Meeting</Button>
+                    </a>
+                    {FEATURE_FLAGS.REQUIRE_LEAD_FOR_PDF && (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleDownloadPdf}
+                        disabled={downloading}
+                      >
+                        {downloading
+                          ? "Generating PDF…"
+                          : "Download PDF Report"}
+                      </Button>
+                    )}
                   </div>
-                )}
-              </div>
-
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
-                <h3 className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
-                  Download your report
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Enter your details below to download a PDF of your full ROI
-                  estimate.
-                </p>
-
-                {FEATURE_FLAGS.REQUIRE_LEAD_FOR_PDF && (
-                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label
-                        htmlFor="lead-name"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Name
-                      </label>
-                      <input
-                        id="lead-name"
-                        type="text"
-                        value={lead.name}
-                        onChange={(e) => updateLead("name", e.target.value)}
-                        placeholder="John Smith"
-                        className={inputClassName}
-                        autoComplete="name"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="lead-business"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Business name
-                      </label>
-                      <input
-                        id="lead-business"
-                        type="text"
-                        value={lead.businessName}
-                        onChange={(e) =>
-                          updateLead("businessName", e.target.value)
-                        }
-                        placeholder="Your Company LLC"
-                        className={inputClassName}
-                        autoComplete="organization"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="lead-email"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Email
-                      </label>
-                      <input
-                        id="lead-email"
-                        type="email"
-                        value={lead.email}
-                        onChange={(e) => updateLead("email", e.target.value)}
-                        placeholder="john@yourcompany.com"
-                        className={inputClassName}
-                        autoComplete="email"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="lead-phone"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Phone number
-                      </label>
-                      <input
-                        id="lead-phone"
-                        type="tel"
-                        value={lead.phone}
-                        onChange={(e) => updateLead("phone", e.target.value)}
-                        placeholder="(555) 123-4567"
-                        className={inputClassName}
-                        autoComplete="tel"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                  <Button
-                    type="button"
-                    onClick={handleDownloadPdf}
-                    disabled={downloading || !canDownloadPdf}
-                  >
-                    {downloading ? "Generating PDF…" : "Download PDF Report"}
-                  </Button>
-                  <a href={BOOK_MEETING_URL}>
-                    <Button type="button" variant="secondary">
-                      Book a Meeting
-                    </Button>
-                  </a>
+                  {error && !resultsGateActive && (
+                    <p className="mt-3 text-sm text-red-600" role="alert">
+                      {error}
+                    </p>
+                  )}
                 </div>
-                {error && (
-                  <p className="mt-3 text-sm text-red-600" role="alert">
-                    {error}
-                  </p>
-                )}
-                {!canDownloadPdf && !error && (
-                  <p className="mt-3 text-sm text-gray-500">
-                    Fill in all fields above to download your report.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
-                <h3 className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
-                  Assumptions &amp; audit
-                </h3>
-                <ul className="mt-3 space-y-2 text-sm text-gray-600">
-                  {getAssumptionLines(trade).map((line) => (
-                    <li key={line}>• {line}</li>
-                  ))}
-                </ul>
-                <div className="mt-4 border-t border-gray-100 pt-4">
-                  <p className="text-sm font-semibold text-brand-secondary">
-                    No double-counting
-                  </p>
-                  <ul className="mt-2 space-y-2 text-sm text-gray-600">
-                    {AUDIT_NOTES.map((note) => (
-                      <li key={note}>• {note}</li>
-                    ))}
-                  </ul>
-                </div>
-                <p className="mt-4 text-xs text-gray-500">{ROI_DISCLAIMER}</p>
-              </div>
+              )}
             </div>
+          )}
+
+          {error && !showResults && (
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
           )}
         </div>
       </Card>

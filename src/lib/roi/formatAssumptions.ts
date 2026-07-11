@@ -1,11 +1,23 @@
 import { ROI_DISCLAIMER } from "~/config/features";
-import { SHARED, TRADES, type TradeKey } from "./roiModel";
+import { TRADES, type TradeKey } from "./roiModel";
+import type { RoiResult } from "./computeRoi";
+import { SCENARIO_LABELS } from "./scenarioDisplay";
 
-export const SCENARIO_LABELS = [
-  "~10–20%",
-  "~20–35%",
-  "~35–50%+",
-] as const;
+export { SCENARIO_LABELS };
+
+export function getSlippingAwayAnnual(drivers: RoiResult["drivers"]): number {
+  return (
+    drivers.missedCallRecovery.annualValue + drivers.noShowReduction.annualValue
+  );
+}
+
+export function getUntappedUpsideAnnual(drivers: RoiResult["drivers"]): number {
+  return (
+    drivers.outboundSms.annualValue +
+    drivers.jobCloserUpsells.annualValue +
+    drivers.timeSavings.annualValue
+  );
+}
 
 export const AUDIT_NOTES = [
   "Driver 1 (Missed-Call Recovery) applies only to currently-unanswered calls.",
@@ -24,11 +36,6 @@ export function getAssumptionLines(trade: TradeKey): string[] {
     `No-show rate: ${(t.noShowRate * 100).toFixed(0)}%`,
     `Base booking conversion: ${(t.baseBookingConv * 100).toFixed(0)}%`,
     `Average upsell value: ${t.avgUpsellValue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}`,
-    `624 Voice platform cost: ${formatPlatformCost()}`,
     ROI_DISCLAIMER,
   ];
-}
-
-function formatPlatformCost(): string {
-  return `$1,500/mo ($${SHARED.annualInvestment.toLocaleString("en-US")}/yr)`;
 }

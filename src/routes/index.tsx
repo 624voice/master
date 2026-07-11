@@ -93,7 +93,7 @@ function Home() {
                 $75k+
               </div>
               <div className="mt-1 text-sm text-gray-400">
-                Annual ROI (1-2 Trucks)
+                Revenue you&apos;re missing (1–2 trucks)
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ========== ROI BY FLEET SIZE ========== */}
+      {/* ========== REVENUE BY FLEET SIZE ========== */}
       <section className="bg-white py-24 sm:py-32 animate-fade-in">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-3xl text-center">
@@ -285,39 +285,39 @@ function Home() {
               Real Results
             </span>
             <h2 className="text-3xl font-bold tracking-tight text-brand-secondary sm:text-4xl">
-              ROI That Scales With Your Fleet
+              Revenue You&apos;re Missing at Every Fleet Size
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-gray-600">
-              Whether you run one truck or fifty, our clients see a measurable
-              return on investment — starting month one.
+              Whether you run one truck or fifty, our clients see measurable
+              revenue recovered — starting month one.
             </p>
           </div>
           <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <RoiCard
               size="1–2 Trucks"
               roi="$75k – $380k"
-              per="Annual ROI"
+              per="Revenue you're missing / year"
               description="Solo operators and small teams who can't afford to miss a single call"
               popular={false}
             />
             <RoiCard
               size="3–7 Trucks"
               roi="$175k – $900k"
-              per="Annual ROI"
+              per="Revenue you're missing / year"
               description="Growing teams scaling fast without adding office overhead"
               popular={false}
             />
             <RoiCard
               size="7–20 Trucks"
               roi="$475k – $2.1M"
-              per="Annual ROI"
+              per="Revenue you're missing / year"
               description="Established companies ready to systematize and step back"
               popular={true}
             />
             <RoiCard
               size="20–50 Trucks"
               roi="$1.2M – $3M+"
-              per="Annual ROI"
+              per="Revenue you're missing / year"
               description="Multi-crew operations maximizing every revenue opportunity"
               popular={false}
             />
@@ -327,7 +327,7 @@ function Home() {
               href="/roi-calculator"
               className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
             >
-              Calculate Your ROI
+              Find Out What You&apos;re Missing
             </a>
             <p className="mt-4 text-sm text-gray-500">
               *Based on average results across our client portfolio. Your results may vary.
@@ -404,7 +404,7 @@ function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="text-sm text-gray-700">
-                    <strong className="text-brand-secondary">Know Exactly What the AI Booked, Saved, and Recovered</strong> — Quarterly business reviews show calls answered, jobs booked, missed revenue recovered, and ROI documented in plain numbers.
+                    <strong className="text-brand-secondary">Know Exactly What the AI Booked, Saved, and Recovered</strong> — Quarterly business reviews show calls answered, jobs booked, missed revenue recovered, and missed revenue documented in plain numbers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -481,7 +481,7 @@ function Home() {
                 Business Case & Onboarding
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                We present your projected ROI, sign the order documents,
+                We present your revenue gap estimate, sign the order documents,
                 and begin seeing results quickly. Then we keep working until
                 you see results.
               </p>
@@ -533,8 +533,8 @@ function Home() {
                   Ongoing Commitment
                 </div>
                 <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                  We keep working free every month until your ROI beats our
-                  invoice. That's how confident we are.
+                  We keep working free every month until recovered revenue beats our
+                  invoice. That&apos;s how confident we are.
                 </p>
               </div>
             </div>
