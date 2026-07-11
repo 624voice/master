@@ -10,6 +10,7 @@
     "publish": "bash ./publish.sh",
     "configure-domain": "bash ./scripts/configure-custom-domain.sh",
     "verify-domain": "bash ./scripts/verify-domain.sh",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@tanstack/react-router": "^1.158.1",
