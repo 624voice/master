@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
-import { FEATURE_FLAGS, MAX_TRUCK_COUNT, ROI_DISCLAIMER } from "~/config/features";
+import {
+  BOOK_MEETING_URL,
+  FEATURE_FLAGS,
+  MAX_TRUCK_COUNT,
+  ROI_DISCLAIMER,
+} from "~/config/features";
+import {
+  validateLeadInfo,
+  type LeadInfo,
+} from "~/lib/lead/validateLead";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import {
   AUDIT_NOTES,
@@ -25,6 +34,13 @@ import { generateRoiPdf } from "~/server/generateRoiPdf";
 const inputClassName =
   "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
 
+const emptyLead: LeadInfo = {
+  name: "",
+  businessName: "",
+  email: "",
+  phone: "",
+};
+
 export function RoiCalculator() {
   const [trade, setTrade] = useState<TradeKey | "">("");
   const [truckInput, setTruckInput] = useState("");
@@ -34,6 +50,7 @@ export function RoiCalculator() {
   const [showDrivers, setShowDrivers] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lead, setLead] = useState<LeadInfo>(emptyLead);
 
   const truckCount = parseInt(truckInput, 10);
   const hasValidTrucks =
@@ -57,6 +74,9 @@ export function RoiCalculator() {
     confirmed && trade !== "" && hasValidCalls
       ? computeAllScenarios(trade, monthlyCalls)
       : null;
+
+  const leadError = validateLeadInfo(lead);
+  const canDownloadPdf = leadError === null;
 
   const handleTradeChange = (value: string) => {
     setTrade(value as TradeKey | "");
@@ -94,6 +114,12 @@ export function RoiCalculator() {
   const handleDownloadPdf = async () => {
     if (!trade || !clampedTrucks || !hasValidCalls || !results) return;
 
+    const validationError = validateLeadInfo(lead);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setDownloading(true);
     setError(null);
 
@@ -103,6 +129,7 @@ export function RoiCalculator() {
           trade,
           truckCount: clampedTrucks,
           monthlyCalls,
+          lead,
         },
       });
 
@@ -124,6 +151,11 @@ export function RoiCalculator() {
     } finally {
       setDownloading(false);
     }
+  };
+
+  const updateLead = (field: keyof LeadInfo, value: string) => {
+    setLead((prev) => ({ ...prev, [field]: value }));
+    setError(null);
   };
 
   return (
@@ -317,6 +349,116 @@ export function RoiCalculator() {
 
               <div className="rounded-xl border border-gray-200 bg-white p-5">
                 <h3 className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
+                  Download your report
+                </h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Enter your details below to download a PDF of your full ROI
+                  estimate.
+                </p>
+
+                {FEATURE_FLAGS.REQUIRE_LEAD_FOR_PDF && (
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="lead-name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Name
+                      </label>
+                      <input
+                        id="lead-name"
+                        type="text"
+                        value={lead.name}
+                        onChange={(e) => updateLead("name", e.target.value)}
+                        placeholder="John Smith"
+                        className={inputClassName}
+                        autoComplete="name"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="lead-business"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Business name
+                      </label>
+                      <input
+                        id="lead-business"
+                        type="text"
+                        value={lead.businessName}
+                        onChange={(e) =>
+                          updateLead("businessName", e.target.value)
+                        }
+                        placeholder="Your Company LLC"
+                        className={inputClassName}
+                        autoComplete="organization"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="lead-email"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Email
+                      </label>
+                      <input
+                        id="lead-email"
+                        type="email"
+                        value={lead.email}
+                        onChange={(e) => updateLead("email", e.target.value)}
+                        placeholder="john@yourcompany.com"
+                        className={inputClassName}
+                        autoComplete="email"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="lead-phone"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Phone number
+                      </label>
+                      <input
+                        id="lead-phone"
+                        type="tel"
+                        value={lead.phone}
+                        onChange={(e) => updateLead("phone", e.target.value)}
+                        placeholder="(555) 123-4567"
+                        className={inputClassName}
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  <Button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    disabled={downloading || !canDownloadPdf}
+                  >
+                    {downloading ? "Generating PDF…" : "Download PDF Report"}
+                  </Button>
+                  <a href={BOOK_MEETING_URL}>
+                    <Button type="button" variant="secondary">
+                      Book a Meeting
+                    </Button>
+                  </a>
+                </div>
+                {error && (
+                  <p className="mt-3 text-sm text-red-600" role="alert">
+                    {error}
+                  </p>
+                )}
+                {!canDownloadPdf && !error && (
+                  <p className="mt-3 text-sm text-gray-500">
+                    Fill in all fields above to download your report.
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-5">
+                <h3 className="font-[family-name:var(--font-heading)] text-lg font-medium text-brand-secondary">
                   Assumptions &amp; audit
                 </h3>
                 <ul className="mt-3 space-y-2 text-sm text-gray-600">
@@ -336,23 +478,6 @@ export function RoiCalculator() {
                 </div>
                 <p className="mt-4 text-xs text-gray-500">{ROI_DISCLAIMER}</p>
               </div>
-
-              {!FEATURE_FLAGS.REQUIRE_EMAIL_FOR_PDF && (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <Button
-                    type="button"
-                    onClick={handleDownloadPdf}
-                    disabled={downloading}
-                  >
-                    {downloading ? "Generating PDF…" : "Download PDF"}
-                  </Button>
-                  {error && (
-                    <p className="text-sm text-red-600" role="alert">
-                      {error}
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
           )}
         </div>

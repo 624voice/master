@@ -1,8 +1,10 @@
 export const FEATURE_FLAGS = {
-  REQUIRE_EMAIL_FOR_PDF: false,
+  REQUIRE_LEAD_FOR_PDF: true,
 } as const;
 
 export const MAX_TRUCK_COUNT = 50;
+
+export const BOOK_MEETING_URL = "/contact";
 
 export const ROI_DISCLAIMER =
   "Estimates based on industry averages. Your results may vary.";

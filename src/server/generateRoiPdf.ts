@@ -1,5 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import {
+  normalizeLeadInfo,
+  validateLeadInfo,
+  type LeadInfo,
+} from "~/lib/lead/validateLead";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import {
   AUDIT_NOTES,
@@ -18,6 +23,7 @@ export type PdfRequest = {
   trade: TradeKey;
   truckCount: number;
   monthlyCalls: number;
+  lead: LeadInfo;
 };
 
 const DRIVER_ORDER = [
@@ -31,7 +37,14 @@ const DRIVER_ORDER = [
 export const generateRoiPdf = createServerFn({ method: "POST" })
   .validator((data: PdfRequest) => data)
   .handler(async ({ data }) => {
-    const { trade, truckCount, monthlyCalls } = data;
+    const { trade, truckCount, monthlyCalls, lead } = data;
+
+    const leadError = validateLeadInfo(lead);
+    if (leadError) {
+      throw new Error(leadError);
+    }
+
+    const normalizedLead = normalizeLeadInfo(lead);
 
     if (!TRADES[trade]) {
       throw new Error("Invalid trade");
@@ -105,6 +118,8 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     y -= 48;
 
     drawText(tradeLabel, { size: 14, bold: true, color: emerald });
+    drawText(`Prepared for: ${normalizedLead.name}`, { size: 11 });
+    drawText(`Business: ${normalizedLead.businessName}`, { size: 11 });
     drawText(`Trucks: ${truckCount}`, { size: 11 });
     drawText(`Monthly inbound calls used: ${monthlyCalls.toLocaleString("en-US")}`, {
       size: 11,
