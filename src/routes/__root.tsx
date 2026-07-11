@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { GoogleSchedulingButton } from "~/components/GoogleSchedulingButton";
 import appCss from "~/styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -23,6 +24,10 @@ export const Route = createRootRoute({
     links: [
       { rel: "stylesheet", href: appCss },
       {
+        rel: "stylesheet",
+        href: "https://calendar.google.com/calendar/scheduling-button-script.css",
+      },
+      {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",
       },
@@ -34,6 +39,12 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        src: "https://calendar.google.com/calendar/scheduling-button-script.js",
+        async: true,
       },
     ],
   }),
@@ -94,12 +105,7 @@ function Nav() {
           >
             Services
           </a>
-          <a
-            href="/contact"
-            className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
-          >
-            Get Started
-          </a>
+          <GoogleSchedulingButton />
         </nav>
         {/* Mobile menu button */}
         <details className="group md:hidden">
@@ -146,12 +152,7 @@ function Nav() {
               >
                 Services
               </a>
-              <a
-                href="/contact"
-                className="rounded-lg bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
-              >
-                Get Started
-              </a>
+              <GoogleSchedulingButton />
             </div>
           </div>
         </details>

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { GoogleSchedulingButton } from "~/components/GoogleSchedulingButton";
 
 export const Route = createFileRoute("/contact")({
   component: Contact,
@@ -21,6 +22,9 @@ function Contact() {
             Let's talk about how 624 Voice can help your business run
             itself — so you can focus on what matters most.
           </p>
+          <div className="mt-10 flex justify-center">
+            <GoogleSchedulingButton />
+          </div>
         </div>
       </section>
 
@@ -34,8 +38,8 @@ function Contact() {
                 Send Us a Message
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Fill out the form below and we'll get back to you within 24
-                hours to schedule your personalized demo.
+                Prefer email? Fill out the form below and we'll get back to you
+                within 24 hours. Or book a meeting now with the button above.
               </p>
               <form
                 className="mt-8 space-y-6"
@@ -187,6 +191,34 @@ function Contact() {
                       >
                         info@624voice.com
                       </a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10">
+                      <svg
+                        className="h-6 w-6 text-brand-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-brand-secondary">
+                        Book a Meeting
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-600">
+                        Pick a time that works for you.
+                      </p>
+                      <div className="mt-3">
+                        <GoogleSchedulingButton />
+                      </div>
                     </div>
                   </div>
                 </div>
