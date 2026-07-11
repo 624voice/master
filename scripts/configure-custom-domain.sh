@@ -77,10 +77,32 @@ echo "Updating Netlify site ${SITE_ID}..."
 netlify_api PATCH "/sites/${SITE_ID}" "$(jq -nc \
   --arg custom_domain "$PRIMARY_DOMAIN" \
   --arg apex "$APEX_DOMAIN" \
-  '{custom_domain: $custom_domain, domain_aliases: [$apex], force_ssl: true}')"
+  '{custom_domain: $custom_domain, domain_aliases: [$apex]}')"
 
-echo "Provisioning SSL certificate..."
+echo "Provisioning SSL certificate for ${PRIMARY_DOMAIN}..."
+netlify_api PATCH "/sites/${SITE_ID}" "$(jq -nc \
+  --arg custom_domain "$PRIMARY_DOMAIN" \
+  '{custom_domain: $custom_domain, domain_aliases: []}')" >/dev/null
 netlify_api POST "/sites/${SITE_ID}/ssl" '{}' || true
+
+echo "Waiting for SSL certificate..."
+for _ in $(seq 1 30); do
+  ssl=$(netlify_api GET "/sites/${SITE_ID}" | jq -r '.ssl')
+  if [[ "$ssl" == "true" ]]; then
+    break
+  fi
+  sleep 10
+done
+
+echo "Re-attaching apex alias and enabling Force SSL..."
+netlify_api PATCH "/sites/${SITE_ID}" "$(jq -nc \
+  --arg custom_domain "$PRIMARY_DOMAIN" \
+  --arg apex "$APEX_DOMAIN" \
+  '{custom_domain: $custom_domain, domain_aliases: [$apex], force_ssl: true}')" || \
+netlify_api PATCH "/sites/${SITE_ID}" "$(jq -nc \
+  --arg custom_domain "$PRIMARY_DOMAIN" \
+  --arg apex "$APEX_DOMAIN" \
+  '{custom_domain: $custom_domain, domain_aliases: [$apex]}')"
 
 echo
 echo "Netlify domain configuration requested."
