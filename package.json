@@ -8,7 +8,8 @@
     "build": "vite build",
     "start": "bun run serve.ts",
     "publish": "bash ./publish.sh",
-    "format": "prettier --write ."
+    "configure-domain": "bash ./scripts/configure-custom-domain.sh",
+    "verify-domain": "bash ./scripts/verify-domain.sh",
   },
   "dependencies": {
     "@tanstack/react-router": "^1.158.1",
