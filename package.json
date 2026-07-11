@@ -8,6 +8,8 @@
     "build": "vite build",
     "start": "bun run serve.ts",
     "publish": "bash ./publish.sh",
+    "configure-domain": "bash ./scripts/configure-custom-domain.sh",
+    "verify-domain": "bash ./scripts/verify-domain.sh",
     "format": "prettier --write ."
   },
   "dependencies": {
