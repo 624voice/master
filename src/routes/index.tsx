@@ -277,60 +277,38 @@ function Home() {
         </div>
       </section>
 
-      {/* ========== REVENUE BY FLEET SIZE ========== */}
+      {/* ========== SEE YOUR NUMBER ========== */}
       <section className="bg-white py-24 sm:py-32 animate-fade-in">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
-              Real Results
-            </span>
-            <h2 className="text-3xl font-bold tracking-tight text-brand-secondary sm:text-4xl">
-              Revenue You&apos;re Missing at Every Fleet Size
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-gray-600">
-              Whether you run one truck or fifty, our clients see measurable
-              revenue recovered — starting month one.
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
+            See Your Number
+          </span>
+          <h2 className="text-3xl font-bold tracking-tight text-brand-secondary sm:text-4xl">
+            Most Owners Don&apos;t Know How Much Revenue Walks Out the Door
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-gray-600">
+            Missed calls, no-shows, and quiet past customers add up fast. Run
+            the free calculator and see what your operation is leaving on the
+            table — in under a minute.
+          </p>
+          <a
+            href="/roi-calculator"
+            className="mt-10 inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30"
+          >
+            Find Out What You&apos;re Missing
+          </a>
+          <div className="mt-12 border-t border-gray-100 pt-10 text-left sm:text-center">
+            <h3 className="text-xl font-bold tracking-tight text-brand-secondary">
+              90-Day Results Guarantee
+            </h3>
+            <p className="mt-4 text-base leading-relaxed text-gray-600">
+              We guarantee you recover at least our service investment in booked
+              service-visit revenue within 90 days of go-live — or we keep
+              working, for free, until you do.
             </p>
-          </div>
-          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <RoiCard
-              size="1–2 Trucks"
-              roi="$75k – $380k"
-              per="Revenue you're missing / year"
-              description="Solo operators and small teams who can't afford to miss a single call"
-              popular={false}
-            />
-            <RoiCard
-              size="3–7 Trucks"
-              roi="$175k – $900k"
-              per="Revenue you're missing / year"
-              description="Growing teams scaling fast without adding office overhead"
-              popular={false}
-            />
-            <RoiCard
-              size="7–20 Trucks"
-              roi="$475k – $2.1M"
-              per="Revenue you're missing / year"
-              description="Established companies ready to systematize and step back"
-              popular={true}
-            />
-            <RoiCard
-              size="20–50 Trucks"
-              roi="$1.2M – $3M+"
-              per="Revenue you're missing / year"
-              description="Multi-crew operations maximizing every revenue opportunity"
-              popular={false}
-            />
-          </div>
-          <div className="mt-12 text-center">
-            <a
-              href="/roi-calculator"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
-            >
-              Find Out What You&apos;re Missing
-            </a>
-            <p className="mt-4 text-sm text-gray-500">
-              *Based on average results across our client portfolio. Your results may vary.
+            <p className="mt-3 text-base leading-relaxed text-gray-600">
+              If we don&apos;t perform, you don&apos;t pay beyond the Results
+              Engagement Period.
             </p>
           </div>
         </div>
@@ -498,13 +476,18 @@ function Home() {
               Our Promise to You
             </span>
             <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
-              90-Day Guarantee
+              90-Day Results Guarantee
             </h2>
             <p className="mt-8 text-xl leading-relaxed text-gray-200 sm:text-2xl">
-              We guarantee you recover more than our service cost in booked revenue —{" "}
+              We guarantee you recover at least our service investment in booked
+              service-visit revenue within 90 days of go-live —{" "}
               <span className="font-bold text-brand-primary">
                 or we keep working, for free, until you do.
               </span>
+            </p>
+            <p className="mt-4 text-lg leading-relaxed text-gray-300">
+              If we don&apos;t perform, you don&apos;t pay beyond the Results
+              Engagement Period.
             </p>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
               <div className="rounded-xl border border-gray-700 bg-white/5 p-8 backdrop-blur-sm animate-slide-up animate-delay-100">
@@ -513,8 +496,8 @@ function Home() {
                   Days to Results
                 </div>
                 <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                  We track every dollar of booked revenue attributable to AI.
-                  Transparent. Measurable. Real.
+                  Recover at least our service investment in booked service-visit
+                  revenue within 90 days of go-live.
                 </p>
               </div>
               <div className="rounded-xl border border-gray-700 bg-white/5 p-8 backdrop-blur-sm animate-slide-up animate-delay-200">
@@ -523,8 +506,8 @@ function Home() {
                   Risk Reversal
                 </div>
                 <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                  If we don't deliver more revenue than our cost, you don't pay
-                  until we do. Simple.
+                  If we don&apos;t perform, you don&apos;t pay beyond the Results
+                  Engagement Period.
                 </p>
               </div>
               <div className="rounded-xl border border-gray-700 bg-white/5 p-8 backdrop-blur-sm animate-slide-up animate-delay-300">
@@ -533,8 +516,8 @@ function Home() {
                   Ongoing Commitment
                 </div>
                 <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                  We keep working free every month until recovered revenue beats our
-                  invoice. That&apos;s how confident we are.
+                  We keep working, for free, until you recover at least our
+                  service investment. That&apos;s how confident we are.
                 </p>
               </div>
             </div>
@@ -671,48 +654,6 @@ function FeatureCard({
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function RoiCard({
-  size,
-  roi,
-  per,
-  description,
-  popular,
-}: {
-  size: string;
-  roi: string;
-  per: string;
-  description: string;
-  popular: boolean;
-}) {
-  return (
-    <div
-      className={`relative rounded-xl border p-8 ${
-        popular
-          ? "border-brand-primary bg-brand-primary/5 shadow-lg"
-          : "border-gray-100 bg-white shadow-sm"
-      }`}
-    >
-      {popular && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-primary px-4 py-1 text-xs font-semibold text-white">
-          Most Popular
-        </span>
-      )}
-      <div className="text-center">
-        <div className="text-sm font-medium uppercase tracking-wider text-gray-500">
-          {size}
-        </div>
-        <div className="mt-4 text-3xl font-bold text-brand-secondary">
-          {roi}
-        </div>
-        <div className="mt-1 text-sm text-gray-500">{per}</div>
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
-          {description}
-        </p>
-      </div>
     </div>
   );
 }
