@@ -78,6 +78,12 @@ ensure_dns_zone() {
   local site_id="$1"
   local zone_id=""
 
+  zone_id=$(netlify_api GET "/sites/${site_id}/dns" 2>/dev/null | jq -r '.[0].id // empty' || true)
+  if [[ -n "$zone_id" ]]; then
+    echo "$zone_id"
+    return
+  fi
+
   zone_id=$(netlify_api GET "/dns_zones/${APEX_DOMAIN}" 2>/dev/null | jq -r '.id // empty' || true)
   if [[ -n "$zone_id" ]]; then
     echo "$zone_id"
@@ -105,7 +111,7 @@ record_exists() {
   local value="$4"
 
   echo "$records" | jq -e --arg type "$type" --arg hostname "$hostname" --arg value "$value" \
-    '.[] | select(.type == $type and .hostname == $hostname and .value == $value)' >/dev/null
+    '.[] | select(.type == $type and .value == $value and (.hostname == $hostname or .hostname == ($hostname | split(".")[0])))' >/dev/null
 }
 
 create_dns_record() {
@@ -145,9 +151,12 @@ ensure_required_dns_records() {
 
   if record_exists "$records" "CNAME" "www" "$NETLIFY_SUBDOMAIN"; then
     echo "ok   CNAME www -> ${NETLIFY_SUBDOMAIN} already exists"
+  elif record_exists "$records" "CNAME" "www.${APEX_DOMAIN}" "$NETLIFY_SUBDOMAIN"; then
+    echo "ok   CNAME www.${APEX_DOMAIN} -> ${NETLIFY_SUBDOMAIN} already exists"
   else
     echo "Adding CNAME www -> ${NETLIFY_SUBDOMAIN}..."
-    create_dns_record "$zone_id" "CNAME" "www" "$NETLIFY_SUBDOMAIN" 300 >/dev/null
+    create_dns_record "$zone_id" "CNAME" "www.${APEX_DOMAIN}" "$NETLIFY_SUBDOMAIN" 300 >/dev/null || \
+      create_dns_record "$zone_id" "CNAME" "www" "$NETLIFY_SUBDOMAIN" 300 >/dev/null
     echo "ok   CNAME www created"
   fi
 

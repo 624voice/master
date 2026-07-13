@@ -26,6 +26,14 @@ check() {
 echo "DNS"
 www_dns=$(dig "$WWW" +short | tr '\n' ' ')
 apex_dns=$(dig "$DOMAIN" +short | tr '\n' ' ')
+
+if [[ -z "$www_dns" ]]; then
+  www_dns=$(curl -fsS "https://dns.google/resolve?name=${WWW}&type=CNAME" | jq -r '[.Answer[]?.data] | join(" ")' 2>/dev/null || true)
+fi
+if [[ -z "$apex_dns" ]]; then
+  apex_dns=$(curl -fsS "https://dns.google/resolve?name=${DOMAIN}&type=A" | jq -r '[.Answer[]?.data] | join(" ")' 2>/dev/null || true)
+fi
+
 echo "www:  $www_dns"
 echo "apex: $apex_dns"
 
@@ -42,8 +50,16 @@ fi
 
 echo
 echo "HTTPS"
-www_headers=$(curl -skI --max-time 20 "https://${WWW}" 2>&1 | tr '\n' ' ')
-apex_headers=$(curl -skI --max-time 20 "https://${DOMAIN}" 2>&1 | tr '\n' ' ')
+curl_args=()
+if ! getent hosts "$WWW" >/dev/null 2>&1; then
+  curl_args+=(--resolve "${WWW}:443:${NETLIFY_APEX_IP}")
+fi
+if ! getent hosts "$DOMAIN" >/dev/null 2>&1; then
+  curl_args+=(--resolve "${DOMAIN}:443:${NETLIFY_APEX_IP}")
+fi
+
+www_headers=$(curl -skI --max-time 20 "${curl_args[@]}" "https://${WWW}" 2>&1 | tr '\n' ' ')
+apex_headers=$(curl -skI --max-time 20 "${curl_args[@]}" "https://${DOMAIN}" 2>&1 | tr '\n' ' ')
 netlify_headers=$(curl -skI --max-time 20 "https://${NETLIFY_SUBDOMAIN}" 2>&1 | tr '\n' ' ')
 
 check "Netlify app is healthy" "$netlify_headers" "HTTP/2 200"
