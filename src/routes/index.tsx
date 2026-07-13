@@ -297,18 +297,20 @@ function Home() {
           >
             Find Out What You&apos;re Missing
           </a>
-          <div className="mt-12 border-t border-gray-100 pt-10 text-left sm:text-center">
-            <h3 className="text-xl font-bold tracking-tight text-brand-secondary">
-              90-Day Results Guarantee
+          <div className="mt-12 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8 text-left sm:text-center">
+            <h3 className="font-emphasis text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+              90-Day <span className="text-brand-primary">Results Guarantee</span>
             </h3>
-            <p className="mt-4 text-base leading-relaxed text-gray-600">
+            <p className="mt-4 font-body text-base leading-relaxed text-brand-secondary">
               We guarantee you recover at least our service investment in booked
-              service-visit revenue within 90 days of go-live — or we keep
-              working, for free, until you do.
+              service-visit revenue within 90 days of go-live —{" "}
+              <span className="font-semibold text-brand-primary">
+                or we keep working, for free, until you do.
+              </span>
             </p>
-            <p className="mt-3 text-base leading-relaxed text-gray-600">
-              If we don&apos;t perform, you don&apos;t pay beyond the Results
-              Engagement Period.
+            <p className="mt-3 font-body text-base leading-relaxed text-brand-secondary">
+              If we don&apos;t perform, you don&apos;t pay beyond the{" "}
+              <span className="font-medium">Results Engagement Period</span>.
             </p>
           </div>
         </div>
