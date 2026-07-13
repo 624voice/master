@@ -5,3 +5,16 @@
 [dev]
   command = "bun run dev"
   port = 3000
+
+# Canonicalize the apex domain to www once both hostnames are attached in Netlify.
+[[redirects]]
+  from = "https://624voice.com/*"
+  to = "https://www.624voice.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://624voice.com/*"
+  to = "https://www.624voice.com/:splat"
+  status = 301
+  force = true
