@@ -49,6 +49,9 @@ configure_site_domains() {
     --arg custom_domain "$PRIMARY_DOMAIN" \
     --arg apex "$APEX_DOMAIN" \
     '{custom_domain: $custom_domain, domain_aliases: [$apex]}')" >/dev/null
+
+  echo "Linking Netlify DNS to site..."
+  netlify_api PUT "/sites/${site_id}/dns" || true
 }
 
 ensure_dns_zone() {
@@ -65,7 +68,7 @@ ensure_dns_zone() {
   zone_id=$(netlify_api POST "/dns_zones" "$(jq -nc \
     --arg domain "$APEX_DOMAIN" \
     --arg site_id "$site_id" \
-    '{name: $domain, account_slug: null, site_id: $site_id}')" | jq -r '.id')
+    '{name: $domain, site_id: $site_id}')" | jq -r '.id')
 
   echo "$zone_id"
 }
