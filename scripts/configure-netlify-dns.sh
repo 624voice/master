@@ -10,11 +10,31 @@ NETLIFY_SUBDOMAIN="${NETLIFY_SUBDOMAIN:-624voice.netlify.app}"
 NETLIFY_LB="${NETLIFY_LB:-apex-loadbalancer.netlify.com}"
 NETLIFY_APEX_IP="${NETLIFY_APEX_IP:-75.2.60.5}"
 
+load_netlify_token() {
+  if [[ -n "${NETLIFY_AUTH_TOKEN:-}" ]]; then
+    return
+  fi
+
+  local config_file
+  for config_file in "${HOME}/.config/netlify/config.json" "${HOME}/.netlify/config.json"; do
+    if [[ -f "$config_file" ]]; then
+      NETLIFY_AUTH_TOKEN=$(jq -r '.users | to_entries[0].value.auth.token // empty' "$config_file")
+      if [[ -n "$NETLIFY_AUTH_TOKEN" ]]; then
+        export NETLIFY_AUTH_TOKEN
+        echo "Using Netlify CLI auth token from ${config_file}"
+        return
+      fi
+    fi
+  done
+}
+
 require_auth() {
+  load_netlify_token
   if [[ -z "${NETLIFY_AUTH_TOKEN:-}" ]]; then
     echo "error: NETLIFY_AUTH_TOKEN is required." >&2
     echo "Create one at https://app.netlify.com/user/applications#personal-access-tokens" >&2
-    echo "Then run: NETLIFY_AUTH_TOKEN=... bash scripts/configure-netlify-dns.sh" >&2
+    echo "Or run: npx netlify login" >&2
+    echo "Then run: bash scripts/configure-netlify-dns.sh" >&2
     exit 1
   fi
 }
