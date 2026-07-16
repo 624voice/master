@@ -8,6 +8,8 @@ Row 1 headers should match the contact intake form:
 
 `Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message`
 
+Timestamps are stored in **Central Time (America/Chicago)**, e.g. `2026-07-16 1:57:07 PM CT`.
+
 ROI calculator leads populate **Fleet Size**, **Monthly Calls**, and **Truck Count** from the calculator (exact truck count and call volume). Contact form leads leave **Monthly Calls** and **Truck Count** blank and use a fleet-size range for **Fleet Size**.
 
 ## 1. Deploy the Apps Script
