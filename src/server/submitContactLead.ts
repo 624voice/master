@@ -25,10 +25,9 @@ type ContactLeadRequest = {
 export const submitContactLead = createServerFn({ method: "POST" })
   .validator((data: ContactLeadRequest) => data)
   .handler(async ({ data }) => {
-    const name = `${data.firstName.trim()} ${data.lastName.trim()}`.trim();
-
     const leadError = validateLeadInfo({
-      name,
+      firstName: data.firstName,
+      lastName: data.lastName,
       businessName: data.businessName,
       email: data.email,
       phone: data.phone,
@@ -50,7 +49,8 @@ export const submitContactLead = createServerFn({ method: "POST" })
     }
 
     const normalizedLead = normalizeLeadInfo({
-      name,
+      firstName: data.firstName,
+      lastName: data.lastName,
       businessName: data.businessName,
       email: data.email,
       phone: data.phone,
@@ -58,8 +58,6 @@ export const submitContactLead = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
       trade: resolveContactTrade(data.trade, data.otherTrade),
       website: resolveContactWebsite(data.websiteOption, data.website),
       fleetSize: data.fleetSize.trim(),
