@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { CONTACT_TRADES } from "~/lib/lead/validateLead";
 import { submitContactLead } from "~/server/submitContactLead";
 
 export const Route = createFileRoute("/contact")({
@@ -13,6 +14,10 @@ function Contact() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const [trade, setTrade] = useState("");
+  const [otherTrade, setOtherTrade] = useState("");
+  const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
+  const [website, setWebsite] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [fleetSize, setFleetSize] = useState("");
@@ -32,16 +37,24 @@ function Contact() {
           firstName,
           lastName,
           businessName,
+          trade,
+          otherTrade: trade === "Other" ? otherTrade : undefined,
+          websiteOption,
+          website: websiteOption === "has" ? website : undefined,
           email,
           phone,
-          fleetSize: fleetSize || undefined,
-          message: message || undefined,
+          fleetSize,
+          message,
         },
       });
       setSuccess(true);
       setFirstName("");
       setLastName("");
       setBusinessName("");
+      setTrade("");
+      setOtherTrade("");
+      setWebsiteOption("");
+      setWebsite("");
       setEmail("");
       setPhone("");
       setFleetSize("");
@@ -166,6 +179,93 @@ function Contact() {
                   </div>
                   <div>
                     <label
+                      htmlFor="trade"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Trade
+                    </label>
+                    <select
+                      id="trade"
+                      value={trade}
+                      onChange={(e) => {
+                        setTrade(e.target.value);
+                        if (e.target.value !== "Other") {
+                          setOtherTrade("");
+                        }
+                      }}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                      required
+                    >
+                      <option value="">Select your trade...</option>
+                      {CONTACT_TRADES.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {trade === "Other" && (
+                    <div>
+                      <label
+                        htmlFor="otherTrade"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Your trade
+                      </label>
+                      <input
+                        type="text"
+                        id="otherTrade"
+                        value={otherTrade}
+                        onChange={(e) => setOtherTrade(e.target.value)}
+                        className={inputClassName}
+                        placeholder="Enter your trade"
+                        required
+                      />
+                    </div>
+                  )}
+                  <fieldset className="space-y-3">
+                    <legend className="block text-sm font-medium text-gray-700">
+                      What is your website?
+                    </legend>
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="radio"
+                        name="websiteOption"
+                        value="has"
+                        checked={websiteOption === "has"}
+                        onChange={() => setWebsiteOption("has")}
+                        required
+                      />
+                      I have a website
+                    </label>
+                    {websiteOption === "has" && (
+                      <input
+                        type="text"
+                        id="website"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        className={inputClassName}
+                        placeholder="https://yourcompany.com"
+                        autoComplete="url"
+                        required
+                      />
+                    )}
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="radio"
+                        name="websiteOption"
+                        value="none"
+                        checked={websiteOption === "none"}
+                        onChange={() => {
+                          setWebsiteOption("none");
+                          setWebsite("");
+                        }}
+                      />
+                      I don&apos;t have a website
+                    </label>
+                  </fieldset>
+                  <div>
+                    <label
                       htmlFor="email"
                       className="block text-sm font-medium text-gray-700"
                     >
@@ -212,6 +312,7 @@ function Contact() {
                       value={fleetSize}
                       onChange={(e) => setFleetSize(e.target.value)}
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                      required
                     >
                       <option value="">Select fleet size...</option>
                       <option value="1-2">1–2 Trucks</option>
@@ -234,6 +335,7 @@ function Contact() {
                       onChange={(e) => setMessage(e.target.value)}
                       className={inputClassName}
                       placeholder="Tell us about your business and what you're looking for..."
+                      required
                     />
                   </div>
                   {error && (

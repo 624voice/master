@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   normalizeLeadInfo,
+  resolveContactTrade,
+  resolveContactWebsite,
+  validateContactFields,
   validateLeadInfo,
 } from "~/lib/lead/validateLead";
 import { saveLead } from "~/server/leads";
@@ -11,8 +14,12 @@ type ContactLeadRequest = {
   businessName: string;
   email: string;
   phone: string;
-  fleetSize?: string;
-  message?: string;
+  trade: string;
+  otherTrade?: string;
+  websiteOption: "has" | "none" | "";
+  website?: string;
+  fleetSize: string;
+  message: string;
 };
 
 export const submitContactLead = createServerFn({ method: "POST" })
@@ -30,6 +37,18 @@ export const submitContactLead = createServerFn({ method: "POST" })
       throw new Error(leadError);
     }
 
+    const contactError = validateContactFields({
+      trade: data.trade,
+      otherTrade: data.otherTrade,
+      websiteOption: data.websiteOption,
+      website: data.website,
+      fleetSize: data.fleetSize,
+      message: data.message,
+    });
+    if (contactError) {
+      throw new Error(contactError);
+    }
+
     const normalizedLead = normalizeLeadInfo({
       name,
       businessName: data.businessName,
@@ -39,8 +58,10 @@ export const submitContactLead = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
-      fleetSize: data.fleetSize?.trim() || undefined,
-      message: data.message?.trim() || undefined,
+      trade: resolveContactTrade(data.trade, data.otherTrade),
+      website: resolveContactWebsite(data.websiteOption, data.website),
+      fleetSize: data.fleetSize.trim(),
+      message: data.message.trim(),
       source: "contact_form",
     });
 
