@@ -17,18 +17,28 @@ import type { RoiResult } from "~/lib/roi/computeRoi";
 import {
   getSlippingAwayAnnual,
   getUntappedUpsideAnnual,
-  getAssumptionLines,
   SCENARIO_LABELS,
 } from "~/lib/roi/formatAssumptions";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
+import {
+  BOOK_DEMO_LABEL,
+  GUARANTEE_BODY,
+  GUARANTEE_FOOTNOTE,
+  NARRATIVE_SECTIONS,
+  NEXT_STEPS_PARAGRAPHS,
+  NEXT_STEPS_TITLE,
+  PDF_SUBTITLE,
+  PDF_TITLE,
+} from "~/lib/roi/pdfReportContent";
 import { SCENARIOS, TRADES, type TradeKey } from "~/lib/roi/roiModel";
 
 const PAGE_WIDTH = 612;
 const PAGE_HEIGHT = 792;
 const MARGIN = 48;
-const FOOTER_HEIGHT = 40;
+const FOOTER_HEIGHT = 44;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
-const FOOTER_Y = FOOTER_HEIGHT;
+const CONTENT_BOTTOM = FOOTER_HEIGHT + 12;
+const MODERATE_INDEX = 1;
 
 const BRAND = {
   primary: rgb(16 / 255, 185 / 255, 129 / 255),
@@ -62,6 +72,8 @@ type PdfContext = {
   y: number;
   font: PDFFont;
   fontBold: PDFFont;
+  tradeLabel: string;
+  pageNumber: number;
 };
 
 export function toPdfSafeText(text: string): string {
@@ -70,6 +82,7 @@ export function toPdfSafeText(text: string): string {
     .replace(/\u2014/g, "-")
     .replace(/\u2013/g, "-")
     .replace(/\u00d7/g, "x")
+    .replace(/[\u2460-\u2473]/g, "")
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201c\u201d]/g, '"');
 }
@@ -105,6 +118,32 @@ function textWidth(font: PDFFont, text: string, size: number): number {
   return font.widthOfTextAtSize(toPdfSafeText(text), size);
 }
 
+function wrapLines(
+  font: PDFFont,
+  text: string,
+  size: number,
+  maxWidth: number,
+): string[] {
+  const safe = toPdfSafeText(text);
+  const words = safe.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [""];
+
+  const lines: string[] = [];
+  let current = words[0]!;
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i]!;
+    const test = `${current} ${word}`;
+    if (font.widthOfTextAtSize(test, size) <= maxWidth) {
+      current = test;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  lines.push(current);
+  return lines;
+}
+
 function drawRoundedRect(
   page: PDFPage,
   x: number,
@@ -129,7 +168,6 @@ function drawRoundedRect(
     `Q ${x} ${y} ${x + r} ${y}`,
     "Z",
   ].join(" ");
-
   page.drawSvgPath(path, { color, borderColor, borderWidth });
 }
 
@@ -175,638 +213,716 @@ function drawLinkedText(
   const size = opts.size ?? 9;
   const font = opts.bold ? ctx.fontBold : ctx.font;
   const color = opts.color ?? BRAND.primary;
-  const safe = toPdfSafeText(text);
-  ctx.page.drawText(safe, { x, y, size, font, color });
+  ctx.page.drawText(toPdfSafeText(text), { x, y, size, font, color });
   addLinkAnnotation(ctx, x, y - 2, textWidth(font, text, size), size + 4, url);
 }
 
-async function drawBrandHeader(ctx: PdfContext, logoBytes: Uint8Array | null) {
-  const headerHeight = 72;
-  ctx.page.drawRectangle({
-    x: 0,
-    y: PAGE_HEIGHT - headerHeight,
-    width: PAGE_WIDTH,
-    height: headerHeight,
-    color: BRAND.white,
-  });
-  ctx.page.drawRectangle({
-    x: 0,
-    y: PAGE_HEIGHT - headerHeight,
-    width: PAGE_WIDTH,
-    height: 3,
-    color: BRAND.primary,
-  });
-  ctx.page.drawRectangle({
-    x: 0,
-    y: PAGE_HEIGHT - headerHeight,
-    width: PAGE_WIDTH,
-    height: headerHeight,
-    borderColor: BRAND.border,
-    borderWidth: 0,
-  });
+class PdfLayout {
+  constructor(
+    private pdf: PDFDocument,
+    private font: PDFFont,
+    private fontBold: PDFFont,
+    private tradeLabel: string,
+    private logoBytes: Uint8Array | null,
+  ) {}
 
-  if (logoBytes) {
-    const logo = await ctx.pdf.embedPng(logoBytes);
-    ctx.page.drawImage(logo, {
-      x: MARGIN,
-      y: PAGE_HEIGHT - headerHeight + 18,
-      width: 36,
-      height: 36,
-    });
+  ctx!: PdfContext;
+
+  start() {
+    this.newPage(false);
   }
 
-  ctx.page.drawText(toPdfSafeText("624 "), {
-    x: MARGIN + 44,
-    y: PAGE_HEIGHT - 40,
-    size: 18,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  const voiceX = MARGIN + 44 + textWidth(ctx.fontBold, "624 ", 18);
-  ctx.page.drawText(toPdfSafeText("Voice"), {
-    x: voiceX,
-    y: PAGE_HEIGHT - 40,
-    size: 18,
-    font: ctx.fontBold,
-    color: BRAND.primary,
-  });
-  ctx.page.drawText(toPdfSafeText("Revenue Gap Report"), {
-    x: MARGIN + 44,
-    y: PAGE_HEIGHT - 56,
-    size: 10,
-    font: ctx.font,
-    color: BRAND.gray,
-  });
+  private newPage(withMiniHeader: boolean) {
+    const page = this.pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    this.ctx = {
+      pdf: this.pdf,
+      page,
+      y: PAGE_HEIGHT - MARGIN,
+      font: this.font,
+      fontBold: this.fontBold,
+      tradeLabel: this.tradeLabel,
+      pageNumber: (this.ctx?.pageNumber ?? 0) + 1,
+    };
 
-  const dateStr = new Date().toLocaleDateString("en-US", {
-    timeZone: "America/Chicago",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  ctx.page.drawText(toPdfSafeText(dateStr), {
-    x: PAGE_WIDTH - MARGIN - textWidth(ctx.font, dateStr, 9),
-    y: PAGE_HEIGHT - 48,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.accent,
-  });
-
-  ctx.y = PAGE_HEIGHT - headerHeight - 20;
-}
-
-function drawMiniHeader(ctx: PdfContext, tradeLabel: string) {
-  const headerHeight = 44;
-  ctx.page.drawRectangle({
-    x: 0,
-    y: PAGE_HEIGHT - headerHeight,
-    width: PAGE_WIDTH,
-    height: headerHeight,
-    color: BRAND.secondary,
-  });
-  ctx.page.drawRectangle({
-    x: 0,
-    y: PAGE_HEIGHT - 3,
-    width: PAGE_WIDTH,
-    height: 3,
-    color: BRAND.primary,
-  });
-
-  ctx.page.drawText(toPdfSafeText("624 "), {
-    x: MARGIN,
-    y: PAGE_HEIGHT - 28,
-    size: 11,
-    font: ctx.fontBold,
-    color: BRAND.white,
-  });
-  ctx.page.drawText(toPdfSafeText("Voice"), {
-    x: MARGIN + textWidth(ctx.fontBold, "624 ", 11),
-    y: PAGE_HEIGHT - 28,
-    size: 11,
-    font: ctx.fontBold,
-    color: BRAND.primary,
-  });
-  ctx.page.drawText(toPdfSafeText("  |  Revenue Gap Report"), {
-    x: MARGIN + textWidth(ctx.fontBold, "624 Voice", 11),
-    y: PAGE_HEIGHT - 28,
-    size: 10,
-    font: ctx.font,
-    color: BRAND.muted,
-  });
-  ctx.page.drawText(toPdfSafeText(tradeLabel), {
-    x: PAGE_WIDTH - MARGIN - textWidth(ctx.font, tradeLabel, 9),
-    y: PAGE_HEIGHT - 28,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.muted,
-  });
-  ctx.y = PAGE_HEIGHT - headerHeight - 16;
-}
-
-function drawPageFooter(ctx: PdfContext) {
-  ctx.page.drawRectangle({
-    x: 0,
-    y: 0,
-    width: PAGE_WIDTH,
-    height: FOOTER_HEIGHT,
-    color: BRAND.secondary,
-  });
-  ctx.page.drawRectangle({
-    x: 0,
-    y: FOOTER_HEIGHT - 2,
-    width: PAGE_WIDTH,
-    height: 2,
-    color: BRAND.primary,
-  });
-
-  let x = MARGIN;
-  const y = 14;
-  drawLinkedText(ctx, "info@624voice.com", x, y, "mailto:info@624voice.com", {
-    size: 9,
-    color: BRAND.primary,
-  });
-  x += textWidth(ctx.font, "info@624voice.com", 9) + 10;
-  ctx.page.drawText(toPdfSafeText("|"), { x, y, size: 9, font: ctx.font, color: BRAND.muted });
-  x += 14;
-  drawLinkedText(ctx, "624voice.com", x, y, "https://624voice.com", {
-    size: 9,
-    color: BRAND.primary,
-  });
-}
-
-function drawSectionTitle(ctx: PdfContext, title: string) {
-  ctx.page.drawText(toPdfSafeText(title.toUpperCase()), {
-    x: MARGIN,
-    y: ctx.y,
-    size: 8,
-    font: ctx.fontBold,
-    color: BRAND.accent,
-  });
-  ctx.y -= 14;
-  ctx.page.drawText(toPdfSafeText(title), {
-    x: MARGIN,
-    y: ctx.y,
-    size: 13,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  ctx.y -= 18;
-}
-
-function drawBookDemoButton(ctx: PdfContext, url: string) {
-  const label = "Book a Demo";
-  const fontSize = 14;
-  const padX = 20;
-  const padY = 12;
-  const labelWidth = textWidth(ctx.fontBold, label, fontSize);
-  const buttonWidth = labelWidth + padX * 2;
-  const buttonHeight = fontSize + padY * 2;
-  const buttonX = MARGIN + 20;
-  const buttonY = ctx.y - buttonHeight;
-
-  drawRoundedRect(
-    ctx.page,
-    buttonX + 1,
-    buttonY - 2,
-    buttonWidth,
-    buttonHeight,
-    8,
-    rgb(0.88, 0.9, 0.92),
-  );
-  drawRoundedRect(ctx.page, buttonX, buttonY, buttonWidth, buttonHeight, 8, BRAND.primary);
-
-  ctx.page.drawText(toPdfSafeText(label), {
-    x: buttonX + padX,
-    y: buttonY + padY + 1,
-    size: fontSize,
-    font: ctx.fontBold,
-    color: BRAND.white,
-  });
-
-  addLinkAnnotation(ctx, buttonX, buttonY, buttonWidth, buttonHeight, url);
-  ctx.y = buttonY - 12;
-}
-
-function buildPage1(
-  ctx: PdfContext,
-  input: {
-    tradeLabel: string;
-    truckCount: number;
-    monthlyCalls: number;
-    lead: LeadInfo;
-    scenarios: RoiResult[];
-    conservative: RoiResult;
-    logoBytes: Uint8Array | null;
-  },
-) {
-  const { tradeLabel, truckCount, monthlyCalls, lead, scenarios, conservative } =
-    input;
-
-  drawBrandHeader(ctx, input.logoBytes);
-
-  // Client info card
-  const infoHeight = 64;
-  drawRoundedRect(
-    ctx.page,
-    MARGIN,
-    ctx.y - infoHeight,
-    CONTENT_WIDTH,
-    infoHeight,
-    10,
-    BRAND.accentLight,
-    BRAND.border,
-    1,
-  );
-  const infoTop = ctx.y - 16;
-  ctx.page.drawText(toPdfSafeText(`Prepared for ${formatLeadName(lead)}`), {
-    x: MARGIN + 16,
-    y: infoTop,
-    size: 11,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  ctx.page.drawText(toPdfSafeText(lead.businessName), {
-    x: MARGIN + 16,
-    y: infoTop - 16,
-    size: 10,
-    font: ctx.font,
-    color: BRAND.text,
-  });
-  ctx.page.drawText(
-    toPdfSafeText(
-      `${tradeLabel}  ·  ${truckCount} trucks  ·  ${monthlyCalls.toLocaleString("en-US")} calls/mo`,
-    ),
-    { x: MARGIN + 16, y: infoTop - 30, size: 9, font: ctx.font, color: BRAND.gray },
-  );
-  ctx.page.drawText(toPdfSafeText(lead.phone), {
-    x: MARGIN + 320,
-    y: infoTop - 16,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.gray,
-  });
-  drawLinkedText(
-    ctx,
-    lead.email,
-    MARGIN + 320,
-    infoTop - 30,
-    `mailto:${lead.email}`,
-    { size: 9, color: BRAND.primary },
-  );
-
-  ctx.y -= infoHeight + 16;
-
-  // Hero conservative estimate (matches website card)
-  const heroHeight = 92;
-  drawRoundedRect(
-    ctx.page,
-    MARGIN,
-    ctx.y - heroHeight,
-    CONTENT_WIDTH,
-    heroHeight,
-    12,
-    BRAND.emerald50,
-    rgb(16 / 255, 185 / 255, 129 / 255),
-    1,
-  );
-
-  const heroLabel = "CONSERVATIVE ESTIMATE";
-  const heroLabelW = textWidth(ctx.fontBold, heroLabel, 8);
-  ctx.page.drawText(toPdfSafeText(heroLabel), {
-    x: (PAGE_WIDTH - heroLabelW) / 2,
-    y: ctx.y - 22,
-    size: 8,
-    font: ctx.fontBold,
-    color: BRAND.accent,
-  });
-
-  const heroAmount = formatCurrency(conservative.totalAnnualBenefit);
-  const heroLine = `You're missing about ${heroAmount}+ every year`;
-  const heroLineW = textWidth(ctx.fontBold, heroLine, 17);
-  ctx.page.drawText(toPdfSafeText("You're missing about "), {
-    x: (PAGE_WIDTH - heroLineW) / 2,
-    y: ctx.y - 46,
-    size: 17,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  const prefixW = textWidth(ctx.fontBold, "You're missing about ", 17);
-  ctx.page.drawText(toPdfSafeText(`${heroAmount}+`), {
-    x: (PAGE_WIDTH - heroLineW) / 2 + prefixW,
-    y: ctx.y - 46,
-    size: 17,
-    font: ctx.fontBold,
-    color: BRAND.primary,
-  });
-  ctx.page.drawText(toPdfSafeText(" every year"), {
-    x: (PAGE_WIDTH - heroLineW) / 2 + prefixW + textWidth(ctx.fontBold, `${heroAmount}+`, 17),
-    y: ctx.y - 46,
-    size: 17,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-
-  const sub = `${tradeLabel} · ${truckCount} trucks · ${monthlyCalls.toLocaleString("en-US")} calls/mo`;
-  ctx.page.drawText(toPdfSafeText(sub), {
-    x: (PAGE_WIDTH - textWidth(ctx.font, sub, 9)) / 2,
-    y: ctx.y - 66,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.gray,
-  });
-
-  ctx.y -= heroHeight + 18;
-  drawSectionTitle(ctx, "Annual Revenue Gap by Scenario");
-
-  const cardGap = 10;
-  const cardWidth = (CONTENT_WIDTH - cardGap * 2) / 3;
-  const cardHeight = 104;
-  const cardsTop = ctx.y;
-
-  for (let i = 0; i < scenarios.length; i++) {
-    const result = scenarios[i]!;
-    const cardX = MARGIN + i * (cardWidth + cardGap);
-    const isPrimary = i === 0;
-
-    drawRoundedRect(
-      ctx.page,
-      cardX,
-      cardsTop - cardHeight,
-      cardWidth,
-      cardHeight,
-      10,
-      isPrimary ? BRAND.emerald50 : BRAND.white,
-      isPrimary ? BRAND.primary : BRAND.border,
-      isPrimary ? 2 : 1,
-    );
-
-    ctx.page.drawText(toPdfSafeText(SCENARIOS[i]!), {
-      x: cardX + 12,
-      y: cardsTop - 20,
-      size: 9,
-      font: ctx.fontBold,
-      color: BRAND.primary,
+    page.drawRectangle({
+      x: 0,
+      y: FOOTER_HEIGHT,
+      width: PAGE_WIDTH,
+      height: PAGE_HEIGHT - FOOTER_HEIGHT,
+      color: BRAND.accentLight,
     });
-    ctx.page.drawText(toPdfSafeText(SCENARIO_LABELS[i]!), {
-      x: cardX + 12,
-      y: cardsTop - 32,
-      size: 8,
-      font: ctx.font,
-      color: BRAND.gray,
-    });
-    ctx.page.drawText(toPdfSafeText(formatCurrency(result.totalAnnualBenefit)), {
-      x: cardX + 12,
-      y: cardsTop - 54,
-      size: 15,
-      font: ctx.fontBold,
-      color: BRAND.secondary,
-    });
-    ctx.page.drawText(toPdfSafeText("per year"), {
-      x: cardX + 12,
-      y: cardsTop - 68,
-      size: 8,
-      font: ctx.font,
-      color: BRAND.gray,
-    });
-    ctx.page.drawText(
-      toPdfSafeText(`Slipping away: ${formatCurrency(getSlippingAwayAnnual(result.drivers))}`),
-      { x: cardX + 12, y: cardsTop - 82, size: 7, font: ctx.font, color: BRAND.gray, maxWidth: cardWidth - 20 },
-    );
-    ctx.page.drawText(
-      toPdfSafeText(`Upside: ${formatCurrency(getUntappedUpsideAnnual(result.drivers))}`),
-      { x: cardX + 12, y: cardsTop - 94, size: 7, font: ctx.font, color: BRAND.gray, maxWidth: cardWidth - 20 },
-    );
+
+    if (withMiniHeader) {
+      this.drawMiniHeader();
+    }
   }
 
-  ctx.y = cardsTop - cardHeight - 18;
-  drawSectionTitle(ctx, "Value Drivers (Moderate Scenario)");
+  ensureSpace(needed: number) {
+    if (this.ctx.y - needed < CONTENT_BOTTOM) {
+      this.drawFooter();
+      this.newPage(true);
+    }
+  }
 
-  const moderate = scenarios[1]!;
-  const tableTop = ctx.y;
-  const rowHeight = 20;
-  const colLabel = MARGIN;
-  const colUnits = MARGIN + 248;
-  const colValue = MARGIN + 392;
-
-  drawRoundedRect(
-    ctx.page,
-    MARGIN,
-    tableTop - rowHeight,
-    CONTENT_WIDTH,
-    rowHeight,
-    8,
-    BRAND.secondary,
-  );
-  for (const [label, x] of [
-    ["Driver", colLabel + 12],
-    ["Monthly Volume", colUnits + 8],
-    ["Annual Value", colValue + 8],
-  ] as const) {
-    ctx.page.drawText(toPdfSafeText(label), {
-      x,
-      y: tableTop - 14,
-      size: 8,
-      font: ctx.fontBold,
+  private drawMiniHeader() {
+    const h = 40;
+    this.ctx.page.drawRectangle({
+      x: 0,
+      y: PAGE_HEIGHT - h,
+      width: PAGE_WIDTH,
+      height: h,
       color: BRAND.white,
     });
+    this.ctx.page.drawRectangle({
+      x: 0,
+      y: PAGE_HEIGHT - 3,
+      width: PAGE_WIDTH,
+      height: 3,
+      color: BRAND.primary,
+    });
+    this.ctx.page.drawText(toPdfSafeText("624 "), {
+      x: MARGIN,
+      y: PAGE_HEIGHT - 26,
+      size: 11,
+      font: this.fontBold,
+      color: BRAND.secondary,
+    });
+    this.ctx.page.drawText(toPdfSafeText("Voice"), {
+      x: MARGIN + textWidth(this.fontBold, "624 ", 11),
+      y: PAGE_HEIGHT - 26,
+      size: 11,
+      font: this.fontBold,
+      color: BRAND.primary,
+    });
+    this.ctx.y = PAGE_HEIGHT - h - 12;
   }
 
-  let tableY = tableTop - rowHeight;
-  for (let i = 0; i < DRIVER_ORDER.length; i++) {
-    const key = DRIVER_ORDER[i]!;
-    const driver = moderate.drivers[key];
-    tableY -= rowHeight;
+  drawFooter() {
+    const { page } = this.ctx;
+    page.drawRectangle({
+      x: 0,
+      y: 0,
+      width: PAGE_WIDTH,
+      height: FOOTER_HEIGHT,
+      color: BRAND.secondary,
+    });
+    page.drawRectangle({
+      x: 0,
+      y: FOOTER_HEIGHT - 2,
+      width: PAGE_WIDTH,
+      height: 2,
+      color: BRAND.primary,
+    });
 
-    if (i % 2 === 0) {
-      ctx.page.drawRectangle({
-        x: MARGIN,
-        y: tableY,
-        width: CONTENT_WIDTH,
-        height: rowHeight,
-        color: BRAND.grayLight,
+    let x = MARGIN;
+    const y = 16;
+    drawLinkedText(this.ctx, "info@624voice.com", x, y, "mailto:info@624voice.com", {
+      size: 9,
+      color: BRAND.primary,
+    });
+    x += textWidth(this.font, "info@624voice.com", 9) + 10;
+    page.drawText(toPdfSafeText("|"), { x, y, size: 9, font: this.font, color: BRAND.muted });
+    x += 14;
+    drawLinkedText(this.ctx, "624voice.com", x, y, "https://624voice.com", {
+      size: 9,
+      color: BRAND.primary,
+    });
+
+    const pageLabel = `Page ${this.ctx.pageNumber}`;
+    page.drawText(toPdfSafeText(pageLabel), {
+      x: PAGE_WIDTH - MARGIN - textWidth(this.font, pageLabel, 8),
+      y: 16,
+      size: 8,
+      font: this.font,
+      color: BRAND.muted,
+    });
+  }
+
+  async drawCoverHeader() {
+    const { ctx } = this;
+    const cardTop = ctx.y;
+    const cardHeight = 118;
+    drawRoundedRect(
+      ctx.page,
+      MARGIN,
+      cardTop - cardHeight,
+      CONTENT_WIDTH,
+      cardHeight,
+      12,
+      BRAND.white,
+      BRAND.border,
+      1,
+    );
+
+    if (this.logoBytes) {
+      const logo = await ctx.pdf.embedPng(this.logoBytes);
+      ctx.page.drawImage(logo, {
+        x: (PAGE_WIDTH - 36) / 2,
+        y: cardTop - 36,
+        width: 36,
+        height: 36,
       });
     }
 
-    ctx.page.drawText(toPdfSafeText(driver.label), {
-      x: colLabel + 12,
-      y: tableY + 6,
-      size: 8.5,
+    const brandY = cardTop - 52;
+    const brand624 = "624 ";
+    const brand624W = textWidth(ctx.fontBold, brand624, 14);
+    const voiceW = textWidth(ctx.fontBold, "Voice", 14);
+    const brandStart = (PAGE_WIDTH - brand624W - voiceW) / 2;
+    ctx.page.drawText(toPdfSafeText(brand624), {
+      x: brandStart,
+      y: brandY,
+      size: 14,
       font: ctx.fontBold,
-      color: BRAND.text,
+      color: BRAND.secondary,
     });
-    ctx.page.drawText(toPdfSafeText(formatDriverMonthlyVolume(key, driver.monthlyUnits)), {
-      x: colUnits + 8,
-      y: tableY + 6,
-      size: 8,
-      font: ctx.font,
-      color: BRAND.gray,
-    });
-    ctx.page.drawText(toPdfSafeText(formatCurrency(driver.annualValue)), {
-      x: colValue + 8,
-      y: tableY + 6,
-      size: 8.5,
+    ctx.page.drawText(toPdfSafeText("Voice"), {
+      x: brandStart + brand624W,
+      y: brandY,
+      size: 14,
       font: ctx.fontBold,
       color: BRAND.primary,
     });
-  }
 
-  drawPageFooter(ctx);
-}
+    const titleW = textWidth(ctx.fontBold, PDF_TITLE, 13);
+    ctx.page.drawText(toPdfSafeText(PDF_TITLE), {
+      x: (PAGE_WIDTH - titleW) / 2,
+      y: cardTop - 72,
+      size: 13,
+      font: ctx.fontBold,
+      color: BRAND.secondary,
+    });
 
-function buildPage2(
-  ctx: PdfContext,
-  input: { trade: TradeKey; tradeLabel: string },
-) {
-  const { trade, tradeLabel } = input;
-  drawMiniHeader(ctx, tradeLabel);
-
-  // Guarantee box (matches website)
-  const guaranteeHeight = 88;
-  drawRoundedRect(
-    ctx.page,
-    MARGIN,
-    ctx.y - guaranteeHeight,
-    CONTENT_WIDTH,
-    guaranteeHeight,
-    12,
-    BRAND.primaryLight,
-    rgb(16 / 255, 185 / 255, 129 / 255),
-    1,
-  );
-
-  const guaranteeTitle = "90-Day Results Guarantee";
-  ctx.page.drawText(toPdfSafeText("90-Day "), {
-    x: (PAGE_WIDTH - textWidth(ctx.fontBold, guaranteeTitle, 13)) / 2,
-    y: ctx.y - 24,
-    size: 13,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  ctx.page.drawText(toPdfSafeText("Results Guarantee"), {
-    x:
-      (PAGE_WIDTH - textWidth(ctx.fontBold, guaranteeTitle, 13)) / 2 +
-      textWidth(ctx.fontBold, "90-Day ", 13),
-    y: ctx.y - 24,
-    size: 13,
-    font: ctx.fontBold,
-    color: BRAND.primary,
-  });
-
-  const guaranteeBody =
-    "We guarantee you recover at least our service investment in booked service-visit revenue within 90 days of go-live - or we keep working, for free, until you do.";
-  ctx.page.drawText(toPdfSafeText(guaranteeBody), {
-    x: MARGIN + 20,
-    y: ctx.y - 44,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.text,
-    maxWidth: CONTENT_WIDTH - 40,
-    lineHeight: 12,
-  });
-  ctx.page.drawText(
-    toPdfSafeText("If we don't perform, you don't pay beyond the Results Engagement Period."),
-    {
-      x: MARGIN + 20,
-      y: ctx.y - 72,
+    const subW = textWidth(ctx.font, PDF_SUBTITLE, 9);
+    ctx.page.drawText(toPdfSafeText(PDF_SUBTITLE), {
+      x: (PAGE_WIDTH - subW) / 2,
+      y: cardTop - 88,
       size: 9,
       font: ctx.font,
       color: BRAND.gray,
-      maxWidth: CONTENT_WIDTH - 40,
-    },
-  );
+    });
 
-  ctx.y -= guaranteeHeight + 16;
-  drawSectionTitle(ctx, "Methodology & Assumptions");
-
-  const lines = getAssumptionLines(trade);
-  const mid = Math.ceil(lines.length / 2);
-  const colWidth = (CONTENT_WIDTH - 16) / 2;
-  let leftY = ctx.y;
-  let rightY = ctx.y;
-
-  for (let i = 0; i < lines.length; i++) {
-    const isLeft = i < mid;
-    const x = isLeft ? MARGIN : MARGIN + colWidth + 16;
-    const y = isLeft ? leftY : rightY;
-    ctx.page.drawText(toPdfSafeText(`• ${lines[i]}`), {
-      x,
-      y,
+    const dateStr = new Date().toLocaleDateString("en-US", {
+      timeZone: "America/Chicago",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    ctx.page.drawText(toPdfSafeText(dateStr), {
+      x: (PAGE_WIDTH - textWidth(ctx.font, dateStr, 8)) / 2,
+      y: cardTop - 102,
       size: 8,
       font: ctx.font,
-      color: BRAND.gray,
-      maxWidth: colWidth - 8,
-      lineHeight: 10,
+      color: BRAND.accent,
     });
-    const used = 12;
-    if (isLeft) leftY -= used;
-    else rightY -= used;
+
+    ctx.y = cardTop - cardHeight - 14;
   }
 
-  ctx.y = Math.min(leftY, rightY) - 12;
-
-  // Next steps CTA panel
-  const ctaHeight = 108;
-  drawRoundedRect(
-    ctx.page,
-    MARGIN,
-    ctx.y - ctaHeight,
-    CONTENT_WIDTH,
-    ctaHeight,
-    12,
-    BRAND.accentLight,
-    BRAND.border,
-    1,
-  );
-
-  ctx.page.drawText(toPdfSafeText("Next Steps"), {
-    x: MARGIN + 20,
-    y: ctx.y - 22,
-    size: 13,
-    font: ctx.fontBold,
-    color: BRAND.secondary,
-  });
-  ctx.page.drawText(
-    toPdfSafeText("Ready to recover this revenue? Book a personalized demo with our team."),
-    {
-      x: MARGIN + 20,
-      y: ctx.y - 38,
+  drawClientCard(lead: LeadInfo, tradeLabel: string, truckCount: number, monthlyCalls: number) {
+    const h = 58;
+    this.ensureSpace(h + 8);
+    drawRoundedRect(
+      this.ctx.page,
+      MARGIN,
+      this.ctx.y - h,
+      CONTENT_WIDTH,
+      h,
+      10,
+      BRAND.white,
+      BRAND.border,
+      1,
+    );
+    const top = this.ctx.y - 16;
+    this.ctx.page.drawText(toPdfSafeText(`Prepared for ${formatLeadName(lead)}`), {
+      x: MARGIN + 14,
+      y: top,
       size: 10,
-      font: ctx.font,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+    this.ctx.page.drawText(toPdfSafeText(lead.businessName), {
+      x: MARGIN + 14,
+      y: top - 14,
+      size: 9,
+      font: this.ctx.font,
       color: BRAND.text,
-      maxWidth: CONTENT_WIDTH - 40,
-    },
-  );
-
-  ctx.y -= 52;
-  drawBookDemoButton(ctx, BOOK_MEETING_URL);
-
-  ctx.page.drawText(toPdfSafeText("Or email "), {
-    x: MARGIN + 20,
-    y: ctx.y,
-    size: 9,
-    font: ctx.font,
-    color: BRAND.gray,
-  });
-  const orX = MARGIN + 20 + textWidth(ctx.font, "Or email ", 9);
-  drawLinkedText(ctx, "info@624voice.com", orX, ctx.y, "mailto:info@624voice.com", {
-    size: 9,
-    color: BRAND.primary,
-  });
-
-  ctx.y -= 14;
-  ctx.page.drawText(
-    toPdfSafeText("624 Voice helps home services companies answer every call 24/7/365 on the first ring."),
-    {
-      x: MARGIN + 20,
-      y: ctx.y,
+    });
+    this.ctx.page.drawText(
+      toPdfSafeText(
+        `${tradeLabel}  ·  ${truckCount} trucks  ·  ${monthlyCalls.toLocaleString("en-US")} calls/mo`,
+      ),
+      { x: MARGIN + 14, y: top - 28, size: 8.5, font: this.ctx.font, color: BRAND.gray },
+    );
+    drawLinkedText(
+      this.ctx,
+      lead.email,
+      MARGIN + 300,
+      top - 14,
+      `mailto:${lead.email}`,
+      { size: 8.5, color: BRAND.primary },
+    );
+    this.ctx.page.drawText(toPdfSafeText(lead.phone), {
+      x: MARGIN + 300,
+      y: top - 28,
       size: 8.5,
-      font: ctx.font,
+      font: this.ctx.font,
       color: BRAND.gray,
-      maxWidth: CONTENT_WIDTH - 40,
-    },
-  );
+    });
+    this.ctx.y -= h + 12;
+  }
 
-  drawPageFooter(ctx);
+  drawModerateHero(
+    moderate: RoiResult,
+    tradeLabel: string,
+    truckCount: number,
+    monthlyCalls: number,
+  ) {
+    const h = 96;
+    this.ensureSpace(h + 10);
+    drawRoundedRect(
+      this.ctx.page,
+      MARGIN,
+      this.ctx.y - h,
+      CONTENT_WIDTH,
+      h,
+      12,
+      BRAND.emerald50,
+      BRAND.primary,
+      1.5,
+    );
+
+    const label = "MODERATE ESTIMATE";
+    this.ctx.page.drawText(toPdfSafeText(label), {
+      x: (PAGE_WIDTH - textWidth(this.ctx.fontBold, label, 8)) / 2,
+      y: this.ctx.y - 22,
+      size: 8,
+      font: this.ctx.fontBold,
+      color: BRAND.accent,
+    });
+
+    const amount = formatCurrency(moderate.totalAnnualBenefit);
+    const prefix = "You're missing about ";
+    const suffix = "+ every year";
+    const fullW =
+      textWidth(this.ctx.fontBold, prefix, 16) +
+      textWidth(this.ctx.fontBold, amount, 16) +
+      textWidth(this.ctx.fontBold, suffix, 16);
+    let x = (PAGE_WIDTH - fullW) / 2;
+    const y = this.ctx.y - 46;
+    this.ctx.page.drawText(toPdfSafeText(prefix), {
+      x,
+      y,
+      size: 16,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+    x += textWidth(this.ctx.fontBold, prefix, 16);
+    this.ctx.page.drawText(toPdfSafeText(amount), {
+      x,
+      y,
+      size: 16,
+      font: this.ctx.fontBold,
+      color: BRAND.primary,
+    });
+    x += textWidth(this.ctx.fontBold, amount, 16);
+    this.ctx.page.drawText(toPdfSafeText(suffix), {
+      x,
+      y,
+      size: 16,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+
+    const sub = `${tradeLabel} · ${truckCount} trucks · ${monthlyCalls.toLocaleString("en-US")} calls/mo`;
+    this.ctx.page.drawText(toPdfSafeText(sub), {
+      x: (PAGE_WIDTH - textWidth(this.ctx.font, sub, 9)) / 2,
+      y: this.ctx.y - 66,
+      size: 9,
+      font: this.ctx.font,
+      color: BRAND.gray,
+    });
+
+    this.ctx.page.drawText(toPdfSafeText("Revenue you're missing / year"), {
+      x: (PAGE_WIDTH - textWidth(this.ctx.font, "Revenue you're missing / year", 8)) / 2,
+      y: this.ctx.y - 80,
+      size: 8,
+      font: this.ctx.font,
+      color: BRAND.gray,
+    });
+
+    this.ctx.y -= h + 14;
+  }
+
+  drawScenarioCards(scenarios: RoiResult[]) {
+    this.drawHeading("Your Revenue Gap by Scenario", false);
+    const cardGap = 8;
+    const cardWidth = (CONTENT_WIDTH - cardGap * 2) / 3;
+    const cardHeight = 148;
+    this.ensureSpace(cardHeight + 6);
+    const cardsTop = this.ctx.y;
+
+    for (let i = 0; i < scenarios.length; i++) {
+      const result = scenarios[i]!;
+      const cardX = MARGIN + i * (cardWidth + cardGap);
+      const isModerate = i === MODERATE_INDEX;
+
+      drawRoundedRect(
+        this.ctx.page,
+        cardX,
+        cardsTop - cardHeight,
+        cardWidth,
+        cardHeight,
+        10,
+        isModerate ? BRAND.emerald50 : BRAND.white,
+        isModerate ? BRAND.primary : BRAND.border,
+        isModerate ? 2 : 1,
+      );
+
+      this.ctx.page.drawText(toPdfSafeText(SCENARIOS[i]!.toUpperCase()), {
+        x: cardX + 10,
+        y: cardsTop - 18,
+        size: 7.5,
+        font: this.ctx.fontBold,
+        color: BRAND.accent,
+      });
+      const rangeLabel =
+        i === 0 ? SCENARIO_LABELS[i]! : `And up to ${SCENARIO_LABELS[i]!}`;
+      this.ctx.page.drawText(toPdfSafeText(rangeLabel), {
+        x: cardX + 10,
+        y: cardsTop - 30,
+        size: 7,
+        font: this.ctx.font,
+        color: BRAND.gray,
+      });
+      this.ctx.page.drawText(toPdfSafeText(formatCurrency(result.totalAnnualBenefit)), {
+        x: cardX + 10,
+        y: cardsTop - 50,
+        size: 13,
+        font: this.ctx.fontBold,
+        color: BRAND.secondary,
+      });
+      this.ctx.page.drawText(toPdfSafeText("Revenue you're missing / year"), {
+        x: cardX + 10,
+        y: cardsTop - 62,
+        size: 6.5,
+        font: this.ctx.font,
+        color: BRAND.gray,
+      });
+
+      this.ctx.page.drawLine({
+        start: { x: cardX + 10, y: cardsTop - 70 },
+        end: { x: cardX + cardWidth - 10, y: cardsTop - 70 },
+        thickness: 0.5,
+        color: BRAND.border,
+      });
+
+      this.ctx.page.drawText(toPdfSafeText("Slipping away right now"), {
+        x: cardX + 10,
+        y: cardsTop - 82,
+        size: 6.5,
+        font: this.ctx.fontBold,
+        color: BRAND.secondary,
+      });
+      this.ctx.page.drawText(
+        toPdfSafeText(`${formatCurrency(getSlippingAwayAnnual(result.drivers))}/yr`),
+        { x: cardX + 10, y: cardsTop - 94, size: 7.5, font: this.ctx.fontBold, color: BRAND.primary },
+      );
+      this.ctx.page.drawText(toPdfSafeText("Missed-Call Recovery + No-Show Reduction"), {
+        x: cardX + 10,
+        y: cardsTop - 104,
+        size: 5.5,
+        font: this.ctx.font,
+        color: BRAND.gray,
+        maxWidth: cardWidth - 16,
+      });
+
+      this.ctx.page.drawText(toPdfSafeText("Untapped upside"), {
+        x: cardX + 10,
+        y: cardsTop - 118,
+        size: 6.5,
+        font: this.ctx.fontBold,
+        color: BRAND.secondary,
+      });
+      this.ctx.page.drawText(
+        toPdfSafeText(`${formatCurrency(getUntappedUpsideAnnual(result.drivers))}/yr`),
+        { x: cardX + 10, y: cardsTop - 130, size: 7.5, font: this.ctx.fontBold, color: BRAND.primary },
+      );
+      this.ctx.page.drawText(
+        toPdfSafeText("Outbound Campaigns + Job-Closer Upsells + Time Savings"),
+        { x: cardX + 10, y: cardsTop - 140, size: 5.5, font: this.ctx.font, color: BRAND.gray, maxWidth: cardWidth - 16 },
+      );
+    }
+
+    this.ctx.y = cardsTop - cardHeight - 14;
+  }
+
+  drawValueDriversTable(moderate: RoiResult) {
+    this.drawHeading("Value Drivers (Moderate Scenario)", false);
+    const rowHeight = 20;
+    const tableTop = this.ctx.y;
+    this.ensureSpace(rowHeight * 6 + 4);
+
+    drawRoundedRect(
+      this.ctx.page,
+      MARGIN,
+      tableTop - rowHeight,
+      CONTENT_WIDTH,
+      rowHeight,
+      8,
+      BRAND.secondary,
+    );
+    const cols = [
+      ["Driver", MARGIN + 12],
+      ["Monthly Volume", MARGIN + 230],
+      ["Annual Value", MARGIN + 390],
+    ] as const;
+    for (const [label, x] of cols) {
+      this.ctx.page.drawText(toPdfSafeText(label), {
+        x,
+        y: tableTop - 14,
+        size: 8,
+        font: this.ctx.fontBold,
+        color: BRAND.white,
+      });
+    }
+
+    let tableY = tableTop - rowHeight;
+    for (let i = 0; i < DRIVER_ORDER.length; i++) {
+      const key = DRIVER_ORDER[i]!;
+      const driver = moderate.drivers[key];
+      tableY -= rowHeight;
+      drawRoundedRect(
+        this.ctx.page,
+        MARGIN,
+        tableY,
+        CONTENT_WIDTH,
+        rowHeight,
+        0,
+        i % 2 === 0 ? BRAND.white : BRAND.grayLight,
+      );
+      this.ctx.page.drawText(toPdfSafeText(driver.label), {
+        x: MARGIN + 12,
+        y: tableY + 6,
+        size: 8,
+        font: this.ctx.fontBold,
+        color: BRAND.text,
+      });
+      this.ctx.page.drawText(toPdfSafeText(formatDriverMonthlyVolume(key, driver.monthlyUnits)), {
+        x: MARGIN + 230,
+        y: tableY + 6,
+        size: 7.5,
+        font: this.ctx.font,
+        color: BRAND.gray,
+      });
+      this.ctx.page.drawText(toPdfSafeText(formatCurrency(driver.annualValue)), {
+        x: MARGIN + 390,
+        y: tableY + 6,
+        size: 8,
+        font: this.ctx.fontBold,
+        color: BRAND.primary,
+      });
+    }
+    this.ctx.y = tableY - 16;
+  }
+
+  drawGuarantee() {
+    const h = 96;
+    this.ensureSpace(h + 10);
+    const boxBottom = this.ctx.y - h;
+    drawRoundedRect(
+      this.ctx.page,
+      MARGIN,
+      boxBottom,
+      CONTENT_WIDTH,
+      h,
+      12,
+      BRAND.primaryLight,
+      BRAND.primary,
+      1,
+    );
+
+    const title = "90-Day Results Guarantee";
+    this.ctx.page.drawText(toPdfSafeText("90-Day "), {
+      x: (PAGE_WIDTH - textWidth(this.ctx.fontBold, title, 12)) / 2,
+      y: this.ctx.y - 24,
+      size: 12,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+    this.ctx.page.drawText(toPdfSafeText("Results Guarantee"), {
+      x:
+        (PAGE_WIDTH - textWidth(this.ctx.fontBold, title, 12)) / 2 +
+        textWidth(this.ctx.fontBold, "90-Day ", 12),
+      y: this.ctx.y - 24,
+      size: 12,
+      font: this.ctx.fontBold,
+      color: BRAND.primary,
+    });
+
+    const bodyLines = wrapLines(this.ctx.font, GUARANTEE_BODY, 9, CONTENT_WIDTH - 40);
+    let lineY = this.ctx.y - 42;
+    for (const line of bodyLines) {
+      const w = textWidth(this.ctx.font, line, 9);
+      this.ctx.page.drawText(toPdfSafeText(line), {
+        x: (PAGE_WIDTH - w) / 2,
+        y: lineY,
+        size: 9,
+        font: this.ctx.font,
+        color: BRAND.text,
+      });
+      lineY -= 12;
+    }
+
+    const footLines = wrapLines(this.ctx.font, GUARANTEE_FOOTNOTE, 8.5, CONTENT_WIDTH - 40);
+    for (const line of footLines) {
+      const w = textWidth(this.ctx.font, line, 8.5);
+      this.ctx.page.drawText(toPdfSafeText(line), {
+        x: (PAGE_WIDTH - w) / 2,
+        y: lineY,
+        size: 8.5,
+        font: this.ctx.font,
+        color: BRAND.gray,
+      });
+      lineY -= 11;
+    }
+
+    this.ctx.y = boxBottom - 14;
+  }
+
+  drawHeading(title: string, withDividerAfter = true) {
+    this.ensureSpace(24);
+    this.ctx.page.drawText(toPdfSafeText(title), {
+      x: MARGIN,
+      y: this.ctx.y,
+      size: 12,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+    this.ctx.y -= 16;
+    if (withDividerAfter) {
+      this.drawDivider();
+    }
+  }
+
+  drawSectionHeading(title: string) {
+    this.ensureSpace(28);
+    this.ctx.page.drawText(toPdfSafeText(title), {
+      x: MARGIN,
+      y: this.ctx.y,
+      size: 10,
+      font: this.ctx.fontBold,
+      color: BRAND.secondary,
+    });
+    this.ctx.y -= 14;
+  }
+
+  drawSubheading(title: string) {
+    this.ensureSpace(18);
+    this.ctx.page.drawText(toPdfSafeText(title), {
+      x: MARGIN,
+      y: this.ctx.y,
+      size: 9,
+      font: this.ctx.fontBold,
+      color: BRAND.primary,
+    });
+    this.ctx.y -= 12;
+  }
+
+  drawParagraph(text: string, size = 9, gap = 8) {
+    const lines = wrapLines(this.ctx.font, text, size, CONTENT_WIDTH);
+    const lineHeight = size * 1.45;
+    this.ensureSpace(lines.length * lineHeight + gap);
+    for (const line of lines) {
+      this.ctx.page.drawText(toPdfSafeText(line), {
+        x: MARGIN,
+        y: this.ctx.y,
+        size,
+        font: this.ctx.font,
+        color: BRAND.text,
+      });
+      this.ctx.y -= lineHeight;
+    }
+    this.ctx.y -= gap;
+  }
+
+  drawDivider() {
+    this.ensureSpace(14);
+    this.ctx.page.drawLine({
+      start: { x: MARGIN, y: this.ctx.y },
+      end: { x: PAGE_WIDTH - MARGIN, y: this.ctx.y },
+      thickness: 0.75,
+      color: BRAND.border,
+    });
+    this.ctx.y -= 14;
+  }
+
+  drawNarrativeSections() {
+    for (const section of NARRATIVE_SECTIONS) {
+      this.drawSectionHeading(section.title);
+      for (const paragraph of section.paragraphs) {
+        this.drawParagraph(paragraph);
+      }
+      if (section.subsections) {
+        for (const sub of section.subsections) {
+          this.drawSubheading(sub.title);
+          for (const paragraph of sub.paragraphs) {
+            this.drawParagraph(paragraph);
+          }
+        }
+      }
+      this.drawDivider();
+    }
+  }
+
+  drawBookButton(url: string) {
+    const label = BOOK_DEMO_LABEL;
+    const fontSize = 13;
+    const padX = 22;
+    const padY = 11;
+    const labelWidth = textWidth(this.ctx.fontBold, label, fontSize);
+    const buttonWidth = labelWidth + padX * 2;
+    const buttonHeight = fontSize + padY * 2;
+    const buttonX = MARGIN + 18;
+    const buttonY = this.ctx.y - buttonHeight;
+    this.ensureSpace(buttonHeight + 8);
+
+    drawRoundedRect(
+      this.ctx.page,
+      buttonX + 1,
+      buttonY - 2,
+      buttonWidth,
+      buttonHeight,
+      8,
+      rgb(0.06, 0.73, 0.51),
+      undefined,
+      0,
+    );
+    drawRoundedRect(
+      this.ctx.page,
+      buttonX,
+      buttonY,
+      buttonWidth,
+      buttonHeight,
+      8,
+      BRAND.primary,
+    );
+
+    this.ctx.page.drawText(toPdfSafeText(label), {
+      x: buttonX + padX,
+      y: buttonY + padY,
+      size: fontSize,
+      font: this.ctx.fontBold,
+      color: BRAND.white,
+    });
+
+    addLinkAnnotation(this.ctx, buttonX, buttonY, buttonWidth, buttonHeight, url);
+    this.ctx.y = buttonY - 10;
+  }
+
+  finish() {
+    this.drawFooter();
+  }
 }
 
 export async function buildRoiPdfDocument(input: {
@@ -818,42 +934,31 @@ export async function buildRoiPdfDocument(input: {
 }): Promise<Uint8Array> {
   const { trade, truckCount, monthlyCalls, lead, scenarios } = input;
   const tradeLabel = TRADES[trade].label;
-  const conservative = scenarios[0]!;
+  const moderate = scenarios[MODERATE_INDEX]!;
   const logoBytes = loadLogoBytes();
 
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-  const page1 = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  const ctx1: PdfContext = {
-    pdf,
-    page: page1,
-    y: PAGE_HEIGHT,
-    font,
-    fontBold,
-  };
+  const layout = new PdfLayout(pdf, font, fontBold, tradeLabel, logoBytes);
+  layout.start();
 
-  buildPage1(ctx1, {
-    tradeLabel,
-    truckCount,
-    monthlyCalls,
-    lead,
-    scenarios,
-    conservative,
-    logoBytes,
-  });
+  await layout.drawCoverHeader();
+  layout.drawClientCard(lead, tradeLabel, truckCount, monthlyCalls);
+  layout.drawModerateHero(moderate, tradeLabel, truckCount, monthlyCalls);
+  layout.drawScenarioCards(scenarios);
+  layout.drawValueDriversTable(moderate);
+  layout.drawGuarantee();
+  layout.drawNarrativeSections();
 
-  const page2 = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  const ctx2: PdfContext = {
-    pdf,
-    page: page2,
-    y: PAGE_HEIGHT,
-    font,
-    fontBold,
-  };
+  layout.drawDivider();
+  layout.drawSectionHeading(NEXT_STEPS_TITLE);
+  for (const paragraph of NEXT_STEPS_PARAGRAPHS) {
+    layout.drawParagraph(paragraph, 9, 6);
+  }
+  layout.drawBookButton(BOOK_MEETING_URL);
 
-  buildPage2(ctx2, { trade, tradeLabel });
-
+  layout.finish();
   return pdf.save();
 }
