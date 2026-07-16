@@ -17,6 +17,24 @@ export type LeadPayload = LeadInfo & {
 
 const savedEmails = new Set<string>();
 
+function formatCentralTimestamp(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
+
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? "";
+
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} ${get("dayPeriod")} CT`;
+}
+
 /**
  * POST lead JSON to LEADS_WEBHOOK_URL (server-only env — no VITE_ prefix).
  * Point the webhook at Zapier, HubSpot, n8n, email, etc. No DB dependency.
@@ -53,7 +71,7 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
       message: payload.message,
       website: payload.website,
       source: payload.source,
-      capturedAt: new Date().toISOString(),
+      capturedAt: formatCentralTimestamp(),
     }),
   });
 

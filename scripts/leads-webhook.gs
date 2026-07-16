@@ -13,6 +13,16 @@
 
 const SHEET_ID = "1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw";
 const LEADS_EMAIL = "info@624voice.com";
+const TIME_ZONE = "America/Chicago";
+
+/** Format as Central Time, e.g. "2026-07-16 1:57:07 PM CT" */
+function formatCentralTimestamp(value) {
+  const date = value ? new Date(value) : new Date();
+  if (isNaN(date.getTime())) {
+    return String(value || "");
+  }
+  return Utilities.formatDate(date, TIME_ZONE, "yyyy-MM-dd h:mm:ss a") + " CT";
+}
 
 function doPost(e) {
   try {
@@ -48,7 +58,7 @@ function appendLeadRow(data) {
   const { firstName, lastName } = splitName(data);
 
   sheet.appendRow([
-    data.capturedAt || new Date().toISOString(),
+    formatCentralTimestamp(data.capturedAt),
     firstName,
     lastName,
     data.businessName || "",
@@ -82,7 +92,7 @@ function sendLeadEmail(data) {
     `Monthly calls: ${data.monthlyCalls ?? ""}`,
     `Truck count: ${data.truckCount ?? ""}`,
     "",
-    `Captured at: ${data.capturedAt || new Date().toISOString()}`,
+    `Captured at: ${formatCentralTimestamp(data.capturedAt)}`,
   ].join("\n");
 
   GmailApp.sendEmail(LEADS_EMAIL, subject, body, {
