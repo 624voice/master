@@ -7,5 +7,8 @@ export const MAX_TRUCK_COUNT = 50;
 
 export const BOOK_MEETING_URL = "/contact";
 
+export const CALENDAR_BOOKING_URL =
+  "https://calendar.app.google/hpzTSkjb9NTqaMjh9";
+
 export const ROI_DISCLAIMER =
   "Estimates based on industry averages. Your results may vary.";

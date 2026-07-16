@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { PDFDocument, StandardFonts, rgb, type PDFPage, type PDFFont } from "pdf-lib";
+import { PDFDocument, PDFName, PDFString, StandardFonts, rgb, type PDFPage, type PDFFont } from "pdf-lib";
+import { CALENDAR_BOOKING_URL } from "~/config/features";
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import { formatLeadName } from "~/lib/lead/validateLead";
 import type { RoiResult } from "~/lib/roi/computeRoi";
@@ -36,6 +37,23 @@ const DRIVER_ORDER = [
   "jobCloserUpsells",
   "timeSavings",
 ] as const;
+
+type DriverKey = (typeof DRIVER_ORDER)[number];
+
+function formatDriverMonthlyVolume(key: DriverKey, units: number): string {
+  switch (key) {
+    case "missedCallRecovery":
+      return `${units} booked jobs/mo`;
+    case "noShowReduction":
+      return `${units} appts saved/mo`;
+    case "outboundSms":
+      return `${units} new jobs/mo`;
+    case "jobCloserUpsells":
+      return `${units} upsell jobs/mo`;
+    case "timeSavings":
+      return `${units} admin hrs/mo`;
+  }
+}
 
 export function toPdfSafeText(text: string): string {
   return text
@@ -396,7 +414,7 @@ export async function buildRoiPdfDocument(input: {
       font: fontBold,
       color: BRAND.text,
     });
-    ctx.page.drawText(toPdfSafeText(String(driver.monthlyUnits)), {
+    ctx.page.drawText(toPdfSafeText(formatDriverMonthlyVolume(key, driver.monthlyUnits)), {
       x: colUnits + 12,
       y: tableY + 7,
       size: 9,
@@ -476,9 +494,14 @@ export async function buildRoiPdfDocument(input: {
 
   setY(ctx.y - 12);
   drawText("Next Steps", { size: 13, bold: true, color: BRAND.secondary });
-  drawText("Book a personalized demo at 624voice.com/contact or email info@624voice.com.", {
+  drawText("Ready to recover this revenue? Book a personalized demo with our team.", {
     size: 10,
     color: BRAND.text,
+  });
+  drawBookDemoButton(ctx, CALENDAR_BOOKING_URL);
+  drawText("Or email info@624voice.com", {
+    size: 9,
+    color: BRAND.gray,
   });
   drawText("624 Voice helps home services companies answer every call 24/7/365 on the first ring.", {
     size: 9,
@@ -524,11 +547,70 @@ function drawPageFooter(ctx: PdfContext) {
     height: footerHeight,
     color: BRAND.secondary,
   });
-  ctx.page.drawText(toPdfSafeText("info@624voice.com  |  624voice.com  |  Book a demo at /contact"), {
+  ctx.page.drawText(toPdfSafeText("info@624voice.com  |  624voice.com"), {
     x: MARGIN,
     y: 12,
     size: 9,
     font: ctx.font,
     color: rgb(0.75, 0.8, 0.85),
   });
+}
+
+function addLinkAnnotation(
+  ctx: PdfContext,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  url: string,
+) {
+  const annotation = ctx.pdf.context.register(
+    ctx.pdf.context.obj({
+      Type: "Annot",
+      Subtype: "Link",
+      Rect: [x, y, x + width, y + height],
+      Border: [0, 0, 0],
+      A: {
+        Type: "Action",
+        S: "URI",
+        URI: PDFString.of(url),
+      },
+    }),
+  );
+
+  const annotsRef = ctx.page.node.get(PDFName.of("Annots"));
+  if (annotsRef) {
+    const annots = ctx.pdf.context.lookup(annotsRef);
+    annots.push(annotation);
+  } else {
+    ctx.page.node.set(PDFName.of("Annots"), ctx.pdf.context.obj([annotation]));
+  }
+}
+
+function drawBookDemoButton(ctx: PdfContext, url: string) {
+  const buttonWidth = 132;
+  const buttonHeight = 32;
+  const buttonX = MARGIN;
+  const buttonY = ctx.y - buttonHeight;
+
+  ctx.page.drawRectangle({
+    x: buttonX,
+    y: buttonY,
+    width: buttonWidth,
+    height: buttonHeight,
+    color: BRAND.primary,
+  });
+
+  const label = "Book a Demo";
+  const labelWidth = ctx.fontBold.widthOfTextAtSize(label, 11);
+  ctx.page.drawText(toPdfSafeText(label), {
+    x: buttonX + (buttonWidth - labelWidth) / 2,
+    y: buttonY + 10,
+    size: 11,
+    font: ctx.fontBold,
+    color: BRAND.white,
+  });
+
+  addLinkAnnotation(ctx, buttonX, buttonY, buttonWidth, buttonHeight, url);
+  ctx.y = buttonY - 16;
 }
