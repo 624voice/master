@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import {
   normalizeLeadInfo,
+  resolveContactWebsite,
   validateLeadInfo,
+  validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
@@ -25,6 +27,8 @@ export type PdfRequest = {
   truckCount: number;
   monthlyCalls: number;
   lead: LeadInfo;
+  websiteOption: "has" | "none";
+  website?: string;
 };
 
 const DRIVER_ORDER = [
@@ -38,11 +42,17 @@ const DRIVER_ORDER = [
 export const generateRoiPdf = createServerFn({ method: "POST" })
   .validator((data: PdfRequest) => data)
   .handler(async ({ data }) => {
-    const { trade, truckCount, monthlyCalls, lead } = data;
+    const { trade, truckCount, monthlyCalls, lead, websiteOption, website } =
+      data;
 
     const leadError = validateLeadInfo(lead);
     if (leadError) {
       throw new Error(leadError);
+    }
+
+    const websiteError = validateWebsiteFields(websiteOption, website);
+    if (websiteError) {
+      throw new Error(websiteError);
     }
 
     const normalizedLead = normalizeLeadInfo(lead);
@@ -53,9 +63,11 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
-      trade,
+      trade: TRADES[trade].label,
       monthlyCalls,
       truckCount,
+      fleetSize: String(truckCount),
+      website: resolveContactWebsite(websiteOption, website),
       source: "missing_money_pdf",
     });
 

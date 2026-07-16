@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   normalizeLeadInfo,
+  resolveContactWebsite,
   validateLeadInfo,
+  validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import {
@@ -21,6 +23,9 @@ type RevenueRequest = {
 
 type UnlockRequest = RevenueRequest & {
   lead: LeadInfo;
+  truckCount: number;
+  websiteOption: "has" | "none";
+  website?: string;
 };
 
 function assertValidInput(trade: TradeKey, monthlyCalls: number) {
@@ -51,20 +56,33 @@ export const getFullBreakdown = createServerFn({ method: "POST" })
 export const unlockRevenue = createServerFn({ method: "POST" })
   .validator((data: UnlockRequest) => data)
   .handler(async ({ data }) => {
-    const { trade, monthlyCalls, lead } = data;
+    const { trade, monthlyCalls, lead, truckCount, websiteOption, website } =
+      data;
     assertValidInput(trade, monthlyCalls);
+
+    if (!Number.isFinite(truckCount) || truckCount <= 0) {
+      throw new Error("Truck count must be a positive number");
+    }
 
     const leadError = validateLeadInfo(lead);
     if (leadError) {
       throw new Error(leadError);
     }
 
+    const websiteError = validateWebsiteFields(websiteOption, website);
+    if (websiteError) {
+      throw new Error(websiteError);
+    }
+
     const normalizedLead = normalizeLeadInfo(lead);
 
     await saveLead({
       ...normalizedLead,
-      trade,
+      trade: TRADES[trade].label,
       monthlyCalls,
+      truckCount,
+      fleetSize: String(truckCount),
+      website: resolveContactWebsite(websiteOption, website),
       source: "missing_money",
     });
 

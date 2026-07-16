@@ -46,23 +46,19 @@ export function resolveContactWebsite(
   return `https://${value}`;
 }
 
-export function validateContactFields(fields: ContactFields): string | null {
-  if (!fields.trade.trim()) return "Trade is required.";
-  if (!CONTACT_TRADES.includes(fields.trade as ContactTrade)) {
-    return "Select a valid trade.";
-  }
-  if (fields.trade === "Other" && !fields.otherTrade?.trim()) {
-    return "Please enter your trade.";
-  }
-  if (fields.websiteOption !== "has" && fields.websiteOption !== "none") {
+export function validateWebsiteFields(
+  websiteOption: "has" | "none" | "",
+  website?: string,
+): string | null {
+  if (websiteOption !== "has" && websiteOption !== "none") {
     return "Please select a website option.";
   }
-  if (fields.websiteOption === "has") {
-    const website = fields.website?.trim() ?? "";
-    if (!website) return "Website is required.";
-    const withProtocol = /^https?:\/\//i.test(website)
-      ? website
-      : `https://${website}`;
+  if (websiteOption === "has") {
+    const value = website?.trim() ?? "";
+    if (!value) return "Website is required.";
+    const withProtocol = /^https?:\/\//i.test(value)
+      ? value
+      : `https://${value}`;
     try {
       const parsed = new URL(withProtocol);
       if (!parsed.hostname.includes(".")) {
@@ -72,6 +68,22 @@ export function validateContactFields(fields: ContactFields): string | null {
       return "Enter a valid website URL.";
     }
   }
+  return null;
+}
+
+export function validateContactFields(fields: ContactFields): string | null {
+  if (!fields.trade.trim()) return "Trade is required.";
+  if (!CONTACT_TRADES.includes(fields.trade as ContactTrade)) {
+    return "Select a valid trade.";
+  }
+  if (fields.trade === "Other" && !fields.otherTrade?.trim()) {
+    return "Please enter your trade.";
+  }
+  const websiteError = validateWebsiteFields(
+    fields.websiteOption,
+    fields.website,
+  );
+  if (websiteError) return websiteError;
   if (!fields.fleetSize.trim()) return "Fleet size is required.";
   if (!fields.message.trim()) return "Please tell us what we can help with.";
   return null;

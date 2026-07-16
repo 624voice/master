@@ -6,7 +6,9 @@ Site lead forms POST to `LEADS_WEBHOOK_URL`. Point that env var at a Google Apps
 
 Row 1 headers should match the contact intake form:
 
-`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Message`
+`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message`
+
+ROI calculator leads populate **Fleet Size**, **Monthly Calls**, and **Truck Count** from the calculator (exact truck count and call volume). Contact form leads leave **Monthly Calls** and **Truck Count** blank and use a fleet-size range for **Fleet Size**.
 
 ## 1. Deploy the Apps Script
 

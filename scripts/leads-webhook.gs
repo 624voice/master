@@ -5,8 +5,8 @@
  * 1. Appends a row to your Google Sheet
  * 2. Emails info@624voice.com
  *
- * Sheet columns (row 1 headers) must match the contact intake form:
- * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Message
+ * Sheet columns (row 1 headers):
+ * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message
  *
  * Setup: see docs/leads-webhook-setup.md
  */
@@ -57,6 +57,8 @@ function appendLeadRow(data) {
     data.email || "",
     data.phone || "",
     data.fleetSize || "",
+    data.monthlyCalls ?? "",
+    data.truckCount ?? "",
     data.message || "",
   ]);
 }
@@ -100,6 +102,8 @@ function testLeadWebhook() {
     trade: "Plumbing",
     website: "https://example.com",
     fleetSize: "3-7",
+    monthlyCalls: 120,
+    truckCount: 5,
     message: "Setup test from Apps Script",
   };
   appendLeadRow(sample);
