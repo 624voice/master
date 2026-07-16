@@ -1,10 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { submitContactLead } from "~/server/submitContactLead";
 
 export const Route = createFileRoute("/contact")({
   component: Contact,
 });
 
+const inputClassName =
+  "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
+
 function Contact() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [fleetSize, setFleetSize] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await submitContactLead({
+        data: {
+          firstName,
+          lastName,
+          businessName,
+          email,
+          phone,
+          fleetSize: fleetSize || undefined,
+          message: message || undefined,
+        },
+      });
+      setSuccess(true);
+      setFirstName("");
+      setLastName("");
+      setBusinessName("");
+      setEmail("");
+      setPhone("");
+      setFleetSize("");
+      setMessage("");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not send your message. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="pt-20">
       {/* HERO */}
@@ -37,121 +89,167 @@ function Contact() {
                 Fill out the form below and we'll get back to you within 24
                 hours to schedule your personalized demo.
               </p>
-              <form
-                className="mt-8 space-y-6"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <div className="grid gap-6 sm:grid-cols-2">
+              {success ? (
+                <div className="mt-8 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6">
+                  <h3 className="text-lg font-semibold text-brand-secondary">
+                    Message sent
+                  </h3>
+                  <p className="mt-2 text-sm text-brand-secondary">
+                    Thanks — we received your message and will get back to you
+                    within 24 hours.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSuccess(false)}
+                    className="mt-4 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="firstName"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className={inputClassName}
+                        placeholder="John"
+                        autoComplete="given-name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="lastName"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className={inputClassName}
+                        placeholder="Doe"
+                        autoComplete="family-name"
+                        required
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label
-                      htmlFor="firstName"
+                      htmlFor="businessName"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      First Name
+                      Business Name
                     </label>
                     <input
                       type="text"
-                      id="firstName"
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                      placeholder="John"
+                      id="businessName"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      className={inputClassName}
+                      placeholder="Your Company LLC"
+                      autoComplete="organization"
+                      required
                     />
                   </div>
                   <div>
                     <label
-                      htmlFor="lastName"
+                      htmlFor="email"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      Last Name
+                      Email Address
                     </label>
                     <input
-                      type="text"
-                      id="lastName"
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                      placeholder="Doe"
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputClassName}
+                      placeholder="john@yourcompany.com"
+                      autoComplete="email"
+                      required
                     />
                   </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="businessName"
-                    className="block text-sm font-medium text-gray-700"
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={inputClassName}
+                      placeholder="(555) 123-4567"
+                      autoComplete="tel"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="fleetSize"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Fleet Size (approx. trucks)
+                    </label>
+                    <select
+                      id="fleetSize"
+                      value={fleetSize}
+                      onChange={(e) => setFleetSize(e.target.value)}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                    >
+                      <option value="">Select fleet size...</option>
+                      <option value="1-2">1–2 Trucks</option>
+                      <option value="3-7">3–7 Trucks</option>
+                      <option value="7-20">7–20 Trucks</option>
+                      <option value="20-50">20–50 Trucks</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      What can we help with?
+                    </label>
+                    <textarea
+                      id="message"
+                      rows={4}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className={inputClassName}
+                      placeholder="Tell us about your business and what you're looking for..."
+                    />
+                  </div>
+                  {error && (
+                    <p className="text-sm text-red-600" role="alert">
+                      {error}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Business Name
-                  </label>
-                  <input
-                    type="text"
-                    id="businessName"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                    placeholder="Your Company LLC"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                    placeholder="john@yourcompany.com"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="fleetSize"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Fleet Size (approx. trucks)
-                  </label>
-                  <select
-                    id="fleetSize"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                  >
-                    <option value="">Select fleet size...</option>
-                    <option value="1-2">1–2 Trucks</option>
-                    <option value="3-7">3–7 Trucks</option>
-                    <option value="7-20">7–20 Trucks</option>
-                    <option value="20-50">20–50 Trucks</option>
-                  </select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    What can we help with?
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={4}
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                    placeholder="Tell us about your business and what you're looking for..."
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-                >
-                  Send Message
-                </button>
-              </form>
+                    {loading ? "Sending…" : "Send Message"}
+                  </button>
+                </form>
+              )}
             </div>
 
             {/* Contact info & CTA */}
