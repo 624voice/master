@@ -40,6 +40,17 @@ const DRIVER_ORDER = [
   "timeSavings",
 ] as const;
 
+/** Standard PDF fonts only support WinAnsi — replace common Unicode punctuation. */
+function toPdfSafeText(text: string): string {
+  return text
+    .replace(/\u2192/g, "->")
+    .replace(/\u2014/g, "-")
+    .replace(/\u2013/g, "-")
+    .replace(/\u00d7/g, "x")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"');
+}
+
 export const generateRoiPdf = createServerFn({ method: "POST" })
   .validator((data: PdfRequest) => data)
   .handler(async ({ data }) => {
@@ -112,7 +123,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       const color = opts.color ?? dark;
       const indent = opts.indent ?? 0;
       ensureSpace(size + 6);
-      page.drawText(text, {
+      page.drawText(toPdfSafeText(text), {
         x: margin + indent,
         y,
         size,
@@ -130,7 +141,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       height: 36,
       color: emerald,
     });
-    page.drawText("624 Voice — Revenue You're Missing", {
+    page.drawText(toPdfSafeText("624 Voice - Revenue You're Missing"), {
       x: margin + 8,
       y: y - 8,
       size: 18,
@@ -191,7 +202,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       const driver = moderate.drivers[key];
       drawText(driver.label, { size: 10, bold: true, indent: 8 });
       drawText(
-        `${driver.monthlyUnits} per month → ${formatCurrency(driver.annualValue)}/yr`,
+        `${driver.monthlyUnits} per month -> ${formatCurrency(driver.annualValue)}/yr`,
         { size: 10, indent: 16, color: gray },
       );
     }
