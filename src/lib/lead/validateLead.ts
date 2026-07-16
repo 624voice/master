@@ -1,5 +1,6 @@
 export type LeadInfo = {
-  name: string;
+  firstName: string;
+  lastName: string;
   businessName: string;
   email: string;
   phone: string;
@@ -89,8 +90,15 @@ export function validateContactFields(fields: ContactFields): string | null {
   return null;
 }
 
+export function formatLeadName(
+  lead: Pick<LeadInfo, "firstName" | "lastName">,
+): string {
+  return `${lead.firstName.trim()} ${lead.lastName.trim()}`.trim();
+}
+
 export function validateLeadInfo(lead: LeadInfo): string | null {
-  if (!lead.name.trim()) return "Name is required.";
+  if (!lead.firstName.trim()) return "First name is required.";
+  if (!lead.lastName.trim()) return "Last name is required.";
   if (!lead.businessName.trim()) return "Business name is required.";
   if (!lead.email.trim()) return "Email is required.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim())) {
@@ -104,7 +112,8 @@ export function validateLeadInfo(lead: LeadInfo): string | null {
 
 export function normalizeLeadInfo(lead: LeadInfo): LeadInfo {
   return {
-    name: lead.name.trim(),
+    firstName: lead.firstName.trim(),
+    lastName: lead.lastName.trim(),
     businessName: lead.businessName.trim(),
     email: lead.email.trim().toLowerCase(),
     phone: lead.phone.trim(),

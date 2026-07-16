@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import {
+  formatLeadName,
   normalizeLeadInfo,
   resolveContactWebsite,
   validateLeadInfo,
@@ -139,7 +140,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     y -= 48;
 
     drawText(tradeLabel, { size: 14, bold: true, color: emerald });
-    drawText(`Prepared for: ${normalizedLead.name}`, { size: 11 });
+    drawText(`Prepared for: ${formatLeadName(normalizedLead)}`, { size: 11 });
     drawText(`Business: ${normalizedLead.businessName}`, { size: 11 });
     drawText(`Trucks: ${truckCount}`, { size: 11 });
     drawText(

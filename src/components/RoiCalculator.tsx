@@ -30,7 +30,8 @@ const inputClassName =
   "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
 
 const emptyLead: LeadInfo = {
-  name: "",
+  firstName: "",
+  lastName: "",
   businessName: "",
   email: "",
   phone: "",
@@ -559,23 +560,43 @@ export function RoiCalculator() {
                           onSubmit={handleUnlock}
                           className="mt-6 grid gap-4 sm:grid-cols-2"
                         >
-                          <div className="sm:col-span-2">
+                          <div>
                             <label
-                              htmlFor="unlock-name"
+                              htmlFor="unlock-first-name"
                               className="block text-sm font-medium text-gray-700"
                             >
-                              Name
+                              First name
                             </label>
                             <input
-                              id="unlock-name"
+                              id="unlock-first-name"
                               type="text"
-                              value={lead.name}
+                              value={lead.firstName}
                               onChange={(e) =>
-                                updateLead("name", e.target.value)
+                                updateLead("firstName", e.target.value)
                               }
-                              placeholder="John Smith"
+                              placeholder="John"
                               className={inputClassName}
-                              autoComplete="name"
+                              autoComplete="given-name"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label
+                              htmlFor="unlock-last-name"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Last name
+                            </label>
+                            <input
+                              id="unlock-last-name"
+                              type="text"
+                              value={lead.lastName}
+                              onChange={(e) =>
+                                updateLead("lastName", e.target.value)
+                              }
+                              placeholder="Smith"
+                              className={inputClassName}
+                              autoComplete="family-name"
                               required
                             />
                           </div>
