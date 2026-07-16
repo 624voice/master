@@ -8,6 +8,9 @@ export type LeadPayload = LeadInfo & {
   trade?: string;
   monthlyCalls?: number;
   truckCount?: number;
+  fleetSize?: string;
+  message?: string;
+  website?: string;
   source: string;
 };
 
@@ -43,6 +46,9 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
       trade: payload.trade,
       monthlyCalls: payload.monthlyCalls,
       truckCount: payload.truckCount,
+      fleetSize: payload.fleetSize,
+      message: payload.message,
+      website: payload.website,
       source: payload.source,
       capturedAt: new Date().toISOString(),
     }),
