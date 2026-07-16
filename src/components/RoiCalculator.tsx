@@ -8,6 +8,7 @@ import {
 } from "~/config/features";
 import {
   validateLeadInfo,
+  validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import {
@@ -203,6 +204,8 @@ export function RoiCalculator() {
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<LeadInfo>(emptyLead);
+  const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
+  const [website, setWebsite] = useState("");
 
   const truckCount = parseInt(truckInput, 10);
   const hasValidTrucks =
@@ -237,6 +240,8 @@ export function RoiCalculator() {
     setUnlocked(false);
     setShowDrivers(false);
     setError(null);
+    setWebsiteOption("");
+    setWebsite("");
   };
 
   const handleTradeChange = (value: string) => {
@@ -289,11 +294,17 @@ export function RoiCalculator() {
 
   const handleUnlock = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!trade || !hasValidCalls) return;
+    if (!trade || !hasValidCalls || clampedTrucks === null) return;
 
     const validationError = validateLeadInfo(lead);
     if (validationError) {
       setError(validationError);
+      return;
+    }
+
+    const websiteError = validateWebsiteFields(websiteOption, website);
+    if (websiteError) {
+      setError(websiteError);
       return;
     }
 
@@ -302,7 +313,14 @@ export function RoiCalculator() {
 
     try {
       const { scenarios } = await unlockRevenue({
-        data: { trade, monthlyCalls, lead },
+        data: {
+          trade,
+          monthlyCalls,
+          truckCount: clampedTrucks,
+          lead,
+          websiteOption,
+          website: websiteOption === "has" ? website : undefined,
+        },
       });
       setBreakdown(scenarios);
       setUnlocked(true);
@@ -331,6 +349,8 @@ export function RoiCalculator() {
           truckCount: clampedTrucks,
           monthlyCalls,
           lead,
+          websiteOption,
+          website: websiteOption === "has" ? website : undefined,
         },
       });
 
@@ -619,6 +639,54 @@ export function RoiCalculator() {
                               required
                             />
                           </div>
+                          <fieldset className="space-y-3 sm:col-span-2">
+                            <legend className="block text-sm font-medium text-gray-700">
+                              What is your website?
+                            </legend>
+                            <label className="flex items-center gap-2 text-sm text-gray-700">
+                              <input
+                                type="radio"
+                                name="unlock-websiteOption"
+                                value="has"
+                                checked={websiteOption === "has"}
+                                onChange={() => {
+                                  setWebsiteOption("has");
+                                  setError(null);
+                                }}
+                                required
+                              />
+                              I have a website
+                            </label>
+                            {websiteOption === "has" && (
+                              <input
+                                type="text"
+                                id="unlock-website"
+                                value={website}
+                                onChange={(e) => {
+                                  setWebsite(e.target.value);
+                                  setError(null);
+                                }}
+                                className={inputClassName}
+                                placeholder="https://yourcompany.com"
+                                autoComplete="url"
+                                required
+                              />
+                            )}
+                            <label className="flex items-center gap-2 text-sm text-gray-700">
+                              <input
+                                type="radio"
+                                name="unlock-websiteOption"
+                                value="none"
+                                checked={websiteOption === "none"}
+                                onChange={() => {
+                                  setWebsiteOption("none");
+                                  setWebsite("");
+                                  setError(null);
+                                }}
+                              />
+                              I don&apos;t have a website
+                            </label>
+                          </fieldset>
                           <div className="sm:col-span-2">
                             <Button
                               type="submit"
