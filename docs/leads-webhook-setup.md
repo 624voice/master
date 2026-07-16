@@ -2,17 +2,17 @@
 
 Site lead forms POST to `LEADS_WEBHOOK_URL`. Point that env var at a Google Apps Script web app that appends each lead to a Sheet and emails **info@624voice.com**.
 
-## 1. Create the Google Sheet
+**Your leads sheet:** [624 Voice Leads](https://docs.google.com/spreadsheets/d/1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw/edit)
 
-1. Open [Google Sheets](https://sheets.google.com) and create a new spreadsheet (e.g. "624 Voice Leads").
-2. Copy the **Sheet ID** from the URL:
-   `https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit`
+Row 1 headers should match the contact intake form:
 
-## 2. Deploy the Apps Script
+`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Message`
 
-1. In the spreadsheet: **Extensions → Apps Script**.
-2. Delete the default `Code.gs` contents and paste in [`scripts/leads-webhook.gs`](../scripts/leads-webhook.gs).
-3. Set `SHEET_ID` at the top of the script to your spreadsheet ID.
+## 1. Deploy the Apps Script
+
+1. Open your [leads spreadsheet](https://docs.google.com/spreadsheets/d/1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw/edit).
+2. **Extensions → Apps Script**.
+3. Delete the default `Code.gs` contents and paste in [`scripts/leads-webhook.gs`](../scripts/leads-webhook.gs). The Sheet ID is already set.
 4. Save the project (e.g. name it "624 Voice Lead Webhook").
 5. Run **testLeadWebhook** once from the editor to authorize Gmail + Sheets access and confirm a test row/email.
 6. **Deploy → New deployment**
@@ -21,7 +21,7 @@ Site lead forms POST to `LEADS_WEBHOOK_URL`. Point that env var at a Google Apps
    - Who has access: **Anyone**
 7. Copy the **Web app URL** (ends in `/exec`).
 
-## 3. Configure Netlify
+## 2. Configure Netlify
 
 In [Netlify](https://app.netlify.com) → site **624voice** → **Site configuration → Environment variables**:
 
@@ -31,7 +31,7 @@ In [Netlify](https://app.netlify.com) → site **624voice** → **Site configura
 
 Redeploy production after saving.
 
-## 4. Verify
+## 3. Verify
 
 1. Submit the **contact form** at `/contact`.
 2. Unlock the **ROI calculator** breakdown or download a PDF.
