@@ -58,6 +58,8 @@ export const submitContactLead = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
       trade: resolveContactTrade(data.trade, data.otherTrade),
       website: resolveContactWebsite(data.websiteOption, data.website),
       fleetSize: data.fleetSize.trim(),

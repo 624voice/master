@@ -5,6 +5,8 @@ import {
 } from "~/lib/lead/validateLead";
 
 export type LeadPayload = LeadInfo & {
+  firstName?: string;
+  lastName?: string;
   trade?: string;
   monthlyCalls?: number;
   truckCount?: number;
@@ -40,6 +42,8 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: normalized.name,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
       businessName: normalized.businessName,
       email: normalized.email,
       phone: normalized.phone,

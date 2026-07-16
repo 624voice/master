@@ -5,10 +5,13 @@
  * 1. Appends a row to your Google Sheet
  * 2. Emails info@624voice.com
  *
+ * Sheet columns (row 1 headers) must match the contact intake form:
+ * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Message
+ *
  * Setup: see docs/leads-webhook-setup.md
  */
 
-const SHEET_ID = "PASTE_YOUR_GOOGLE_SHEET_ID_HERE";
+const SHEET_ID = "1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw";
 const LEADS_EMAIL = "info@624voice.com";
 
 function doPost(e) {
@@ -26,56 +29,56 @@ function doPost(e) {
   }
 }
 
+function splitName(data) {
+  if (data.firstName || data.lastName) {
+    return {
+      firstName: data.firstName || "",
+      lastName: data.lastName || "",
+    };
+  }
+  const parts = (data.name || "").trim().split(/\s+/);
+  if (parts.length <= 1) {
+    return { firstName: parts[0] || "", lastName: "" };
+  }
+  return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+}
+
 function appendLeadRow(data) {
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow([
-      "Timestamp",
-      "Source",
-      "Name",
-      "Business",
-      "Email",
-      "Phone",
-      "Trade",
-      "Website",
-      "Monthly Calls",
-      "Truck Count",
-      "Fleet Size",
-      "Message",
-    ]);
-  }
+  const { firstName, lastName } = splitName(data);
+
   sheet.appendRow([
     data.capturedAt || new Date().toISOString(),
-    data.source || "",
-    data.name || "",
+    firstName,
+    lastName,
     data.businessName || "",
-    data.email || "",
-    data.phone || "",
     data.trade || "",
     data.website || "",
-    data.monthlyCalls ?? "",
-    data.truckCount ?? "",
+    data.email || "",
+    data.phone || "",
     data.fleetSize || "",
     data.message || "",
   ]);
 }
 
 function sendLeadEmail(data) {
-  const subject = `New lead: ${data.name || "Unknown"} (${data.source || "website"})`;
+  const { firstName, lastName } = splitName(data);
+  const subject = `New lead: ${firstName} ${lastName}`.trim() + ` (${data.source || "website"})`;
   const body = [
     "New lead from 624voice.com",
     "",
     `Source: ${data.source || ""}`,
-    `Name: ${data.name || ""}`,
+    `First name: ${firstName}`,
+    `Last name: ${lastName}`,
     `Business: ${data.businessName || ""}`,
-    `Email: ${data.email || ""}`,
-    `Phone: ${data.phone || ""}`,
     `Trade: ${data.trade || ""}`,
     `Website: ${data.website || ""}`,
-    `Monthly calls: ${data.monthlyCalls ?? ""}`,
-    `Truck count: ${data.truckCount ?? ""}`,
+    `Email: ${data.email || ""}`,
+    `Phone: ${data.phone || ""}`,
     `Fleet size: ${data.fleetSize || ""}`,
     `Message: ${data.message || ""}`,
+    `Monthly calls: ${data.monthlyCalls ?? ""}`,
+    `Truck count: ${data.truckCount ?? ""}`,
     "",
     `Captured at: ${data.capturedAt || new Date().toISOString()}`,
   ].join("\n");
@@ -88,15 +91,14 @@ function sendLeadEmail(data) {
 function testLeadWebhook() {
   const sample = {
     capturedAt: new Date().toISOString(),
-    source: "test",
-    name: "Test User",
+    source: "contact_form",
+    firstName: "Test",
+    lastName: "User",
     businessName: "Test Plumbing LLC",
     email: "test@example.com",
     phone: "(555) 123-4567",
     trade: "Plumbing",
     website: "https://example.com",
-    monthlyCalls: 300,
-    truckCount: 5,
     fleetSize: "3-7",
     message: "Setup test from Apps Script",
   };
