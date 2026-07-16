@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { PDFDocument, PDFName, PDFString, StandardFonts, rgb, type PDFPage, type PDFFont } from "pdf-lib";
-import { CALENDAR_BOOKING_URL } from "~/config/features";
+import { BOOK_MEETING_URL } from "~/config/features";
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import { formatLeadName } from "~/lib/lead/validateLead";
 import type { RoiResult } from "~/lib/roi/computeRoi";
@@ -498,7 +498,7 @@ export async function buildRoiPdfDocument(input: {
     size: 10,
     color: BRAND.text,
   });
-  drawBookDemoButton(ctx, CALENDAR_BOOKING_URL);
+  drawBookDemoButton(ctx, BOOK_MEETING_URL);
   drawText("Or email info@624voice.com", {
     size: 9,
     color: BRAND.gray,

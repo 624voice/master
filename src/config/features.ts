@@ -5,9 +5,7 @@ export const FEATURE_FLAGS = {
 
 export const MAX_TRUCK_COUNT = 50;
 
-export const BOOK_MEETING_URL = "/contact";
-
-export const CALENDAR_BOOKING_URL =
+export const BOOK_MEETING_URL =
   "https://calendar.app.google/hpzTSkjb9NTqaMjh9";
 
 export const ROI_DISCLAIMER =

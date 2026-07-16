@@ -749,7 +749,11 @@ export function RoiCalculator() {
                     a call with our team.
                   </p>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                    <a href={BOOK_MEETING_URL}>
+                    <a
+                      href={BOOK_MEETING_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Button type="button">Book a Meeting</Button>
                     </a>
                     {FEATURE_FLAGS.REQUIRE_LEAD_FOR_PDF && (
