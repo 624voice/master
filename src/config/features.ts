@@ -5,6 +5,12 @@ export const FEATURE_FLAGS = {
 
 export const MAX_TRUCK_COUNT = 50;
 
+export const BOOK_MEETING_PATH = "/book";
+
+export const BOOK_MEETING_EMBED_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ1CEXxMkoNtwq-TOz0iC57blk5aJVs5XlOA55dp9X0lUmNftEd7p9bJI4cXpD5aMnoUiXqBpoDc?gv=true";
+
+/** External calendar link for PDF downloads and direct sharing. */
 export const BOOK_MEETING_URL =
   "https://calendar.app.google/hpzTSkjb9NTqaMjh9";
 
