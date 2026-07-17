@@ -6,7 +6,7 @@ import {
   validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
-import { buildRoiPdfDocument } from "~/lib/roi/buildRoiPdfDocument";
+import { fillRoiPdfTemplate } from "~/lib/roi/fillRoiPdfTemplate";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import { TRADES, tradeToSlug, type TradeKey } from "~/lib/roi/roiModel";
 import { saveLead } from "~/server/leads";
@@ -53,7 +53,7 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     });
 
     const scenarios = computeAllScenarios(trade, monthlyCalls);
-    const pdfBytes = await buildRoiPdfDocument({
+    const pdfBytes = await fillRoiPdfTemplate({
       trade,
       truckCount,
       monthlyCalls,
