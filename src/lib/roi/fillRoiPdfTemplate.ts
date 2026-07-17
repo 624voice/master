@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, rgb } from "pdf-lib";
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import type { RoiResult } from "~/lib/roi/computeRoi";
@@ -41,19 +40,6 @@ function loadTemplateBytes(): Uint8Array {
   throw new Error("ROI PDF template not found");
 }
 
-function loadFontBytes(filename: string): Uint8Array {
-  for (const path of [
-    join(process.cwd(), "public", "fonts", filename),
-    join(process.cwd(), "dist", "client", "fonts", filename),
-  ]) {
-    if (existsSync(path)) {
-      return readFileSync(path);
-    }
-  }
-
-  throw new Error(`Font not found: ${filename}`);
-}
-
 function loadLogoBytes(): Uint8Array | null {
   for (const path of [
     join(process.cwd(), "public", "logo.png"),
@@ -74,7 +60,7 @@ async function drawCoverLogo(pdf: PDFDocument) {
   const page = pdf.getPage(0);
   const logo = await pdf.embedPng(logoBytes);
 
-  // Safety cover for any leftover template artwork in the logo slot.
+  // Cover leftover template artwork in the logo slot.
   page.drawRectangle({
     x: 58,
     y: 724,
@@ -139,8 +125,6 @@ export async function fillRoiPdfTemplate(input: {
   const moderate = scenarios[MODERATE_INDEX]!;
 
   const pdf = await PDFDocument.load(loadTemplateBytes());
-  pdf.registerFontkit(fontkit);
-  const inter = await pdf.embedFont(loadFontBytes("Inter-Regular.ttf"));
   const form = pdf.getForm();
 
   setText(form, "reportDate", formatReportDate());
@@ -190,7 +174,9 @@ export async function fillRoiPdfTemplate(input: {
     setText(form, `driver${n}Annual`, formatCurrency(driver.annualValue));
   });
 
-  form.updateFieldAppearances(inter);
+  // Keep the template's built-in field styling (transparent on dark backgrounds).
+  // Custom fonts via updateFieldAppearances() paint opaque white field backgrounds.
+  form.updateFieldAppearances();
   form.flatten();
 
   await drawCoverLogo(pdf);
