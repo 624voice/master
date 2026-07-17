@@ -226,6 +226,18 @@ function Footer() {
               >
                 Contact
               </a>
+              <a
+                href="/privacy"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                Privacy
+              </a>
+              <a
+                href="/terms"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                Terms
+              </a>
             </div>
           </div>
           <div>
@@ -238,7 +250,23 @@ function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} 624 Voice. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} 624 Voice. All rights reserved.
+            <span className="mx-2">|</span>
+            <a
+              href="/privacy"
+              className="transition-colors hover:text-brand-primary"
+            >
+              Privacy
+            </a>
+            <span className="mx-2">|</span>
+            <a
+              href="/terms"
+              className="transition-colors hover:text-brand-primary"
+            >
+              Terms
+            </a>
+          </p>
         </div>
       </div>
     </footer>
