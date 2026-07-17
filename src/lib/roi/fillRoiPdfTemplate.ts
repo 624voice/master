@@ -13,6 +13,9 @@ import { TRADES, type TradeKey } from "~/lib/roi/roiModel";
 
 const TEMPLATE_FILENAME = "624-voice-roi-report-template.pdf";
 const MODERATE_INDEX = 1;
+const LOGO_SIZE = 36;
+const LOGO_X = 83;
+const LOGO_Y = 728.5;
 
 const DRIVER_KEYS = [
   "missedCallRecovery",
@@ -35,6 +38,32 @@ function loadTemplateBytes(): Uint8Array {
   }
 
   throw new Error("ROI PDF template not found");
+}
+
+function loadLogoBytes(): Uint8Array | null {
+  for (const path of [
+    join(process.cwd(), "public", "logo.png"),
+    join(process.cwd(), "dist", "client", "logo.png"),
+  ]) {
+    if (existsSync(path)) {
+      return readFileSync(path);
+    }
+  }
+
+  return null;
+}
+
+async function drawCoverLogo(pdf: PDFDocument) {
+  const logoBytes = loadLogoBytes();
+  if (!logoBytes) return;
+
+  const logo = await pdf.embedPng(logoBytes);
+  pdf.getPage(0).drawImage(logo, {
+    x: LOGO_X,
+    y: LOGO_Y,
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+  });
 }
 
 function formatReportDate(): string {
@@ -136,6 +165,8 @@ export async function fillRoiPdfTemplate(input: {
 
   form.updateFieldAppearances();
   form.flatten();
+
+  await drawCoverLogo(pdf);
 
   return pdf.save();
 }
