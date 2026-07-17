@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import {
-  BOOK_MEETING_URL,
+  BOOK_MEETING_PATH,
   FEATURE_FLAGS,
   MAX_TRUCK_COUNT,
 } from "~/config/features";
@@ -749,11 +749,7 @@ export function RoiCalculator() {
                     a call with our team.
                   </p>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                    <a
-                      href={BOOK_MEETING_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={BOOK_MEETING_PATH}>
                       <Button type="button">Book a Meeting</Button>
                     </a>
                     {FEATURE_FLAGS.REQUIRE_LEAD_FOR_PDF && (
