@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { PDFDocument } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, rgb } from "pdf-lib";
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import type { RoiResult } from "~/lib/roi/computeRoi";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
@@ -14,7 +15,7 @@ import { TRADES, type TradeKey } from "~/lib/roi/roiModel";
 const TEMPLATE_FILENAME = "624-voice-roi-report-template.pdf";
 const MODERATE_INDEX = 1;
 const LOGO_SIZE = 36;
-const LOGO_X = 83;
+const LOGO_X = 62;
 const LOGO_Y = 728.5;
 
 const DRIVER_KEYS = [
@@ -40,6 +41,19 @@ function loadTemplateBytes(): Uint8Array {
   throw new Error("ROI PDF template not found");
 }
 
+function loadFontBytes(filename: string): Uint8Array {
+  for (const path of [
+    join(process.cwd(), "public", "fonts", filename),
+    join(process.cwd(), "dist", "client", "fonts", filename),
+  ]) {
+    if (existsSync(path)) {
+      return readFileSync(path);
+    }
+  }
+
+  throw new Error(`Font not found: ${filename}`);
+}
+
 function loadLogoBytes(): Uint8Array | null {
   for (const path of [
     join(process.cwd(), "public", "logo.png"),
@@ -57,8 +71,19 @@ async function drawCoverLogo(pdf: PDFDocument) {
   const logoBytes = loadLogoBytes();
   if (!logoBytes) return;
 
+  const page = pdf.getPage(0);
   const logo = await pdf.embedPng(logoBytes);
-  pdf.getPage(0).drawImage(logo, {
+
+  // Safety cover for any leftover template artwork in the logo slot.
+  page.drawRectangle({
+    x: 58,
+    y: 724,
+    width: 62,
+    height: 44,
+    color: rgb(1, 1, 1),
+  });
+
+  page.drawImage(logo, {
     x: LOGO_X,
     y: LOGO_Y,
     width: LOGO_SIZE,
@@ -114,6 +139,8 @@ export async function fillRoiPdfTemplate(input: {
   const moderate = scenarios[MODERATE_INDEX]!;
 
   const pdf = await PDFDocument.load(loadTemplateBytes());
+  pdf.registerFontkit(fontkit);
+  const inter = await pdf.embedFont(loadFontBytes("Inter-Regular.ttf"));
   const form = pdf.getForm();
 
   setText(form, "reportDate", formatReportDate());
@@ -163,7 +190,7 @@ export async function fillRoiPdfTemplate(input: {
     setText(form, `driver${n}Annual`, formatCurrency(driver.annualValue));
   });
 
-  form.updateFieldAppearances();
+  form.updateFieldAppearances(inter);
   form.flatten();
 
   await drawCoverLogo(pdf);
