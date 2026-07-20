@@ -30,6 +30,20 @@ def sample_fill_color(page: fitz.Page, rect: fitz.Rect) -> tuple[float, float, f
     return (r / count / 255, g / count / 255, b / count / 255)
 
 
+def cover_placeholder_logo(page: fitz.Page) -> None:
+    """Remove the vector placeholder logo so the real PNG can be drawn at fill time."""
+    logo_rect = fitz.Rect(54.0, 48.0, 84.0, 78.0)
+    page.add_redact_annot(logo_rect, fill=(1.0, 1.0, 1.0))
+    page.apply_redactions()
+
+
+def fix_guarantee_card_overlap(page: fitz.Page) -> None:
+    """Clip the guarantee card bottom border so it does not overlap the footer."""
+    overlap = fitz.Rect(54.0, 742.0, 558.0, 760.0)
+    page.add_redact_annot(overlap, fill=(1.0, 1.0, 1.0))
+    page.apply_redactions()
+
+
 def add_field(
     page: fitz.Page,
     name: str,
@@ -48,7 +62,7 @@ def add_field(
     widget.rect = rect
     widget.field_value = ""
     widget.text_color = text_color or (0.0, 0.0, 0.0)
-    widget.fill_color = bg
+    widget.fill_color = None
     widget.border_color = None
     widget.border_width = 0
     widget.text_fontsize = 0
@@ -60,6 +74,9 @@ def prepare() -> None:
         raise SystemExit(f"Source PDF not found: {SOURCE}")
 
     doc = fitz.open(SOURCE)
+
+    cover_placeholder_logo(doc[0])
+    fix_guarantee_card_overlap(doc[3])
 
     # Page 1
     p1 = doc[0]
