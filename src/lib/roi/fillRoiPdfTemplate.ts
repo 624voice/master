@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { PDFDocument, PDFName, PDFString } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, PDFName, PDFString, rgb } from "pdf-lib";
 import { BOOK_MEETING_PATH } from "~/config/features";
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import type { RoiResult } from "~/lib/roi/computeRoi";
@@ -15,6 +16,11 @@ import { TRADES, tradeToSlug, type TradeKey } from "~/lib/roi/roiModel";
 const TEMPLATE_FILENAME = "624-voice-revenue-gap-report.pdf";
 const SITE_ORIGIN = "https://624voice.com";
 const MODERATE_INDEX = 1;
+const PAGE_HEIGHT = 792;
+
+const HEADER_LOGO = { x: 54, top: 48, size: 30 };
+const FOOTER_LOGO = { x: 54, top: 755.5, size: 11 };
+const FOOTER_BRAND = { x: 68, top: 756.6, size: 7.875 };
 
 type DriverKey =
   | "missedCallRecovery"
@@ -44,6 +50,36 @@ function loadTemplateBytes(): Uint8Array {
   throw new Error("ROI PDF template not found");
 }
 
+function loadAssetBytes(subpath: string): Uint8Array {
+  for (const path of [
+    join(process.cwd(), "public", subpath),
+    join(process.cwd(), "dist", "client", subpath),
+  ]) {
+    if (existsSync(path)) {
+      return readFileSync(path);
+    }
+  }
+
+  throw new Error(`Asset not found: ${subpath}`);
+}
+
+function loadLogoBytes(): Uint8Array | null {
+  for (const path of [
+    join(process.cwd(), "public", "logo.png"),
+    join(process.cwd(), "dist", "client", "logo.png"),
+  ]) {
+    if (existsSync(path)) {
+      return readFileSync(path);
+    }
+  }
+
+  return null;
+}
+
+function fitzTopToPdfLibY(top: number, height: number): number {
+  return PAGE_HEIGHT - top - height;
+}
+
 function formatPreparedDate(): string {
   const dateStr = new Date().toLocaleDateString("en-US", {
     timeZone: "America/Chicago",
@@ -52,15 +88,6 @@ function formatPreparedDate(): string {
     year: "numeric",
   });
   return `Prepared ${dateStr}`;
-}
-
-function formatReportDate(): string {
-  return new Date().toLocaleDateString("en-US", {
-    timeZone: "America/Chicago",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 function formatReportId(trade: TradeKey, monthlyCalls: number): string {
@@ -141,6 +168,49 @@ function addBookDemoLink(pdf: PDFDocument) {
   addLinkAnnotation(pdf, 4, 118.5, 150.5, 98, 16, `${SITE_ORIGIN}${BOOK_MEETING_PATH}`);
 }
 
+async function drawHeaderLogo(pdf: PDFDocument, logo: Awaited<ReturnType<PDFDocument["embedPng"]>>) {
+  const page = pdf.getPage(0);
+  page.drawImage(logo, {
+    x: HEADER_LOGO.x,
+    y: fitzTopToPdfLibY(HEADER_LOGO.top, HEADER_LOGO.size),
+    width: HEADER_LOGO.size,
+    height: HEADER_LOGO.size,
+  });
+}
+
+async function drawFooterLogos(
+  pdf: PDFDocument,
+  logo: Awaited<ReturnType<PDFDocument["embedPng"]>>,
+  font: Awaited<ReturnType<PDFDocument["embedFont"]>>,
+) {
+  const footerColor = rgb(0.45, 0.5, 0.48);
+  const coverHeight = 14;
+
+  for (let pageIndex = 0; pageIndex < pdf.getPageCount(); pageIndex++) {
+    const page = pdf.getPage(pageIndex);
+    page.drawRectangle({
+      x: FOOTER_LOGO.x,
+      y: fitzTopToPdfLibY(FOOTER_BRAND.top, coverHeight),
+      width: 44,
+      height: coverHeight,
+      color: rgb(1, 1, 1),
+    });
+    page.drawImage(logo, {
+      x: FOOTER_LOGO.x,
+      y: fitzTopToPdfLibY(FOOTER_LOGO.top, FOOTER_LOGO.size),
+      width: FOOTER_LOGO.size,
+      height: FOOTER_LOGO.size,
+    });
+    page.drawText("624 Voice", {
+      x: FOOTER_BRAND.x,
+      y: fitzTopToPdfLibY(FOOTER_BRAND.top, FOOTER_BRAND.size),
+      size: FOOTER_BRAND.size,
+      font,
+      color: footerColor,
+    });
+  }
+}
+
 export async function fillRoiPdfTemplate(input: {
   trade: TradeKey;
   truckCount: number;
@@ -153,6 +223,8 @@ export async function fillRoiPdfTemplate(input: {
   const moderate = scenarios[MODERATE_INDEX]!;
 
   const pdf = await PDFDocument.load(loadTemplateBytes());
+  pdf.registerFontkit(fontkit);
+  const inter = await pdf.embedFont(loadAssetBytes("fonts/Inter-Regular.ttf"));
   const form = pdf.getForm();
 
   setText(form, "reportDate", formatPreparedDate());
@@ -215,10 +287,17 @@ export async function fillRoiPdfTemplate(input: {
     setText(form, `driver${n}Annual`, formatCurrency(driver.annualValue));
   });
 
-  form.updateFieldAppearances();
+  form.updateFieldAppearances(inter);
   form.flatten();
 
   addBookDemoLink(pdf);
+
+  const logoBytes = loadLogoBytes();
+  if (logoBytes) {
+    const logo = await pdf.embedPng(logoBytes);
+    await drawHeaderLogo(pdf, logo);
+    await drawFooterLogos(pdf, logo, inter);
+  }
 
   return pdf.save();
 }
