@@ -7,7 +7,7 @@ import {
   saveSession,
 } from "~/server/speed2Lead/session";
 import type { StartSpeed2LeadInput } from "~/server/speed2Lead/types";
-import { sendSms } from "~/server/sms/twilio";
+import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
 
 export function getPrimaryOpportunity(scenarios: RoiResult[]): string {
@@ -36,5 +36,5 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
   });
 
   await saveSession(context);
-  await sendSms(phone, initialMessage(context));
+  await sendConversationSms(phone, initialMessage(context), context);
 }

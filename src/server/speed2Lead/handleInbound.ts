@@ -12,17 +12,23 @@ import {
   unknownInboundMessage,
 } from "~/server/speed2Lead/messages";
 import { classifyIntent } from "~/server/speed2Lead/intents";
-import { sendSms } from "~/server/sms/twilio";
+import {
+  logInboundConversationSms,
+  sendConversationSms,
+} from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
 
 export async function handleInboundSms(from: string, body: string): Promise<void> {
   const phone = normalizePhone(from);
   const intent = classifyIntent(body);
+  const session = await getSession(phone);
+
+  logInboundConversationSms(phone, body, session);
 
   if (intent === "stop") {
     await setOptedOut(phone);
     await clearSession(phone);
-    await sendSms(phone, optOutConfirmationMessage());
+    await sendConversationSms(phone, optOutConfirmationMessage(), session);
     return;
   }
 
@@ -30,19 +36,21 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     return;
   }
 
-  const session = await getSession(phone);
   if (!session) {
-    await sendSms(phone, unknownInboundMessage());
+    await sendConversationSms(phone, unknownInboundMessage());
     return;
   }
 
   if (intent === "decline") {
     await saveSession({ ...session, state: "completed", updatedAt: new Date().toISOString() });
-    await sendSms(phone, declineMessage());
+    await sendConversationSms(phone, declineMessage(), {
+      ...session,
+      state: "completed",
+    });
     return;
   }
 
   const { context, reply } = advanceConversation(session, body);
   await saveSession(context);
-  await sendSms(phone, reply);
+  await sendConversationSms(phone, reply, context);
 }
