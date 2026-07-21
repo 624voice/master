@@ -261,6 +261,9 @@ export function VoiceDemo({
               aria-hidden="true"
             />
             <p className="text-sm text-gray-600">Connecting…</p>
+            <p className="text-xs text-gray-500">
+              Allow microphone access if your browser prompts you.
+            </p>
           </div>
         )}
 

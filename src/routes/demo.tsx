@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
+import { DemoHowToStart } from "~/components/DemoHowToStart";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
 import { VoiceDemo } from "~/components/VoiceDemo";
@@ -137,6 +138,7 @@ function DemoPage() {
             a job and after hours? Hear exactly what your callers could
             experience — 24/7/365, on the first ring.
           </p>
+          <DemoHowToStart variant="hero" />
         </div>
       </section>
 
@@ -157,6 +159,7 @@ function DemoPage() {
                       Talk to her. See exactly what your callers could
                       experience 24/7/365.
                     </p>
+                    <DemoHowToStart variant="gate" />
                   </div>
 
                   <div className="mt-6 rounded-xl border border-gray-100 bg-brand-accent-light/40 p-8 text-center">
@@ -181,6 +184,9 @@ function DemoPage() {
                     </p>
                     <p className="mt-1 text-sm text-gray-600">
                       Live AI Demo · 624 Voice
+                    </p>
+                    <p className="mt-5 text-sm font-medium text-brand-secondary">
+                      Ready? Click below to get started:
                     </p>
                     <button
                       type="button"
@@ -209,7 +215,8 @@ function DemoPage() {
                     Same details as our contact form — then you&apos;ll connect
                     live with Jessica.
                   </p>
-                  <div className="mt-8">
+                  <DemoHowToStart variant="form" />
+                  <div className="mt-6">
                     <DemoLeadForm {...formProps} />
                   </div>
                   <button
