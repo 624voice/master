@@ -12,6 +12,7 @@ export type LeadPayload = LeadInfo & {
   fleetSize?: string;
   message?: string;
   website?: string;
+  moderateRoi?: string;
   source: string;
 };
 
@@ -70,6 +71,7 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
       fleetSize: payload.fleetSize,
       message: payload.message,
       website: payload.website,
+      moderateRoi: payload.moderateRoi,
       source: payload.source,
       capturedAt: formatCentralTimestamp(),
     }),

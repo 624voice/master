@@ -6,11 +6,11 @@ Site lead forms POST to `LEADS_WEBHOOK_URL`. Point that env var at a Google Apps
 
 Row 1 headers should match the contact intake form:
 
-`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message`
+`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI`
 
 Timestamps are stored in **Central Time (America/Chicago)**, e.g. `2026-07-16 1:57:07 PM CT`.
 
-ROI calculator leads populate **Fleet Size**, **Monthly Calls**, and **Truck Count** from the calculator (exact truck count and call volume). Contact form leads leave **Monthly Calls** and **Truck Count** blank and use a fleet-size range for **Fleet Size**.
+ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**.
 
 ## 1. Deploy the Apps Script
 
@@ -18,12 +18,13 @@ ROI calculator leads populate **Fleet Size**, **Monthly Calls**, and **Truck Cou
 2. **Extensions → Apps Script**.
 3. Delete the default `Code.gs` contents and paste in [`scripts/leads-webhook.gs`](../scripts/leads-webhook.gs). The Sheet ID is already set.
 4. Save the project (e.g. name it "624 Voice Lead Webhook").
-5. Run **testLeadWebhook** once from the editor to authorize Gmail + Sheets access and confirm a test row/email.
-6. **Deploy → New deployment**
+5. Run **setupSheetHeaders** once from the editor to add the **Moderate ROI** column header (and confirm row 1 matches).
+6. Run **testLeadWebhook** once from the editor to authorize Gmail + Sheets access and confirm a test row/email.
+7. **Deploy → New deployment**
    - Type: **Web app**
    - Execute as: **Me**
    - Who has access: **Anyone**
-7. Copy the **Web app URL** (ends in `/exec`).
+8. Copy the **Web app URL** (ends in `/exec`).
 
 ## 2. Configure Netlify
 
