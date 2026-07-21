@@ -169,6 +169,7 @@ export function VoiceDemo({
 
       await vapi.start(getVapiAssistantId(), {
         maxDurationSeconds: DEMO_MAX_CALL_SECONDS,
+        serverMessages: ["end-of-call-report"],
         metadata: {
           firstName: lead.firstName,
           lastName: lead.lastName,
