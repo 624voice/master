@@ -4,12 +4,16 @@
  * Receives POST JSON from the site (LEADS_WEBHOOK_URL) and:
  * 1. Appends lead rows to the main sheet + emails info@624voice.com
  * 2. Appends Speed2Lead SMS transcript rows to the "SMS Transcripts" tab
+ * 3. Appends voice demo call transcripts to the "Voice Transcripts" tab + emails transcript
  *
  * Lead sheet columns (row 1 headers):
  * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI | Source | SMS Consent
  *
  * SMS Transcripts columns (row 1 headers):
  * Timestamp | Flow | Direction | Phone | First Name | Business Name | Conversation State | Need Summary | Message
+ *
+ * Voice Transcripts columns (row 1 headers):
+ * Timestamp | First Name | Last Name | Business Name | Email | Phone | Duration | End Reason | Transcript | Recording URL
  *
  * Setup: see docs/leads-webhook-setup.md
  */
@@ -18,6 +22,7 @@ const SHEET_ID = "1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw";
 const LEADS_EMAIL = "info@624voice.com";
 const TIME_ZONE = "America/Chicago";
 const SMS_TRANSCRIPT_SHEET_NAME = "SMS Transcripts";
+const VOICE_TRANSCRIPT_SHEET_NAME = "Voice Transcripts";
 
 const HEADERS = [
   "Timestamp",
@@ -47,6 +52,19 @@ const SMS_TRANSCRIPT_HEADERS = [
   "Conversation State",
   "Need Summary",
   "Message",
+];
+
+const VOICE_TRANSCRIPT_HEADERS = [
+  "Timestamp",
+  "First Name",
+  "Last Name",
+  "Business Name",
+  "Email",
+  "Phone",
+  "Duration",
+  "End Reason",
+  "Transcript",
+  "Recording URL",
 ];
 
 /** Format as Central Time, e.g. "2026-07-16 1:57:07 PM CT" */
@@ -82,6 +100,14 @@ function doPost(e) {
       appendSmsTranscriptRow(payload);
       return ContentService.createTextOutput(
         JSON.stringify({ ok: true, type: "sms_transcript" }),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (payload.type === "voice_transcript") {
+      appendVoiceTranscriptRow(payload);
+      sendVoiceTranscriptEmail(payload);
+      return ContentService.createTextOutput(
+        JSON.stringify({ ok: true, type: "voice_transcript" }),
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -129,6 +155,8 @@ function formatLeadSource(source) {
       return "ROI Calculator";
     case "missing_money_pdf":
       return "ROI PDF";
+    case "voice_demo":
+      return "Voice Demo";
     default:
       return String(source || "");
   }
@@ -201,6 +229,7 @@ function sendLeadEmail(data) {
 function setupSheetHeaders() {
   ensureHeaders(getLeadSheet());
   ensureSmsTranscriptHeaders(getSmsTranscriptSheet());
+  ensureVoiceTranscriptHeaders(getVoiceTranscriptSheet());
 }
 
 function getSmsTranscriptSheet() {
@@ -233,6 +262,90 @@ function formatDirection(direction) {
     return "Outbound";
   }
   return String(direction || "");
+}
+
+function getVoiceTranscriptSheet() {
+  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  const existing = spreadsheet.getSheetByName(VOICE_TRANSCRIPT_SHEET_NAME);
+  if (existing) {
+    return existing;
+  }
+
+  return spreadsheet.insertSheet(VOICE_TRANSCRIPT_SHEET_NAME);
+}
+
+function ensureVoiceTranscriptHeaders(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, VOICE_TRANSCRIPT_HEADERS.length);
+  const existing = headerRange.getValues()[0];
+  const needsUpdate = VOICE_TRANSCRIPT_HEADERS.some(function (header, index) {
+    return String(existing[index] || "").trim() !== header;
+  });
+
+  if (needsUpdate) {
+    headerRange.setValues([VOICE_TRANSCRIPT_HEADERS]);
+  }
+}
+
+function formatDurationSeconds(seconds) {
+  if (seconds === undefined || seconds === null || seconds === "") {
+    return "";
+  }
+  const total = Number(seconds);
+  if (isNaN(total)) {
+    return String(seconds);
+  }
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return mins + "m " + secs + "s";
+}
+
+function appendVoiceTranscriptRow(data) {
+  const sheet = getVoiceTranscriptSheet();
+  ensureVoiceTranscriptHeaders(sheet);
+
+  sheet.appendRow([
+    formatCentralTimestamp(data.capturedAt),
+    data.firstName || "",
+    data.lastName || "",
+    data.businessName || "",
+    data.email || "",
+    data.phone || "",
+    formatDurationSeconds(data.durationSeconds),
+    data.endedReason || "",
+    data.transcript || "",
+    data.recordingUrl || "",
+  ]);
+}
+
+function sendVoiceTranscriptEmail(data) {
+  const name = [data.firstName, data.lastName].filter(Boolean).join(" ").trim();
+  const subject =
+    "Voice demo transcript: " +
+    (name || data.businessName || "Unknown lead");
+  const body = [
+    "Voice demo call transcript from 624voice.com",
+    "",
+    "Lead",
+    "First name: " + (data.firstName || ""),
+    "Last name: " + (data.lastName || ""),
+    "Business: " + (data.businessName || ""),
+    "Email: " + (data.email || ""),
+    "Phone: " + (data.phone || ""),
+    "Duration: " + formatDurationSeconds(data.durationSeconds),
+    "End reason: " + (data.endedReason || ""),
+    "",
+    "Transcript",
+    "----------",
+    data.transcript || "(empty)",
+    "",
+    "Recording: " + (data.recordingUrl || "none"),
+    "",
+    "Captured at: " + formatCentralTimestamp(data.capturedAt),
+  ].join("\n");
+
+  GmailApp.sendEmail(LEADS_EMAIL, subject, body, {
+    replyTo: data.email || undefined,
+  });
 }
 
 function appendSmsTranscriptRow(data) {
@@ -273,6 +386,33 @@ function testSmsTranscriptWebhook() {
     businessName: "Test Plumbing LLC",
     conversationState: "awaiting_goal",
     body: "Both",
+  });
+}
+
+function testVoiceTranscriptWebhook() {
+  appendVoiceTranscriptRow({
+    capturedAt: new Date().toISOString(),
+    firstName: "Test",
+    lastName: "User",
+    businessName: "Test Plumbing LLC",
+    email: "test@example.com",
+    phone: "+15551234567",
+    durationSeconds: 95,
+    endedReason: "hangup",
+    transcript: "AI: Hi, this is Jessica.\nUser: I need help with call handling.",
+    recordingUrl: "https://example.com/recording.wav",
+  });
+  sendVoiceTranscriptEmail({
+    capturedAt: new Date().toISOString(),
+    firstName: "Test",
+    lastName: "User",
+    businessName: "Test Plumbing LLC",
+    email: "test@example.com",
+    phone: "+15551234567",
+    durationSeconds: 95,
+    endedReason: "hangup",
+    transcript: "AI: Hi, this is Jessica.\nUser: I need help with call handling.",
+    recordingUrl: "https://example.com/recording.wav",
   });
 }
 

@@ -14,9 +14,15 @@ Speed2Lead SMS transcripts append to a second tab named **SMS Transcripts**:
 
 **Flow** values: `Contact` (contact form Speed2Lead) or `ROI` (ROI calculator Speed2Lead).
 
+Voice demo call transcripts append to a third tab named **Voice Transcripts**:
+
+`Timestamp | First Name | Last Name | Business Name | Email | Phone | Duration | End Reason | Transcript | Recording URL`
+
+Each voice demo transcript also emails **info@624voice.com** with the full conversation.
+
 Timestamps are stored in **Central Time (America/Chicago)**, e.g. `2026-07-16 1:57:07 PM CT`.
 
-ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**. **Source** shows `Contact Form`, `ROI Calculator`, or `ROI PDF`. **SMS Consent** is `Yes` when the customer opted in to Speed2Lead texts.
+ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**. **Source** shows `Contact Form`, `ROI Calculator`, `ROI PDF`, or `Voice Demo`. **SMS Consent** is `Yes` when the customer opted in to Speed2Lead texts.
 
 ## 1. Deploy the Apps Script
 
@@ -24,7 +30,7 @@ ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**
 2. **Extensions → Apps Script**.
 3. Delete the default `Code.gs` contents and paste in [`scripts/leads-webhook.gs`](../scripts/leads-webhook.gs). The Sheet ID is already set.
 4. Save the project (e.g. name it "624 Voice Lead Webhook").
-5. Run **setupSheetHeaders** once from the editor to add/update headers on both the leads tab and the **SMS Transcripts** tab.
+5. Run **setupSheetHeaders** once from the editor to add/update headers on the leads tab, **SMS Transcripts**, and **Voice Transcripts** tabs.
 6. Run **testLeadWebhook** once from the editor to authorize Gmail + Sheets access and confirm a test row/email.
 7. Optional: run **testSmsTranscriptWebhook** to confirm the SMS Transcripts tab is created and populated.
 8. **Deploy → New deployment**
@@ -60,10 +66,15 @@ Redeploy production after saving.
 | `contact_form` | Contact page |
 | `missing_money` | ROI calculator unlock |
 | `missing_money_pdf` | ROI PDF download |
+| `voice_demo` | Live voice demo at `/demo` |
 
 ## SMS transcripts
 
 When Speed2Lead sends or receives a text, the site POSTs `{ type: "sms_transcript", ... }` to the same `LEADS_WEBHOOK_URL`. Each message appends one row to the **SMS Transcripts** tab (no email is sent for transcripts). Contact form conversations include **Flow = Contact** and the **Need Summary** from the form message.
+
+## Voice demo transcripts
+
+When a Vapi web demo call ends, the site POSTs `{ type: "voice_transcript", ... }` to `LEADS_WEBHOOK_URL`. Each call appends one row to the **Voice Transcripts** tab and sends a transcript email to info@624voice.com. See [`docs/vapi-demo-setup.md`](vapi-demo-setup.md).
 
 ## Troubleshooting
 

@@ -103,6 +103,12 @@ function Nav() {
             See What You&apos;re Missing
           </a>
           <a
+            href="/demo"
+            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
+          >
+            Live Demo
+          </a>
+          <a
             href="/contact"
             className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
           >
@@ -159,6 +165,12 @@ function Nav() {
                 className="text-sm font-medium text-gray-600 hover:text-brand-primary"
               >
                 See What You&apos;re Missing
+              </a>
+              <a
+                href="/demo"
+                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
+              >
+                Live Demo
               </a>
               <a
                 href="/contact"
