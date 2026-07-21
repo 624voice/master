@@ -13,7 +13,7 @@ Set these in Netlify only. **Never commit real values to git.**
 | `TWILIO_FROM_NUMBER` | Outbound SMS number in E.164 format, e.g. `+18178544399` |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
-| `TWILIO_WEBHOOK_URL` | Full public URL for inbound SMS, e.g. `https://624voice.com/api/sms/inbound` |
+| `TWILIO_WEBHOOK_URL` | Full public URL for inbound SMS: `https://www.624voice.com/api/sms/inbound` |
 | `SITE_ORIGIN` | Public site origin, e.g. `https://624voice.com` |
 | `SPEED2LEAD_BOOKING_URL` | Optional override for booking link (defaults to config value) |
 | `SPEED2LEAD_ENABLED` | Set to `false` to disable without removing credentials |
@@ -25,8 +25,10 @@ After first deploy, **rotate the Twilio Auth Token** in Twilio Console and updat
 1. Buy or assign a dedicated SMS number (separate from voice demo lines).
 2. Open the number in Twilio Console.
 3. Under **Messaging**, set **A message comes in** webhook to:
-   - URL: `https://624voice.com/api/sms/inbound`
+   - URL: `https://www.624voice.com/api/sms/inbound`
    - Method: `POST`
+
+Use the `www` URL — bare `624voice.com` redirects and can break Twilio signature validation.
 4. Complete **A2P 10DLC** brand and campaign registration for production SMS delivery.
 
 ## Upstash Redis
