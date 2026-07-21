@@ -5,6 +5,8 @@ export const FEATURE_FLAGS = {
 
 export const MAX_TRUCK_COUNT = 50;
 
+export const SITE_ORIGIN = "https://624voice.com";
+
 export const BOOK_MEETING_PATH = "/book";
 
 export const BOOK_MEETING_EMBED_URL =
@@ -13,6 +15,10 @@ export const BOOK_MEETING_EMBED_URL =
 /** External calendar link for PDF downloads and direct sharing. */
 export const BOOK_MEETING_URL =
   "https://calendar.app.google/hpzTSkjb9NTqaMjh9";
+
+/** Speed2Lead SMS booking link. */
+export const SPEED2LEAD_BOOKING_URL =
+  "https://calendar.app.google/U757QVWUJVK8x3a16";
 
 export const ROI_DISCLAIMER =
   "Estimates based on industry averages. Your results may vary.";
