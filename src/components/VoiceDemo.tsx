@@ -25,6 +25,12 @@ type VoiceDemoProps = {
   autoStart?: boolean;
 };
 
+const primaryButtonClassName =
+  "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60";
+
+const secondaryButtonClassName =
+  "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline";
+
 function formatElapsed(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -169,6 +175,7 @@ export function VoiceDemo({
 
       await vapi.start(getVapiAssistantId(), {
         maxDurationSeconds: DEMO_MAX_CALL_SECONDS,
+        serverMessages: ["end-of-call-report"],
         metadata: {
           firstName: lead.firstName,
           lastName: lead.lastName,
@@ -208,56 +215,58 @@ export function VoiceDemo({
   }, [autoStart, phase, startCall]);
 
   return (
-    <div className="flex w-full flex-col items-center gap-5">
+    <div className="flex w-full flex-col items-center gap-6">
       <div className="text-center">
-        <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
+        <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
           Hear the difference yourself
-        </p>
-        <p className="text-[13px] leading-relaxed text-slate-400">
+        </span>
+        <p className="text-sm leading-relaxed text-gray-600">
           Talk to her. See exactly what your callers could experience 24/7/365.
         </p>
       </div>
 
-      <div className="w-full rounded-xl border border-slate-400/15 bg-white/[0.03] p-6 text-center sm:p-8">
+      <div className="w-full rounded-xl border border-gray-100 bg-brand-accent-light/40 p-8 text-center">
         <div
-          className={`mx-auto mb-3.5 flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 ${
+          className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
             phase === "live" && isSpeaking
-              ? "animate-pulse border-brand-primary bg-brand-primary/20"
-              : "border-brand-primary/55 bg-brand-primary/10"
+              ? "animate-pulse bg-brand-primary/20 ring-2 ring-brand-primary"
+              : "bg-brand-primary/10"
           }`}
         >
           <PhoneIcon />
         </div>
 
-        <p className="mb-1 text-base font-bold text-white">Talk to Jessica</p>
-        <p className="mb-4 text-xs text-slate-400">Live AI Demo · 624 Voice</p>
+        <p className="text-lg font-semibold text-brand-secondary">
+          Talk to Jessica
+        </p>
+        <p className="mt-1 text-sm text-gray-600">Live AI Demo · 624 Voice</p>
 
         {phase === "idle" && !autoStart && (
           <>
             <button
               type="button"
               onClick={() => void startCall()}
-              className="mb-2.5 w-full rounded-lg bg-brand-primary px-6 py-3.5 text-sm font-bold text-[#18222f] transition-colors hover:bg-brand-primary-dark"
+              className={`mt-6 ${primaryButtonClassName}`}
             >
               Get Instant Access
             </button>
-            <p className="text-[11px] text-slate-500">1 call per visitor</p>
+            <p className="mt-3 text-sm text-gray-500">1 call per visitor</p>
           </>
         )}
 
         {phase === "connecting" && (
-          <div className="flex flex-col items-center gap-3 py-2">
+          <div className="mt-6 flex flex-col items-center gap-3">
             <div
               className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
               aria-hidden="true"
             />
-            <p className="text-sm text-slate-400">Connecting…</p>
+            <p className="text-sm text-gray-600">Connecting…</p>
           </div>
         )}
 
         {phase === "live" && (
-          <div className="space-y-3 py-1">
-            <p className="text-sm text-slate-300">
+          <div className="mt-6 space-y-4">
+            <p className="text-sm font-medium text-brand-secondary">
               {isSpeaking ? "Jessica is speaking…" : "Listening…"}
             </p>
             <p className="font-mono text-sm text-brand-primary">
@@ -266,7 +275,7 @@ export function VoiceDemo({
             <button
               type="button"
               onClick={() => void stopCall()}
-              className="w-full rounded-lg border border-red-400/50 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300"
+              className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
             >
               End call
             </button>
@@ -274,18 +283,18 @@ export function VoiceDemo({
         )}
 
         {phase === "ended" && (
-          <div className="space-y-3 py-1">
-            <p className="text-sm font-semibold text-brand-primary">
+          <div className="mt-6 space-y-4">
+            <p className="text-base font-semibold text-brand-primary">
               Thanks for trying the demo!
             </p>
-            <p className="text-xs leading-relaxed text-slate-400">
+            <p className="text-sm leading-relaxed text-gray-600">
               We&apos;ll follow up with a summary. Ready to see this on your
               phones?
             </p>
             <button
               type="button"
               onClick={onDemoLimitReached}
-              className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-[#18222f]"
+              className={primaryButtonClassName}
             >
               Book a meeting
             </button>
@@ -293,8 +302,8 @@ export function VoiceDemo({
         )}
 
         {phase === "error" && error && (
-          <div className="space-y-3 py-1">
-            <p className="text-sm text-red-400" role="alert">
+          <div className="mt-6 space-y-4">
+            <p className="text-sm text-red-600" role="alert">
               {error}
             </p>
             <button
@@ -303,7 +312,7 @@ export function VoiceDemo({
                 setPhase("idle");
                 setError(null);
               }}
-              className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-sm font-bold text-[#18222f]"
+              className={primaryButtonClassName}
             >
               Try again
             </button>
@@ -311,10 +320,7 @@ export function VoiceDemo({
         )}
       </div>
 
-      <a
-        href="/contact"
-        className="block w-full rounded-md border border-brand-primary bg-[#1e3a2f] px-5 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.06em] text-brand-primary no-underline transition-colors hover:bg-[#1e3a2f]/80"
-      >
+      <a href="/contact" className={secondaryButtonClassName}>
         Want This on Your Phones? →
       </a>
     </div>

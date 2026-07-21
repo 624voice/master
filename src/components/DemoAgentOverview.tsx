@@ -32,7 +32,7 @@ const outcomes = [
 function CheckIcon() {
   return (
     <svg
-      className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary"
+      className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -50,61 +50,49 @@ function CheckIcon() {
 
 export function DemoAgentOverview() {
   return (
-    <div className="demo-left-col border-b border-slate-400/10 pb-10 lg:border-r lg:border-b-0 lg:pr-9 lg:pb-0">
-      <p className="mb-3.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
-        No Pitch. No Fluff.
-      </p>
+    <div>
+      <span className="mb-4 inline-block rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-600">
+        The Problem
+      </span>
+      <h2 className="text-2xl font-bold tracking-tight text-brand-secondary sm:text-3xl">
+        Every Missed Call Is a Job You Didn&apos;t Book
+      </h2>
 
-      <h1 className="text-[22px] font-extrabold leading-[1.15] text-white">
-        What&apos;s Happening to the Calls That Come In While You&apos;re on a
-        Job and After Hours?
-      </h1>
-
-      <div className="mt-5 mb-5">
+      <div className="mt-8 space-y-4">
         {painPoints.map((point) => (
           <div
             key={point}
-            className="flex items-start gap-2.5 border-b border-slate-400/10 py-2.5 last:border-b-0"
+            className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
           >
             <div
-              className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#AF4C0F]"
+              className="mt-2 h-2 w-2 shrink-0 rounded-full bg-red-500"
               aria-hidden="true"
             />
-            <p className="m-0 text-[13px] leading-relaxed text-slate-400">
-              {point}
-            </p>
+            <p className="text-sm leading-relaxed text-gray-600">{point}</p>
           </div>
         ))}
       </div>
 
-      <div className="my-4 h-px bg-slate-400/10" />
-
-      <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
-        What Jessica produces for your business
-      </p>
-
-      <ul className="space-y-0">
-        {outcomes.map((item, index) => (
-          <li
-            key={item.title}
-            className={`flex items-start gap-2.5 py-2.5 ${
-              index < outcomes.length - 1
-                ? "border-b border-brand-primary/10"
-                : ""
-            }`}
-          >
-            <CheckIcon />
-            <div>
-              <p className="m-0 mb-0.5 text-[13px] font-semibold text-white">
-                {item.title}
-              </p>
-              <p className="m-0 text-[11px] leading-snug text-slate-400">
-                {item.description}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-10">
+        <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
+          What Jessica produces
+        </span>
+        <ul className="mt-4 space-y-4">
+          {outcomes.map((item) => (
+            <li key={item.title} className="flex items-start gap-3">
+              <CheckIcon />
+              <div>
+                <p className="text-sm font-semibold text-brand-secondary">
+                  {item.title}
+                </p>
+                <p className="mt-0.5 text-sm leading-relaxed text-gray-600">
+                  {item.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

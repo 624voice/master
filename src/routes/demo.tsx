@@ -9,6 +9,12 @@ import { submitDemoLead } from "~/server/submitDemoLead";
 
 type DemoView = "gate" | "form" | "demo" | "limit";
 
+const primaryButtonClassName =
+  "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30 disabled:cursor-not-allowed disabled:opacity-60";
+
+const secondaryButtonClassName =
+  "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline";
+
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
@@ -116,28 +122,45 @@ function DemoPage() {
 
   return (
     <main className="pt-20">
-      <section className="min-h-[calc(100dvh-5rem)] bg-[#18222f] px-6 py-16 font-[family-name:var(--font-body)] sm:py-20">
-        <div className="mx-auto max-w-[960px] overflow-hidden rounded-xl border border-brand-primary/10 bg-[#18222f]">
-          <div className="demo-grid grid lg:grid-cols-2">
-            <div className="p-9 sm:p-11">
-              <DemoAgentOverview />
-            </div>
+      {/* Hero */}
+      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
+            No Pitch. No Fluff.
+          </span>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+            Talk to Jessica —{" "}
+            <span className="text-brand-primary">Live AI Demo</span>
+          </h1>
+          <p className="mt-6 text-lg leading-relaxed text-gray-300">
+            What&apos;s happening to the calls that come in while you&apos;re on
+            a job and after hours? Hear exactly what your callers could
+            experience — 24/7/365, on the first ring.
+          </p>
+        </div>
+      </section>
 
-            <div className="flex flex-col justify-center border-t border-slate-400/10 p-7 sm:p-9 lg:border-t-0 lg:border-l">
+      {/* Main content */}
+      <section className="bg-white px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+            <DemoAgentOverview />
+
+            <div className="flex flex-col justify-center">
               {view === "gate" && (
-                <div className="flex flex-col items-center gap-5">
+                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
                   <div className="text-center">
-                    <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
+                    <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
                       Hear the difference yourself
-                    </p>
-                    <p className="text-[13px] leading-relaxed text-slate-400">
-                      Talk to her. See exactly what your callers could experience
-                      24/7/365.
+                    </span>
+                    <p className="text-sm leading-relaxed text-gray-600">
+                      Talk to her. See exactly what your callers could
+                      experience 24/7/365.
                     </p>
                   </div>
 
-                  <div className="w-full rounded-xl border border-slate-400/15 bg-white/[0.03] p-8 text-center">
-                    <div className="mx-auto mb-3.5 flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-brand-primary/55 bg-brand-primary/10">
+                  <div className="mt-6 rounded-xl border border-gray-100 bg-brand-accent-light/40 p-8 text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary/10">
                       <svg
                         className="h-7 w-7 text-brand-primary"
                         fill="none"
@@ -153,47 +176,46 @@ function DemoPage() {
                         />
                       </svg>
                     </div>
-                    <p className="mb-1 text-base font-bold text-white">
+                    <p className="text-lg font-semibold text-brand-secondary">
                       Talk to Jessica
                     </p>
-                    <p className="mb-5 text-xs text-slate-400">
+                    <p className="mt-1 text-sm text-gray-600">
                       Live AI Demo · 624 Voice
                     </p>
                     <button
                       type="button"
                       onClick={() => setView("form")}
-                      className="mb-2.5 w-full rounded-lg bg-brand-primary px-6 py-3.5 text-sm font-bold text-[#18222f] transition-colors hover:bg-brand-primary-dark"
+                      className={`mt-6 ${primaryButtonClassName}`}
                     >
                       Get Instant Access
                     </button>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="mt-3 text-sm text-gray-500">
                       1 call per visitor
                     </p>
                   </div>
 
-                  <a
-                    href="/contact"
-                    className="block w-full rounded-md border border-brand-primary bg-[#1e3a2f] px-5 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.06em] text-brand-primary no-underline transition-colors hover:bg-[#1e3a2f]/80"
-                  >
+                  <a href="/contact" className={`mt-6 ${secondaryButtonClassName}`}>
                     Want This on Your Phones? →
                   </a>
                 </div>
               )}
 
               {view === "form" && (
-                <div>
-                  <h2 className="mb-1 text-lg font-bold text-white">
+                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
+                  <h2 className="text-2xl font-bold text-brand-secondary">
                     Get instant access
                   </h2>
-                  <p className="mb-5 text-xs text-slate-400">
+                  <p className="mt-2 text-sm text-gray-600">
                     Same details as our contact form — then you&apos;ll connect
                     live with Jessica.
                   </p>
-                  <DemoLeadForm {...formProps} />
+                  <div className="mt-8">
+                    <DemoLeadForm {...formProps} />
+                  </div>
                   <button
                     type="button"
                     onClick={() => setView("gate")}
-                    className="mt-4 w-full text-center text-xs text-slate-500 hover:text-slate-300"
+                    className="mt-4 w-full text-center text-sm font-semibold text-gray-500 hover:text-brand-primary"
                   >
                     ← Back
                   </button>
@@ -201,14 +223,77 @@ function DemoPage() {
               )}
 
               {view === "demo" && lead && (
-                <VoiceDemo
-                  lead={lead}
-                  autoStart
-                  onDemoLimitReached={() => setView("limit")}
-                />
+                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
+                  <VoiceDemo
+                    lead={lead}
+                    autoStart
+                    onDemoLimitReached={() => setView("limit")}
+                  />
+                </div>
               )}
 
-              {view === "limit" && <DemoLimitPanel compact />}
+              {view === "limit" && (
+                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
+                  <DemoLimitPanel compact />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Guarantee + CTA */}
+      <section className="bg-brand-accent-light px-6 py-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+            <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+              90-Day{" "}
+              <span className="text-brand-primary">Results Guarantee</span>
+            </h3>
+            <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+              We guarantee you recover at least our service investment in booked
+              service-visit revenue within 90 days of go-live —{" "}
+              <span className="font-semibold text-brand-primary">
+                or we keep working, for free, until you do.
+              </span>
+            </p>
+          </div>
+
+          <div className="mt-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
+              Ready to Answer Every Call?
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Book a meeting and we&apos;ll walk through how 624 Voice fits your
+              business.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <a
+                href="/contact"
+                className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
+              >
+                Schedule Your Demo
+              </a>
+              <a
+                href="/"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
+              >
+                Back to Home
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         </div>

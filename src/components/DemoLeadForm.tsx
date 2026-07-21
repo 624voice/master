@@ -1,12 +1,12 @@
 import { CONTACT_TRADES } from "~/lib/lead/validateLead";
 
 const inputClassName =
-  "mt-1 block w-full rounded-lg border border-slate-500/30 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
+  "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
 
 const selectClassName =
-  "mt-1 block w-full rounded-lg border border-slate-500/30 bg-white/5 px-4 py-2.5 text-sm text-slate-200 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
+  "mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20";
 
-const labelClassName = "block text-sm font-medium text-slate-300";
+const labelClassName = "block text-sm font-medium text-gray-700";
 
 type DemoLeadFormProps = {
   firstName: string;
@@ -41,8 +41,11 @@ type DemoLeadFormProps = {
 
 export function DemoLeadForm(props: DemoLeadFormProps) {
   return (
-    <form onSubmit={props.onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form
+      onSubmit={props.onSubmit}
+      className="max-h-[70vh] space-y-6 overflow-y-auto pr-1"
+    >
+      <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="demo-firstName" className={labelClassName}>
             First Name
@@ -131,7 +134,7 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
       )}
       <fieldset className="space-y-2">
         <legend className={labelClassName}>What is your website?</legend>
-        <label className="flex items-center gap-2 text-sm text-slate-300">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="radio"
             name="demo-websiteOption"
@@ -154,7 +157,7 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
             required
           />
         )}
-        <label className="flex items-center gap-2 text-sm text-slate-300">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="radio"
             name="demo-websiteOption"
@@ -222,7 +225,7 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
         </label>
         <textarea
           id="demo-message"
-          rows={3}
+          rows={4}
           value={props.message}
           onChange={(e) => props.setMessage(e.target.value)}
           className={inputClassName}
@@ -238,22 +241,22 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
             props.setSmsConsent(e.target.checked);
             props.onClearError();
           }}
-          className="mt-1 h-4 w-4 rounded border-slate-500/30 text-brand-primary focus:ring-brand-primary/20"
+          className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
         />
-        <span className="text-xs leading-relaxed text-slate-400">
+        <span className="text-sm text-gray-600">
           I agree to receive text messages from 624 Voice about my inquiry.
           Message and data rates may apply. Reply STOP to opt out.
         </span>
       </label>
       {props.error && (
-        <p className="text-sm text-red-400" role="alert">
+        <p className="text-sm text-red-600" role="alert">
           {props.error}
         </p>
       )}
       <button
         type="submit"
         disabled={props.loading}
-        className="w-full rounded-lg bg-brand-primary px-6 py-3.5 text-sm font-bold text-[#18222f] transition-colors hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {props.loading ? "Submitting…" : "Get Instant Access"}
       </button>
