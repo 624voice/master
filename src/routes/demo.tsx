@@ -16,6 +16,9 @@ const primaryButtonClassName =
 const secondaryButtonClassName =
   "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline";
 
+const demoPanelClassName =
+  "rounded-xl border border-gray-100 bg-white p-6 shadow-lg sm:p-8";
+
 export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
@@ -123,134 +126,128 @@ function DemoPage() {
 
   return (
     <main className="pt-20">
-      {/* Hero */}
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            No Pitch. No Fluff.
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Talk to Jessica —{" "}
-            <span className="text-brand-primary">Live AI Demo</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            What&apos;s happening to the calls that come in while you&apos;re on
-            a job and after hours? Hear exactly what your callers could
-            experience — 24/7/365, on the first ring.
-          </p>
-          <DemoHowToStart variant="hero" />
-        </div>
-      </section>
+      {/* Above the fold: headline + demo widget side by side */}
+      <section className="bg-brand-secondary px-6 py-8 sm:py-10 lg:min-h-[calc(100dvh-5rem)] lg:py-12">
+        <div className="mx-auto grid max-w-7xl items-start gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
+          {/* Copy — below demo on mobile, left on desktop */}
+          <div className="order-2 lg:order-1">
+            <span className="mb-3 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
+              No Pitch. No Fluff.
+            </span>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              Talk to Jessica —{" "}
+              <span className="text-brand-primary">Live AI Demo</span>
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-gray-300 sm:text-lg">
+              Hear exactly what your callers could experience — 24/7/365, on the
+              first ring.
+            </p>
+            <div className="hidden lg:block">
+              <DemoHowToStart variant="hero" />
+            </div>
+          </div>
 
-      {/* Main content */}
-      <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <DemoAgentOverview />
+          {/* Demo widget — first on mobile so no scroll needed */}
+          <div className="order-1 lg:order-2">
+            {view === "gate" && (
+              <div className={demoPanelClassName}>
+                <DemoHowToStart variant="gate" />
 
-            <div className="flex flex-col justify-center">
-              {view === "gate" && (
-                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
-                  <div className="text-center">
-                    <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
-                      Hear the difference yourself
-                    </span>
-                    <p className="text-sm leading-relaxed text-gray-600">
-                      Talk to her. See exactly what your callers could
-                      experience 24/7/365.
-                    </p>
-                    <DemoHowToStart variant="gate" />
-                  </div>
-
-                  <div className="mt-6 rounded-xl border border-gray-100 bg-brand-accent-light/40 p-8 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary/10">
-                      <svg
-                        className="h-7 w-7 text-brand-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-lg font-semibold text-brand-secondary">
-                      Talk to Jessica
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600">
-                      Live AI Demo · 624 Voice
-                    </p>
-                    <p className="mt-5 text-sm font-medium text-brand-secondary">
-                      Ready? Click below to get started:
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setView("form")}
-                      className={`mt-6 ${primaryButtonClassName}`}
+                <div className="mt-5 rounded-xl border border-gray-100 bg-brand-accent-light/40 p-6 text-center sm:p-8">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary/10 sm:h-16 sm:w-16">
+                    <svg
+                      className="h-6 w-6 text-brand-primary sm:h-7 sm:w-7"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
-                      Get Instant Access
-                    </button>
-                    <p className="mt-3 text-sm text-gray-500">
-                      1 call per visitor
-                    </p>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
                   </div>
-
-                  <a href="/contact" className={`mt-6 ${secondaryButtonClassName}`}>
-                    Want This on Your Phones? →
-                  </a>
-                </div>
-              )}
-
-              {view === "form" && (
-                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
-                  <h2 className="text-2xl font-bold text-brand-secondary">
-                    Get instant access
-                  </h2>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Same details as our contact form — then you&apos;ll connect
-                    live with Jessica.
+                  <p className="text-lg font-semibold text-brand-secondary">
+                    Talk to Jessica
                   </p>
-                  <DemoHowToStart variant="form" />
-                  <div className="mt-6">
-                    <DemoLeadForm {...formProps} />
-                  </div>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Live AI Demo · 624 Voice
+                  </p>
+                  <p className="mt-4 text-sm font-medium text-brand-secondary">
+                    Ready? Click below to get started:
+                  </p>
                   <button
                     type="button"
-                    onClick={() => setView("gate")}
-                    className="mt-4 w-full text-center text-sm font-semibold text-gray-500 hover:text-brand-primary"
+                    onClick={() => setView("form")}
+                    className={`mt-4 ${primaryButtonClassName}`}
                   >
-                    ← Back
+                    Get Instant Access
                   </button>
+                  <p className="mt-3 text-sm text-gray-500">
+                    1 call per visitor
+                  </p>
                 </div>
-              )}
 
-              {view === "demo" && lead && (
-                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
-                  <VoiceDemo
-                    lead={lead}
-                    autoStart
-                    onDemoLimitReached={() => setView("limit")}
-                  />
-                </div>
-              )}
+                <a href="/contact" className={`mt-5 ${secondaryButtonClassName}`}>
+                  Want This on Your Phones? →
+                </a>
+              </div>
+            )}
 
-              {view === "limit" && (
-                <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
-                  <DemoLimitPanel compact />
+            {view === "form" && (
+              <div className={demoPanelClassName}>
+                <h2 className="text-xl font-bold text-brand-secondary sm:text-2xl">
+                  Get instant access
+                </h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Same details as our contact form — then you&apos;ll connect
+                  live with Jessica.
+                </p>
+                <DemoHowToStart variant="form" />
+                <div className="mt-5">
+                  <DemoLeadForm {...formProps} compact />
                 </div>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setView("gate")}
+                  className="mt-4 w-full text-center text-sm font-semibold text-gray-500 hover:text-brand-primary"
+                >
+                  ← Back
+                </button>
+              </div>
+            )}
+
+            {view === "demo" && lead && (
+              <div className={demoPanelClassName}>
+                <VoiceDemo
+                  lead={lead}
+                  autoStart
+                  onDemoLimitReached={() => setView("limit")}
+                />
+              </div>
+            )}
+
+            {view === "limit" && (
+              <div className={demoPanelClassName}>
+                <DemoLimitPanel compact />
+              </div>
+            )}
           </div>
         </div>
       </section>
 
+      {/* Below the fold: full value prop */}
+      <section className="bg-white px-6 py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl">
+          <DemoAgentOverview />
+        </div>
+      </section>
+
       {/* Guarantee + CTA */}
-      <section className="bg-brand-accent-light px-6 py-24">
+      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
             <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
