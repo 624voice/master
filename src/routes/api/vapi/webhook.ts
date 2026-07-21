@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { startContactSpeed2Lead } from "~/server/contactSpeed2Lead/startConversation";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { parseEndOfCallReport } from "~/server/vapi/parseEndOfCallReport";
+import { markVoiceDemoUsed } from "~/server/vapi/demoUsage";
 import { logVoiceTranscriptSafely } from "~/server/vapi/transcript";
 
 function smsConsentEnabled(value: unknown): boolean {
@@ -26,6 +27,10 @@ export const Route = createFileRoute("/api/vapi/webhook")({
         if (report) {
           const { metadata, transcript, recordingUrl, durationSeconds, endedReason } =
             report;
+
+          if (metadata.email && metadata.phone) {
+            await markVoiceDemoUsed(metadata.email, metadata.phone);
+          }
 
           logVoiceTranscriptSafely({
             firstName: metadata.firstName,

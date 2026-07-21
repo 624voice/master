@@ -7,6 +7,10 @@ import {
   isVapiDemoConfigured,
 } from "~/config/vapi";
 import type { DemoLead } from "~/server/submitDemoLead";
+import {
+  checkDemoEligibility,
+  recordDemoCallStart,
+} from "~/server/vapi/demoAccess";
 
 type CallPhase =
   | "idle"
@@ -17,6 +21,7 @@ type CallPhase =
 
 type VoiceDemoProps = {
   lead: DemoLead;
+  onDemoLimitReached: () => void;
 };
 
 function formatElapsed(seconds: number): string {
@@ -25,7 +30,7 @@ function formatElapsed(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function VoiceDemo({ lead }: VoiceDemoProps) {
+export function VoiceDemo({ lead, onDemoLimitReached }: VoiceDemoProps) {
   const [phase, setPhase] = useState<CallPhase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -68,6 +73,18 @@ export function VoiceDemo({ lead }: VoiceDemoProps) {
   }, [clearTimers]);
 
   const startCall = async () => {
+    try {
+      const { allowed } = await checkDemoEligibility({
+        data: { email: lead.email, phone: lead.phone },
+      });
+      if (!allowed) {
+        onDemoLimitReached();
+        return;
+      }
+    } catch (err) {
+      console.error("Demo eligibility check failed:", err);
+    }
+
     if (!isVapiDemoConfigured()) {
       setError(
         "Voice demo is not configured yet. Please try again later or contact us.",
@@ -91,6 +108,12 @@ export function VoiceDemo({ lead }: VoiceDemoProps) {
       vapiRef.current = vapi;
 
       vapi.on("call-start", () => {
+        void recordDemoCallStart({
+          data: { email: lead.email, phone: lead.phone },
+        }).catch((err) => {
+          console.error("Failed to record demo call start:", err);
+        });
+
         setPhase("live");
         timerRef.current = setInterval(() => {
           setElapsed((prev) => prev + 1);
@@ -221,18 +244,16 @@ export function VoiceDemo({ lead }: VoiceDemoProps) {
               Thanks for trying the demo!
             </p>
             <p className="mt-2 text-sm text-gray-300">
-              We&apos;ll send you a summary and follow up soon.
+              We&apos;ll send you a summary and follow up soon. Each visitor
+              gets one demo call — book a meeting if you&apos;d like to go
+              deeper.
             </p>
             <button
               type="button"
-              onClick={() => {
-                setPhase("idle");
-                setElapsed(0);
-                setError(null);
-              }}
-              className="mt-6 rounded-lg border border-gray-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/5"
+              onClick={onDemoLimitReached}
+              className="mt-6 rounded-lg bg-brand-primary px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-dark"
             >
-              Start another call
+              Book a meeting
             </button>
           </div>
         )}

@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { DemoLimitPanel } from "~/components/DemoLimitPanel";
 import { VoiceDemo } from "~/components/VoiceDemo";
 import type { DemoLead } from "~/server/submitDemoLead";
 import { submitDemoLead } from "~/server/submitDemoLead";
+
+type DemoView = "form" | "demo" | "limit";
 
 export const Route = createFileRoute("/demo")({
   component: DemoPage,
@@ -23,6 +26,7 @@ function DemoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<DemoLead | null>(null);
+  const [view, setView] = useState<DemoView>("form");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -42,7 +46,13 @@ function DemoPage() {
           smsConsent,
         },
       });
+      if (result.demoAlreadyUsed) {
+        setView("limit");
+        return;
+      }
+
       setLead(result.lead);
+      setView("demo");
     } catch (err) {
       setError(
         err instanceof Error
@@ -73,8 +83,10 @@ function DemoPage() {
       </section>
 
       <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-xl">
-          {!lead ? (
+        <div
+          className={`mx-auto ${view === "limit" ? "max-w-4xl" : "max-w-xl"}`}
+        >
+          {view === "form" ? (
             <>
               <h2 className="text-2xl font-bold text-brand-secondary">
                 Before we connect you
@@ -239,8 +251,13 @@ function DemoPage() {
                 </button>
               </form>
             </>
+          ) : view === "demo" && lead ? (
+            <VoiceDemo
+              lead={lead}
+              onDemoLimitReached={() => setView("limit")}
+            />
           ) : (
-            <VoiceDemo lead={lead} />
+            <DemoLimitPanel />
           )}
         </div>
       </section>

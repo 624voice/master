@@ -7,6 +7,7 @@ import {
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import { saveLead } from "~/server/leads";
+import { hasUsedVoiceDemo } from "~/server/vapi/demoUsage";
 
 export type DemoLead = LeadInfo & {
   website: string;
@@ -48,12 +49,10 @@ export const submitDemoLead = createServerFn({ method: "POST" })
 
     const website = resolveContactWebsite(data.websiteOption, data.website);
 
-    await saveLead({
-      ...normalizedLead,
-      website,
-      smsConsent: data.smsConsent,
-      source: "voice_demo",
-    });
+    const demoAlreadyUsed = await hasUsedVoiceDemo(
+      normalizedLead.email,
+      normalizedLead.phone,
+    );
 
     const lead: DemoLead = {
       ...normalizedLead,
@@ -61,5 +60,16 @@ export const submitDemoLead = createServerFn({ method: "POST" })
       smsConsent: data.smsConsent,
     };
 
-    return { ok: true as const, lead };
+    if (demoAlreadyUsed) {
+      return { ok: true as const, lead, demoAlreadyUsed: true };
+    }
+
+    await saveLead({
+      ...normalizedLead,
+      website,
+      smsConsent: data.smsConsent,
+      source: "voice_demo",
+    });
+
+    return { ok: true as const, lead, demoAlreadyUsed: false };
   });

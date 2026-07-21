@@ -35,6 +35,10 @@ Redeploy production after saving env vars.
 
 Main leads tab will show **Source = Voice Demo** for demo form submissions.
 
+## One call per visitor
+
+Each email **or** phone number may start the web demo **once**. Usage is tracked in Upstash Redis (same database as Speed2Lead). Repeat visitors see a booking panel with the embedded Google Calendar instead of the call UI.
+
 ## Verification
 
 1. Visit `/demo`, fill out the form, click **Continue to demo**.
