@@ -6,10 +6,10 @@
  * 2. Appends Speed2Lead SMS transcript rows to the "SMS Transcripts" tab
  *
  * Lead sheet columns (row 1 headers):
- * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI
+ * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI | Source | SMS Consent
  *
  * SMS Transcripts columns (row 1 headers):
- * Timestamp | Direction | Phone | First Name | Business Name | Conversation State | Message
+ * Timestamp | Flow | Direction | Phone | First Name | Business Name | Conversation State | Need Summary | Message
  *
  * Setup: see docs/leads-webhook-setup.md
  */
@@ -33,15 +33,19 @@ const HEADERS = [
   "Truck Count",
   "Message",
   "Moderate ROI",
+  "Source",
+  "SMS Consent",
 ];
 
 const SMS_TRANSCRIPT_HEADERS = [
   "Timestamp",
+  "Flow",
   "Direction",
   "Phone",
   "First Name",
   "Business Name",
   "Conversation State",
+  "Need Summary",
   "Message",
 ];
 
@@ -107,6 +111,39 @@ function splitName(data) {
   return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
 }
 
+function formatSmsConsent(value) {
+  if (value === true || String(value).toLowerCase() === "true") {
+    return "Yes";
+  }
+  if (value === false || String(value).toLowerCase() === "false") {
+    return "No";
+  }
+  return "";
+}
+
+function formatLeadSource(source) {
+  switch (source) {
+    case "contact_form":
+      return "Contact Form";
+    case "missing_money":
+      return "ROI Calculator";
+    case "missing_money_pdf":
+      return "ROI PDF";
+    default:
+      return String(source || "");
+  }
+}
+
+function formatTranscriptFlow(flow) {
+  if (flow === "contact") {
+    return "Contact";
+  }
+  if (flow === "roi") {
+    return "ROI";
+  }
+  return String(flow || "");
+}
+
 function appendLeadRow(data) {
   const sheet = getLeadSheet();
   ensureHeaders(sheet);
@@ -126,6 +163,8 @@ function appendLeadRow(data) {
     data.truckCount ?? "",
     data.message || "",
     data.moderateRoi || "",
+    formatLeadSource(data.source),
+    formatSmsConsent(data.smsConsent),
   ]);
 }
 
@@ -148,6 +187,7 @@ function sendLeadEmail(data) {
     `Monthly calls: ${data.monthlyCalls ?? ""}`,
     `Truck count: ${data.truckCount ?? ""}`,
     `Moderate ROI: ${data.moderateRoi || ""}`,
+    `SMS consent: ${formatSmsConsent(data.smsConsent)}`,
     "",
     `Captured at: ${formatCentralTimestamp(data.capturedAt)}`,
   ].join("\n");
@@ -201,11 +241,13 @@ function appendSmsTranscriptRow(data) {
 
   sheet.appendRow([
     formatCentralTimestamp(data.capturedAt),
+    formatTranscriptFlow(data.flow),
     formatDirection(data.direction),
     data.phone || "",
     data.firstName || "",
     data.businessName || "",
     data.conversationState || "",
+    data.shortNeedSummary || "",
     data.body || "",
   ]);
 }
@@ -213,15 +255,18 @@ function appendSmsTranscriptRow(data) {
 function testSmsTranscriptWebhook() {
   appendSmsTranscriptRow({
     capturedAt: new Date().toISOString(),
+    flow: "contact",
     direction: "outbound",
     phone: "+15551234567",
     firstName: "Test",
     businessName: "Test Plumbing LLC",
-    conversationState: "awaiting_goal",
-    body: "Hey Test, Chris with 624Voice. This is a transcript test.",
+    conversationState: "awaiting_contact_goal",
+    shortNeedSummary: "better call handling",
+    body: "Hey Test, Chris with 624Voice. This is a contact transcript test.",
   });
   appendSmsTranscriptRow({
     capturedAt: new Date().toISOString(),
+    flow: "roi",
     direction: "inbound",
     phone: "+15551234567",
     firstName: "Test",

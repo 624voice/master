@@ -6,15 +6,17 @@ Site lead forms POST to `LEADS_WEBHOOK_URL`. Point that env var at a Google Apps
 
 Row 1 headers should match the contact intake form:
 
-`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI`
+`Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI | Source | SMS Consent`
 
 Speed2Lead SMS transcripts append to a second tab named **SMS Transcripts**:
 
-`Timestamp | Direction | Phone | First Name | Business Name | Conversation State | Message`
+`Timestamp | Flow | Direction | Phone | First Name | Business Name | Conversation State | Need Summary | Message`
+
+**Flow** values: `Contact` (contact form Speed2Lead) or `ROI` (ROI calculator Speed2Lead).
 
 Timestamps are stored in **Central Time (America/Chicago)**, e.g. `2026-07-16 1:57:07 PM CT`.
 
-ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**.
+ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**. **Source** shows `Contact Form`, `ROI Calculator`, or `ROI PDF`. **SMS Consent** is `Yes` when the customer opted in to Speed2Lead texts.
 
 ## 1. Deploy the Apps Script
 
@@ -61,7 +63,7 @@ Redeploy production after saving.
 
 ## SMS transcripts
 
-When Speed2Lead sends or receives a text, the site POSTs `{ type: "sms_transcript", ... }` to the same `LEADS_WEBHOOK_URL`. Each message appends one row to the **SMS Transcripts** tab (no email is sent for transcripts).
+When Speed2Lead sends or receives a text, the site POSTs `{ type: "sms_transcript", ... }` to the same `LEADS_WEBHOOK_URL`. Each message appends one row to the **SMS Transcripts** tab (no email is sent for transcripts). Contact form conversations include **Flow = Contact** and the **Need Summary** from the form message.
 
 ## Troubleshooting
 

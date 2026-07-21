@@ -10,6 +10,8 @@ export type SmsTranscriptPayload = {
   firstName?: string;
   businessName?: string;
   conversationState?: string;
+  flow?: "roi" | "contact";
+  shortNeedSummary?: string;
   capturedAt: string;
 };
 
@@ -36,11 +38,21 @@ function transcriptContext(context?: AnyConversationContext | null) {
     return {};
   }
 
-  return {
+  const base = {
     firstName: context.firstName,
     businessName: context.businessName,
     conversationState: context.state,
+    flow: context.flow === "contact" ? ("contact" as const) : ("roi" as const),
   };
+
+  if (context.flow === "contact") {
+    return {
+      ...base,
+      shortNeedSummary: context.shortNeedSummary,
+    };
+  }
+
+  return base;
 }
 
 export async function logSmsTranscript(input: {
