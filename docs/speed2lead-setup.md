@@ -46,6 +46,13 @@ Database name suggestion: `624speed2lead`
 3. Server saves the lead, creates a tokenized report link, generates the PDF, and sends the initial SMS.
 4. Customer replies; Twilio posts to `/api/sms/inbound`.
 5. The conversation state machine sends the next scripted message from Redis-backed session state.
+6. Each inbound and outbound SMS is appended to the **SMS Transcripts** tab in your leads Google Sheet.
+
+## SMS transcripts
+
+Transcripts use the same `LEADS_WEBHOOK_URL` as lead capture. After deploying the updated Apps Script (see `docs/leads-webhook-setup.md`), run **setupSheetHeaders** once to create the **SMS Transcripts** tab.
+
+Each row includes timestamp (Central Time), direction, phone, lead name/business, conversation state, and message body.
 
 ## Report links
 
@@ -62,3 +69,4 @@ Tokens expire after 30 days.
 3. Reply `booking more jobs` and walk through a branch to the booking link.
 4. Reply `STOP` and confirm no further messages are sent.
 5. Download the PDF without opting in and confirm no SMS is sent.
+6. Confirm each SMS appears on the **SMS Transcripts** tab in the leads Google Sheet.

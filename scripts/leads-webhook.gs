@@ -2,11 +2,14 @@
  * 624 Voice lead webhook — Google Apps Script
  *
  * Receives POST JSON from the site (LEADS_WEBHOOK_URL) and:
- * 1. Appends a row to your Google Sheet
- * 2. Emails info@624voice.com
+ * 1. Appends lead rows to the main sheet + emails info@624voice.com
+ * 2. Appends Speed2Lead SMS transcript rows to the "SMS Transcripts" tab
  *
- * Sheet columns (row 1 headers):
+ * Lead sheet columns (row 1 headers):
  * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI
+ *
+ * SMS Transcripts columns (row 1 headers):
+ * Timestamp | Direction | Phone | First Name | Business Name | Conversation State | Message
  *
  * Setup: see docs/leads-webhook-setup.md
  */
@@ -14,6 +17,7 @@
 const SHEET_ID = "1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw";
 const LEADS_EMAIL = "info@624voice.com";
 const TIME_ZONE = "America/Chicago";
+const SMS_TRANSCRIPT_SHEET_NAME = "SMS Transcripts";
 
 const HEADERS = [
   "Timestamp",
@@ -29,6 +33,16 @@ const HEADERS = [
   "Truck Count",
   "Message",
   "Moderate ROI",
+];
+
+const SMS_TRANSCRIPT_HEADERS = [
+  "Timestamp",
+  "Direction",
+  "Phone",
+  "First Name",
+  "Business Name",
+  "Conversation State",
+  "Message",
 ];
 
 /** Format as Central Time, e.g. "2026-07-16 1:57:07 PM CT" */
@@ -59,6 +73,14 @@ function ensureHeaders(sheet) {
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
+
+    if (payload.type === "sms_transcript") {
+      appendSmsTranscriptRow(payload);
+      return ContentService.createTextOutput(
+        JSON.stringify({ ok: true, type: "sms_transcript" }),
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     appendLeadRow(payload);
     sendLeadEmail(payload);
     return ContentService.createTextOutput(
@@ -138,6 +160,75 @@ function sendLeadEmail(data) {
 /** Run once from the Apps Script editor to add/update sheet headers. */
 function setupSheetHeaders() {
   ensureHeaders(getLeadSheet());
+  ensureSmsTranscriptHeaders(getSmsTranscriptSheet());
+}
+
+function getSmsTranscriptSheet() {
+  const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  const existing = spreadsheet.getSheetByName(SMS_TRANSCRIPT_SHEET_NAME);
+  if (existing) {
+    return existing;
+  }
+
+  return spreadsheet.insertSheet(SMS_TRANSCRIPT_SHEET_NAME);
+}
+
+function ensureSmsTranscriptHeaders(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, SMS_TRANSCRIPT_HEADERS.length);
+  const existing = headerRange.getValues()[0];
+  const needsUpdate = SMS_TRANSCRIPT_HEADERS.some(function (header, index) {
+    return String(existing[index] || "").trim() !== header;
+  });
+
+  if (needsUpdate) {
+    headerRange.setValues([SMS_TRANSCRIPT_HEADERS]);
+  }
+}
+
+function formatDirection(direction) {
+  if (direction === "inbound") {
+    return "Inbound";
+  }
+  if (direction === "outbound") {
+    return "Outbound";
+  }
+  return String(direction || "");
+}
+
+function appendSmsTranscriptRow(data) {
+  const sheet = getSmsTranscriptSheet();
+  ensureSmsTranscriptHeaders(sheet);
+
+  sheet.appendRow([
+    formatCentralTimestamp(data.capturedAt),
+    formatDirection(data.direction),
+    data.phone || "",
+    data.firstName || "",
+    data.businessName || "",
+    data.conversationState || "",
+    data.body || "",
+  ]);
+}
+
+function testSmsTranscriptWebhook() {
+  appendSmsTranscriptRow({
+    capturedAt: new Date().toISOString(),
+    direction: "outbound",
+    phone: "+15551234567",
+    firstName: "Test",
+    businessName: "Test Plumbing LLC",
+    conversationState: "awaiting_goal",
+    body: "Hey Test, Chris with 624Voice. This is a transcript test.",
+  });
+  appendSmsTranscriptRow({
+    capturedAt: new Date().toISOString(),
+    direction: "inbound",
+    phone: "+15551234567",
+    firstName: "Test",
+    businessName: "Test Plumbing LLC",
+    conversationState: "awaiting_goal",
+    body: "Both",
+  });
 }
 
 function testLeadWebhook() {

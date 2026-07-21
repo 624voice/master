@@ -8,6 +8,10 @@ Row 1 headers should match the contact intake form:
 
 `Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI`
 
+Speed2Lead SMS transcripts append to a second tab named **SMS Transcripts**:
+
+`Timestamp | Direction | Phone | First Name | Business Name | Conversation State | Message`
+
 Timestamps are stored in **Central Time (America/Chicago)**, e.g. `2026-07-16 1:57:07 PM CT`.
 
 ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**, and **Moderate ROI** from the calculator (exact truck count, call volume, and moderate-scenario annual benefit). Contact form leads leave **Monthly Calls**, **Truck Count**, and **Moderate ROI** blank and use a fleet-size range for **Fleet Size**.
@@ -18,13 +22,16 @@ ROI calculator leads populate **Fleet Size**, **Monthly Calls**, **Truck Count**
 2. **Extensions → Apps Script**.
 3. Delete the default `Code.gs` contents and paste in [`scripts/leads-webhook.gs`](../scripts/leads-webhook.gs). The Sheet ID is already set.
 4. Save the project (e.g. name it "624 Voice Lead Webhook").
-5. Run **setupSheetHeaders** once from the editor to add the **Moderate ROI** column header (and confirm row 1 matches).
+5. Run **setupSheetHeaders** once from the editor to add/update headers on both the leads tab and the **SMS Transcripts** tab.
 6. Run **testLeadWebhook** once from the editor to authorize Gmail + Sheets access and confirm a test row/email.
-7. **Deploy → New deployment**
+7. Optional: run **testSmsTranscriptWebhook** to confirm the SMS Transcripts tab is created and populated.
+8. **Deploy → New deployment**
    - Type: **Web app**
    - Execute as: **Me**
    - Who has access: **Anyone**
-8. Copy the **Web app URL** (ends in `/exec`).
+9. Copy the **Web app URL** (ends in `/exec`).
+
+> **Important:** After updating the Apps Script, create a **New deployment** (not just Save) so the live webhook picks up SMS transcript support.
 
 ## 2. Configure Netlify
 
@@ -51,6 +58,10 @@ Redeploy production after saving.
 | `contact_form` | Contact page |
 | `missing_money` | ROI calculator unlock |
 | `missing_money_pdf` | ROI PDF download |
+
+## SMS transcripts
+
+When Speed2Lead sends or receives a text, the site POSTs `{ type: "sms_transcript", ... }` to the same `LEADS_WEBHOOK_URL`. Each message appends one row to the **SMS Transcripts** tab (no email is sent for transcripts).
 
 ## Troubleshooting
 
