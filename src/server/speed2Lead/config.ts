@@ -1,5 +1,4 @@
 import {
-  BOOK_MEETING_URL,
   SPEED2LEAD_BOOKING_URL,
   SITE_ORIGIN,
 } from "~/config/features";
@@ -21,11 +20,6 @@ export function getSiteOrigin(): string {
 
 export function getBookingUrl(): string {
   return process.env.SPEED2LEAD_BOOKING_URL ?? SPEED2LEAD_BOOKING_URL;
-}
-
-/** Fallback for other booking links still using BOOK_MEETING_URL. */
-export function getLegacyBookingUrl(): string {
-  return BOOK_MEETING_URL;
 }
 
 export const REPORT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
