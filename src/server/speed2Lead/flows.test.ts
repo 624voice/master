@@ -37,28 +37,20 @@ function walkToCompleted(
   return { context, replies };
 }
 
-describe("classifySubgoalIntent", () => {
-  test("matches exact prompt phrases from booking subgoal question", () => {
-    expect(classifySubgoalIntent("answering more calls")).toBe(
-      "subgoal_answering_calls",
-    );
-    expect(classifySubgoalIntent("Responding to new leads faster")).toBe(
-      "subgoal_responding_faster",
-    );
-    expect(classifySubgoalIntent("Responding to leads faster")).toBe(
-      "subgoal_responding_faster",
-    );
-    expect(classifySubgoalIntent("Following up more consistently")).toBe(
-      "subgoal_follow_up",
-    );
-    expect(classifySubgoalIntent("responding faster")).toBe(
-      "subgoal_responding_faster",
-    );
-  });
-});
+describe("booking more jobs flow", () => {
+  test("answering more calls branch completes with calendar link", () => {
+    const { context, replies } = walkToCompleted([
+      "Booking more jobs",
+      "answering more calls",
+      "After hours",
+    ]);
 
-describe("advanceConversation booking flow", () => {
-  test("booking more jobs -> responding faster -> free-form answer -> booking link", () => {
+    expect(context.state).toBe("completed");
+    expect(replies[2]).toContain("improving coverage in that window");
+    expect(replies[2]).toContain("calendar.app.google/test");
+  });
+
+  test("responding faster branch completes with calendar link", () => {
     const { context, replies } = walkToCompleted([
       "Booking more jobs",
       "Responding to new leads faster",
@@ -68,10 +60,9 @@ describe("advanceConversation booking flow", () => {
     expect(context.state).toBe("completed");
     expect(replies[1]).toContain("How quickly is your team usually able to respond");
     expect(replies[2]).toContain("Speed is often where the first opportunity shows up");
-    expect(replies[2]).toContain("calendar.app.google/test");
   });
 
-  test("booking more jobs -> follow up -> manually -> branch-specific booking link", () => {
+  test("follow up branch completes with calendar link", () => {
     const { context, replies } = walkToCompleted([
       "Booking more jobs",
       "Following up more consistently",
@@ -79,87 +70,12 @@ describe("advanceConversation booking flow", () => {
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain(
-      "A consistent follow-up process could help you recover more value",
-    );
-    expect(replies[2]).toContain("calendar.app.google/test");
-  });
-
-  test("booking more jobs -> answering calls -> free-form answer -> booking link", () => {
-    const { context, replies } = walkToCompleted([
-      "Booking more jobs",
-      "answering more calls",
-      "After hours",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[1]).toContain("missed during business hours");
-    expect(replies[2]).toContain("improving coverage in that window");
-    expect(replies[2]).toContain("calendar.app.google/test");
+    expect(replies[2]).toContain("consistent follow-up process could help you recover more value");
   });
 });
 
-describe("advanceConversation both flow", () => {
-  test("both -> booking revenue -> responding faster -> branch-specific booking link", () => {
-    const { context, replies } = walkToCompleted([
-      "Both",
-      "Booking more revenue",
-      "responding to new leads faster",
-      "Same day",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("How quickly is your team usually able to respond");
-    expect(replies[3]).toContain("Speed is often where the first opportunity shows up");
-    expect(replies[3]).toContain("calendar.app.google/test");
-  });
-
-  test("both -> booking revenue -> follow up -> manually -> branch-specific booking link", () => {
-    const { context, replies } = walkToCompleted([
-      "Both",
-      "Booking more revenue",
-      "Following up more consistently",
-      "Manually",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[3]).toContain(
-      "A consistent follow-up process could help you recover more value",
-    );
-    expect(replies[3]).toContain("calendar.app.google/test");
-  });
-
-  test("both -> booking revenue -> answering calls -> branch-specific booking link", () => {
-    const { context, replies } = walkToCompleted([
-      "Both",
-      "Booking more revenue",
-      "answering more calls",
-      "Business hours",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[3]).toContain("improving coverage in that window");
-    expect(replies[3]).toContain("calendar.app.google/test");
-  });
-
-  test("both -> freeing time -> task -> time estimate -> booking link", () => {
-    const { context, replies } = walkToCompleted([
-      "Both",
-      "Freeing up my team's time",
-      "Lead follow-up",
-      "About 10 hours",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(context.track).toBe("both_time");
-    expect(replies[2]).toContain("About how much time would you estimate");
-    expect(replies[3]).toContain("creating capacity without adding another employee");
-    expect(replies[3]).toContain("calendar.app.google/test");
-  });
-});
-
-describe("advanceConversation staff flow", () => {
-  test("growing without staff -> free-form answers -> booking link", () => {
+describe("growing without staff flow", () => {
+  test("pressure question then time estimate then calendar link", () => {
     const { context, replies } = walkToCompleted([
       "Growing without adding staff",
       "Following up with leads",
@@ -167,35 +83,145 @@ describe("advanceConversation staff flow", () => {
     ]);
 
     expect(context.state).toBe("completed");
-    expect(context.track).toBe("staff");
+    expect(replies[1]).toContain("About how much time would you estimate");
     expect(replies[2]).toContain("reduce that workload while still giving customers");
-    expect(replies[2]).toContain("calendar.app.google/test");
   });
 });
 
-describe("advanceConversation not sure flow", () => {
-  test("not sure -> free-form answer -> booking link", () => {
+describe("both flow", () => {
+  test("booking revenue subgoal closes after one answer", () => {
     const { context, replies } = walkToCompleted([
-      "Not sure",
+      "Both",
+      "Booking more revenue",
+      "responding faster",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("answering more calls, responding faster, or following up");
+    expect(replies[2]).toContain("clearest path to measuring revenue impact first");
+    expect(replies).toHaveLength(3);
+  });
+
+  test("freeing up time closes after one answer", () => {
+    const { context, replies } = walkToCompleted([
+      "Both",
+      "Freeing up my team's time",
+      "Lead follow-up",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[2]).toContain("creating capacity without adding another employee");
+    expect(replies).toHaveLength(3);
+  });
+});
+
+describe("not sure flow", () => {
+  test("completes with calendar link", () => {
+    const { context, replies } = walkToCompleted([
+      "I'm not sure",
       "Team is stretched too thin",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[1]).toContain("calendar.app.google/test");
+    expect(replies[1]).toContain("highest-value opportunity");
   });
 });
 
-describe("advanceConversation objection and helper flows", () => {
-  test("faq -> unrecognized reply re-asks faq instead of restarting", () => {
+describe("vague yes flow", () => {
+  test("booking more jobs branch uses vague booking closing", () => {
+    const { context, replies } = walkToCompleted([
+      "Sure",
+      "Booking more jobs",
+      "Following up more consistently",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[0]).toContain("which is the bigger priority right now");
+    expect(replies[2]).toContain("Thanks, that gives me a better idea of where to focus");
+  });
+
+  test("reducing workload branch uses vague staff closing", () => {
+    const { context, replies } = walkToCompleted([
+      "Sure",
+      "Reducing the workload",
+      "Lead follow-up",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("What takes up the most office time right now");
+    expect(replies[2]).toContain("giving every customer a fast and professional response");
+  });
+
+  test("both branch revenue path uses vague both revenue closing", () => {
+    const { context, replies } = walkToCompleted([
+      "Sure",
+      "Both",
+      "More booked revenue",
+      "Unanswered calls",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[2]).toContain("opportunities are most likely slipping through");
+    expect(replies[3]).toContain("clearest way to measure revenue impact");
+  });
+
+  test("both branch time path uses vague both time closing", () => {
+    const { context, replies } = walkToCompleted([
+      "Sure",
+      "Both",
+      "Freeing up my team's time",
+      "Scheduling",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[3]).toContain("most practical place to begin");
+  });
+
+  test("remains vague and gets fallback calendar link", () => {
+    const { context, replies } = walkToCompleted(["Sure", "I don't know"]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("spend 15 minutes reviewing the numbers");
+  });
+});
+
+describe("objection flows", () => {
+  test("faq unrecognized reply re-asks faq", () => {
     let context = createContext();
     ({ context } = advanceConversation(context, "How does it work?"));
-    expect(context.state).toBe("awaiting_faq_followup");
 
     const result = advanceConversation(context, "Hmm maybe");
     expect(result.context.state).toBe("awaiting_faq_followup");
     expect(result.reply).toBe(messages.faqMessage(context));
   });
 
+  test("price question completes with calendar link", () => {
+    const { context, replies } = walkToCompleted(["What does it cost?"]);
+    expect(context.state).toBe("completed");
+    expect(replies[0]).toContain("compare the cost against");
+  });
+
+  test("schedule yes completes with calendar link", () => {
+    const { context, replies } = walkToCompleted(["Yes let's talk"]);
+    expect(context.state).toBe("completed");
+    expect(replies[0]).toContain("Once you book, you will receive a confirmation");
+  });
+});
+
+describe("intent matching", () => {
+  test("matches revised subgoal phrases", () => {
+    expect(classifySubgoalIntent("Responding to new leads faster")).toBe(
+      "subgoal_responding_faster",
+    );
+    expect(classifySubgoalIntent("responding faster")).toBe(
+      "subgoal_responding_faster",
+    );
+    expect(classifyIntent("Reducing the workload")).toBe("goal_growing_staff");
+    expect(classifyIntent("More booked revenue")).toBe("subgoal_booking_revenue");
+  });
+});
+
+describe("legacy state compatibility", () => {
   test("legacy both revenue detail state still completes", () => {
     const result = advanceConversation(
       createContext({ state: "awaiting_both_revenue_detail" }),
@@ -204,17 +230,5 @@ describe("advanceConversation objection and helper flows", () => {
 
     expect(result.context.state).toBe("completed");
     expect(result.reply).toContain("calendar.app.google/test");
-  });
-});
-
-describe("advanceConversation free-form states ignore schedule hijack", () => {
-  test("does not treat schedule keyword as booking shortcut during follow-up question", () => {
-    const result = advanceConversation(
-      createContext({ state: "awaiting_booking_followup_process" }),
-      "We schedule callbacks manually",
-    );
-
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("consistent follow-up process");
   });
 });

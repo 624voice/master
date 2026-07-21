@@ -18,11 +18,16 @@ export type ConversationState =
   | "awaiting_report_assumptions"
   | "awaiting_not_ready_summary"
   | "awaiting_vague_clarification"
+  | "awaiting_vague_booking_subgoal"
+  | "awaiting_vague_staff_task"
+  | "awaiting_vague_both_priority"
+  | "awaiting_vague_both_revenue_slippage"
+  | "awaiting_vague_both_time_task"
   | "awaiting_answering_service_gap"
   | "awaiting_office_staff_task"
   | "completed";
 
-export type ConversationTrack = "staff" | "both_time";
+export type ConversationTrack = "staff";
 
 export type ConversationContext = {
   phone: string;
