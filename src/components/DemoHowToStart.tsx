@@ -8,8 +8,7 @@ export function DemoHowToStart({ variant }: DemoHowToStartProps) {
       <p className="mt-4 text-base leading-relaxed text-emerald-300/90">
         Click{" "}
         <span className="font-semibold text-white">Get Instant Access</span> on
-        the right, fill out the short form, then talk to Jessica live in your
-        browser.
+        the right, then talk to Jessica live in your browser.
       </p>
     );
   }
