@@ -37,14 +37,16 @@ type DemoLeadFormProps = {
   error: string | null;
   onSubmit: (event: React.FormEvent) => void;
   onClearError: () => void;
+  compact?: boolean;
 };
 
 export function DemoLeadForm(props: DemoLeadFormProps) {
+  const scrollClassName = props.compact
+    ? "max-h-[min(70vh,calc(100dvh-14rem))] space-y-5 overflow-y-auto pr-1"
+    : "max-h-[70vh] space-y-6 overflow-y-auto pr-1";
+
   return (
-    <form
-      onSubmit={props.onSubmit}
-      className="max-h-[70vh] space-y-6 overflow-y-auto pr-1"
-    >
+    <form onSubmit={props.onSubmit} className={scrollClassName}>
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="demo-firstName" className={labelClassName}>
