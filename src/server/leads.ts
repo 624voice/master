@@ -13,6 +13,7 @@ export type LeadPayload = LeadInfo & {
   message?: string;
   website?: string;
   moderateRoi?: string;
+  smsConsent?: boolean;
   source: string;
 };
 
@@ -72,6 +73,7 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
       message: payload.message,
       website: payload.website,
       moderateRoi: payload.moderateRoi,
+      smsConsent: payload.smsConsent ?? false,
       source: payload.source,
       capturedAt: formatCentralTimestamp(),
     }),

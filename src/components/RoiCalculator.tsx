@@ -207,6 +207,7 @@ export function RoiCalculator() {
   const [lead, setLead] = useState<LeadInfo>(emptyLead);
   const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
   const [website, setWebsite] = useState("");
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const truckCount = parseInt(truckInput, 10);
   const hasValidTrucks =
@@ -243,6 +244,7 @@ export function RoiCalculator() {
     setError(null);
     setWebsiteOption("");
     setWebsite("");
+    setSmsConsent(false);
   };
 
   const handleTradeChange = (value: string) => {
@@ -352,6 +354,7 @@ export function RoiCalculator() {
           lead,
           websiteOption,
           website: websiteOption === "has" ? website : undefined,
+          smsConsent,
         },
       });
 
@@ -708,6 +711,22 @@ export function RoiCalculator() {
                               I don&apos;t have a website
                             </label>
                           </fieldset>
+                          <label className="flex items-start gap-3 sm:col-span-2">
+                            <input
+                              type="checkbox"
+                              checked={smsConsent}
+                              onChange={(e) => {
+                                setSmsConsent(e.target.checked);
+                                setError(null);
+                              }}
+                              className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
+                            />
+                            <span className="text-sm text-gray-600">
+                              I agree to receive text messages from 624 Voice
+                              about my ROI report. Message and data rates may
+                              apply. Reply STOP to opt out.
+                            </span>
+                          </label>
                           <div className="sm:col-span-2">
                             <Button
                               type="submit"
