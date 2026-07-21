@@ -1,6 +1,6 @@
 import { SESSION_TTL_SECONDS } from "~/server/speed2Lead/config";
 import { getRedis } from "~/server/speed2Lead/redis";
-import type { ConversationContext } from "~/server/speed2Lead/types";
+import type { AnyConversationContext, ConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
 
 function sessionKey(phone: string): string {
@@ -22,12 +22,12 @@ export async function setOptedOut(phone: string): Promise<void> {
   await redis.set(optOutKey(phone), true);
 }
 
-export async function getSession(phone: string): Promise<ConversationContext | null> {
+export async function getSession(phone: string): Promise<AnyConversationContext | null> {
   const redis = getRedis();
-  return redis.get<ConversationContext>(sessionKey(phone));
+  return redis.get<AnyConversationContext>(sessionKey(phone));
 }
 
-export async function saveSession(context: ConversationContext): Promise<void> {
+export async function saveSession(context: AnyConversationContext): Promise<void> {
   const redis = getRedis();
   await redis.set(sessionKey(context.phone), context, {
     ex: SESSION_TTL_SECONDS,
@@ -49,6 +49,7 @@ export function createSession(input: {
   bookingUrl: string;
 }): ConversationContext {
   return {
+    flow: "roi",
     phone: normalizePhone(input.phone),
     firstName: input.firstName,
     businessName: input.businessName,

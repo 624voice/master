@@ -6,6 +6,8 @@ import {
   validateContactFields,
   validateLeadInfo,
 } from "~/lib/lead/validateLead";
+import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
+import { startContactSpeed2Lead } from "~/server/contactSpeed2Lead/startConversation";
 import { saveLead } from "~/server/leads";
 
 type ContactLeadRequest = {
@@ -20,6 +22,7 @@ type ContactLeadRequest = {
   website?: string;
   fleetSize: string;
   message: string;
+  smsConsent: boolean;
 };
 
 export const submitContactLead = createServerFn({ method: "POST" })
@@ -62,8 +65,22 @@ export const submitContactLead = createServerFn({ method: "POST" })
       website: resolveContactWebsite(data.websiteOption, data.website),
       fleetSize: data.fleetSize.trim(),
       message: data.message.trim(),
+      smsConsent: data.smsConsent,
       source: "contact_form",
     });
+
+    if (data.smsConsent && isSpeed2LeadEnabled()) {
+      try {
+        await startContactSpeed2Lead({
+          phone: normalizedLead.phone,
+          firstName: normalizedLead.firstName,
+          businessName: normalizedLead.businessName,
+          message: data.message.trim(),
+        });
+      } catch (error) {
+        console.error("Contact Speed2Lead initial SMS failed:", error);
+      }
+    }
 
     return { ok: true as const };
   });

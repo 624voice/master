@@ -1,4 +1,4 @@
-import type { ConversationContext } from "~/server/speed2Lead/types";
+import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 export type SmsTranscriptDirection = "inbound" | "outbound";
 
@@ -31,7 +31,7 @@ function formatCentralTimestamp(date = new Date()): string {
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} ${get("dayPeriod")} CT`;
 }
 
-function transcriptContext(context?: ConversationContext | null) {
+function transcriptContext(context?: AnyConversationContext | null) {
   if (!context) {
     return {};
   }
@@ -47,7 +47,7 @@ export async function logSmsTranscript(input: {
   direction: SmsTranscriptDirection;
   phone: string;
   body: string;
-  context?: ConversationContext | null;
+  context?: AnyConversationContext | null;
 }): Promise<void> {
   const url = process.env.LEADS_WEBHOOK_URL;
   if (!url) {
@@ -78,7 +78,7 @@ export function logSmsTranscriptSafely(input: {
   direction: SmsTranscriptDirection;
   phone: string;
   body: string;
-  context?: ConversationContext | null;
+  context?: AnyConversationContext | null;
 }): void {
   void logSmsTranscript(input).catch((error) => {
     console.error("Failed to log SMS transcript:", error);
