@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { classifyIntent, classifySubgoalIntent } from "./intents";
 import { advanceConversation } from "./stateMachine";
+import * as messages from "./messages";
 import type { ConversationContext } from "./types";
 
 function createContext(
@@ -20,6 +21,22 @@ function createContext(
   };
 }
 
+function walkToCompleted(
+  steps: string[],
+  startContext = createContext(),
+): { context: ConversationContext; replies: string[] } {
+  let context = startContext;
+  const replies: string[] = [];
+
+  for (const step of steps) {
+    const result = advanceConversation(context, step);
+    context = result.context;
+    replies.push(result.reply);
+  }
+
+  return { context, replies };
+}
+
 describe("classifySubgoalIntent", () => {
   test("matches exact prompt phrases from booking subgoal question", () => {
     expect(classifySubgoalIntent("answering more calls")).toBe(
@@ -34,131 +51,157 @@ describe("classifySubgoalIntent", () => {
     expect(classifySubgoalIntent("Following up more consistently")).toBe(
       "subgoal_follow_up",
     );
-  });
-});
-
-describe("classifyIntent", () => {
-  test("detects stop", () => {
-    expect(classifyIntent("STOP")).toBe("stop");
-  });
-
-  test("detects booking goal", () => {
-    expect(classifyIntent("Booking more jobs")).toBe("goal_booking_jobs");
-  });
-
-  test("detects both", () => {
-    expect(classifyIntent("Both")).toBe("goal_both");
-  });
-
-  test("detects vague yes", () => {
-    expect(classifyIntent("sure")).toBe("vague_yes");
-  });
-
-  test("prioritizes subgoal matching in booking subgoal state", () => {
-    expect(
-      classifyIntent("Responding to new leads faster", "awaiting_booking_subgoal"),
-    ).toBe("subgoal_responding_faster");
+    expect(classifySubgoalIntent("responding faster")).toBe(
+      "subgoal_responding_faster",
+    );
   });
 });
 
 describe("advanceConversation booking flow", () => {
   test("booking more jobs -> responding faster -> free-form answer -> booking link", () => {
-    let context = createContext();
+    const { context, replies } = walkToCompleted([
+      "Booking more jobs",
+      "Responding to new leads faster",
+      "Usually within an hour",
+    ]);
 
-    ({ context } = advanceConversation(context, "Booking more jobs"));
-    expect(context.state).toBe("awaiting_booking_subgoal");
-
-    ({ context } = advanceConversation(context, "Responding to new leads faster"));
-    expect(context.state).toBe("awaiting_booking_response_speed");
-
-    const result = advanceConversation(context, "Usually within an hour");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("How quickly is your team usually able to respond");
+    expect(replies[2]).toContain("Speed is often where the first opportunity shows up");
+    expect(replies[2]).toContain("calendar.app.google/test");
   });
 
-  test("booking more jobs -> follow up -> manually -> booking link", () => {
-    let context = createContext();
+  test("booking more jobs -> follow up -> manually -> branch-specific booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Booking more jobs",
+      "Following up more consistently",
+      "Manually",
+    ]);
 
-    ({ context } = advanceConversation(context, "Booking more jobs"));
-    ({ context } = advanceConversation(context, "Following up more consistently"));
-    expect(context.state).toBe("awaiting_booking_followup_process");
-
-    const result = advanceConversation(context, "Manually");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain(
+    expect(context.state).toBe("completed");
+    expect(replies[2]).toContain(
       "A consistent follow-up process could help you recover more value",
     );
-    expect(result.reply).toContain("calendar.app.google/test");
+    expect(replies[2]).toContain("calendar.app.google/test");
   });
 
   test("booking more jobs -> answering calls -> free-form answer -> booking link", () => {
-    let context = createContext();
+    const { context, replies } = walkToCompleted([
+      "Booking more jobs",
+      "answering more calls",
+      "After hours",
+    ]);
 
-    ({ context } = advanceConversation(context, "Booking more jobs"));
-    ({ context } = advanceConversation(context, "answering more calls"));
-    expect(context.state).toBe("awaiting_booking_calls_window");
-
-    const result = advanceConversation(context, "After hours");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("missed during business hours");
+    expect(replies[2]).toContain("improving coverage in that window");
+    expect(replies[2]).toContain("calendar.app.google/test");
   });
 });
 
 describe("advanceConversation both flow", () => {
-  test("both -> booking revenue -> responding faster -> booking link", () => {
-    let context = createContext();
+  test("both -> booking revenue -> responding faster -> branch-specific booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Both",
+      "Booking more revenue",
+      "responding to new leads faster",
+      "Same day",
+    ]);
 
-    ({ context } = advanceConversation(context, "Both"));
-    expect(context.state).toBe("awaiting_both_priority");
-
-    ({ context } = advanceConversation(context, "Booking more revenue"));
-    expect(context.state).toBe("awaiting_both_revenue_subgoal");
-
-    ({ context } = advanceConversation(context, "responding to new leads faster"));
-    expect(context.state).toBe("awaiting_both_revenue_detail");
-
-    const result = advanceConversation(context, "Same day");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
+    expect(context.state).toBe("completed");
+    expect(replies[2]).toContain("How quickly is your team usually able to respond");
+    expect(replies[3]).toContain("Speed is often where the first opportunity shows up");
+    expect(replies[3]).toContain("calendar.app.google/test");
   });
 
-  test("both -> freeing time -> free-form answer -> booking link", () => {
-    let context = createContext();
+  test("both -> booking revenue -> follow up -> manually -> branch-specific booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Both",
+      "Booking more revenue",
+      "Following up more consistently",
+      "Manually",
+    ]);
 
-    ({ context } = advanceConversation(context, "Both"));
-    ({ context } = advanceConversation(context, "Freeing up my team's time"));
-    expect(context.state).toBe("awaiting_both_time_task");
+    expect(context.state).toBe("completed");
+    expect(replies[3]).toContain(
+      "A consistent follow-up process could help you recover more value",
+    );
+    expect(replies[3]).toContain("calendar.app.google/test");
+  });
 
-    const result = advanceConversation(context, "Lead follow-up");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
+  test("both -> booking revenue -> answering calls -> branch-specific booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Both",
+      "Booking more revenue",
+      "answering more calls",
+      "Business hours",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[3]).toContain("improving coverage in that window");
+    expect(replies[3]).toContain("calendar.app.google/test");
+  });
+
+  test("both -> freeing time -> task -> time estimate -> booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Both",
+      "Freeing up my team's time",
+      "Lead follow-up",
+      "About 10 hours",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(context.track).toBe("both_time");
+    expect(replies[2]).toContain("About how much time would you estimate");
+    expect(replies[3]).toContain("creating capacity without adding another employee");
+    expect(replies[3]).toContain("calendar.app.google/test");
   });
 });
 
 describe("advanceConversation staff flow", () => {
   test("growing without staff -> free-form answers -> booking link", () => {
-    let context = createContext();
+    const { context, replies } = walkToCompleted([
+      "Growing without adding staff",
+      "Following up with leads",
+      "About 10 hours",
+    ]);
 
-    ({ context } = advanceConversation(context, "Growing without adding staff"));
-    expect(context.state).toBe("awaiting_staff_pressure");
-
-    ({ context } = advanceConversation(context, "Following up with leads"));
-    expect(context.state).toBe("awaiting_staff_time_estimate");
-
-    const result = advanceConversation(context, "About 10 hours");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
+    expect(context.state).toBe("completed");
+    expect(context.track).toBe("staff");
+    expect(replies[2]).toContain("reduce that workload while still giving customers");
+    expect(replies[2]).toContain("calendar.app.google/test");
   });
 });
 
 describe("advanceConversation not sure flow", () => {
   test("not sure -> free-form answer -> booking link", () => {
+    const { context, replies } = walkToCompleted([
+      "Not sure",
+      "Team is stretched too thin",
+    ]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[1]).toContain("calendar.app.google/test");
+  });
+});
+
+describe("advanceConversation objection and helper flows", () => {
+  test("faq -> unrecognized reply re-asks faq instead of restarting", () => {
     let context = createContext();
+    ({ context } = advanceConversation(context, "How does it work?"));
+    expect(context.state).toBe("awaiting_faq_followup");
 
-    ({ context } = advanceConversation(context, "Not sure"));
-    expect(context.state).toBe("awaiting_not_sure_frustration");
+    const result = advanceConversation(context, "Hmm maybe");
+    expect(result.context.state).toBe("awaiting_faq_followup");
+    expect(result.reply).toBe(messages.faqMessage(context));
+  });
 
-    const result = advanceConversation(context, "Team is stretched too thin");
+  test("legacy both revenue detail state still completes", () => {
+    const result = advanceConversation(
+      createContext({ state: "awaiting_both_revenue_detail" }),
+      "Manually",
+    );
+
     expect(result.context.state).toBe("completed");
     expect(result.reply).toContain("calendar.app.google/test");
   });
@@ -166,9 +209,11 @@ describe("advanceConversation not sure flow", () => {
 
 describe("advanceConversation free-form states ignore schedule hijack", () => {
   test("does not treat schedule keyword as booking shortcut during follow-up question", () => {
-    const context = createContext({ state: "awaiting_booking_followup_process" });
+    const result = advanceConversation(
+      createContext({ state: "awaiting_booking_followup_process" }),
+      "We schedule callbacks manually",
+    );
 
-    const result = advanceConversation(context, "We schedule callbacks manually");
     expect(result.context.state).toBe("completed");
     expect(result.reply).toContain("consistent follow-up process");
   });

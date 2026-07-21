@@ -22,6 +22,8 @@ export type ConversationState =
   | "awaiting_office_staff_task"
   | "completed";
 
+export type ConversationTrack = "staff" | "both_time";
+
 export type ConversationContext = {
   phone: string;
   firstName: string;
@@ -31,6 +33,7 @@ export type ConversationContext = {
   reportUrl: string;
   bookingUrl: string;
   state: ConversationState;
+  track?: ConversationTrack;
   updatedAt: string;
 };
 
