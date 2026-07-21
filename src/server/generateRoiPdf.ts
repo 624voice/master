@@ -11,6 +11,7 @@ import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { TRADES, tradeToSlug, type TradeKey } from "~/lib/roi/roiModel";
 import { saveLead } from "~/server/leads";
+import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import {
   buildReportUrl,
   createReportToken,
@@ -56,16 +57,6 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
     const moderateRoi = formatCurrency(scenarios[1]!.totalAnnualBenefit);
     const primaryOpportunity = getPrimaryOpportunity(scenarios);
 
-    const reportToken = await createReportToken({
-      trade,
-      truckCount,
-      monthlyCalls,
-      lead: normalizedLead,
-      websiteOption,
-      website: websiteOption === "has" ? website : undefined,
-    });
-    const reportUrl = buildReportUrl(reportToken);
-
     await saveLead({
       ...normalizedLead,
       trade: TRADES[trade].label,
@@ -86,8 +77,18 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       scenarios,
     });
 
-    if (smsConsent) {
+    if (smsConsent && isSpeed2LeadEnabled()) {
       try {
+        const reportToken = await createReportToken({
+          trade,
+          truckCount,
+          monthlyCalls,
+          lead: normalizedLead,
+          websiteOption,
+          website: websiteOption === "has" ? website : undefined,
+        });
+        const reportUrl = buildReportUrl(reportToken);
+
         await startSpeed2Lead({
           phone: normalizedLead.phone,
           firstName: normalizedLead.firstName,

@@ -3,14 +3,20 @@ import {
   SITE_ORIGIN,
 } from "~/config/features";
 
+export function isRedisConfigured(): boolean {
+  return (
+    Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
+    Boolean(process.env.UPSTASH_REDIS_REST_TOKEN)
+  );
+}
+
 export function isSpeed2LeadEnabled(): boolean {
   return (
     process.env.SPEED2LEAD_ENABLED !== "false" &&
     Boolean(process.env.TWILIO_ACCOUNT_SID) &&
     Boolean(process.env.TWILIO_AUTH_TOKEN) &&
     Boolean(process.env.TWILIO_FROM_NUMBER) &&
-    Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
-    Boolean(process.env.UPSTASH_REDIS_REST_TOKEN)
+    isRedisConfigured()
   );
 }
 
