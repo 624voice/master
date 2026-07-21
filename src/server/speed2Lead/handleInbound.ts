@@ -42,15 +42,13 @@ export async function handleInboundSms(from: string, body: string): Promise<void
   }
 
   if (intent === "decline") {
-    await saveSession({ ...session, state: "completed", updatedAt: new Date().toISOString() });
-    await sendConversationSms(phone, declineMessage(), {
-      ...session,
-      state: "completed",
-    });
+    const completed = { ...session, state: "completed" as const, updatedAt: new Date().toISOString() };
+    await sendConversationSms(phone, declineMessage(), completed);
+    await saveSession(completed);
     return;
   }
 
   const { context, reply } = advanceConversation(session, body);
-  await saveSession(context);
   await sendConversationSms(phone, reply, context);
+  await saveSession(context);
 }
