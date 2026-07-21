@@ -8,6 +8,7 @@ import {
 } from "~/lib/lead/validateLead";
 import { fillRoiPdfTemplate } from "~/lib/roi/fillRoiPdfTemplate";
 import { computeAllScenarios } from "~/lib/roi/computeRoi";
+import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { TRADES, tradeToSlug, type TradeKey } from "~/lib/roi/roiModel";
 import { saveLead } from "~/server/leads";
 
@@ -42,6 +43,9 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       throw new Error("Invalid trade");
     }
 
+    const scenarios = computeAllScenarios(trade, monthlyCalls);
+    const moderateRoi = formatCurrency(scenarios[1]!.totalAnnualBenefit);
+
     await saveLead({
       ...normalizedLead,
       trade: TRADES[trade].label,
@@ -49,10 +53,10 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
       truckCount,
       fleetSize: String(truckCount),
       website: resolveContactWebsite(websiteOption, website),
+      moderateRoi,
       source: "missing_money_pdf",
     });
 
-    const scenarios = computeAllScenarios(trade, monthlyCalls);
     const pdfBytes = await fillRoiPdfTemplate({
       trade,
       truckCount,

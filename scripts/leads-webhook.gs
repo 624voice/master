@@ -6,7 +6,7 @@
  * 2. Emails info@624voice.com
  *
  * Sheet columns (row 1 headers):
- * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message
+ * Timestamp | First Name | Last Name | Business Name | Trade | Website | Email | Phone | Fleet Size | Monthly Calls | Truck Count | Message | Moderate ROI
  *
  * Setup: see docs/leads-webhook-setup.md
  */
@@ -15,6 +15,22 @@ const SHEET_ID = "1h2LdwHJarHTS-06MJJ0RhZDZjFiac9sazcKb3JtGyuw";
 const LEADS_EMAIL = "info@624voice.com";
 const TIME_ZONE = "America/Chicago";
 
+const HEADERS = [
+  "Timestamp",
+  "First Name",
+  "Last Name",
+  "Business Name",
+  "Trade",
+  "Website",
+  "Email",
+  "Phone",
+  "Fleet Size",
+  "Monthly Calls",
+  "Truck Count",
+  "Message",
+  "Moderate ROI",
+];
+
 /** Format as Central Time, e.g. "2026-07-16 1:57:07 PM CT" */
 function formatCentralTimestamp(value) {
   const date = value ? new Date(value) : new Date();
@@ -22,6 +38,22 @@ function formatCentralTimestamp(value) {
     return String(value || "");
   }
   return Utilities.formatDate(date, TIME_ZONE, "yyyy-MM-dd h:mm:ss a") + " CT";
+}
+
+function getLeadSheet() {
+  return SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
+}
+
+function ensureHeaders(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+  const existing = headerRange.getValues()[0];
+  const needsUpdate = HEADERS.some(function (header, index) {
+    return String(existing[index] || "").trim() !== header;
+  });
+
+  if (needsUpdate) {
+    headerRange.setValues([HEADERS]);
+  }
 }
 
 function doPost(e) {
@@ -54,7 +86,8 @@ function splitName(data) {
 }
 
 function appendLeadRow(data) {
-  const sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
+  const sheet = getLeadSheet();
+  ensureHeaders(sheet);
   const { firstName, lastName } = splitName(data);
 
   sheet.appendRow([
@@ -70,6 +103,7 @@ function appendLeadRow(data) {
     data.monthlyCalls ?? "",
     data.truckCount ?? "",
     data.message || "",
+    data.moderateRoi || "",
   ]);
 }
 
@@ -91,6 +125,7 @@ function sendLeadEmail(data) {
     `Message: ${data.message || ""}`,
     `Monthly calls: ${data.monthlyCalls ?? ""}`,
     `Truck count: ${data.truckCount ?? ""}`,
+    `Moderate ROI: ${data.moderateRoi || ""}`,
     "",
     `Captured at: ${formatCentralTimestamp(data.capturedAt)}`,
   ].join("\n");
@@ -100,10 +135,15 @@ function sendLeadEmail(data) {
   });
 }
 
+/** Run once from the Apps Script editor to add/update sheet headers. */
+function setupSheetHeaders() {
+  ensureHeaders(getLeadSheet());
+}
+
 function testLeadWebhook() {
   const sample = {
     capturedAt: new Date().toISOString(),
-    source: "contact_form",
+    source: "missing_money",
     firstName: "Test",
     lastName: "User",
     businessName: "Test Plumbing LLC",
@@ -111,9 +151,10 @@ function testLeadWebhook() {
     phone: "(555) 123-4567",
     trade: "Plumbing",
     website: "https://example.com",
-    fleetSize: "3-7",
-    monthlyCalls: 120,
-    truckCount: 5,
+    fleetSize: "10",
+    monthlyCalls: 600,
+    truckCount: 10,
+    moderateRoi: "$324,123",
     message: "Setup test from Apps Script",
   };
   appendLeadRow(sample);

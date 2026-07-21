@@ -11,6 +11,8 @@ import {
   computeHeroTeaser,
   type ScenarioBreakdown,
 } from "~/lib/roi/revenueBreakdown";
+import { computeAllScenarios } from "~/lib/roi/computeRoi";
+import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { TRADES, type TradeKey } from "~/lib/roi/roiModel";
 import { saveLead } from "~/server/leads";
 
@@ -75,6 +77,8 @@ export const unlockRevenue = createServerFn({ method: "POST" })
     }
 
     const normalizedLead = normalizeLeadInfo(lead);
+    const scenarios = computeAllScenarios(trade, monthlyCalls);
+    const moderateRoi = formatCurrency(scenarios[1]!.totalAnnualBenefit);
 
     await saveLead({
       ...normalizedLead,
@@ -83,6 +87,7 @@ export const unlockRevenue = createServerFn({ method: "POST" })
       truckCount,
       fleetSize: String(truckCount),
       website: resolveContactWebsite(websiteOption, website),
+      moderateRoi,
       source: "missing_money",
     });
 
