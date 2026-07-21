@@ -30,6 +30,7 @@ export type ConversationState =
 export type ConversationTrack = "staff";
 
 export type ConversationContext = {
+  flow?: "roi";
   phone: string;
   firstName: string;
   businessName: string;
@@ -41,6 +42,12 @@ export type ConversationContext = {
   track?: ConversationTrack;
   updatedAt: string;
 };
+
+export type { ContactConversationContext, ContactConversationState } from "~/server/contactSpeed2Lead/types";
+
+export type AnyConversationContext =
+  | ConversationContext
+  | import("~/server/contactSpeed2Lead/types").ContactConversationContext;
 
 export type ReportTokenData = {
   trade: TradeKey;

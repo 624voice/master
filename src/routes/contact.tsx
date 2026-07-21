@@ -22,6 +22,8 @@ function Contact() {
   const [phone, setPhone] = useState("");
   const [fleetSize, setFleetSize] = useState("");
   const [message, setMessage] = useState("");
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [sentWithSms, setSentWithSms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -45,9 +47,11 @@ function Contact() {
           phone,
           fleetSize,
           message,
+          smsConsent,
         },
       });
       setSuccess(true);
+      setSentWithSms(smsConsent);
       setFirstName("");
       setLastName("");
       setBusinessName("");
@@ -59,6 +63,7 @@ function Contact() {
       setPhone("");
       setFleetSize("");
       setMessage("");
+      setSmsConsent(false);
     } catch (err) {
       setError(
         err instanceof Error
@@ -110,10 +115,14 @@ function Contact() {
                   <p className="mt-2 text-sm text-brand-secondary">
                     Thanks — we received your message and will get back to you
                     within 24 hours.
+                    {sentWithSms ? " Watch for a text from Chris at 624Voice." : ""}
                   </p>
                   <button
                     type="button"
-                    onClick={() => setSuccess(false)}
+                    onClick={() => {
+                      setSuccess(false);
+                      setSentWithSms(false);
+                    }}
                     className="mt-4 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
                   >
                     Send another message
@@ -338,6 +347,22 @@ function Contact() {
                       required
                     />
                   </div>
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={(e) => {
+                        setSmsConsent(e.target.checked);
+                        setError(null);
+                      }}
+                      className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
+                    />
+                    <span className="text-sm text-gray-600">
+                      I agree to receive text messages from 624 Voice about my
+                      inquiry. Message and data rates may apply. Reply STOP to
+                      opt out.
+                    </span>
+                  </label>
                   {error && (
                     <p className="text-sm text-red-600" role="alert">
                       {error}

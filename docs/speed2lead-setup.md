@@ -41,12 +41,21 @@ Database name suggestion: `624speed2lead`
 
 ## How it works
 
+### ROI calculator (Speed2Lead)
+
 1. Customer unlocks the ROI calculator and checks the SMS consent box.
 2. Customer clicks **Download PDF Report**.
 3. Server saves the lead, creates a tokenized report link, generates the PDF, and sends the initial SMS.
 4. Customer replies; Twilio posts to `/api/sms/inbound`.
 5. The conversation state machine sends the next scripted message from Redis-backed session state.
 6. Each inbound and outbound SMS is appended to the **SMS Transcripts** tab in your leads Google Sheet.
+
+### Contact form (Speed2Lead)
+
+1. Customer submits the contact form at `/contact` and checks the SMS consent box.
+2. Server saves the lead and sends the contact-form opening text via the same Twilio number.
+3. The contact conversation state machine handles replies through the general contact script.
+4. Transcripts append to the same **SMS Transcripts** tab.
 
 ## SMS transcripts
 
@@ -69,4 +78,5 @@ Tokens expire after 30 days.
 3. Reply `booking more jobs` and walk through a branch to the booking link.
 4. Reply `STOP` and confirm no further messages are sent.
 5. Download the PDF without opting in and confirm no SMS is sent.
-6. Confirm each SMS appears on the **SMS Transcripts** tab in the leads Google Sheet.
+6. Submit the contact form with SMS consent and confirm the opening text arrives.
+7. Confirm each SMS appears on the **SMS Transcripts** tab in the leads Google Sheet.

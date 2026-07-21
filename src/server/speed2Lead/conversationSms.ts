@@ -1,11 +1,11 @@
-import type { ConversationContext } from "~/server/speed2Lead/types";
+import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import { logSmsTranscriptSafely } from "~/server/speed2Lead/transcript";
 import { sendSms } from "~/server/sms/twilio";
 
 export async function sendConversationSms(
   to: string,
   body: string,
-  context?: ConversationContext | null,
+  context?: AnyConversationContext | null,
 ): Promise<void> {
   await sendSms(to, body);
   logSmsTranscriptSafely({
@@ -19,7 +19,7 @@ export async function sendConversationSms(
 export function logInboundConversationSms(
   from: string,
   body: string,
-  context?: ConversationContext | null,
+  context?: AnyConversationContext | null,
 ): void {
   logSmsTranscriptSafely({
     direction: "inbound",
