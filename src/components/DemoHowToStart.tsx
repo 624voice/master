@@ -50,7 +50,6 @@ export function DemoHowToStart({ variant }: DemoHowToStartProps) {
           </span>{" "}
           below
         </li>
-        <li>Fill out the short form (~30 seconds)</li>
         <li>
           Allow microphone access — Jessica answers live in your browser
         </li>
