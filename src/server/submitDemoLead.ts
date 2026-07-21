@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   normalizeLeadInfo,
+  resolveContactTrade,
   resolveContactWebsite,
+  validateContactFields,
   validateLeadInfo,
   validateWebsiteFields,
   type LeadInfo,
@@ -11,12 +13,19 @@ import { hasUsedVoiceDemo } from "~/server/vapi/demoUsage";
 
 export type DemoLead = LeadInfo & {
   website: string;
+  trade: string;
+  fleetSize: string;
+  message: string;
   smsConsent: boolean;
 };
 
 type DemoLeadRequest = LeadInfo & {
+  trade: string;
+  otherTrade?: string;
   websiteOption: "has" | "none" | "";
   website?: string;
+  fleetSize: string;
+  message: string;
   smsConsent: boolean;
 };
 
@@ -34,6 +43,18 @@ export const submitDemoLead = createServerFn({ method: "POST" })
       throw new Error(leadError);
     }
 
+    const contactError = validateContactFields({
+      trade: data.trade,
+      otherTrade: data.otherTrade,
+      websiteOption: data.websiteOption,
+      website: data.website,
+      fleetSize: data.fleetSize,
+      message: data.message,
+    });
+    if (contactError) {
+      throw new Error(contactError);
+    }
+
     const websiteError = validateWebsiteFields(data.websiteOption, data.website);
     if (websiteError) {
       throw new Error(websiteError);
@@ -48,6 +69,7 @@ export const submitDemoLead = createServerFn({ method: "POST" })
     });
 
     const website = resolveContactWebsite(data.websiteOption, data.website);
+    const trade = resolveContactTrade(data.trade, data.otherTrade);
 
     const demoAlreadyUsed = await hasUsedVoiceDemo(
       normalizedLead.email,
@@ -57,6 +79,9 @@ export const submitDemoLead = createServerFn({ method: "POST" })
     const lead: DemoLead = {
       ...normalizedLead,
       website,
+      trade,
+      fleetSize: data.fleetSize.trim(),
+      message: data.message.trim(),
       smsConsent: data.smsConsent,
     };
 
@@ -66,7 +91,10 @@ export const submitDemoLead = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
+      trade,
       website,
+      fleetSize: data.fleetSize.trim(),
+      message: data.message.trim(),
       smsConsent: data.smsConsent,
       source: "voice_demo",
     });

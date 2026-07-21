@@ -151,12 +151,16 @@ export function VoiceDemo({ lead, onDemoLimitReached }: VoiceDemoProps) {
           email: lead.email,
           phone: lead.phone,
           website: lead.website,
+          trade: lead.trade,
+          fleetSize: lead.fleetSize,
+          message: lead.message,
           smsConsent: lead.smsConsent,
           source: "voice_demo",
         },
         variableValues: {
           firstName: lead.firstName,
           businessName: lead.businessName,
+          trade: lead.trade,
         },
       });
     } catch (err) {

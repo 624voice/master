@@ -51,7 +51,7 @@ function Home() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
             <a
-              href="/contact"
+              href="/demo"
               className="rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30"
             >
               See It In Action
