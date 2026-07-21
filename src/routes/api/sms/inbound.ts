@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { handleInboundSms } from "~/server/speed2Lead/handleInbound";
-import { validateTwilioRequest } from "~/server/sms/twilio";
+import { isValidTwilioWebhook } from "~/server/sms/twilio";
 
 export const Route = createFileRoute("/api/sms/inbound")({
   server: {
@@ -16,13 +16,12 @@ export const Route = createFileRoute("/api/sms/inbound")({
         }
 
         const signature = request.headers.get("X-Twilio-Signature");
-        const webhookUrl =
-          process.env.TWILIO_WEBHOOK_URL ?? new URL(request.url).toString();
 
-        if (
-          process.env.NODE_ENV === "production" &&
-          !validateTwilioRequest(signature, webhookUrl, params)
-        ) {
+        if (!isValidTwilioWebhook(request, signature, params)) {
+          console.error("Twilio webhook signature validation failed", {
+            requestUrl: new URL(request.url).toString(),
+            configuredUrl: process.env.TWILIO_WEBHOOK_URL,
+          });
           return new Response("Invalid Twilio signature", { status: 403 });
         }
 
@@ -30,7 +29,11 @@ export const Route = createFileRoute("/api/sms/inbound")({
         const body = params.Body ?? "";
 
         if (from) {
-          await handleInboundSms(from, body);
+          try {
+            await handleInboundSms(from, body);
+          } catch (error) {
+            console.error("Speed2Lead inbound SMS handler failed:", error);
+          }
         }
 
         return new Response('<?xml version="1.0" encoding="UTF-8"?><Response></Response>', {
