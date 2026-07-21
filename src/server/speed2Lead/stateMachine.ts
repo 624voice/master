@@ -7,6 +7,19 @@ type TransitionResult = {
   reply: string;
 };
 
+const FREE_FORM_ANSWER_STATES = new Set<ConversationState>([
+  "awaiting_booking_calls_window",
+  "awaiting_booking_response_speed",
+  "awaiting_booking_followup_process",
+  "awaiting_staff_pressure",
+  "awaiting_staff_time_estimate",
+  "awaiting_both_revenue_detail",
+  "awaiting_both_time_task",
+  "awaiting_not_sure_frustration",
+  "awaiting_answering_service_gap",
+  "awaiting_office_staff_task",
+]);
+
 function withState(
   context: ConversationContext,
   state: ConversationState,
@@ -107,14 +120,73 @@ function handleGoalSelection(
   }
 }
 
+function handleBookingSubgoal(
+  context: ConversationContext,
+  intent: Intent,
+): TransitionResult {
+  switch (intent) {
+    case "subgoal_answering_calls":
+      return {
+        context: withState(context, "awaiting_booking_calls_window"),
+        reply: messages.bookingCallsWindowMessage(context),
+      };
+    case "subgoal_responding_faster":
+      return {
+        context: withState(context, "awaiting_booking_response_speed"),
+        reply: messages.bookingResponseSpeedQuestion(context),
+      };
+    case "subgoal_follow_up":
+      return {
+        context: withState(context, "awaiting_booking_followup_process"),
+        reply: messages.bookingFollowUpQuestion(context),
+      };
+    default:
+      return {
+        context,
+        reply: messages.bookingSubgoalMessage(context),
+      };
+  }
+}
+
+function handleBothRevenueSubgoal(
+  context: ConversationContext,
+  intent: Intent,
+): TransitionResult {
+  switch (intent) {
+    case "subgoal_answering_calls":
+      return {
+        context: withState(context, "awaiting_both_revenue_detail"),
+        reply: messages.bookingCallsWindowMessage(context),
+      };
+    case "subgoal_responding_faster":
+      return {
+        context: withState(context, "awaiting_both_revenue_detail"),
+        reply: messages.bookingResponseSpeedQuestion(context),
+      };
+    case "subgoal_follow_up":
+      return {
+        context: withState(context, "awaiting_both_revenue_detail"),
+        reply: messages.bookingFollowUpQuestion(context),
+      };
+    default:
+      return {
+        context,
+        reply: messages.bothRevenueSubgoalQuestion(context),
+      };
+  }
+}
+
 export function advanceConversation(
   context: ConversationContext,
   inboundText: string,
 ): TransitionResult {
-  const intent = classifyIntent(inboundText);
-  const global = handleGlobalIntents(context, intent);
-  if (global) {
-    return global;
+  const intent = classifyIntent(inboundText, context.state);
+
+  if (!FREE_FORM_ANSWER_STATES.has(context.state)) {
+    const global = handleGlobalIntents(context, intent);
+    if (global) {
+      return global;
+    }
   }
 
   switch (context.state) {
@@ -124,52 +196,10 @@ export function advanceConversation(
       return handleGoalSelection(context, intent);
 
     case "awaiting_booking_subgoal":
-      if (intent === "subgoal_answering_calls") {
-        return {
-          context: withState(context, "awaiting_booking_calls_window"),
-          reply: messages.bookingCallsWindowMessage(context),
-        };
-      }
-      if (intent === "subgoal_responding_faster") {
-        return {
-          context: withState(context, "awaiting_booking_response_speed"),
-          reply: messages.bookingResponseSpeedQuestion(context),
-        };
-      }
-      if (intent === "subgoal_follow_up") {
-        return {
-          context: withState(context, "awaiting_booking_followup_process"),
-          reply: messages.bookingFollowUpQuestion(context),
-        };
-      }
-      return {
-        context,
-        reply: messages.bookingSubgoalMessage(context),
-      };
+      return handleBookingSubgoal(context, intent);
 
     case "awaiting_both_revenue_subgoal":
-      if (intent === "subgoal_answering_calls") {
-        return {
-          context: withState(context, "awaiting_both_revenue_detail"),
-          reply: messages.bookingCallsWindowMessage(context),
-        };
-      }
-      if (intent === "subgoal_responding_faster") {
-        return {
-          context: withState(context, "awaiting_both_revenue_detail"),
-          reply: messages.bookingResponseSpeedQuestion(context),
-        };
-      }
-      if (intent === "subgoal_follow_up") {
-        return {
-          context: withState(context, "awaiting_both_revenue_detail"),
-          reply: messages.bookingFollowUpQuestion(context),
-        };
-      }
-      return {
-        context,
-        reply: messages.bothRevenueSubgoalQuestion(context),
-      };
+      return handleBothRevenueSubgoal(context, intent);
 
     case "awaiting_both_revenue_detail":
       return {
