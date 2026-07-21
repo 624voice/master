@@ -20,6 +20,13 @@ const FREE_FORM_ANSWER_STATES = new Set<ConversationState>([
   "awaiting_office_staff_task",
 ]);
 
+const GOAL_INTENTS = new Set<Intent>([
+  "goal_booking_jobs",
+  "goal_growing_staff",
+  "goal_both",
+  "goal_not_sure",
+]);
+
 function withState(
   context: ConversationContext,
   state: ConversationState,
@@ -99,7 +106,7 @@ function handleGoalSelection(
       };
     case "goal_growing_staff":
       return {
-        context: withState(context, "awaiting_staff_pressure"),
+        context: withState({ ...context, track: "staff" }, "awaiting_staff_pressure"),
         reply: messages.staffPressureQuestion(context),
       };
     case "goal_both":
@@ -118,6 +125,21 @@ function handleGoalSelection(
         reply: messages.initialMessage(context),
       };
   }
+}
+
+function handleGoalFollowUp(
+  context: ConversationContext,
+  intent: Intent,
+  fallback: (context: ConversationContext) => string,
+): TransitionResult {
+  if (GOAL_INTENTS.has(intent)) {
+    return handleGoalSelection(context, intent);
+  }
+
+  return {
+    context,
+    reply: fallback(context),
+  };
 }
 
 function handleBookingSubgoal(
@@ -148,32 +170,13 @@ function handleBookingSubgoal(
   }
 }
 
-function handleBothRevenueSubgoal(
+function handleLegacyBothRevenueDetail(
   context: ConversationContext,
-  intent: Intent,
 ): TransitionResult {
-  switch (intent) {
-    case "subgoal_answering_calls":
-      return {
-        context: withState(context, "awaiting_both_revenue_detail"),
-        reply: messages.bookingCallsWindowMessage(context),
-      };
-    case "subgoal_responding_faster":
-      return {
-        context: withState(context, "awaiting_both_revenue_detail"),
-        reply: messages.bookingResponseSpeedQuestion(context),
-      };
-    case "subgoal_follow_up":
-      return {
-        context: withState(context, "awaiting_both_revenue_detail"),
-        reply: messages.bookingFollowUpQuestion(context),
-      };
-    default:
-      return {
-        context,
-        reply: messages.bothRevenueSubgoalQuestion(context),
-      };
-  }
+  return {
+    context: withState(context, "completed"),
+    reply: messages.bothRevenueFollowUp(context),
+  };
 }
 
 export function advanceConversation(
@@ -191,21 +194,22 @@ export function advanceConversation(
 
   switch (context.state) {
     case "awaiting_goal":
-    case "awaiting_faq_followup":
-    case "awaiting_vague_clarification":
       return handleGoalSelection(context, intent);
+
+    case "awaiting_faq_followup":
+      return handleGoalFollowUp(context, intent, messages.faqMessage);
+
+    case "awaiting_vague_clarification":
+      return handleGoalFollowUp(context, intent, messages.vagueClarificationMessage);
 
     case "awaiting_booking_subgoal":
       return handleBookingSubgoal(context, intent);
 
     case "awaiting_both_revenue_subgoal":
-      return handleBothRevenueSubgoal(context, intent);
+      return handleBookingSubgoal(context, intent);
 
     case "awaiting_both_revenue_detail":
-      return {
-        context: withState(context, "completed"),
-        reply: messages.bothRevenueFollowUp(context),
-      };
+      return handleLegacyBothRevenueDetail(context);
 
     case "awaiting_booking_calls_window":
       return {
@@ -234,7 +238,10 @@ export function advanceConversation(
     case "awaiting_staff_time_estimate":
       return {
         context: withState(context, "completed"),
-        reply: messages.staffTimeFollowUp(context),
+        reply:
+          context.track === "both_time"
+            ? messages.bothTimeFollowUp(context)
+            : messages.staffTimeFollowUp(context),
       };
 
     case "awaiting_both_priority":
@@ -252,7 +259,7 @@ export function advanceConversation(
         intent === "goal_growing_staff"
       ) {
         return {
-          context: withState(context, "awaiting_both_time_task"),
+          context: withState({ ...context, track: "both_time" }, "awaiting_both_time_task"),
           reply: messages.bothTimeTaskQuestion(context),
         };
       }
@@ -263,8 +270,8 @@ export function advanceConversation(
 
     case "awaiting_both_time_task":
       return {
-        context: withState(context, "completed"),
-        reply: messages.bothTimeFollowUp(context),
+        context: withState(context, "awaiting_staff_time_estimate"),
+        reply: messages.staffTimeQuestion(context),
       };
 
     case "awaiting_not_sure_frustration":
