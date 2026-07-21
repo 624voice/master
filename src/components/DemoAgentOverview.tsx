@@ -1,99 +1,110 @@
-import {
-  CalendarIcon,
-  PhoneRingIcon,
-  StarIcon,
-  VoiceWaveIcon,
-} from "~/components/icons";
+const painPoints = [
+  "20–40% of home service calls go unanswered. Every one is a job your competitor just booked.",
+  "Voicemail doesn't book jobs. Callers hang up and call the next name on Google before the beep ends.",
+  "No-shows and late cancellations waste technician time and shrink your day before it starts.",
+] as const;
 
-const demoCapabilities = [
+const outcomes = [
   {
-    icon: <PhoneRingIcon className="h-6 w-6" />,
-    title: "Answers every call",
-    description:
-      "Jessica picks up on the first ring — no hold music, no voicemail. Try calling in like a new customer would.",
+    title: "Win more leads by responding immediately",
+    description: "First-ring answer 24/7 — before they call anyone else",
   },
   {
-    icon: <VoiceWaveIcon className="h-6 w-6" />,
-    title: "Natural conversation",
-    description:
-      "She listens, asks follow-up questions, and responds like a trained dispatcher — not a phone tree.",
+    title: "Reduce no-shows and late cancellations",
+    description: "Automated SMS and voice confirmations and reminders",
   },
   {
-    icon: <CalendarIcon className="h-6 w-6" />,
-    title: "Books & qualifies leads",
+    title: "Reactivate existing customers with ease",
     description:
-      "Ask about scheduling a service visit, getting an estimate, or what your team can help with today.",
+      "Brings past customers back with automated outbound campaigns",
   },
   {
-    icon: <StarIcon className="h-6 w-6" />,
-    title: "Handles the basics",
+    title: "Reach every caller in the language they prefer",
+    description: "Natively bilingual — handles English and Spanish seamlessly",
+  },
+  {
+    title: "Build recurring revenue on every call",
     description:
-      "Service area, hours, urgency, and common questions — the stuff your office team handles dozens of times a day.",
+      "Care Plan memberships surface naturally — turning one-time jobs into loyal, recurring customers",
   },
 ] as const;
 
-const trySaying = [
-  "I need a plumber for a leak under my sink.",
-  "Do you serve my area?",
-  "Can I book someone for tomorrow morning?",
-  "What are your hours?",
-] as const;
+function CheckIcon() {
+  return (
+    <svg
+      className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2.5}
+        d="M5 13l4 4L19 7"
+      />
+    </svg>
+  );
+}
 
 export function DemoAgentOverview() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-brand-secondary">
-          What Jessica can do
-        </h2>
-        <p className="mt-3 text-base leading-relaxed text-gray-600">
-          Jessica is our AI receptionist demo — built for home services
-          companies like yours. In a live web call, you&apos;ll hear how 624
-          Voice answers real customer questions, captures lead details, and keeps
-          the conversation moving toward a booked job.
-        </p>
-        <p className="mt-3 text-sm text-gray-500">
-          One demo call per visitor. You&apos;ll need microphone access and a
-          quiet spot for the best experience.
-        </p>
+    <div className="demo-left-col border-b border-slate-400/10 pb-10 lg:border-r lg:border-b-0 lg:pr-9 lg:pb-0">
+      <p className="mb-3.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
+        No Pitch. No Fluff.
+      </p>
+
+      <h1 className="text-[22px] font-extrabold leading-[1.15] text-white">
+        What&apos;s Happening to the Calls That Come In While You&apos;re on a
+        Job and After Hours?
+      </h1>
+
+      <div className="mt-5 mb-5">
+        {painPoints.map((point) => (
+          <div
+            key={point}
+            className="flex items-start gap-2.5 border-b border-slate-400/10 py-2.5 last:border-b-0"
+          >
+            <div
+              className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#AF4C0F]"
+              aria-hidden="true"
+            />
+            <p className="m-0 text-[13px] leading-relaxed text-slate-400">
+              {point}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <ul className="space-y-4">
-        {demoCapabilities.map((item) => (
-          <li key={item.title} className="flex gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-              {item.icon}
-            </div>
+      <div className="my-4 h-px bg-slate-400/10" />
+
+      <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-primary">
+        What Jessica produces for your business
+      </p>
+
+      <ul className="space-y-0">
+        {outcomes.map((item, index) => (
+          <li
+            key={item.title}
+            className={`flex items-start gap-2.5 py-2.5 ${
+              index < outcomes.length - 1
+                ? "border-b border-brand-primary/10"
+                : ""
+            }`}
+          >
+            <CheckIcon />
             <div>
-              <h3 className="font-semibold text-brand-secondary">
+              <p className="m-0 mb-0.5 text-[13px] font-semibold text-white">
                 {item.title}
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-gray-600">
+              </p>
+              <p className="m-0 text-[11px] leading-snug text-slate-400">
                 {item.description}
               </p>
             </div>
           </li>
         ))}
       </ul>
-
-      <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6">
-        <h3 className="font-semibold text-brand-secondary">
-          Try saying something like…
-        </h3>
-        <ul className="mt-4 space-y-2">
-          {trySaying.map((phrase) => (
-            <li
-              key={phrase}
-              className="flex items-start gap-2 text-sm text-brand-secondary"
-            >
-              <span className="mt-0.5 text-brand-primary" aria-hidden="true">
-                →
-              </span>
-              <span>&ldquo;{phrase}&rdquo;</span>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }

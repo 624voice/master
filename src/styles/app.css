@@ -83,3 +83,13 @@
 @utility animate-delay-1000 {
   animation-delay: 1000ms;
 }
+
+@media (max-width: 1023px) {
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-left-col {
+    border-right: none !important;
+  }
+}
