@@ -40,6 +40,7 @@ export function classifySubgoalIntent(rawText: string): Intent | null {
       "answering more calls",
       "answer more calls",
       "answering calls",
+      "unanswered calls",
       "missed calls",
     ])
   ) {
@@ -54,6 +55,8 @@ export function classifySubgoalIntent(rawText: string): Intent | null {
       "respond to leads faster",
       "responding to new leads",
       "responding to leads",
+      "slow responses to new leads",
+      "slow response",
       "new leads faster",
       "leads faster",
       "responding faster",
@@ -69,6 +72,8 @@ export function classifySubgoalIntent(rawText: string): Intent | null {
     includesAny(text, [
       "following up more consistently",
       "follow up more consistently",
+      "inconsistent follow-up",
+      "inconsistent follow up",
       "following up more",
       "follow up more",
       "following up",
@@ -81,6 +86,14 @@ export function classifySubgoalIntent(rawText: string): Intent | null {
   }
 
   return null;
+}
+
+function isSubgoalSelectionState(state?: ConversationState): boolean {
+  return (
+    state === "awaiting_booking_subgoal" ||
+    state === "awaiting_both_revenue_subgoal" ||
+    state === "awaiting_vague_booking_subgoal"
+  );
 }
 
 export function classifyIntent(
@@ -117,10 +130,7 @@ export function classifyIntent(
     return "decline";
   }
 
-  if (
-    state === "awaiting_booking_subgoal" ||
-    state === "awaiting_both_revenue_subgoal"
-  ) {
+  if (isSubgoalSelectionState(state)) {
     const subgoal = classifySubgoalIntent(text);
     if (subgoal) {
       return subgoal;
@@ -200,6 +210,17 @@ export function classifyIntent(
     return "office_staff";
   }
 
+  if (
+    includesAny(text, [
+      "i don't know",
+      "i dont know",
+      "don't know",
+      "dont know",
+    ])
+  ) {
+    return "goal_not_sure";
+  }
+
   const subgoal = classifySubgoalIntent(text);
   if (subgoal) {
     return subgoal;
@@ -210,9 +231,6 @@ export function classifyIntent(
       "booking more jobs",
       "book more jobs",
       "more jobs",
-      "booking more revenue",
-      "book more revenue",
-      "more revenue",
     ])
   ) {
     return "goal_booking_jobs";
@@ -220,13 +238,17 @@ export function classifyIntent(
 
   if (
     includesAny(text, [
+      "reducing the workload",
+      "reducing workload",
+      "reduce the workload",
+      "reduce workload",
       "growing without",
       "without adding",
-      "freeing up",
-      "free up",
-      "reduce workload",
-      "freeing time",
+      "freeing up your team",
+      "freeing up time",
       "free up time",
+      "freeing time",
+      "free up",
     ])
   ) {
     return "goal_growing_staff";
@@ -243,8 +265,12 @@ export function classifyIntent(
   if (
     includesAny(text, [
       "booking more revenue",
+      "book more revenue",
+      "bringing in more booked revenue",
+      "more booked revenue",
       "more revenue first",
       "revenue first",
+      "more revenue",
     ])
   ) {
     return "subgoal_booking_revenue";
@@ -252,12 +278,11 @@ export function classifyIntent(
 
   if (
     includesAny(text, [
-      "freeing up time",
-      "free up time",
-      "freeing time",
-      "save time",
+      "freeing up your team's time",
+      "freeing up team time",
       "team's time",
       "team time",
+      "save time",
     ])
   ) {
     return "subgoal_freeing_time";

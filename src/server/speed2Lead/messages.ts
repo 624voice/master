@@ -177,7 +177,70 @@ export function scheduleYesMessage(context: ConversationContext): string {
 
 export function vagueClarificationMessage(context: ConversationContext): string {
   return fill(
-    "Just so I point you in the right direction, is booking more jobs or reducing the workload on your office team the bigger priority?",
+    "Just so I point you in the right direction, which is the bigger priority right now: booking more jobs or reducing the workload on your office team?",
+    context,
+  );
+}
+
+export function vagueBookingFollowUp(context: ConversationContext): string {
+  return fill(
+    "Thanks, that gives me a better idea of where to focus. Based on your ROI report, improving that part of the process could help [BUSINESS NAME] capture more of the [ANNUAL OPPORTUNITY] identified.\n\nHere is my calendar if you would like to walk through the numbers and see what that could look like: [BOOKING LINK]",
+    context,
+  );
+}
+
+export function vagueStaffTaskQuestion(context: ConversationContext): string {
+  return fill(
+    "What takes up the most office time right now: answering calls, scheduling jobs, following up with leads, or handling repetitive customer questions?",
+    context,
+  );
+}
+
+export function vagueStaffFollowUp(context: ConversationContext): string {
+  return fill(
+    "That is helpful context. The goal would be to reduce that workload while still giving every customer a fast and professional response.\n\nHere is my calendar if you would like to see which parts of that process could be handled by an AI agent: [BOOKING LINK]",
+    context,
+  );
+}
+
+export function vagueBothPriorityQuestion(context: ConversationContext): string {
+  return fill(
+    "If you could improve only one first, which would have the bigger immediate impact: bringing in more booked revenue or freeing up your team's time?",
+    context,
+  );
+}
+
+export function vagueBothRevenueSlippageQuestion(context: ConversationContext): string {
+  return fill(
+    "Where do you think opportunities are most likely slipping through today: unanswered calls, slow responses to new leads, or inconsistent follow-up?",
+    context,
+  );
+}
+
+export function vagueBothRevenueFollowUp(context: ConversationContext): string {
+  return fill(
+    "Understood. I would start there because it gives you the clearest way to measure revenue impact.\n\nYou can review the [ANNUAL OPPORTUNITY] with me here: [BOOKING LINK]",
+    context,
+  );
+}
+
+export function vagueBothTimeTaskQuestion(context: ConversationContext): string {
+  return fill(
+    "Which task would you most want taken off your team's plate first: calls, scheduling, lead follow-up, or repetitive customer questions?",
+    context,
+  );
+}
+
+export function vagueBothTimeFollowUp(context: ConversationContext): string {
+  return fill(
+    "That sounds like the most practical place to begin.\n\nYou can choose a time here if you would like to see what automating that process could look like for [BUSINESS NAME]: [BOOKING LINK]",
+    context,
+  );
+}
+
+export function vagueFallbackFollowUp(context: ConversationContext): string {
+  return fill(
+    "No problem. Your report gives us enough information to identify the best place to start.\n\nHere is my calendar if you would like to spend 15 minutes reviewing the numbers and narrowing down the highest-value opportunity: [BOOKING LINK]",
     context,
   );
 }
