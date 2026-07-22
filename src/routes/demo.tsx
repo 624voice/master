@@ -3,10 +3,7 @@ import { useState } from "react";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoAgentPanel } from "~/components/DemoAgentPanel";
 import { DemoHowToStart } from "~/components/DemoHowToStart";
-import {
-  DemoJessicaHeading,
-  JessicaCapabilities,
-} from "~/components/DemoJessicaHeading";
+import { DemoJessicaHeading } from "~/components/DemoJessicaHeading";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
 import { VoiceDemo } from "~/components/VoiceDemo";
@@ -144,7 +141,7 @@ function DemoPage() {
               Hear exactly what your callers could experience — 24/7/365, on the
               first ring.
             </p>
-            <div className="hidden lg:block">
+            <div className="mt-4">
               <DemoHowToStart variant="hero" />
             </div>
           </div>
@@ -164,8 +161,6 @@ function DemoPage() {
                   </div>
 
                   <DemoJessicaHeading />
-
-                  <JessicaCapabilities className="mx-auto mt-4 max-w-sm text-gray-300" />
 
                   <p className="mt-5 text-sm font-medium text-white">
                     Ready? Click below to get started:
