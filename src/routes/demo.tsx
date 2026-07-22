@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
+import { DemoAgentPanel } from "~/components/DemoAgentPanel";
 import { DemoHowToStart } from "~/components/DemoHowToStart";
+import {
+  DemoJessicaHeading,
+  JessicaCapabilities,
+} from "~/components/DemoJessicaHeading";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
 import { VoiceDemo } from "~/components/VoiceDemo";
@@ -14,10 +19,7 @@ const primaryButtonClassName =
   "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30 disabled:cursor-not-allowed disabled:opacity-60";
 
 const secondaryButtonClassName =
-  "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline";
-
-const demoPanelClassName =
-  "rounded-xl border border-gray-100 bg-white p-6 shadow-lg sm:p-8";
+  "block w-full rounded-lg border border-white/25 bg-white/5 px-8 py-3.5 text-center text-base font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Hear what your phones could sound like 24/7/365. Talk to Jessica, our live AI receptionist demo built for home services businesses.",
+          "Have a natural conversation with Jessica in your browser. Live AI demo for home services — FAQs, booking, maintenance plans, and confirmations.",
       },
     ],
   }),
@@ -126,18 +128,18 @@ function DemoPage() {
 
   return (
     <main className="pt-20">
-      {/* Above the fold: headline + demo widget side by side */}
       <section className="bg-brand-secondary px-6 py-8 sm:py-10 lg:min-h-[calc(100dvh-5rem)] lg:py-12">
         <div className="mx-auto grid max-w-7xl items-start gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
-          {/* Copy — below demo on mobile, left on desktop */}
           <div className="order-2 lg:order-1">
             <span className="mb-3 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
               No Pitch. No Fluff.
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Talk to Jessica —{" "}
-              <span className="text-brand-primary">Live AI Demo</span>
+              Talk to Jessica
             </h1>
+            <p className="mt-2 text-2xl font-extrabold tracking-tight text-brand-primary sm:text-3xl lg:text-4xl">
+              Live AI Demo
+            </p>
             <p className="mt-4 text-base leading-relaxed text-gray-300 sm:text-lg">
               Hear exactly what your callers could experience — 24/7/365, on the
               first ring.
@@ -147,36 +149,25 @@ function DemoPage() {
             </div>
           </div>
 
-          {/* Demo widget — first on mobile so no scroll needed */}
           <div className="order-1 lg:order-2">
             {view === "gate" && (
-              <div className={demoPanelClassName}>
+              <DemoAgentPanel>
                 <DemoHowToStart variant="gate" />
 
-                <div className="mt-5 rounded-xl border border-gray-100 bg-brand-accent-light/40 p-6 text-center sm:p-8">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary/10 sm:h-16 sm:w-16">
-                    <svg
-                      className="h-6 w-6 text-brand-primary sm:h-7 sm:w-7"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
+                <div className="mt-5 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm">
+                    <img
+                      src="/logo.png"
+                      alt="624 Voice"
+                      className="h-10 w-10 opacity-90"
+                    />
                   </div>
-                  <p className="text-lg font-semibold text-brand-secondary">
-                    Talk to Jessica
-                  </p>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Live AI Demo · 624 Voice
-                  </p>
-                  <p className="mt-4 text-sm font-medium text-brand-secondary">
+
+                  <DemoJessicaHeading />
+
+                  <JessicaCapabilities className="mx-auto mt-4 max-w-sm text-gray-300" />
+
+                  <p className="mt-5 text-sm font-medium text-white">
                     Ready? Click below to get started:
                   </p>
                   <button
@@ -186,67 +177,64 @@ function DemoPage() {
                   >
                     Get Instant Access
                   </button>
-                  <p className="mt-3 text-sm text-gray-500">
-                    1 call per visitor
-                  </p>
+                  <p className="mt-3 text-sm text-gray-400">1 call per visitor</p>
                 </div>
 
                 <a href="/contact" className={`mt-5 ${secondaryButtonClassName}`}>
                   Want This on Your Phones? →
                 </a>
-              </div>
+              </DemoAgentPanel>
             )}
 
             {view === "form" && (
-              <div className={demoPanelClassName}>
-                <h2 className="text-xl font-bold text-brand-secondary sm:text-2xl">
+              <DemoAgentPanel>
+                <DemoJessicaHeading className="mb-4" />
+                <h2 className="text-xl font-bold text-white sm:text-2xl">
                   Get instant access
                 </h2>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-gray-300">
                   Same details as our contact form — then you&apos;ll connect
                   live with Jessica.
                 </p>
                 <DemoHowToStart variant="form" />
-                <div className="mt-5">
+                <div className="mt-5 rounded-xl bg-white/95 p-4 backdrop-blur-sm sm:p-5">
                   <DemoLeadForm {...formProps} compact />
                 </div>
                 <button
                   type="button"
                   onClick={() => setView("gate")}
-                  className="mt-4 w-full text-center text-sm font-semibold text-gray-500 hover:text-brand-primary"
+                  className="mt-4 w-full text-center text-sm font-semibold text-gray-300 hover:text-white"
                 >
                   ← Back
                 </button>
-              </div>
+              </DemoAgentPanel>
             )}
 
             {view === "demo" && lead && (
-              <div className={demoPanelClassName}>
+              <DemoAgentPanel>
                 <VoiceDemo
                   lead={lead}
                   autoStart
                   onDemoLimitReached={() => setView("limit")}
                 />
-              </div>
+              </DemoAgentPanel>
             )}
 
             {view === "limit" && (
-              <div className={demoPanelClassName}>
-                <DemoLimitPanel compact />
-              </div>
+              <DemoAgentPanel>
+                <DemoLimitPanel compact onDark />
+              </DemoAgentPanel>
             )}
           </div>
         </div>
       </section>
 
-      {/* Below the fold: full value prop */}
       <section className="bg-white px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <DemoAgentOverview />
         </div>
       </section>
 
-      {/* Guarantee + CTA */}
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
