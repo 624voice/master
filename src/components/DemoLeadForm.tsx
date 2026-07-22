@@ -260,7 +260,7 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
         disabled={props.loading}
         className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {props.loading ? "Submitting…" : "Get Instant Access"}
+        {props.loading ? "Submitting…" : "Continue to demo"}
       </button>
     </form>
   );

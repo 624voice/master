@@ -9,7 +9,7 @@ import {
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import { saveLead } from "~/server/leads";
-import { hasUsedVoiceDemo } from "~/server/vapi/demoUsage";
+import { markDemoFormSubmitted, hasUsedVoiceDemo } from "~/server/vapi/demoUsage";
 
 export type DemoLead = LeadInfo & {
   website: string;
@@ -98,6 +98,8 @@ export const submitDemoLead = createServerFn({ method: "POST" })
       smsConsent: data.smsConsent,
       source: "voice_demo",
     });
+
+    await markDemoFormSubmitted(normalizedLead.email, normalizedLead.phone);
 
     return { ok: true as const, lead, demoAlreadyUsed: false };
   });

@@ -10,13 +10,7 @@ import { VoiceDemo } from "~/components/VoiceDemo";
 import type { DemoLead } from "~/server/submitDemoLead";
 import { submitDemoLead } from "~/server/submitDemoLead";
 
-type DemoView = "gate" | "form" | "demo" | "limit";
-
-const primaryButtonClassName =
-  "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/30 disabled:cursor-not-allowed disabled:opacity-60";
-
-const secondaryButtonClassName =
-  "block w-full rounded-lg border border-white/25 bg-white/5 px-8 py-3.5 text-center text-base font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline";
+type DemoView = "form" | "demo" | "limit";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -50,7 +44,7 @@ function DemoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<DemoLead | null>(null);
-  const [view, setView] = useState<DemoView>("gate");
+  const [view, setView] = useState<DemoView>("form");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -147,40 +141,6 @@ function DemoPage() {
           </div>
 
           <div>
-            {view === "gate" && (
-              <DemoAgentPanel>
-                <DemoHowToStart variant="gate" />
-
-                <div className="mt-5 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm">
-                    <img
-                      src="/logo.png"
-                      alt="624 Voice"
-                      className="h-10 w-10 opacity-90"
-                    />
-                  </div>
-
-                  <DemoJessicaHeading />
-
-                  <p className="mt-5 text-sm font-medium text-white">
-                    Ready? Click below to get started:
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setView("form")}
-                    className={`mt-4 ${primaryButtonClassName}`}
-                  >
-                    Get Instant Access
-                  </button>
-                  <p className="mt-3 text-sm text-gray-400">1 call per visitor</p>
-                </div>
-
-                <a href="/contact" className={`mt-5 ${secondaryButtonClassName}`}>
-                  Want This on Your Phones? →
-                </a>
-              </DemoAgentPanel>
-            )}
-
             {view === "form" && (
               <DemoAgentPanel>
                 <DemoJessicaHeading className="mb-4" />
@@ -188,30 +148,24 @@ function DemoPage() {
                   Get instant access
                 </h2>
                 <p className="mt-2 text-sm text-gray-300">
-                  Same details as our contact form — then you&apos;ll connect
-                  live with Jessica.
+                  Complete the form below to unlock the live demo with Jessica.
                 </p>
                 <DemoHowToStart variant="form" />
                 <div className="mt-5 rounded-xl bg-white/95 p-4 backdrop-blur-sm sm:p-5">
                   <DemoLeadForm {...formProps} compact />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setView("gate")}
-                  className="mt-4 w-full text-center text-sm font-semibold text-gray-300 hover:text-white"
-                >
-                  ← Back
-                </button>
               </DemoAgentPanel>
             )}
 
             {view === "demo" && lead && (
               <DemoAgentPanel>
-                <VoiceDemo
-                  lead={lead}
-                  autoStart
-                  onDemoLimitReached={() => setView("limit")}
-                />
+                <DemoHowToStart variant="demo" />
+                <div className="mt-4">
+                  <VoiceDemo
+                    lead={lead}
+                    onDemoLimitReached={() => setView("limit")}
+                  />
+                </div>
               </DemoAgentPanel>
             )}
 
