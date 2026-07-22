@@ -6,10 +6,7 @@ import {
   getVapiPublicKey,
   isVapiDemoConfigured,
 } from "~/config/vapi";
-import {
-  DemoJessicaHeading,
-  JessicaCapabilities,
-} from "~/components/DemoJessicaHeading";
+import { DemoJessicaHeading } from "~/components/DemoJessicaHeading";
 import type { DemoLead } from "~/server/submitDemoLead";
 import {
   checkDemoEligibility,
@@ -214,8 +211,6 @@ export function VoiceDemo({
       </div>
 
       <DemoJessicaHeading />
-
-      <JessicaCapabilities className="max-w-sm text-gray-300" />
 
       {phase === "idle" && !autoStart && (
         <>
