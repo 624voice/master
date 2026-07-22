@@ -20,9 +20,8 @@ export function DemoJessicaHeading({
 export function JessicaCapabilities({ className = "" }: { className?: string }) {
   return (
     <p className={`text-sm leading-relaxed ${className}`}>
-      Have a natural conversation with Jessica in your browser. Ask her anything
-      — she can answer FAQs, book appointments, upsell maintenance plans, and
-      send confirmations.
+      Have a natural conversation with Jessica in your browser. She can answer
+      FAQs, book appointments, upsell maintenance plans, and send confirmations.
     </p>
   );
 }
