@@ -2,17 +2,35 @@ import { GoogleCalendarEmbed } from "~/components/GoogleCalendarEmbed";
 
 type DemoLimitPanelProps = {
   compact?: boolean;
+  onDark?: boolean;
 };
 
-export function DemoLimitPanel({ compact = false }: DemoLimitPanelProps) {
+export function DemoLimitPanel({
+  compact = false,
+  onDark = false,
+}: DemoLimitPanelProps) {
   if (compact) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
-          <h2 className="text-xl font-bold text-brand-secondary">
+        <div
+          className={`rounded-xl p-6 text-center ${
+            onDark
+              ? "border border-amber-400/30 bg-amber-500/10"
+              : "border border-amber-200 bg-amber-50"
+          }`}
+        >
+          <h2
+            className={`text-xl font-bold ${
+              onDark ? "text-white" : "text-brand-secondary"
+            }`}
+          >
             One demo call per visitor
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-gray-700">
+          <p
+            className={`mt-3 text-sm leading-relaxed ${
+              onDark ? "text-gray-200" : "text-gray-700"
+            }`}
+          >
             You&apos;ve already talked with Jessica. Ready to see this on your
             phones? Book a meeting below.
           </p>
@@ -22,7 +40,11 @@ export function DemoLimitPanel({ compact = false }: DemoLimitPanelProps) {
         </div>
         <a
           href="/contact"
-          className="block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline"
+          className={
+            onDark
+              ? "block w-full rounded-lg border border-white/25 bg-white/5 px-8 py-3.5 text-center text-base font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline"
+              : "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline"
+          }
         >
           Want This on Your Phones? →
         </a>

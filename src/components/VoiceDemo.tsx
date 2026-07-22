@@ -6,6 +6,10 @@ import {
   getVapiPublicKey,
   isVapiDemoConfigured,
 } from "~/config/vapi";
+import {
+  DemoJessicaHeading,
+  JessicaCapabilities,
+} from "~/components/DemoJessicaHeading";
 import type { DemoLead } from "~/server/submitDemoLead";
 import {
   checkDemoEligibility,
@@ -29,31 +33,12 @@ const primaryButtonClassName =
   "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60";
 
 const secondaryButtonClassName =
-  "block w-full rounded-lg border border-gray-300 px-8 py-3.5 text-center text-base font-semibold text-brand-secondary transition-all hover:border-brand-primary hover:text-brand-primary no-underline";
+  "block w-full rounded-lg border border-white/25 bg-white/5 px-8 py-3.5 text-center text-base font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline";
 
 function formatElapsed(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
-}
-
-function PhoneIcon() {
-  return (
-    <svg
-      className="h-7 w-7 text-brand-primary"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-      />
-    </svg>
-  );
 }
 
 export function VoiceDemo({
@@ -215,113 +200,103 @@ export function VoiceDemo({
   }, [autoStart, phase, startCall]);
 
   return (
-    <div className="flex w-full flex-col items-center gap-6">
-      <div className="text-center">
-        <span className="mb-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-brand-primary">
-          Hear the difference yourself
-        </span>
-        <p className="text-sm leading-relaxed text-gray-600">
-          Talk to her. See exactly what your callers could experience 24/7/365.
-        </p>
+    <div className="flex w-full flex-col items-center gap-5 text-center">
+      <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-medium text-emerald-300">
+        Hear the difference yourself
+      </span>
+
+      <div
+        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm ${
+          phase === "live" && isSpeaking ? "animate-pulse ring-2 ring-brand-primary" : ""
+        }`}
+      >
+        <img src="/logo.png" alt="624 Voice" className="h-10 w-10 opacity-90" />
       </div>
 
-      <div className="w-full rounded-xl border border-gray-100 bg-brand-accent-light/40 p-8 text-center">
-        <div
-          className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
-            phase === "live" && isSpeaking
-              ? "animate-pulse bg-brand-primary/20 ring-2 ring-brand-primary"
-              : "bg-brand-primary/10"
-          }`}
-        >
-          <PhoneIcon />
+      <DemoJessicaHeading />
+
+      <JessicaCapabilities className="max-w-sm text-gray-300" />
+
+      {phase === "idle" && !autoStart && (
+        <>
+          <button
+            type="button"
+            onClick={() => void startCall()}
+            className={primaryButtonClassName}
+          >
+            Get Instant Access
+          </button>
+          <p className="text-sm text-gray-400">1 call per visitor</p>
+        </>
+      )}
+
+      {phase === "connecting" && (
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
+            aria-hidden="true"
+          />
+          <p className="text-sm text-gray-200">Connecting…</p>
+          <p className="text-xs text-gray-400">
+            Allow microphone access if your browser prompts you.
+          </p>
         </div>
+      )}
 
-        <p className="text-lg font-semibold text-brand-secondary">
-          Talk to Jessica
-        </p>
-        <p className="mt-1 text-sm text-gray-600">Live AI Demo · 624 Voice</p>
+      {phase === "live" && (
+        <div className="w-full space-y-4">
+          <p className="text-sm font-medium text-white">
+            {isSpeaking ? "Jessica is speaking…" : "Listening…"}
+          </p>
+          <p className="font-mono text-sm text-brand-primary">
+            {formatElapsed(elapsed)} / {formatElapsed(DEMO_MAX_CALL_SECONDS)}
+          </p>
+          <button
+            type="button"
+            onClick={() => void stopCall()}
+            className="w-full rounded-lg border border-red-400/40 bg-red-500/15 px-4 py-3 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/25"
+          >
+            End call
+          </button>
+        </div>
+      )}
 
-        {phase === "idle" && !autoStart && (
-          <>
-            <button
-              type="button"
-              onClick={() => void startCall()}
-              className={`mt-6 ${primaryButtonClassName}`}
-            >
-              Get Instant Access
-            </button>
-            <p className="mt-3 text-sm text-gray-500">1 call per visitor</p>
-          </>
-        )}
+      {phase === "ended" && (
+        <div className="w-full space-y-4">
+          <p className="text-base font-semibold text-brand-primary">
+            Thanks for trying the demo!
+          </p>
+          <p className="text-sm leading-relaxed text-gray-300">
+            We&apos;ll follow up with a summary. Ready to see this on your
+            phones?
+          </p>
+          <button
+            type="button"
+            onClick={onDemoLimitReached}
+            className={primaryButtonClassName}
+          >
+            Book a meeting
+          </button>
+        </div>
+      )}
 
-        {phase === "connecting" && (
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <div
-              className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
-              aria-hidden="true"
-            />
-            <p className="text-sm text-gray-600">Connecting…</p>
-            <p className="text-xs text-gray-500">
-              Allow microphone access if your browser prompts you.
-            </p>
-          </div>
-        )}
-
-        {phase === "live" && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm font-medium text-brand-secondary">
-              {isSpeaking ? "Jessica is speaking…" : "Listening…"}
-            </p>
-            <p className="font-mono text-sm text-brand-primary">
-              {formatElapsed(elapsed)} / {formatElapsed(DEMO_MAX_CALL_SECONDS)}
-            </p>
-            <button
-              type="button"
-              onClick={() => void stopCall()}
-              className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
-            >
-              End call
-            </button>
-          </div>
-        )}
-
-        {phase === "ended" && (
-          <div className="mt-6 space-y-4">
-            <p className="text-base font-semibold text-brand-primary">
-              Thanks for trying the demo!
-            </p>
-            <p className="text-sm leading-relaxed text-gray-600">
-              We&apos;ll follow up with a summary. Ready to see this on your
-              phones?
-            </p>
-            <button
-              type="button"
-              onClick={onDemoLimitReached}
-              className={primaryButtonClassName}
-            >
-              Book a meeting
-            </button>
-          </div>
-        )}
-
-        {phase === "error" && error && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm text-red-600" role="alert">
-              {error}
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setPhase("idle");
-                setError(null);
-              }}
-              className={primaryButtonClassName}
-            >
-              Try again
-            </button>
-          </div>
-        )}
-      </div>
+      {phase === "error" && error && (
+        <div className="w-full space-y-4">
+          <p className="text-sm text-red-300" role="alert">
+            {error}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setPhase("idle");
+              setError(null);
+            }}
+            className={primaryButtonClassName}
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
       <a href="/contact" className={secondaryButtonClassName}>
         Want This on Your Phones? →
