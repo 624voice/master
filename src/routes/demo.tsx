@@ -127,7 +127,7 @@ function DemoPage() {
     <main className="pt-20">
       <section className="bg-brand-secondary px-6 py-8 sm:py-10 lg:min-h-[calc(100dvh-5rem)] lg:py-12">
         <div className="mx-auto grid max-w-7xl items-start gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
-          <div className="order-2 lg:order-1">
+          <div>
             <span className="mb-3 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
               No Pitch. No Fluff.
             </span>
@@ -146,7 +146,7 @@ function DemoPage() {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2">
+          <div>
             {view === "gate" && (
               <DemoAgentPanel>
                 <DemoHowToStart variant="gate" />
