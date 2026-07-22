@@ -23,7 +23,6 @@ type CallPhase =
 type VoiceDemoProps = {
   lead: DemoLead;
   onDemoLimitReached: () => void;
-  autoStart?: boolean;
 };
 
 const primaryButtonClassName =
@@ -41,13 +40,11 @@ function formatElapsed(seconds: number): string {
 export function VoiceDemo({
   lead,
   onDemoLimitReached,
-  autoStart = false,
 }: VoiceDemoProps) {
   const [phase, setPhase] = useState<CallPhase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const hasAutoStarted = useRef(false);
 
   const vapiRef = useRef<Vapi | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -189,13 +186,6 @@ export function VoiceDemo({
     }
   }, [clearTimers, lead, onDemoLimitReached, stopCall]);
 
-  useEffect(() => {
-    if (autoStart && !hasAutoStarted.current && phase === "idle") {
-      hasAutoStarted.current = true;
-      void startCall();
-    }
-  }, [autoStart, phase, startCall]);
-
   return (
     <div className="flex w-full flex-col items-center gap-5 text-center">
       <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-medium text-emerald-300">
@@ -212,14 +202,14 @@ export function VoiceDemo({
 
       <DemoJessicaHeading />
 
-      {phase === "idle" && !autoStart && (
+      {phase === "idle" && (
         <>
           <button
             type="button"
             onClick={() => void startCall()}
             className={primaryButtonClassName}
           >
-            Get Instant Access
+            Start conversation
           </button>
           <p className="text-sm text-gray-400">1 call per visitor</p>
         </>

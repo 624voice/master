@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
-  hasUsedVoiceDemo,
+  canStartVoiceDemo,
   markVoiceDemoUsed,
 } from "~/server/vapi/demoUsage";
 
@@ -12,8 +12,8 @@ type DemoIdentity = {
 export const checkDemoEligibility = createServerFn({ method: "POST" })
   .validator((data: DemoIdentity) => data)
   .handler(async ({ data }) => {
-    const alreadyUsed = await hasUsedVoiceDemo(data.email, data.phone);
-    return { allowed: !alreadyUsed };
+    const allowed = await canStartVoiceDemo(data.email, data.phone);
+    return { allowed };
   });
 
 export const recordDemoCallStart = createServerFn({ method: "POST" })
