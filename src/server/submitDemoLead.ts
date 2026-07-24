@@ -1,10 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   normalizeLeadInfo,
-  resolveContactTrade,
   resolveContactWebsite,
-  validateContactFields,
-  validateLeadInfo,
+  validateDemoLeadIdentity,
   validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
@@ -13,63 +11,50 @@ import { markDemoFormSubmitted, hasUsedVoiceDemo } from "~/server/vapi/demoUsage
 
 export type DemoLead = LeadInfo & {
   website: string;
-  trade: string;
-  fleetSize: string;
-  message: string;
   smsConsent: boolean;
 };
 
-type DemoLeadRequest = LeadInfo & {
-  trade: string;
-  otherTrade?: string;
+type DemoLeadRequest = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
   websiteOption: "has" | "none" | "";
   website?: string;
-  fleetSize: string;
-  message: string;
   smsConsent: boolean;
 };
+
+function validateDemoLeadFields(data: DemoLeadRequest): string | null {
+  const leadError = validateDemoLeadIdentity({
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+  });
+  if (leadError) {
+    return leadError;
+  }
+
+  return validateWebsiteFields(data.websiteOption, data.website);
+}
 
 export const submitDemoLead = createServerFn({ method: "POST" })
   .validator((data: DemoLeadRequest) => data)
   .handler(async ({ data }) => {
-    const leadError = validateLeadInfo({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      businessName: data.businessName,
-      email: data.email,
-      phone: data.phone,
-    });
-    if (leadError) {
-      throw new Error(leadError);
-    }
-
-    const contactError = validateContactFields({
-      trade: data.trade,
-      otherTrade: data.otherTrade,
-      websiteOption: data.websiteOption,
-      website: data.website,
-      fleetSize: data.fleetSize,
-      message: data.message,
-    });
-    if (contactError) {
-      throw new Error(contactError);
-    }
-
-    const websiteError = validateWebsiteFields(data.websiteOption, data.website);
-    if (websiteError) {
-      throw new Error(websiteError);
+    const fieldError = validateDemoLeadFields(data);
+    if (fieldError) {
+      throw new Error(fieldError);
     }
 
     const normalizedLead = normalizeLeadInfo({
       firstName: data.firstName,
       lastName: data.lastName,
-      businessName: data.businessName,
+      businessName: `${data.firstName.trim()} ${data.lastName.trim()}`.trim(),
       email: data.email,
       phone: data.phone,
     });
 
     const website = resolveContactWebsite(data.websiteOption, data.website);
-    const trade = resolveContactTrade(data.trade, data.otherTrade);
 
     const demoAlreadyUsed = await hasUsedVoiceDemo(
       normalizedLead.email,
@@ -79,9 +64,6 @@ export const submitDemoLead = createServerFn({ method: "POST" })
     const lead: DemoLead = {
       ...normalizedLead,
       website,
-      trade,
-      fleetSize: data.fleetSize.trim(),
-      message: data.message.trim(),
       smsConsent: data.smsConsent,
     };
 
@@ -91,10 +73,10 @@ export const submitDemoLead = createServerFn({ method: "POST" })
 
     await saveLead({
       ...normalizedLead,
-      trade,
+      trade: "Voice Demo",
       website,
-      fleetSize: data.fleetSize.trim(),
-      message: data.message.trim(),
+      fleetSize: "",
+      message: "Live AI demo",
       smsConsent: data.smsConsent,
       source: "voice_demo",
     });

@@ -110,6 +110,19 @@ export function validateLeadInfo(lead: LeadInfo): string | null {
   return null;
 }
 
+export function validateDemoLeadIdentity(lead: Omit<LeadInfo, "businessName">): string | null {
+  if (!lead.firstName.trim()) return "First name is required.";
+  if (!lead.lastName.trim()) return "Last name is required.";
+  if (!lead.email.trim()) return "Email is required.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim())) {
+    return "Enter a valid email address.";
+  }
+  if (!lead.phone.trim()) return "Phone number is required.";
+  const digits = lead.phone.replace(/\D/g, "");
+  if (digits.length < 10) return "Enter a valid phone number.";
+  return null;
+}
+
 export function normalizeLeadInfo(lead: LeadInfo): LeadInfo {
   return {
     firstName: lead.firstName.trim(),
