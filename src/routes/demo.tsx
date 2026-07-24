@@ -130,11 +130,11 @@ function DemoPage() {
 
   return (
     <main className="bg-[#152233]">
-      <section className="relative min-h-[calc(100dvh-5.5rem)] overflow-hidden px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+      <section className="relative min-h-[calc(100dvh-5.5rem)] overflow-hidden px-5 py-5 sm:px-8 lg:px-10 lg:py-6">
         <DemoBackground />
 
-        <div className="relative mx-auto flex min-h-[calc(100dvh-8rem)] max-w-[1450px] flex-col justify-center">
-          <div className="grid items-center gap-10 lg:grid-cols-[44%_56%] lg:gap-16 xl:gap-20">
+        <div className="relative mx-auto flex min-h-[calc(100dvh-6.5rem)] max-w-[1450px] flex-col justify-center">
+          <div className="grid items-center gap-8 lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-16">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
               startDisabled={startDisabled}
