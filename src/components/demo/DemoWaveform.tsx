@@ -18,7 +18,7 @@ export function DemoWaveform({ callState, className = "" }: DemoWaveformProps) {
     <div className={`relative w-full px-2 ${className}`} aria-hidden="true">
       <svg
         viewBox="0 0 520 48"
-        className={`h-10 w-full sm:h-12 ${
+        className={`h-8 w-full sm:h-9 ${
           isIdle ? "motion-safe:animate-[wave-breathe_3s_ease-in-out_infinite]" : ""
         } ${isActive && !isSpeaking ? "motion-safe:animate-[wave-pulse_1.2s_ease-in-out_infinite]" : ""} ${
           isSpeaking ? "motion-safe:animate-[wave-speak_0.6s_ease-in-out_infinite]" : ""

@@ -14,7 +14,7 @@ type DemoJessicaInterfaceProps = {
   maxSeconds?: number;
 };
 
-function MicIcon({ className = "h-10 w-10" }: { className?: string }) {
+function MicIcon({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -29,7 +29,7 @@ function MicIcon({ className = "h-10 w-10" }: { className?: string }) {
 
 function UserIcon() {
   return (
-    <svg className="h-5 w-5 shrink-0 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="h-4 w-4 shrink-0 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   );
@@ -37,7 +37,7 @@ function UserIcon() {
 
 function ShieldIcon() {
   return (
-    <svg className="h-5 w-5 shrink-0 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="h-4 w-4 shrink-0 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
     </svg>
   );
@@ -61,7 +61,7 @@ export function DemoJessicaInterface({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative aspect-square w-[85%] max-w-[340px]">
+      <div className="relative aspect-square w-[72%] max-w-[260px]">
         <div
           className="absolute inset-0 rounded-full bg-[#10b981]/15 blur-md"
           aria-hidden="true"
@@ -73,21 +73,21 @@ export function DemoJessicaInterface({
         />
       </div>
 
-      <h2 className="mt-5 text-[2.35rem] font-bold leading-none text-[#18222f]">Jessica</h2>
-      <p className="mt-2 text-sm font-semibold tracking-[0.2em] text-[#10b981]">
+      <h2 className="mt-3 text-[2.35rem] font-bold leading-none text-[#18222f]">Jessica</h2>
+      <p className="mt-1.5 text-sm font-semibold tracking-[0.2em] text-[#10b981]">
         AI VOICE AGENT
       </p>
 
-      <DemoWaveform callState={callState} className="mt-6" />
+      <DemoWaveform callState={callState} className="mt-4" />
 
-      <div className="mt-8 flex flex-col items-center">
+      <div className="mt-5 flex flex-col items-center">
         {micInteractive ? (
           <button
             type="button"
             onClick={onMicClick}
             disabled={micDisabled || isConnecting}
             aria-label="Start live demo with Jessica"
-            className={`relative flex h-[104px] w-[104px] items-center justify-center rounded-full bg-[#10b981] text-white shadow-lg shadow-[#10b981]/35 transition-all hover:scale-[1.03] hover:bg-[#059669] hover:shadow-xl hover:shadow-[#10b981]/45 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#10b981]/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 sm:h-[112px] sm:w-[112px] ${
+            className={`relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#10b981] text-white shadow-lg shadow-[#10b981]/35 transition-all hover:scale-[1.03] hover:bg-[#059669] hover:shadow-xl hover:shadow-[#10b981]/45 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#10b981]/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 sm:h-[92px] sm:w-[92px] ${
               callState === "idle"
                 ? "motion-safe:animate-[pulse-glow_2s_ease-in-out_infinite]"
                 : ""
@@ -95,14 +95,14 @@ export function DemoJessicaInterface({
           >
             <span className="absolute inset-0 rounded-full ring-4 ring-[#10b981]/15" aria-hidden="true" />
             {isConnecting ? (
-              <span className="h-10 w-10 animate-spin rounded-full border-[3px] border-white border-t-transparent" />
+              <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-white border-t-transparent" />
             ) : (
               <MicIcon />
             )}
           </button>
         ) : (
           <div
-            className="relative flex h-[104px] w-[104px] items-center justify-center rounded-full bg-[#10b981] text-white opacity-80 sm:h-[112px] sm:w-[112px]"
+            className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#10b981] text-white opacity-80 sm:h-[92px] sm:w-[92px]"
             aria-hidden="true"
           >
             <MicIcon />
@@ -110,7 +110,7 @@ export function DemoJessicaInterface({
         )}
 
         <p
-          className="mt-4 max-w-xs text-center text-base font-medium text-[#18222f] sm:text-lg"
+          className="mt-3 max-w-xs text-center text-base font-medium text-[#18222f] sm:text-lg"
           aria-live="polite"
           aria-atomic="true"
         >
@@ -153,8 +153,8 @@ export function DemoJessicaInterface({
         )}
       </div>
 
-      <div className="mt-8 w-full border-t border-slate-200 pt-6">
-        <div className="flex flex-wrap items-start justify-center gap-x-10 gap-y-4 sm:gap-x-14">
+      <div className="mt-5 w-full border-t border-slate-200 pt-4">
+        <div className="flex flex-wrap items-start justify-center gap-x-8 gap-y-3 sm:gap-x-12">
           <div className="flex items-start gap-3">
             <UserIcon />
             <p className="text-sm leading-snug text-[#18222f]">
