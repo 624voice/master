@@ -130,18 +130,18 @@ function DemoPage() {
 
   return (
     <main className="bg-[#152233]">
-      <section className="relative min-h-[calc(100dvh-5.5rem)] overflow-hidden px-5 py-5 sm:px-8 lg:px-10 lg:py-6">
+      <section className="relative min-h-[calc(100dvh-5.5rem)] overflow-x-hidden px-5 py-4 sm:px-8 lg:px-10 lg:py-5">
         <DemoBackground />
 
-        <div className="relative mx-auto flex min-h-[calc(100dvh-6.5rem)] max-w-[1450px] flex-col justify-center">
-          <div className="grid items-center gap-8 lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-16">
+        <div className="relative mx-auto flex min-h-[calc(100dvh-6rem)] max-w-[1450px] flex-col justify-center overflow-visible">
+          <div className="grid items-center gap-8 overflow-visible lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-16">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
               startDisabled={startDisabled}
               showCta={pageView === "gate" || pageView === "demo"}
             />
 
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-center overflow-visible lg:justify-end">
               {pageView === "form" ? (
                 <DemoBrowserCard>
                   <h2 className="text-center text-xl font-bold text-[#18222f]">
