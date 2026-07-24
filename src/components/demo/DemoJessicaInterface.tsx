@@ -61,15 +61,15 @@ export function DemoJessicaInterface({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative">
+      <div className="relative flex h-[168px] w-[168px] items-center justify-center sm:h-[180px] sm:w-[180px]">
         <div
-          className="absolute -inset-3 rounded-full bg-[#10b981]/20 blur-md"
+          className="absolute inset-0 rounded-full bg-[#10b981]/15 blur-md"
           aria-hidden="true"
         />
         <img
           src="/jessica-avatar.png"
           alt="Jessica, AI voice agent"
-          className="relative h-[160px] w-[160px] rounded-full object-cover object-center shadow-lg ring-2 ring-[#10b981]/20 sm:h-[172px] sm:w-[172px]"
+          className="relative h-full w-full object-contain drop-shadow-md"
         />
       </div>
 
@@ -154,13 +154,13 @@ export function DemoJessicaInterface({
       </div>
 
       <div className="mt-8 w-full border-t border-slate-200 pt-6">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
+        <div className="flex flex-wrap items-start justify-center gap-x-10 gap-y-4 sm:gap-x-14">
           <div className="flex items-start gap-3">
             <UserIcon />
             <p className="text-sm leading-snug text-[#18222f]">
-              1 live demo
+              1 call
               <br />
-              per visitor
+              per customer
             </p>
           </div>
           <div className="flex items-start gap-3">
