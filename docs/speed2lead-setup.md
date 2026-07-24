@@ -57,6 +57,20 @@ Database name suggestion: `624speed2lead`
 3. The contact conversation state machine handles replies through the general contact script.
 4. Transcripts append to the same **SMS Transcripts** tab.
 
+### Voice demo (Speed2Lead)
+
+1. Customer completes the Jessica browser demo at `/demo` and opts in to SMS on the form.
+2. After the Vapi call ends (`end-of-call-report`), the server sends the post-demo opening text.
+3. The demo conversation state machine handles replies through the demo-specific script.
+4. If the customer does not reply, timed follow-ups send at 45 minutes, the next business day, and 3 business days later (Central Time).
+5. Transcripts append to **SMS Transcripts** with **Flow = Demo**.
+
+Optional env vars:
+
+| Variable | Description |
+|----------|-------------|
+| `CRON_SECRET` | Bearer token for `/api/cron/demo-followups` (used by Netlify scheduled function) |
+
 ## SMS transcripts
 
 Transcripts use the same `LEADS_WEBHOOK_URL` as lead capture. After deploying the updated Apps Script (see `docs/leads-webhook-setup.md`), run **setupSheetHeaders** once to create the **SMS Transcripts** tab.

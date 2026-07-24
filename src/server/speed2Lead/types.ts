@@ -44,10 +44,12 @@ export type ConversationContext = {
 };
 
 export type { ContactConversationContext, ContactConversationState } from "~/server/contactSpeed2Lead/types";
+export type { DemoConversationContext, DemoConversationState } from "~/server/demoSpeed2Lead/types";
 
 export type AnyConversationContext =
   | ConversationContext
-  | import("~/server/contactSpeed2Lead/types").ContactConversationContext;
+  | import("~/server/contactSpeed2Lead/types").ContactConversationContext
+  | import("~/server/demoSpeed2Lead/types").DemoConversationContext;
 
 export type ReportTokenData = {
   trade: TradeKey;

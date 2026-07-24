@@ -1,3 +1,10 @@
+import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
+import {
+  declineMessage as demoDeclineMessage,
+  unknownInboundMessage as demoUnknownInboundMessage,
+} from "~/server/demoSpeed2Lead/messages";
+import { removeDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
+import type { DemoConversationContext } from "~/server/demoSpeed2Lead/types";
 import { advanceContactConversation } from "~/server/contactSpeed2Lead/stateMachine";
 import {
   declineMessage as contactDeclineMessage,
@@ -30,16 +37,27 @@ function isContactSession(
   return session?.flow === "contact";
 }
 
+function isDemoSession(
+  session: AnyConversationContext | null,
+): session is DemoConversationContext {
+  return session?.flow === "demo";
+}
+
+function usesContactStyleRouting(session: AnyConversationContext | null): boolean {
+  return isContactSession(session) || isDemoSession(session);
+}
+
 export async function handleInboundSms(from: string, body: string): Promise<void> {
   const phone = normalizePhone(from);
   const session = await getSession(phone);
-  const intent = classifyIntent(body, isContactSession(session) ? undefined : session?.state);
+  const intent = classifyIntent(body, usesContactStyleRouting(session) ? undefined : session?.state);
 
   logInboundConversationSms(phone, body, session);
 
   if (intent === "stop") {
     await setOptedOut(phone);
     await clearSession(phone);
+    await removeDemoFollowUp(phone);
     await sendConversationSms(phone, optOutConfirmationMessage(), session);
     return;
   }
@@ -61,17 +79,36 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     };
     await sendConversationSms(
       phone,
-      isContactSession(session) ? contactDeclineMessage() : declineMessage(),
+      isDemoSession(session)
+        ? demoDeclineMessage()
+        : isContactSession(session)
+          ? contactDeclineMessage()
+          : declineMessage(),
       completed,
     );
     await saveSession(completed);
+    if (isDemoSession(session)) {
+      await removeDemoFollowUp(phone);
+    }
     return;
   }
 
-  const result = isContactSession(session)
-    ? advanceContactConversation(session, body)
-    : advanceConversation(session, body);
+  if (isDemoSession(session)) {
+    await removeDemoFollowUp(phone);
+  }
+
+  const result = isDemoSession(session)
+    ? advanceDemoConversation(session, body)
+    : isContactSession(session)
+      ? advanceContactConversation(session, body)
+      : advanceConversation(session, body);
 
   await sendConversationSms(phone, result.reply, result.context);
   await saveSession(result.context);
+
+  if (isDemoSession(result.context) && result.context.meetingBooked) {
+    await removeDemoFollowUp(phone);
+  }
 }
+
+export { demoUnknownInboundMessage };

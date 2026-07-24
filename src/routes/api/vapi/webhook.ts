@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { startContactSpeed2Lead } from "~/server/contactSpeed2Lead/startConversation";
+import { startDemoSpeed2Lead } from "~/server/demoSpeed2Lead/startConversation";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { parseEndOfCallReport } from "~/server/vapi/parseEndOfCallReport";
 import { markVoiceDemoUsed } from "~/server/vapi/demoUsage";
@@ -7,6 +7,12 @@ import { logVoiceTranscriptSafely } from "~/server/vapi/transcript";
 
 function smsConsentEnabled(value: unknown): boolean {
   return value === true || String(value).toLowerCase() === "true";
+}
+
+function hasWebsiteFromMetadata(website: string | undefined): boolean {
+  if (!website) return false;
+  const normalized = website.trim().toLowerCase();
+  return normalized !== "" && !normalized.includes("don't have a website");
 }
 
 export const Route = createFileRoute("/api/vapi/webhook")({
@@ -45,20 +51,27 @@ export const Route = createFileRoute("/api/vapi/webhook")({
             recordingUrl,
           });
 
+          const isVoiceDemo = metadata.source === "voice_demo";
+
           if (
+            isVoiceDemo &&
             smsConsentEnabled(metadata.smsConsent) &&
             isSpeed2LeadEnabled() &&
             metadata.phone &&
             metadata.firstName &&
-            metadata.businessName &&
-            (durationSeconds ?? 0) > 0
+            metadata.lastName &&
+            metadata.email
           ) {
             try {
-              await startContactSpeed2Lead({
+              await startDemoSpeed2Lead({
                 phone: metadata.phone,
                 firstName: metadata.firstName,
-                businessName: metadata.businessName,
-                message: "Voice demo follow-up",
+                lastName: metadata.lastName,
+                email: metadata.email,
+                hasWebsite: hasWebsiteFromMetadata(metadata.website),
+                smsConsent: true,
+                demoCompletedAt: new Date().toISOString(),
+                durationSeconds,
               });
             } catch (error) {
               console.error("Post-demo Speed2Lead SMS failed:", error);

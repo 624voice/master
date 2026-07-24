@@ -10,7 +10,7 @@ export type SmsTranscriptPayload = {
   firstName?: string;
   businessName?: string;
   conversationState?: string;
-  flow?: "roi" | "contact";
+  flow?: "roi" | "contact" | "demo";
   shortNeedSummary?: string;
   capturedAt: string;
 };
@@ -33,6 +33,12 @@ function formatCentralTimestamp(date = new Date()): string {
   return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} ${get("dayPeriod")} CT`;
 }
 
+function transcriptFlow(context: AnyConversationContext): "roi" | "contact" | "demo" {
+  if (context.flow === "contact") return "contact";
+  if (context.flow === "demo") return "demo";
+  return "roi";
+}
+
 function transcriptContext(context?: AnyConversationContext | null) {
   if (!context) {
     return {};
@@ -40,9 +46,9 @@ function transcriptContext(context?: AnyConversationContext | null) {
 
   const base = {
     firstName: context.firstName,
-    businessName: context.businessName,
+    businessName: "businessName" in context ? context.businessName : undefined,
     conversationState: context.state,
-    flow: context.flow === "contact" ? ("contact" as const) : ("roi" as const),
+    flow: transcriptFlow(context),
   };
 
   if (context.flow === "contact") {

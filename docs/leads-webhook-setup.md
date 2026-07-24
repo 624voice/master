@@ -12,7 +12,7 @@ Speed2Lead SMS transcripts append to a second tab named **SMS Transcripts**:
 
 `Timestamp | Flow | Direction | Phone | First Name | Business Name | Conversation State | Need Summary | Message`
 
-**Flow** values: `Contact` (contact form Speed2Lead) or `ROI` (ROI calculator Speed2Lead).
+**Flow** values: `Contact` (contact form Speed2Lead), `ROI` (ROI calculator Speed2Lead), or `Demo` (post-demo Jessica follow-up).
 
 Voice demo call transcripts append to a third tab named **Voice Transcripts**:
 

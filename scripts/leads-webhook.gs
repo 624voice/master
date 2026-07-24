@@ -169,6 +169,9 @@ function formatTranscriptFlow(flow) {
   if (flow === "roi") {
     return "ROI";
   }
+  if (flow === "demo") {
+    return "Demo";
+  }
   return String(flow || "");
 }
 
