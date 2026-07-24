@@ -1,22 +1,31 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 type DemoBrowserCardProps = {
   children: ReactNode;
   className?: string;
 };
 
-/** Uniform card scale — shrinks rendered + layout size without changing CSS token sizes. */
-const CARD_SCALE = 0.84;
+/**
+ * Viewport-fit zoom — scales the whole card uniformly without changing text/icon/avatar CSS sizes.
+ * Natural card height ~900px; offset reserves nav + hero padding.
+ */
+const CARD_ZOOM =
+  "clamp(0.72, calc((100dvh - 7.25rem) / 900), 0.84)";
 
 export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardProps) {
   return (
     <div
       className={`mx-auto w-full overflow-visible lg:mx-0 ${className}`}
-      style={{ maxWidth: `${740 * CARD_SCALE}px` }}
+      style={
+        {
+          ["--card-zoom" as string]: CARD_ZOOM,
+          maxWidth: "calc(740px * var(--card-zoom))",
+        } as CSSProperties
+      }
     >
       <div
-        className="relative w-full max-w-[740px] overflow-visible pt-1"
-        style={{ zoom: CARD_SCALE }}
+        className="relative w-full max-w-[740px] overflow-visible"
+        style={{ zoom: "var(--card-zoom)" }}
       >
         <div
           className="pointer-events-none absolute inset-0 rounded-[28px] bg-[#10b981]/20 blur-2xl motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"

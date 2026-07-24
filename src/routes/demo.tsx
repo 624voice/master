@@ -130,10 +130,10 @@ function DemoPage() {
 
   return (
     <main className="bg-[#152233] pt-20">
-      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden overflow-y-visible px-5 pb-4 pt-2 sm:px-8 lg:px-10 lg:pb-5 lg:pt-3">
+      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden overflow-y-visible px-5 pb-2 pt-1 sm:px-8 lg:px-10 lg:pb-3 lg:pt-2">
         <DemoBackground />
 
-        <div className="relative mx-auto max-w-[1450px] overflow-visible py-1 lg:py-2">
+        <div className="relative mx-auto max-w-[1450px] overflow-visible">
           <div className="grid items-start gap-6 overflow-visible lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-14">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
@@ -141,7 +141,7 @@ function DemoPage() {
               showCta={pageView === "gate" || pageView === "demo"}
             />
 
-            <div className="flex justify-center overflow-visible pt-3 lg:justify-end lg:pt-5">
+            <div className="flex justify-center overflow-visible pt-1 lg:justify-end lg:pt-2">
               {pageView === "form" ? (
                 <DemoBrowserCard>
                   <h2 className="text-center text-xl font-bold text-[#18222f]">
