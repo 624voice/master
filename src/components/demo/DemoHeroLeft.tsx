@@ -87,7 +87,7 @@ export function DemoHeroLeft({
             </svg>
           </button>
           <p className="mt-3 text-sm text-[#94A3B8] sm:text-base">
-            Experience Jessica in your browser
+            Talk with Jessica in your browser
           </p>
         </div>
       )}

@@ -154,13 +154,13 @@ export function DemoJessicaInterface({
       </div>
 
       <div className="mt-8 w-full border-t border-slate-200 pt-6">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
+        <div className="flex flex-wrap items-start justify-center gap-x-10 gap-y-4 sm:gap-x-14">
           <div className="flex items-start gap-3">
             <UserIcon />
             <p className="text-sm leading-snug text-[#18222f]">
-              1 live demo
+              1 call
               <br />
-              per visitor
+              per customer
             </p>
           </div>
           <div className="flex items-start gap-3">
