@@ -6,7 +6,7 @@ type DemoBrowserCardProps = {
 };
 
 /** Uniform card scale — shrinks rendered + layout size without changing CSS token sizes. */
-const CARD_SCALE = 0.86;
+const CARD_SCALE = 0.84;
 
 export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardProps) {
   return (
@@ -15,11 +15,11 @@ export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardPro
       style={{ maxWidth: `${740 * CARD_SCALE}px` }}
     >
       <div
-        className="relative w-full max-w-[740px] origin-top overflow-visible lg:origin-top-right"
+        className="relative w-full max-w-[740px] overflow-visible pt-1"
         style={{ zoom: CARD_SCALE }}
       >
         <div
-          className="pointer-events-none absolute -inset-4 rounded-[28px] bg-[#10b981]/20 blur-3xl motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
+          className="pointer-events-none absolute inset-0 rounded-[28px] bg-[#10b981]/20 blur-2xl motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
           aria-hidden="true"
         />
         <div className="relative overflow-hidden rounded-[22px] border border-slate-200/80 bg-[#F8FAFC] shadow-[0_28px_80px_-20px_rgba(0,0,0,0.45)]">
