@@ -61,7 +61,7 @@ export function DemoJessicaInterface({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative flex h-[168px] w-[168px] items-center justify-center sm:h-[180px] sm:w-[180px]">
+      <div className="relative aspect-square w-[85%] max-w-[340px]">
         <div
           className="absolute inset-0 rounded-full bg-[#10b981]/15 blur-md"
           aria-hidden="true"
@@ -73,7 +73,7 @@ export function DemoJessicaInterface({
         />
       </div>
 
-      <h2 className="mt-6 text-[2.35rem] font-bold leading-none text-[#18222f]">Jessica</h2>
+      <h2 className="mt-5 text-[2.35rem] font-bold leading-none text-[#18222f]">Jessica</h2>
       <p className="mt-2 text-sm font-semibold tracking-[0.2em] text-[#10b981]">
         AI VOICE AGENT
       </p>
