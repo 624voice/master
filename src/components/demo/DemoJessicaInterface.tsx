@@ -61,15 +61,15 @@ export function DemoJessicaInterface({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative">
+      <div className="relative flex h-[168px] w-[168px] items-center justify-center sm:h-[180px] sm:w-[180px]">
         <div
-          className="absolute -inset-3 rounded-full bg-[#10b981]/20 blur-md"
+          className="absolute inset-0 rounded-full bg-[#10b981]/15 blur-md"
           aria-hidden="true"
         />
         <img
           src="/jessica-avatar.png"
           alt="Jessica, AI voice agent"
-          className="relative h-[160px] w-[160px] rounded-full object-cover object-center shadow-lg ring-2 ring-[#10b981]/20 sm:h-[172px] sm:w-[172px]"
+          className="relative h-full w-full object-contain drop-shadow-md"
         />
       </div>
 
