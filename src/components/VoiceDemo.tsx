@@ -181,27 +181,23 @@ export function VoiceDemo({
 
   if (phase === "idle") {
     return (
-      <div className="flex flex-col items-center">
-        <JessicaPreview
-          interactive
-          onMicClick={() => void startCall()}
-          statusLabel="Ready when you are"
-        />
-        <button
-          type="button"
-          onClick={() => void startCall()}
-          className={`mt-6 ${primaryButtonClassName}`}
-        >
-          Start conversation
-        </button>
-      </div>
+      <JessicaPreview
+        interactive
+        onMicClick={() => void startCall()}
+        micLabel="Tap mic to talk with Jessica"
+      />
     );
   }
 
   if (phase === "connecting") {
     return (
-      <div className="flex flex-col items-center gap-4 py-6 text-center">
-        <JessicaPreview listening statusLabel="Connecting…" />
+      <div className="flex flex-col items-center gap-4 text-center">
+        <JessicaPreview
+          active
+          interactive
+          micDisabled
+          micLabel="Connecting…"
+        />
         <div
           className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
           aria-hidden="true"
@@ -216,11 +212,12 @@ export function VoiceDemo({
 
   if (phase === "live") {
     return (
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-5 text-center">
         <JessicaPreview
-          listening={!isSpeaking}
-          speaking={isSpeaking}
-          statusLabel="You can speak now"
+          active={isSpeaking}
+          interactive
+          micDisabled
+          micLabel={isSpeaking ? "Jessica is speaking…" : "You're live"}
         />
         <p className="font-mono text-sm text-brand-primary">
           {formatElapsed(elapsed)} / {formatElapsed(DEMO_MAX_CALL_SECONDS)}
@@ -228,7 +225,7 @@ export function VoiceDemo({
         <button
           type="button"
           onClick={() => void stopCall()}
-          className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+          className="w-full max-w-xs rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
         >
           End call
         </button>
@@ -238,7 +235,7 @@ export function VoiceDemo({
 
   if (phase === "ended") {
     return (
-      <div className="space-y-4 py-4 text-center">
+      <div className="space-y-4 py-2 text-center">
         <p className="text-base font-semibold text-brand-primary">
           Thanks for trying the demo!
         </p>
@@ -257,7 +254,7 @@ export function VoiceDemo({
   }
 
   return (
-    <div className="space-y-4 py-4 text-center">
+    <div className="space-y-4 py-2 text-center">
       <p className="text-sm text-red-600" role="alert">
         {error}
       </p>
