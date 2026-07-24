@@ -6,11 +6,9 @@ export function DemoHowToStart({ variant }: DemoHowToStartProps) {
   if (variant === "demo") {
     return (
       <p className="mb-4 text-center text-sm leading-relaxed text-gray-600">
-        Click{" "}
-        <span className="font-semibold text-brand-secondary">
-          Start conversation
-        </span>{" "}
-        and allow microphone access when prompted.
+        Tap the{" "}
+        <span className="font-semibold text-brand-secondary">microphone</span>{" "}
+        and allow access when your browser prompts you.
       </p>
     );
   }

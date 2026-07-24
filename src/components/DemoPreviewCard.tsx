@@ -10,15 +10,18 @@ export function DemoPreviewCard({
   className = "",
 }: DemoPreviewCardProps) {
   return (
-    <div
-      className={`overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-2xl shadow-black/20 ${className}`}
-    >
-      <div className="flex items-center gap-2 border-b border-gray-100 bg-gray-50 px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-red-400/90" />
-        <span className="h-3 w-3 rounded-full bg-amber-400/90" />
-        <span className="h-3 w-3 rounded-full bg-emerald-400/90" />
+    <div className={`relative mx-auto w-full max-w-lg ${className}`}>
+      <div
+        className="pointer-events-none absolute -inset-3 rounded-3xl bg-brand-primary/15 blur-2xl sm:-inset-4"
+        aria-hidden="true"
+      />
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 bg-white p-6 shadow-2xl shadow-emerald-950/30 sm:p-8">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-emerald-50/80 to-transparent"
+          aria-hidden="true"
+        />
+        <div className="relative">{children}</div>
       </div>
-      <div className="p-5 sm:p-6">{children}</div>
     </div>
   );
 }
