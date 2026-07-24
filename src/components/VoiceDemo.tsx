@@ -162,16 +162,12 @@ export function VoiceDemo({
           email: lead.email,
           phone: lead.phone,
           website: lead.website,
-          trade: lead.trade,
-          fleetSize: lead.fleetSize,
-          message: lead.message,
           smsConsent: lead.smsConsent,
           source: "voice_demo",
         },
         variableValues: {
           firstName: lead.firstName,
           businessName: lead.businessName,
-          trade: lead.trade,
         },
       });
     } catch (err) {
@@ -187,13 +183,13 @@ export function VoiceDemo({
   }, [clearTimers, lead, onDemoLimitReached, stopCall]);
 
   return (
-    <div className="flex w-full flex-col items-center gap-5 text-center">
-      <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-medium text-emerald-300">
+    <div className="flex w-full flex-col items-center gap-3 text-center">
+      <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300 sm:text-sm">
         Hear the difference yourself
       </span>
 
       <div
-        className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm ${
+        className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm sm:h-16 sm:w-16 ${
           phase === "live" && isSpeaking ? "animate-pulse ring-2 ring-brand-primary" : ""
         }`}
       >
