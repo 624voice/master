@@ -6,7 +6,7 @@ import {
   getVapiPublicKey,
   isVapiDemoConfigured,
 } from "~/config/vapi";
-import { DemoJessicaHeading } from "~/components/DemoJessicaHeading";
+import { JessicaPreview } from "~/components/JessicaPreview";
 import type { DemoLead } from "~/server/submitDemoLead";
 import {
   checkDemoEligibility,
@@ -26,10 +26,7 @@ type VoiceDemoProps = {
 };
 
 const primaryButtonClassName =
-  "w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60";
-
-const secondaryButtonClassName =
-  "block w-full rounded-lg border border-white/25 bg-white/5 px-8 py-3.5 text-center text-base font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline";
+  "w-full rounded-lg bg-brand-primary px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60";
 
 function formatElapsed(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -182,106 +179,98 @@ export function VoiceDemo({
     }
   }, [clearTimers, lead, onDemoLimitReached, stopCall]);
 
-  return (
-    <div className="flex w-full flex-col items-center gap-3 text-center">
-      <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300 sm:text-sm">
-        Hear the difference yourself
-      </span>
-
-      <div
-        className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm sm:h-16 sm:w-16 ${
-          phase === "live" && isSpeaking ? "animate-pulse ring-2 ring-brand-primary" : ""
-        }`}
-      >
-        <img src="/logo.png" alt="624 Voice" className="h-10 w-10 opacity-90" />
+  if (phase === "idle") {
+    return (
+      <div className="flex flex-col items-center">
+        <JessicaPreview
+          interactive
+          onMicClick={() => void startCall()}
+          statusLabel="Ready when you are"
+        />
+        <button
+          type="button"
+          onClick={() => void startCall()}
+          className={`mt-6 ${primaryButtonClassName}`}
+        >
+          Start conversation
+        </button>
       </div>
+    );
+  }
 
-      <DemoJessicaHeading />
+  if (phase === "connecting") {
+    return (
+      <div className="flex flex-col items-center gap-4 py-6 text-center">
+        <JessicaPreview listening statusLabel="Connecting…" />
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
+          aria-hidden="true"
+        />
+        <p className="text-sm text-gray-600">Connecting…</p>
+        <p className="text-xs text-gray-500">
+          Allow microphone access if your browser prompts you.
+        </p>
+      </div>
+    );
+  }
 
-      {phase === "idle" && (
-        <>
-          <button
-            type="button"
-            onClick={() => void startCall()}
-            className={primaryButtonClassName}
-          >
-            Start conversation
-          </button>
-          <p className="text-sm text-gray-400">1 call per visitor</p>
-        </>
-      )}
+  if (phase === "live") {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <JessicaPreview
+          listening={!isSpeaking}
+          speaking={isSpeaking}
+          statusLabel="You can speak now"
+        />
+        <p className="font-mono text-sm text-brand-primary">
+          {formatElapsed(elapsed)} / {formatElapsed(DEMO_MAX_CALL_SECONDS)}
+        </p>
+        <button
+          type="button"
+          onClick={() => void stopCall()}
+          className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+        >
+          End call
+        </button>
+      </div>
+    );
+  }
 
-      {phase === "connecting" && (
-        <div className="flex flex-col items-center gap-3">
-          <div
-            className="h-8 w-8 animate-spin rounded-full border-2 border-brand-primary border-t-transparent"
-            aria-hidden="true"
-          />
-          <p className="text-sm text-gray-200">Connecting…</p>
-          <p className="text-xs text-gray-400">
-            Allow microphone access if your browser prompts you.
-          </p>
-        </div>
-      )}
+  if (phase === "ended") {
+    return (
+      <div className="space-y-4 py-4 text-center">
+        <p className="text-base font-semibold text-brand-primary">
+          Thanks for trying the demo!
+        </p>
+        <p className="text-sm leading-relaxed text-gray-600">
+          We&apos;ll follow up with a summary. Ready to see this on your phones?
+        </p>
+        <button
+          type="button"
+          onClick={onDemoLimitReached}
+          className={primaryButtonClassName}
+        >
+          Book a meeting
+        </button>
+      </div>
+    );
+  }
 
-      {phase === "live" && (
-        <div className="w-full space-y-4">
-          <p className="text-sm font-medium text-white">
-            {isSpeaking ? "Jessica is speaking…" : "Listening…"}
-          </p>
-          <p className="font-mono text-sm text-brand-primary">
-            {formatElapsed(elapsed)} / {formatElapsed(DEMO_MAX_CALL_SECONDS)}
-          </p>
-          <button
-            type="button"
-            onClick={() => void stopCall()}
-            className="w-full rounded-lg border border-red-400/40 bg-red-500/15 px-4 py-3 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/25"
-          >
-            End call
-          </button>
-        </div>
-      )}
-
-      {phase === "ended" && (
-        <div className="w-full space-y-4">
-          <p className="text-base font-semibold text-brand-primary">
-            Thanks for trying the demo!
-          </p>
-          <p className="text-sm leading-relaxed text-gray-300">
-            We&apos;ll follow up with a summary. Ready to see this on your
-            phones?
-          </p>
-          <button
-            type="button"
-            onClick={onDemoLimitReached}
-            className={primaryButtonClassName}
-          >
-            Book a meeting
-          </button>
-        </div>
-      )}
-
-      {phase === "error" && error && (
-        <div className="w-full space-y-4">
-          <p className="text-sm text-red-300" role="alert">
-            {error}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setPhase("idle");
-              setError(null);
-            }}
-            className={primaryButtonClassName}
-          >
-            Try again
-          </button>
-        </div>
-      )}
-
-      <a href="/contact" className={secondaryButtonClassName}>
-        Want This on Your Phones? →
-      </a>
+  return (
+    <div className="space-y-4 py-4 text-center">
+      <p className="text-sm text-red-600" role="alert">
+        {error}
+      </p>
+      <button
+        type="button"
+        onClick={() => {
+          setPhase("idle");
+          setError(null);
+        }}
+        className={primaryButtonClassName}
+      >
+        Try again
+      </button>
     </div>
   );
 }
