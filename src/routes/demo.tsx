@@ -1,40 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
-import { DemoHowToStart } from "~/components/DemoHowToStart";
-import { JessicaCapabilities } from "~/components/DemoJessicaHeading";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
-import { DemoPageBackground } from "~/components/DemoPageBackground";
-import { DemoPreviewCard } from "~/components/DemoPreviewCard";
-import { JessicaPreview } from "~/components/JessicaPreview";
-import { VoiceDemo } from "~/components/VoiceDemo";
+import { DemoBackground } from "~/components/demo/DemoBackground";
+import { DemoBrowserCard } from "~/components/demo/DemoBrowserCard";
+import { DemoHeroLeft } from "~/components/demo/DemoHeroLeft";
+import { DemoJessicaInterface } from "~/components/demo/DemoJessicaInterface";
+import { useVoiceDemo } from "~/hooks/useVoiceDemo";
 import type { DemoLead } from "~/server/submitDemoLead";
 import { submitDemoLead } from "~/server/submitDemoLead";
 
-type DemoView = "gate" | "form" | "demo" | "limit";
-
-const secondaryButtonClassName =
-  "inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-all hover:border-brand-primary hover:bg-white/10 no-underline";
-
-function MicIcon({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-      />
-    </svg>
-  );
-}
+type PageView = "gate" | "form" | "demo" | "limit";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -45,7 +22,7 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Have a natural conversation with Jessica in your browser. Live AI demo for home services — FAQs, booking, maintenance plans, and confirmations.",
+          "Experience what your customers hear when they call your business. Talk to Jessica, our AI voice agent, live in your browser.",
       },
     ],
   }),
@@ -63,7 +40,25 @@ function DemoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<DemoLead | null>(null);
-  const [view, setView] = useState<DemoView>("gate");
+  const [pageView, setPageView] = useState<PageView>("gate");
+
+  const voiceDemo = useVoiceDemo({
+    lead,
+    onDemoLimitReached: () => setPageView("limit"),
+  });
+
+  const handleStartDemo = useCallback(() => {
+    if (pageView === "limit" || voiceDemo.isBusy) return;
+
+    if (pageView === "gate") {
+      setPageView("form");
+      return;
+    }
+
+    if (pageView === "demo" && lead) {
+      void voiceDemo.startCall();
+    }
+  }, [lead, pageView, voiceDemo.isBusy, voiceDemo.startCall]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -83,12 +78,13 @@ function DemoPage() {
         },
       });
       if (result.demoAlreadyUsed) {
-        setView("limit");
+        setPageView("limit");
         return;
       }
 
       setLead(result.lead);
-      setView("demo");
+      voiceDemo.reset();
+      setPageView("demo");
     } catch (err) {
       setError(
         err instanceof Error
@@ -121,97 +117,70 @@ function DemoPage() {
     onClearError: () => setError(null),
   };
 
+  const startDisabled =
+    voiceDemo.isBusy || pageView === "limit" || pageView === "form";
+
+  const cardCallState =
+    pageView === "gate" ? ("idle" as const) : voiceDemo.callState;
+
+  const cardStatusText =
+    pageView === "gate"
+      ? "Tap to talk with Jessica"
+      : voiceDemo.statusText;
+
   return (
-    <main className="pt-20">
-      <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col overflow-hidden bg-brand-secondary px-4 py-4 sm:px-6 sm:py-6">
-        <DemoPageBackground />
+    <main className="bg-[#152233]">
+      <section className="relative min-h-[calc(100dvh-5.5rem)] overflow-hidden px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+        <DemoBackground />
 
-        <div className="relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-6 lg:grid-cols-2 lg:gap-10">
-          <div className="text-center lg:text-left">
-            <img
-              src="/logo.png"
-              alt="624 Voice"
-              className="mx-auto mb-4 h-10 w-10 lg:mx-0"
+        <div className="relative mx-auto flex min-h-[calc(100dvh-8rem)] max-w-[1450px] flex-col justify-center">
+          <div className="grid items-center gap-10 lg:grid-cols-[44%_56%] lg:gap-16 xl:gap-20">
+            <DemoHeroLeft
+              onStartDemo={handleStartDemo}
+              startDisabled={startDisabled}
+              showCta={pageView === "gate" || pageView === "demo"}
             />
-            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Talk to{" "}
-              <span className="text-brand-primary">Jessica</span>
-            </h1>
-            <p className="mt-1 text-lg font-extrabold tracking-tight text-brand-primary sm:text-xl lg:text-2xl">
-              Live AI Demo
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-gray-300 sm:text-base">
-              Hear exactly what your callers could experience — 24/7/365, on the
-              first ring.
-            </p>
-            <JessicaCapabilities className="mt-3 text-sm text-gray-300 sm:text-base" />
 
-            {view === "gate" && (
-              <div className="mt-6 flex flex-col items-center lg:items-start">
-                <button
-                  type="button"
-                  onClick={() => setView("form")}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/40"
-                >
-                  <MicIcon />
-                  Start Demo
-                </button>
-              </div>
-            )}
-
-            <p className="mt-4 text-xs text-gray-400 sm:text-sm">
-              1 call per visitor
-            </p>
-            <a href="/contact" className={`mt-3 ${secondaryButtonClassName}`}>
-              Want This on Your Phones? →
-            </a>
-          </div>
-
-          <div className="flex items-center justify-center lg:justify-end">
-            {view === "gate" && (
-              <DemoPreviewCard>
-                <JessicaPreview
-                  interactive
-                  onMicClick={() => setView("form")}
-                  micLabel="Tap mic to start demo"
-                />
-              </DemoPreviewCard>
-            )}
-
-            {view === "form" && (
-              <DemoPreviewCard>
-                <h2 className="text-center text-lg font-bold text-brand-secondary sm:text-xl">
-                  Before you start
-                </h2>
-                <DemoHowToStart variant="form" />
-                <div className="mt-4">
-                  <DemoLeadForm {...formProps} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setView("gate")}
-                  className="mt-4 w-full text-center text-xs font-semibold text-gray-500 hover:text-brand-primary"
-                >
-                  ← Back
-                </button>
-              </DemoPreviewCard>
-            )}
-
-            {view === "demo" && lead && (
-              <DemoPreviewCard>
-                <DemoHowToStart variant="demo" />
-                <VoiceDemo
-                  lead={lead}
-                  onDemoLimitReached={() => setView("limit")}
-                />
-              </DemoPreviewCard>
-            )}
-
-            {view === "limit" && (
-              <DemoPreviewCard>
-                <DemoLimitPanel compact />
-              </DemoPreviewCard>
-            )}
+            <div className="flex justify-center lg:justify-end">
+              {pageView === "form" ? (
+                <DemoBrowserCard>
+                  <h2 className="text-center text-xl font-bold text-[#18222f]">
+                    Before you start
+                  </h2>
+                  <p className="mt-2 text-center text-sm text-[#94A3B8]">
+                    A few quick details, then you&apos;ll connect live with Jessica.
+                  </p>
+                  <div className="mt-5">
+                    <DemoLeadForm {...formProps} />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPageView("gate")}
+                    className="mt-4 w-full text-center text-sm font-medium text-[#94A3B8] hover:text-[#10b981]"
+                  >
+                    ← Back
+                  </button>
+                </DemoBrowserCard>
+              ) : pageView === "limit" ? (
+                <DemoBrowserCard>
+                  <DemoLimitPanel compact />
+                </DemoBrowserCard>
+              ) : (
+                <DemoBrowserCard>
+                  <DemoJessicaInterface
+                    callState={cardCallState}
+                    statusText={cardStatusText}
+                    onMicClick={handleStartDemo}
+                    onEndCall={() => void voiceDemo.stopCall()}
+                    onTryAgain={voiceDemo.reset}
+                    onBookMeeting={() => setPageView("limit")}
+                    micDisabled={startDisabled}
+                    elapsed={voiceDemo.elapsed}
+                    maxSeconds={voiceDemo.maxSeconds}
+                  />
+                </DemoBrowserCard>
+              )}
+            </div>
           </div>
         </div>
       </section>

@@ -3,6 +3,7 @@ import {
   Outlet,
   Scripts,
   createRootRoute,
+  useRouterState,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
@@ -68,56 +69,65 @@ function RootDocument({ children }: { children: ReactNode }) {
 }
 
 function Nav() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const isDemoPage = pathname === "/demo";
+
+  const linkClassName = isDemoPage
+    ? "text-sm font-medium text-white/80 transition-colors hover:text-[#10b981]"
+    : "text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary";
+
+  const demoLinkClassName = isDemoPage
+    ? "relative text-sm font-semibold text-[#10b981] after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-[#10b981] after:content-['']"
+    : linkClassName;
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-100/80 bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <header
+      className={
+        isDemoPage
+          ? "fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#152233]/95 backdrop-blur-md"
+          : "fixed top-0 left-0 right-0 z-50 border-b border-gray-100/80 bg-white/95 backdrop-blur-md"
+      }
+    >
+      <div className="mx-auto flex max-w-[1450px] items-center justify-between px-6 py-5 lg:px-10">
         <a href="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="624 Voice" className="h-9 w-9" />
-          <span className="text-lg font-bold text-brand-secondary">
+          <span
+            className={`text-lg font-bold ${
+              isDemoPage ? "text-white" : "text-brand-secondary"
+            }`}
+          >
             624 <span className="text-brand-primary">Voice</span>
           </span>
         </a>
         <nav className="hidden items-center gap-8 md:flex">
-          <a
-            href="/"
-            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
-          >
+          <a href="/" className={linkClassName}>
             Home
           </a>
-          <a
-            href="/about"
-            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
-          >
+          <a href="/about" className={linkClassName}>
             About
           </a>
-          <a
-            href="/services"
-            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
-          >
+          <a href="/services" className={linkClassName}>
             Services
           </a>
-          <a
-            href="/roi-calculator"
-            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
-          >
+          <a href="/roi-calculator" className={linkClassName}>
             See What You&apos;re Missing
           </a>
-          <a
-            href="/demo"
-            className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary"
-          >
+          <a href="/demo" className={demoLinkClassName}>
             Live Demo
           </a>
           <a
             href="/contact"
-            className="rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
+            className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
           >
             Get Started
           </a>
         </nav>
-        {/* Mobile menu button */}
         <details className="group md:hidden">
-          <summary className="flex cursor-pointer list-none items-center gap-2 text-gray-600">
+          <summary
+            className={`flex cursor-pointer list-none items-center gap-2 ${
+              isDemoPage ? "text-white/80" : "text-gray-600"
+            }`}
+          >
             <svg
               className="h-6 w-6"
               fill="none"
@@ -140,41 +150,32 @@ function Nav() {
               />
             </svg>
           </summary>
-          <div className="absolute left-0 right-0 top-full border-b border-gray-100 bg-white px-6 pb-6 pt-4 shadow-lg">
+          <div
+            className={`absolute left-0 right-0 top-full border-b px-6 pb-6 pt-4 shadow-lg ${
+              isDemoPage
+                ? "border-white/10 bg-[#152233]"
+                : "border-gray-100 bg-white"
+            }`}
+          >
             <div className="flex flex-col gap-4">
-              <a
-                href="/"
-                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
-              >
+              <a href="/" className={linkClassName}>
                 Home
               </a>
-              <a
-                href="/about"
-                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
-              >
+              <a href="/about" className={linkClassName}>
                 About
               </a>
-              <a
-                href="/services"
-                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
-              >
+              <a href="/services" className={linkClassName}>
                 Services
               </a>
-              <a
-                href="/roi-calculator"
-                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
-              >
+              <a href="/roi-calculator" className={linkClassName}>
                 See What You&apos;re Missing
               </a>
-              <a
-                href="/demo"
-                className="text-sm font-medium text-gray-600 hover:text-brand-primary"
-              >
+              <a href="/demo" className={demoLinkClassName}>
                 Live Demo
               </a>
               <a
                 href="/contact"
-                className="rounded-lg bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
               >
                 Get Started
               </a>
