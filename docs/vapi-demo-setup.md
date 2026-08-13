@@ -23,7 +23,9 @@ Redeploy production after saving env vars.
    ```
    https://www.624voice.com/api/vapi/webhook
    ```
-3. Ensure **end-of-call-report** is enabled in server messages for the assistant.
+3. **End-of-call-report** — Vapi includes this in server messages **by default** once a Server URL is set. You do not need a separate toggle if you have not customized server messages.
+   - If you want to confirm in the dashboard: open the Jessica assistant → **Advanced** tab → scroll to **Messaging** → **Server messages** → ensure `end-of-call-report` is checked (may appear as “End Call Report”).
+   - Our `/demo` call also passes `serverMessages: ["end-of-call-report"]` in code so transcripts are sent even if the dashboard list was changed.
 4. Set max call duration to **6 minutes** in the assistant settings (backup to the client override).
 
 ## Google Sheet / Apps Script
