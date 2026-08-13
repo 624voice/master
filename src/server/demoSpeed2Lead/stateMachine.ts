@@ -1,5 +1,8 @@
 import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
-import { shouldSendCalendarNow } from "~/server/speed2Lead/naturalLanguage";
+import {
+  shouldSendCalendarNow,
+  type PainCategory,
+} from "~/server/speed2Lead/naturalLanguage";
 import * as messages from "~/server/demoSpeed2Lead/messages";
 import type { DemoConversationContext, DemoConversationState } from "~/server/demoSpeed2Lead/types";
 
@@ -136,8 +139,17 @@ function handleFitResponse(
   context: DemoConversationContext,
   inboundText: string,
 ): TransitionResult {
-  const ctx = withInbound(context, inboundText, cancelFollowUps());
   const signals = getSignals(inboundText);
+
+  if (signals.identityQuestion) {
+    return {
+      context,
+      reply: messages.identityAnswerMessage(context),
+    };
+  }
+
+  const ctx = withInbound(context, inboundText, cancelFollowUps());
+  const ctxSignals = { lastCustomerMessage: context.lastCustomerMessage };
 
   if (signals.demoError || signals.negativeReaction) {
     if (signals.demoError) {
@@ -152,11 +164,13 @@ function handleFitResponse(
     };
   }
 
-  if (
-    shouldSendCalendarNow(signals) ||
-    signals.positiveReaction === "strong" ||
-    signals.scheduleReady
-  ) {
+  if (signals.explicitMeetingReady) {
+    return complete(ctx, messages.shortMeetingReadyMessage(ctx), {
+      bookingLinkSent: true,
+    });
+  }
+
+  if (shouldSendCalendarNow(signals, ctxSignals) || signals.positiveReaction === "strong") {
     return complete(ctx, messages.strongPositiveCalendarMessage(ctx), {
       bookingLinkSent: true,
     });
@@ -173,6 +187,7 @@ function handleFitResponse(
     signals.fitResponse === "yes" ||
     signals.fitResponse === "probably" ||
     signals.fitResponse === "maybe" ||
+    signals.mildPositiveInterest ||
     signals.positiveReaction === "mild" ||
     signals.yes
   ) {
@@ -383,9 +398,11 @@ export function advanceDemoConversation(
           reply: messages.justTestingPartQuestion(workingContext),
         };
       }
-      return complete(withInbound(workingContext, inboundText), messages.justTestingNoMessage(), {
-        customerDeclined: true,
-      });
+      return complete(
+        withInbound(workingContext, inboundText),
+        messages.justTestingNoMessage(withInbound(workingContext, inboundText)),
+        { customerDeclined: true },
+      );
     }
 
     case "awaiting_just_testing_part":

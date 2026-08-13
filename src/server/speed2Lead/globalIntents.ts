@@ -32,7 +32,7 @@ export function classifyGlobalIntent(rawText: string): GlobalIntent {
   if (signals.meetingBooked) {
     return "meeting_booked";
   }
-  if (signals.scheduleReady || signals.buyingSignal) {
+  if (signals.explicitMeetingReady) {
     return "schedule_ready";
   }
   if (signals.priceQuestion) {

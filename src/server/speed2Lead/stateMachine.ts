@@ -1,6 +1,7 @@
 import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
 import * as messages from "~/server/speed2Lead/messages";
 import {
+  shouldAskPersonalizationQuestion,
   shouldSendCalendarNow,
   type PainCategory,
 } from "~/server/speed2Lead/naturalLanguage";
@@ -54,6 +55,13 @@ function complete(
   };
 }
 
+function contextSignals(context: ConversationContext) {
+  return {
+    detectedPains: context.detectedPains,
+    lastCustomerMessage: context.lastCustomerMessage,
+  };
+}
+
 function handleGlobalIntents(
   context: ConversationContext,
   inboundText: string,
@@ -69,10 +77,7 @@ function handleGlobalIntents(
     case "price":
       return complete(context, messages.priceMessage(context));
     case "tell_me_more":
-      return {
-        context: withState(context, "awaiting_faq_followup"),
-        reply: messages.faqMessage(context),
-      };
+      return complete(context, messages.faqMessage(context));
     case "request_report":
       return {
         context: withState(context, "awaiting_report_assumptions"),
@@ -98,30 +103,33 @@ function handleGlobalIntents(
   }
 }
 
-function handleDirectOpeningReply(
-  context: ConversationContext,
-  inboundText: string,
-): TransitionResult {
-  const global = handleGlobalIntents(context, inboundText);
-  if (global) {
-    return global;
-  }
-
-  const ctx = withInbound(context, inboundText);
-  return complete(ctx, messages.scheduleYesMessage(ctx));
-}
-
 function handleProblemResponse(
   context: ConversationContext,
   inboundText: string,
 ): TransitionResult {
-  const ctx = withInbound(context, inboundText);
   const signals = getSignals(inboundText);
 
-  if (shouldSendCalendarNow(signals)) {
+  if (signals.identityQuestion) {
+    return {
+      context,
+      reply: messages.identityAnswerMessage(context),
+    };
+  }
+
+  const ctx = withInbound(context, inboundText);
+  const ctxSignals = contextSignals(ctx);
+
+  if (shouldSendCalendarNow(signals, ctxSignals)) {
     return complete(ctx, messages.urgentCalendarMessage(ctx), {
-      detectedPains: signals.pains,
+      detectedPains: signals.pains.length > 0 ? signals.pains : ctx.detectedPains,
     });
+  }
+
+  if (shouldAskPersonalizationQuestion(signals, ctxSignals)) {
+    return {
+      context: withState(ctx, "awaiting_priority"),
+      reply: messages.personalizeQuestion(ctx),
+    };
   }
 
   if (signals.pains.length > 0) {
@@ -147,18 +155,16 @@ function handlePriorityResponse(
 ): TransitionResult {
   const ctx = withInbound(context, inboundText);
   const signals = getSignals(inboundText);
+  const mergedPains = signals.pains.length > 0 ? signals.pains : ctx.detectedPains;
 
-  if (shouldSendCalendarNow(signals)) {
-    return complete(ctx, messages.urgentCalendarMessage(ctx));
+  if (shouldSendCalendarNow(signals, { ...contextSignals(ctx), detectedPains: mergedPains })) {
+    return complete(ctx, messages.urgentCalendarMessage(ctx), { detectedPains: mergedPains });
   }
 
-  return complete(ctx, messages.calendarMessage(ctx));
+  return complete(ctx, messages.calendarMessage(ctx), { detectedPains: mergedPains });
 }
 
 function migrateLegacyState(state: string): ConversationState {
-  if (state.startsWith("awaiting_") && state !== "awaiting_problem") {
-    return "awaiting_problem";
-  }
   return "awaiting_problem";
 }
 
@@ -182,9 +188,6 @@ export function advanceConversation(
 
   switch (workingContext.state) {
     case "awaiting_problem":
-      if (workingContext.directOpening) {
-        return handleDirectOpeningReply(workingContext, inboundText);
-      }
       return handleProblemResponse(workingContext, inboundText);
 
     case "awaiting_priority":

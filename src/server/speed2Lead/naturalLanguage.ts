@@ -20,7 +20,8 @@ export type MessageSignals = {
   pains: PainCategory[];
   urgency: UrgencyLevel;
   meetingReadiness: MeetingReadiness;
-  buyingSignal: boolean;
+  explicitMeetingReady: boolean;
+  mildPositiveInterest: boolean;
   positiveReaction: PositiveReaction;
   negativeReaction: boolean;
   objection: boolean;
@@ -28,7 +29,7 @@ export type MessageSignals = {
   tellMeMore: boolean;
   priceQuestion: boolean;
   faqQuestion: boolean;
-  scheduleReady: boolean;
+  identityQuestion: boolean;
   meetingBooked: boolean;
   stop: boolean;
   decline: boolean;
@@ -50,17 +51,18 @@ export type MessageSignals = {
   hasSubstance: boolean;
 };
 
+export type ConversationContextSignals = {
+  detectedPains?: PainCategory[];
+  lastCustomerMessage?: string;
+  priorContextMessage?: string;
+};
+
 export function normalize(text: string): string {
   return text.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 export function includesAny(text: string, phrases: string[]): boolean {
   return phrases.some((phrase) => text.includes(phrase));
-}
-
-function matchesWord(text: string, word: string): boolean {
-  const pattern = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
-  return pattern.test(text);
 }
 
 function tokenize(text: string): string[] {
@@ -211,41 +213,46 @@ const URGENCY_MEDIUM_PHRASES = [
   "really need",
 ];
 
-const MEETING_READY_PHRASES = [
+const EXPLICIT_MEETING_READY_PHRASES = [
   "let's talk",
   "lets talk",
   "can we talk",
   "want to talk",
-  "schedule",
+  "call me",
+  "send me the link",
+  "send the link",
+  "how do we get started",
+  "get started",
+  "i want this",
+  "i need this",
+  "we need this",
+  "this would solve",
   "book a time",
   "book a call",
   "set up a call",
   "grab a time",
   "when can we",
-  "how do we get started",
-  "get started",
-  "sign up",
-  "i need this",
-  "we need this",
+  "sign me up",
   "ready to move forward",
   "move forward",
   "yes let's talk",
+  "schedule a call",
+  "schedule a time",
 ];
 
-const BUYING_SIGNAL_PHRASES = [
+const MILD_POSITIVE_PHRASES = [
   "interested",
   "sounds good",
-  "i need this",
-  "we need this",
-  "this would help",
-  "would help us",
-  "want this",
-  "need this",
-  "let's do it",
-  "lets do it",
-  "how do we get started",
-  "get started",
-  "sign me up",
+  "pretty cool",
+  "interesting",
+  "i like it",
+  "that's cool",
+  "thats cool",
+  "nice",
+  "good demo",
+  "not bad",
+  "kind of cool",
+  "kinda cool",
 ];
 
 const STRONG_POSITIVE_PHRASES = [
@@ -255,21 +262,8 @@ const STRONG_POSITIVE_PHRASES = [
   "amazing",
   "incredible",
   "blown away",
-  "this would help",
-  "i need this",
-  "we need this",
-];
-
-const MILD_POSITIVE_PHRASES = [
-  "pretty cool",
-  "interesting",
-  "not bad",
-  "kind of cool",
-  "kinda cool",
-  "that's cool",
-  "thats cool",
-  "nice",
-  "good demo",
+  "this would help us",
+  "would help us",
 ];
 
 const NEGATIVE_PHRASES = [
@@ -399,11 +393,26 @@ function detectFitResponse(text: string): FitResponse {
   return "unknown";
 }
 
-function detectPositiveReaction(text: string): PositiveReaction {
-  if (includesAny(text, STRONG_POSITIVE_PHRASES) || includesAny(text, BUYING_SIGNAL_PHRASES)) {
+function detectExplicitMeetingReady(text: string): boolean {
+  return includesAny(text, EXPLICIT_MEETING_READY_PHRASES);
+}
+
+function detectMildPositiveInterest(text: string): boolean {
+  return includesAny(text, MILD_POSITIVE_PHRASES);
+}
+
+function detectPositiveReaction(
+  text: string,
+  explicitMeetingReady: boolean,
+  mildPositiveInterest: boolean,
+): PositiveReaction {
+  if (explicitMeetingReady || includesAny(text, STRONG_POSITIVE_PHRASES)) {
     return "strong";
   }
-  if (includesAny(text, MILD_POSITIVE_PHRASES)) {
+  if (includesAny(text, ["i need this", "i want this", "we need this"])) {
+    return "strong";
+  }
+  if (mildPositiveInterest) {
     return "mild";
   }
   return "none";
@@ -414,9 +423,9 @@ function detectMeetingReadiness(
   pains: PainCategory[],
   urgency: UrgencyLevel,
   positiveReaction: PositiveReaction,
-  buyingSignal: boolean,
+  explicitMeetingReady: boolean,
 ): MeetingReadiness {
-  if (includesAny(text, MEETING_READY_PHRASES) || buyingSignal) {
+  if (explicitMeetingReady) {
     return "high";
   }
   if (positiveReaction === "strong") {
@@ -444,14 +453,19 @@ export function analyzeMessage(rawText: string): MessageSignals {
   const text = normalize(rawText);
   const pains = detectPains(text);
   const urgency = detectUrgency(text);
-  const positiveReaction = detectPositiveReaction(text);
-  const buyingSignal = includesAny(text, BUYING_SIGNAL_PHRASES);
+  const explicitMeetingReady = detectExplicitMeetingReady(text);
+  const mildPositiveInterest = detectMildPositiveInterest(text);
+  const positiveReaction = detectPositiveReaction(
+    text,
+    explicitMeetingReady,
+    mildPositiveInterest,
+  );
   const meetingReadiness = detectMeetingReadiness(
     text,
     pains,
     urgency,
     positiveReaction,
-    buyingSignal,
+    explicitMeetingReady,
   );
 
   const stop = includesAny(text, [
@@ -479,7 +493,8 @@ export function analyzeMessage(rawText: string): MessageSignals {
     pains,
     urgency,
     meetingReadiness,
-    buyingSignal,
+    explicitMeetingReady,
+    mildPositiveInterest,
     positiveReaction,
     negativeReaction: includesAny(text, NEGATIVE_PHRASES),
     objection: includesAny(text, [
@@ -495,9 +510,10 @@ export function analyzeMessage(rawText: string): MessageSignals {
       "tell me more",
       "learn more",
       "how does it work",
+      "how does this work",
+      "how does this actually work",
       "what do you do",
       "what do you guys do",
-      "how does this work",
       "explain",
     ]),
     priceQuestion: includesAny(text, [
@@ -513,7 +529,13 @@ export function analyzeMessage(rawText: string): MessageSignals {
       "what do you guys do",
       "how does this work",
     ]),
-    scheduleReady: includesAny(text, MEETING_READY_PHRASES),
+    identityQuestion: includesAny(text, [
+      "who is this",
+      "who are you",
+      "how did you get my number",
+      "how did you get my info",
+      "why are you texting",
+    ]),
     meetingBooked: includesAny(text, [
       "i booked",
       "i've booked",
@@ -552,21 +574,28 @@ export function analyzeMessage(rawText: string): MessageSignals {
       "send me information",
       "just send information",
       "send information",
+      "send me info",
     ]),
-    answeringService: includesAny(text, ["answering service", "call center"]),
+    answeringService: includesAny(text, [
+      "answering service",
+      "call center",
+      "already have an answering service",
+    ]),
     officeStaff: includesAny(text, [
       "office staff",
       "already have staff",
       "have a team",
-      "my team",
-      "our team",
-      "csr",
-      "receptionist",
+      "my team handles",
+      "our team handles",
+      "receptionist handles",
+      "my receptionist handles",
+      "csr handles",
     ]),
     alreadyUsesAi: includesAny(text, [
       "already use ai",
       "already using ai",
       "we use ai",
+      "we already use ai",
       "have ai",
     ]),
     customization: includesAny(text, [
@@ -594,33 +623,66 @@ export function analyzeMessage(rawText: string): MessageSignals {
       "glitch",
     ]),
     fitResponse: detectFitResponse(text),
-    yes: text === "yes" || text === "yeah" || text === "yep" || text === "sure",
+    yes: text === "yes" || text === "yeah" || text === "yep",
     no: text === "no" || text === "nope",
     vague:
       text.length <= 3 ||
-      includesAny(text, ["idk", "i don't know", "i dont know", "not sure", "unsure", "maybe"]) ||
+      includesAny(text, ["idk", "i don't know", "i dont know", "not sure", "unsure"]) ||
       text === "ok" ||
-      text === "k",
+      text === "k" ||
+      text === "sure",
     hasSubstance: text.length > 12 && !includesAny(text, ["yes", "no", "ok"]),
   };
 }
 
-export function hasMeaningfulRoiValue(annualOpportunity: string): boolean {
-  const numeric = annualOpportunity.replace(/[^0-9.]/g, "");
-  const value = Number.parseFloat(numeric);
-  return Number.isFinite(value) && value > 0;
+export function hasEstablishedContext(context: ConversationContextSignals): boolean {
+  if (context.detectedPains && context.detectedPains.length > 0) {
+    return true;
+  }
+  if (context.priorContextMessage) {
+    const seed = analyzeMessage(context.priorContextMessage);
+    if (seed.pains.length > 0 || seed.hasSubstance) {
+      return true;
+    }
+  }
+  if (context.lastCustomerMessage) {
+    const prior = analyzeMessage(context.lastCustomerMessage);
+    return prior.pains.length > 0 || prior.hasSubstance;
+  }
+  return false;
 }
 
 export function painAndUrgency(signals: MessageSignals): boolean {
   return signals.pains.length > 0 && (signals.urgency === "high" || signals.urgency === "medium");
 }
 
-export function shouldSendCalendarNow(signals: MessageSignals): boolean {
+export function shouldSendCalendarNow(
+  signals: MessageSignals,
+  context: ConversationContextSignals = {},
+): boolean {
+  if (signals.explicitMeetingReady) {
+    return true;
+  }
+  if (signals.positiveReaction === "strong") {
+    return true;
+  }
+  if (signals.pains.length > 0 && signals.urgency === "high") {
+    return true;
+  }
+  if (signals.mildPositiveInterest && hasEstablishedContext(context)) {
+    return true;
+  }
+  return false;
+}
+
+export function shouldAskPersonalizationQuestion(
+  signals: MessageSignals,
+  context: ConversationContextSignals = {},
+): boolean {
   return (
-    signals.meetingReadiness === "high" ||
-    (signals.pains.length > 0 && signals.urgency === "high") ||
-    signals.scheduleReady ||
-    (signals.buyingSignal && signals.positiveReaction !== "none")
+    signals.mildPositiveInterest &&
+    !shouldSendCalendarNow(signals, context) &&
+    !hasEstablishedContext(context)
   );
 }
 
@@ -632,7 +694,7 @@ export function primaryPainLabel(pains: PainCategory[]): string {
     return "faster lead response";
   }
   if (pains.includes("follow_up")) {
-    return "consistent follow-up";
+    return "follow-up";
   }
   if (pains.includes("workload")) {
     return "reducing office workload";

@@ -1,5 +1,6 @@
 import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
 import {
+  shouldAskPersonalizationQuestion,
   shouldSendCalendarNow,
   type PainCategory,
 } from "~/server/speed2Lead/naturalLanguage";
@@ -78,6 +79,14 @@ function includesAfterHoursNeed(text: string): boolean {
   return lower.includes("after hours") || lower.includes("after 5") || lower.includes("phones");
 }
 
+function contextSignals(context: ContactConversationContext) {
+  return {
+    detectedPains: context.detectedPains,
+    lastCustomerMessage: context.lastCustomerMessage,
+    priorContextMessage: context.shortNeedSummary,
+  };
+}
+
 function handleGlobalIntents(
   context: ContactConversationContext,
   inboundText: string,
@@ -126,10 +135,19 @@ function handlePromptResponse(
   context: ContactConversationContext,
   inboundText: string,
 ): TransitionResult {
-  const ctx = withInbound(context, inboundText);
   const signals = getSignals(inboundText);
 
-  if (shouldSendCalendarNow(signals)) {
+  if (signals.identityQuestion) {
+    return {
+      context,
+      reply: messages.identityAnswerMessage(context),
+    };
+  }
+
+  const ctx = withInbound(context, inboundText);
+  const ctxSignals = contextSignals(ctx);
+
+  if (shouldSendCalendarNow(signals, ctxSignals)) {
     if (
       signals.pains.includes("after_hours") ||
       includesAfterHoursNeed(inboundText) ||
@@ -140,6 +158,13 @@ function handlePromptResponse(
       });
     }
     return complete(ctx, messages.calendarMessage(ctx), { detectedPains: signals.pains });
+  }
+
+  if (shouldAskPersonalizationQuestion(signals, ctxSignals)) {
+    return {
+      context: withState(ctx, "awaiting_follow_up", { followUpKind: "general" }),
+      reply: messages.personalizeQuestion(ctx),
+    };
   }
 
   if (signals.notReady || signals.requestInformation || includesAnyLookingForInfo(inboundText)) {
@@ -199,12 +224,18 @@ function handleFollowUpResponse(
   inboundText: string,
 ): TransitionResult {
   const ctx = withInbound(context, inboundText);
+  const signals = getSignals(inboundText);
+  const mergedPains = signals.pains.length > 0 ? signals.pains : ctx.detectedPains;
 
   if (context.followUpKind === "website") {
-    return complete(ctx, messages.websiteCalendarMessage(ctx));
+    return complete(ctx, messages.websiteCalendarMessage(ctx), { detectedPains: mergedPains });
   }
 
-  return complete(ctx, messages.calendarMessage(ctx));
+  if (shouldSendCalendarNow(signals, { ...contextSignals(ctx), detectedPains: mergedPains })) {
+    return complete(ctx, messages.calendarMessage(ctx), { detectedPains: mergedPains });
+  }
+
+  return complete(ctx, messages.calendarMessage(ctx), { detectedPains: mergedPains });
 }
 
 function handleInfoAreaResponse(

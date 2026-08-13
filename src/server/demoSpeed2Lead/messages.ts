@@ -8,6 +8,13 @@ function fill(template: string, context: DemoConversationContext): string {
     .replaceAll("[BOOKING LINK]", context.bookingUrl);
 }
 
+export function identityAnswerMessage(context: DemoConversationContext): string {
+  return fill(
+    "Chris with 624Voice — you just tried the Jessica demo on 624voice.com. Happy to help however is useful.\n\nCould you actually see something like that working inside [BUSINESS NAME]?",
+    context,
+  );
+}
+
 export function initialMessage(context: DemoConversationContext): string {
   return fill(
     `Hey [FIRST NAME], Chris with 624Voice. I saw you just tried Jessica. Curious — could you actually see something like that working inside [BUSINESS NAME]?`,

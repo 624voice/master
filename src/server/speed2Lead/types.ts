@@ -22,7 +22,6 @@ export type ConversationContext = {
   reportUrl: string;
   bookingUrl: string;
   state: ConversationState;
-  directOpening?: boolean;
   detectedPains?: PainCategory[];
   lastCustomerMessage?: string;
   updatedAt: string;

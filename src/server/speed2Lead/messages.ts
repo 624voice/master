@@ -1,5 +1,4 @@
 import type { ConversationContext } from "~/server/speed2Lead/types";
-import { hasMeaningfulRoiValue } from "~/server/speed2Lead/naturalLanguage";
 
 function fill(template: string, context: ConversationContext): string {
   return template
@@ -7,31 +6,33 @@ function fill(template: string, context: ConversationContext): string {
     .replaceAll("[BUSINESS NAME]", context.businessName)
     .replaceAll("[ANNUAL OPPORTUNITY]", context.annualOpportunity)
     .replaceAll("[PRIMARY OPPORTUNITY FROM REPORT]", context.primaryOpportunity)
-    .replaceAll("[LOST REVENUE]", context.annualOpportunity)
     .replaceAll("[BOOKING LINK]", context.bookingUrl)
     .replaceAll("[REPORT LINK]", context.reportUrl);
 }
 
 export function initialMessage(context: ConversationContext): string {
-  if (hasMeaningfulRoiValue(context.annualOpportunity)) {
-    return fill(
-      `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report. The number that jumped out at me was the estimated [LOST REVENUE] in missed revenue. I can walk you through where that number is coming from and the fastest way I'd attack it for [BUSINESS NAME]. Here's my calendar: [BOOKING LINK]`,
-      context,
-    );
-  }
-
   return fill(
     `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report over. Curious — where do you think you're losing the most opportunities today: missed calls, slow response to new leads, or follow-up?`,
     context,
   );
 }
 
-export function usesDirectOpening(context: ConversationContext): boolean {
-  return hasMeaningfulRoiValue(context.annualOpportunity);
+export function identityAnswerMessage(context: ConversationContext): string {
+  return fill(
+    "Chris with 624Voice — you just downloaded your ROI report from 624voice.com. Happy to help however is useful.\n\nWhere do you think you're losing the most opportunities today: missed calls, slow response to new leads, or follow-up?",
+    context,
+  );
 }
 
 export function priorityQuestion(context: ConversationContext): string {
   return "Got it. How much of a priority is fixing that for you right now?";
+}
+
+export function personalizeQuestion(context: ConversationContext): string {
+  return fill(
+    "Got it. What's the biggest leak for [BUSINESS NAME] right now — missed calls, slow lead response, or follow-up?",
+    context,
+  );
 }
 
 export function calendarMessage(context: ConversationContext): string {

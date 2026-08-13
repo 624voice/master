@@ -23,6 +23,20 @@ export function initialMessage(context: ContactConversationContext): string {
   );
 }
 
+export function identityAnswerMessage(context: ContactConversationContext): string {
+  return fill(
+    "Chris with 624Voice — you reached out through our contact form about [SHORT NEED SUMMARY]. Happy to help however is useful.\n\nWhat prompted you to reach out today?",
+    context,
+  );
+}
+
+export function personalizeQuestion(context: ContactConversationContext): string {
+  return fill(
+    "Got it. What would you most want to improve first for [BUSINESS NAME]?",
+    context,
+  );
+}
+
 export function missedCallsFollowUpQuestion(context: ContactConversationContext): string {
   return "Got it. What happens with those calls today — voicemail, answering service, or does someone on your team try to pick them up?";
 }

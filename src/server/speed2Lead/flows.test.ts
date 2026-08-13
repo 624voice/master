@@ -10,7 +10,7 @@ function createContext(
     phone: "+15551234567",
     firstName: "Speed",
     businessName: "Test S2L",
-    annualOpportunity: "$0",
+    annualOpportunity: "$120,000",
     primaryOpportunity: "Missed calls",
     reportUrl: "https://624voice.com/report/test",
     bookingUrl: "https://calendar.app.google/test",
@@ -66,30 +66,28 @@ describe("ROI natural-language flow", () => {
     expect(replies[0]).toContain("calendar.app.google/test");
   });
 
+  test("mild interested asks one question before calendar", () => {
+    const { context, replies } = walkToCompleted(["interested", "missed calls"]);
+
+    expect(context.state).toBe("completed");
+    expect(replies[0]).toContain("biggest leak");
+    expect(replies[1]).toContain("calendar");
+  });
+
   test("price question completes with calendar link", () => {
     const { context, replies } = walkToCompleted(["What does it cost?"]);
     expect(context.state).toBe("completed");
     expect(replies[0]).toContain("Pricing depends");
   });
-
-  test("direct opening reply can resend calendar", () => {
-    const context = createContext({ annualOpportunity: "$120,000", directOpening: true });
-    const result = advanceConversation(context, "Sounds good");
-    expect(result.context.state).toBe("completed");
-    expect(result.reply).toContain("calendar.app.google/test");
-  });
 });
 
 describe("ROI opening message", () => {
-  test("uses question opening when ROI is zero", () => {
+  test("always uses standard question opening", () => {
     expect(messages.initialMessage(createContext())).toContain(
       "where do you think you're losing the most opportunities",
     );
-  });
-
-  test("uses direct calendar opening when ROI is meaningful", () => {
-    expect(
-      messages.initialMessage(createContext({ annualOpportunity: "$120,000" })),
-    ).toContain("estimated $120,000 in missed revenue");
+    expect(messages.initialMessage(createContext({ annualOpportunity: "$1,806,780" }))).not.toContain(
+      "calendar.app.google",
+    );
   });
 });
