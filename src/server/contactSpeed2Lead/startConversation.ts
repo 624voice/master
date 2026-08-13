@@ -63,6 +63,7 @@ export async function startContactSpeed2Lead(input: {
     businessName: input.businessName,
     email: input.email,
     source: "contact",
+    smsConsent: true,
     shortNeedSummary: context.shortNeedSummary,
   });
   await sendConversationSms(phone, initialMessage(context), context);

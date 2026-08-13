@@ -1,37 +1,74 @@
 import { describe, expect, test, mock, beforeEach } from "bun:test";
-import type { LeadIndexEntry, NormalizedCalendarEvent } from "~/server/appointmentLifecycle/types";
+import type {
+  AppointmentLifecycleRecord,
+  LeadIndexEntry,
+  NormalizedCalendarEvent,
+} from "~/server/appointmentLifecycle/types";
+import { leadHasSmsConsent, canSendLifecycleSms } from "~/server/appointmentLifecycle/smsEligibility";
 
-const lifecycleStore = new Map<string, unknown>();
-const leadStore = new Map<string, LeadIndexEntry>();
-const emailIndex = new Map<string, string>();
+const lifecycleStore = new Map<string, AppointmentLifecycleRecord>();
+const leadStore = new Map<string, LeadIndexEntry[]>();
+const activePhone = new Map<string, string>();
 const smsLog: Array<{ phone: string; body: string; type?: string }> = [];
+const optOut = new Set<string>();
 
 mock.module("~/server/appointmentLifecycle/store", () => ({
-  getLifecycleRecord: async (id: string) => lifecycleStore.get(`lifecycle:${id}`) ?? null,
-  saveLifecycleRecord: async (record: { calendarEventId: string }) => {
-    lifecycleStore.set(`lifecycle:${record.calendarEventId}`, record);
+  getLifecycleRecord: async (id: string) => lifecycleStore.get(id) ?? null,
+  saveLifecycleRecord: async (record: AppointmentLifecycleRecord) => {
+    lifecycleStore.set(record.calendarEventId, record);
+    if (record.phone) {
+      if (["cancelled", "completed", "unmatched_booking", "superseded"].includes(record.lifecycleStatus)) {
+        if (activePhone.get(record.phone) === record.calendarEventId) {
+          activePhone.delete(record.phone);
+        }
+      } else {
+        activePhone.set(record.phone, record.calendarEventId);
+      }
+    }
   },
-  getLeadByPhone: async (phone: string) => leadStore.get(phone) ?? null,
+  getLeadsByPhone: async (phone: string) => leadStore.get(phone) ?? [],
   getLeadByEmail: async (email: string) => {
-    const phone = emailIndex.get(email.toLowerCase());
-    return phone ? leadStore.get(phone) ?? null : null;
+    for (const leads of leadStore.values()) {
+      const match = leads.find((l) => l.email?.toLowerCase() === email.toLowerCase());
+      if (match) return match;
+    }
+    return null;
   },
-  findRecentLeadsByName: async (firstName: string, lastName?: string) => {
-    return [...leadStore.values()].filter((l) => {
-      if (l.firstName.toLowerCase() !== firstName.toLowerCase()) return false;
-      if (lastName && l.lastName && l.lastName.toLowerCase() !== lastName.toLowerCase()) return false;
-      return true;
-    });
+  getActiveLifecycleForPhone: async (phone: string) => {
+    const id = activePhone.get(phone);
+    if (!id) return null;
+    const record = lifecycleStore.get(id);
+    if (!record || ["cancelled", "completed", "unmatched_booking", "superseded"].includes(record.lifecycleStatus)) {
+      return null;
+    }
+    return record;
   },
-  saveLeadIndex: async (entry: LeadIndexEntry) => {
-    leadStore.set(entry.phone, entry);
-    if (entry.email) emailIndex.set(entry.email.toLowerCase(), entry.phone);
+  supersedeActiveLifecycle: async (old: AppointmentLifecycleRecord, newEventId: string, opts: { manualCleanupRequired?: boolean }) => {
+    const superseded = {
+      ...old,
+      lifecycleStatus: "superseded" as const,
+      rescheduledToEventId: newEventId,
+      remindersSuppressed: true,
+      manualCleanupRequired: opts.manualCleanupRequired,
+      supersededAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    lifecycleStore.set(old.calendarEventId, superseded);
+    return superseded;
   },
-  getActiveLifecycleForPhone: async () => null,
-  getReminderIndexEventIds: async () => [],
+  getLeadForLifecycle: async (record: AppointmentLifecycleRecord) => {
+    if (record.email) {
+      for (const leads of leadStore.values()) {
+        const match = leads.find((l) => l.email === record.email);
+        if (match) return match;
+      }
+    }
+    const leads = leadStore.get(record.phone ?? "") ?? [];
+    return leads[0] ?? null;
+  },
+  getReminderIndexEventIds: async () => [...lifecycleStore.keys()],
   getSyncCursor: async () => null,
   setSyncCursor: async () => {},
-  markSelfReportedBooking: async () => {},
 }));
 
 mock.module("~/server/appointmentLifecycle/sms", () => ({
@@ -41,7 +78,7 @@ mock.module("~/server/appointmentLifecycle/sms", () => ({
 }));
 
 mock.module("~/server/speed2Lead/session", () => ({
-  isOptedOut: async () => false,
+  isOptedOut: async (phone: string) => optOut.has(phone),
   getSession: async () => null,
   saveSession: async () => {},
   clearSession: async () => {},
@@ -50,14 +87,32 @@ mock.module("~/server/speed2Lead/session", () => ({
 
 mock.module("~/server/demoSpeed2Lead/processFollowUps", () => ({
   removeDemoFollowUp: async () => {},
-  registerDemoFollowUp: async () => {},
+}));
+
+mock.module("~/server/appointmentLifecycle/googleCalendar", () => ({
+  cancelCalendarEvent: async () => false,
+  fetchCalendarEventsUpdatedSince: async () => [],
+  isGoogleCalendarApiConfigured: () => false,
 }));
 
 const { processCalendarEvent } = await import("~/server/appointmentLifecycle/processEvent");
 
-function event(overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCalendarEvent {
+function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
   return {
-    calendarEventId: "evt-test-1",
+    phone: "+15551234567",
+    email: "jane@example.com",
+    firstName: "Jane",
+    businessName: "Jane HVAC",
+    source: "roi",
+    smsConsent: true,
+    registeredAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+function event(id: string, overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCalendarEvent {
+  return {
+    calendarEventId: id,
     status: "confirmed",
     appointmentStart: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
     appointmentEnd: new Date(Date.now() + 48.5 * 60 * 60 * 1000).toISOString(),
@@ -65,75 +120,69 @@ function event(overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCale
     attendeePhone: "+15551234567",
     attendeeEmail: "jane@example.com",
     attendeeName: "Jane Doe",
-    meetingLink: "https://meet.google.com/test",
     updatedAt: new Date().toISOString(),
     ...overrides,
   };
 }
 
-function seedLead() {
-  leadStore.set("+15551234567", {
-    phone: "+15551234567",
-    email: "jane@example.com",
-    firstName: "Jane",
-    businessName: "Jane HVAC",
-    source: "roi",
-    registeredAt: new Date().toISOString(),
-  });
-  emailIndex.set("jane@example.com", "+15551234567");
-}
-
-describe("processEvent", () => {
+describe("processEvent production safety", () => {
   beforeEach(() => {
     lifecycleStore.clear();
     leadStore.clear();
-    emailIndex.clear();
+    activePhone.clear();
     smsLog.length = 0;
+    optOut.clear();
+    leadStore.set("+15551234567", [lead()]);
   });
 
-  test("new booking sends one confirmation", async () => {
-    seedLead();
-    const result = await processCalendarEvent(event());
-    expect(result.action).toBe("created");
+  test("matching lead with consent sends SMS", async () => {
+    const result = await processCalendarEvent(event("evt-1"));
     expect(result.smsSent).toBe(true);
     expect(smsLog.length).toBe(1);
-    expect(smsLog[0]?.body).toContain("you're booked");
   });
 
-  test("duplicate event notification does not duplicate confirmation", async () => {
-    seedLead();
-    await processCalendarEvent(event());
-    const second = await processCalendarEvent(event());
-    expect(second.action).toBe("duplicate_skipped");
-    expect(smsLog.length).toBe(1);
-  });
-
-  test("unmatched event sends no SMS", async () => {
-    const result = await processCalendarEvent(
-      event({ attendeePhone: "+15559999999", attendeeEmail: "unknown@test.com" }),
-    );
-    expect(result.action).toBe("unmatched");
+  test("matching lead without consent sends no SMS", async () => {
+    leadStore.set("+15551234567", [lead({ smsConsent: false })]);
+    const result = await processCalendarEvent(event("evt-no-consent"));
+    expect(result.smsSent).toBe(false);
     expect(smsLog.length).toBe(0);
   });
 
-  test("reschedule sends one reschedule confirmation not a new booking tone", async () => {
-    seedLead();
-    await processCalendarEvent(event());
-    smsLog.length = 0;
-    const rescheduled = event({
-      appointmentStart: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
-      appointmentEnd: new Date(Date.now() + 72.5 * 60 * 60 * 1000).toISOString(),
-    });
-    const result = await processCalendarEvent(rescheduled);
-    expect(result.action).toBe("rescheduled");
-    expect(smsLog.length).toBe(1);
-    expect(smsLog[0]?.body).toContain("you're moved");
+  test("opted-out lead sends no lifecycle SMS", async () => {
+    optOut.add("+15551234567");
+    const result = await processCalendarEvent(event("evt-optout"));
+    expect(result.smsSent).toBe(false);
   });
 
-  test("source metadata retained in lifecycle record", async () => {
-    seedLead();
-    await processCalendarEvent(event());
-    const stored = lifecycleStore.get("lifecycle:evt-test-1") as { source?: string };
-    expect(stored?.source).toBe("roi");
+  test("two different event IDs for same lead supersede old lifecycle", async () => {
+    await processCalendarEvent(event("evt-old"));
+    smsLog.length = 0;
+    const result = await processCalendarEvent(event("evt-new"));
+    expect(result.action).toBe("rescheduled");
+    const old = lifecycleStore.get("evt-old");
+    expect(old?.lifecycleStatus).toBe("superseded");
+    expect(old?.remindersSuppressed).toBe(true);
+    expect(activePhone.get("+15551234567")).toBe("evt-new");
+  });
+
+  test("duplicate calendar sync after booking does not duplicate confirmation", async () => {
+    await processCalendarEvent(event("evt-1"));
+    smsLog.length = 0;
+    const dup = await processCalendarEvent(event("evt-1"));
+    expect(dup.action).toBe("duplicate_skipped");
+    expect(smsLog.length).toBe(0);
+  });
+});
+
+describe("smsEligibility", () => {
+  test("leadHasSmsConsent requires explicit true", () => {
+    expect(leadHasSmsConsent(lead())).toBe(true);
+    expect(leadHasSmsConsent(lead({ smsConsent: false }))).toBe(false);
+  });
+
+  test("canSendLifecycleSms blocks missing consent", async () => {
+    const result = await canSendLifecycleSms("+15551234567", lead({ smsConsent: false }));
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe("no_consent");
   });
 });

@@ -1,17 +1,36 @@
-import { describe, expect, test } from "bun:test";
-import {
-  extractPhoneFromText,
-  matchCalendarEventToLead,
-} from "~/server/appointmentLifecycle/matchLead";
+import { describe, expect, test, mock, beforeEach } from "bun:test";
 import type { LeadIndexEntry, NormalizedCalendarEvent } from "~/server/appointmentLifecycle/types";
-import { getRedis } from "~/server/speed2Lead/redis";
-import { saveLeadIndex } from "~/server/appointmentLifecycle/store";
 
-const hasRedis =
-  Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
-  Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
+const leadStore = new Map<string, LeadIndexEntry[]>();
+const emailIndex = new Map<string, string>();
 
-function baseEvent(overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCalendarEvent {
+mock.module("~/server/appointmentLifecycle/store", () => ({
+  getLeadsByPhone: async (phone: string) => leadStore.get(phone) ?? [],
+  getLeadByEmail: async (email: string) => {
+    const phone = emailIndex.get(email.toLowerCase());
+    if (!phone) return null;
+    const leads = leadStore.get(phone) ?? [];
+    return leads.find((l) => l.email?.toLowerCase() === email.toLowerCase()) ?? null;
+  },
+}));
+
+const { matchCalendarEventToLead } = await import("~/server/appointmentLifecycle/matchLead");
+
+function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
+  return {
+    phone: "+15551234567",
+    email: "jane@example.com",
+    firstName: "Jane",
+    lastName: "Doe",
+    businessName: "Jane HVAC",
+    source: "roi",
+    smsConsent: true,
+    registeredAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+function event(overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCalendarEvent {
   return {
     calendarEventId: "evt-1",
     status: "confirmed",
@@ -23,73 +42,106 @@ function baseEvent(overrides: Partial<NormalizedCalendarEvent> = {}): Normalized
   };
 }
 
-function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
-  return {
-    phone: "+15551234567",
-    email: "jane@example.com",
-    firstName: "Jane",
-    lastName: "Doe",
-    businessName: "Jane HVAC",
-    source: "roi",
-    registeredAt: new Date().toISOString(),
-    ...overrides,
-  };
+function seedLead(entry: LeadIndexEntry) {
+  const existing = leadStore.get(entry.phone) ?? [];
+  leadStore.set(entry.phone, [...existing.filter((l) => l.email !== entry.email), entry]);
+  if (entry.email) {
+    emailIndex.set(entry.email.toLowerCase(), entry.phone);
+  }
 }
 
-describe("matchLead", () => {
-  test("extractPhoneFromText finds common formats", () => {
-    expect(extractPhoneFromText("Phone: (555) 123-4567")).toBe("+15551234567");
-    expect(extractPhoneFromText("Mobile number: 555-987-6543")).toBe("+15559876543");
+describe("matchLead production safety", () => {
+  beforeEach(() => {
+    leadStore.clear();
+    emailIndex.clear();
   });
 
-  (hasRedis ? test : test.skip)("phone exact normalized match", async () => {
-    await saveLeadIndex(lead());
+  test("phone exact match with consent-eligible lead", async () => {
+    seedLead(lead());
     const result = await matchCalendarEventToLead(
-      baseEvent({ attendeePhone: "(555) 123-4567" }),
+      event({ attendeePhone: "+15551234567", attendeeName: "Jane Doe" }),
     );
     expect(result.matched).toBe(true);
-    if (result.matched) {
-      expect(result.method).toBe("phone");
-      expect(result.lead.phone).toBe("+15551234567");
-    }
+    if (result.matched) expect(result.method).toBe("phone");
   });
 
-  (hasRedis ? test : test.skip)("email match when phone missing", async () => {
-    await saveLeadIndex(lead({ phone: "+15559876543" }));
+  test("unique name alone produces unmatched_booking", async () => {
+    seedLead(lead({ phone: "+15551111111" }));
     const result = await matchCalendarEventToLead(
-      baseEvent({
-        attendeePhone: undefined,
-        attendeeEmail: "jane@example.com",
-      }),
-    );
-    expect(result.matched).toBe(true);
-    if (result.matched) expect(result.method).toBe("email");
-  });
-
-  (hasRedis ? test : test.skip)("ambiguous name match does not send", async () => {
-    await saveLeadIndex(lead({ phone: "+15551111111" }));
-    await saveLeadIndex(
-      lead({ phone: "+15552222222", email: "other@example.com", lastName: "Smith" }),
-    );
-    const result = await matchCalendarEventToLead(
-      baseEvent({
+      event({
         attendeeName: "Jane Doe",
-        attendeeEmail: undefined,
         attendeePhone: undefined,
+        attendeeEmail: undefined,
       }),
     );
     expect(result.matched).toBe(false);
-    if (!result.matched) expect(result.reason).toBe("ambiguous_name_match");
+    if (!result.matched) expect(result.reason).toBe("no_confident_match");
   });
 
-  (hasRedis ? test : test.skip)("unmatched event when no lead", async () => {
+  test("same first/last name across multiple leads cannot cause SMS without email", async () => {
+    seedLead(lead({ phone: "+15551111111", email: "jane1@example.com" }));
+    seedLead(
+      lead({
+        phone: "+15552222222",
+        email: "jane2@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+      }),
+    );
     const result = await matchCalendarEventToLead(
-      baseEvent({ attendeePhone: "+15559999999", attendeeEmail: "unknown@example.com" }),
+      event({ attendeeName: "Jane Doe", attendeeEmail: undefined, attendeePhone: undefined }),
+    );
+    expect(result.matched).toBe(false);
+  });
+
+  test("shared office phone requires email disambiguation", async () => {
+    const sharedPhone = "+15559998888";
+    seedLead(lead({ phone: sharedPhone, email: "alice@example.com", firstName: "Alice" }));
+    seedLead(lead({ phone: sharedPhone, email: "bob@example.com", firstName: "Bob" }));
+
+    const noEmail = await matchCalendarEventToLead(
+      event({ attendeePhone: sharedPhone, attendeeEmail: undefined }),
+    );
+    expect(noEmail.matched).toBe(false);
+    if (!noEmail.matched) expect(noEmail.reason).toBe("ambiguous_phone_match");
+
+    const withEmail = await matchCalendarEventToLead(
+      event({ attendeePhone: sharedPhone, attendeeEmail: "bob@example.com", attendeeName: "Bob" }),
+    );
+    expect(withEmail.matched).toBe(true);
+    if (withEmail.matched) expect(withEmail.lead.firstName).toBe("Bob");
+  });
+
+  test("email resolves duplicate phone safely", async () => {
+    const sharedPhone = "+15559998888";
+    seedLead(lead({ phone: sharedPhone, email: "jane@example.com" }));
+    seedLead(lead({ phone: sharedPhone, email: "other@example.com", firstName: "Other" }));
+
+    const result = await matchCalendarEventToLead(
+      event({ attendeeEmail: "jane@example.com", attendeeName: "Jane Doe" }),
+    );
+    expect(result.matched).toBe(true);
+    if (result.matched) expect(result.lead.email).toBe("jane@example.com");
+  });
+
+  test("phone match rejected when attendee name conflicts", async () => {
+    seedLead(lead({ firstName: "Jane", lastName: "Doe" }));
+    const result = await matchCalendarEventToLead(
+      event({ attendeePhone: "+15551234567", attendeeName: "John Smith" }),
+    );
+    expect(result.matched).toBe(false);
+    if (!result.matched) expect(result.reason).toBe("phone_name_mismatch");
+  });
+
+  test("wrong customer cannot receive another person appointment via email", async () => {
+    seedLead(lead({ phone: "+15551111111", email: "jane@example.com" }));
+    const result = await matchCalendarEventToLead(
+      event({
+        attendeeEmail: "attacker@example.com",
+        attendeePhone: "+15559999999",
+        attendeeName: "Attacker",
+      }),
     );
     expect(result.matched).toBe(false);
   });
 });
-
-if (!hasRedis) {
-  console.warn("Skipping Redis-backed matchLead tests — UPSTASH_REDIS_* not configured");
-}

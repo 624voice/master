@@ -10,6 +10,7 @@ export type AppointmentLifecycleStatus =
   | "completed"
   | "reschedule_pending"
   | "rescheduled"
+  | "superseded"
   | "cancelled"
   | "unmatched_booking";
 
@@ -20,6 +21,7 @@ export type LeadIndexEntry = {
   lastName?: string;
   businessName?: string;
   source: S2LSource;
+  smsConsent: boolean;
   registeredAt: string;
   selfReportedBookingAt?: string;
   shortNeedSummary?: string;
@@ -44,7 +46,7 @@ export type NormalizedCalendarEvent = {
   updatedAt: string;
 };
 
-export type MatchMethod = "phone" | "email" | "correlation" | "name" | "none";
+export type MatchMethod = "phone" | "email" | "correlation" | "none";
 
 export type MatchResult =
   | {
@@ -81,6 +83,9 @@ export type AppointmentLifecycleRecord = {
   rescheduledFromEventId?: string;
   rescheduledToEventId?: string;
   reschedulePendingAt?: string;
+  remindersSuppressed?: boolean;
+  manualCleanupRequired?: boolean;
+  supersededAt?: string;
   selfReportedBeforeDetection?: boolean;
   createdAt: string;
   updatedAt: string;

@@ -44,6 +44,7 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
     businessName: input.businessName,
     email: input.email,
     source: "roi",
+    smsConsent: true,
   });
   await sendConversationSms(phone, initialMessage(context), context);
 }

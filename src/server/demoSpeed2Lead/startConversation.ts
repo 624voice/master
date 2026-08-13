@@ -86,6 +86,7 @@ export async function startDemoSpeed2Lead(input: {
     businessName: input.businessName,
     email: input.email,
     source: "demo",
+    smsConsent: true,
   });
   await sendConversationSms(phone, initialMessage(context), context);
   await registerDemoFollowUp(context);

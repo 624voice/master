@@ -1,11 +1,8 @@
-import { getBookingCalendarLink } from "~/server/appointmentLifecycle/config";
+import { getBookingCalendarLink, isGoogleCalendarApiConfigured } from "~/server/appointmentLifecycle/config";
+import { cancelCalendarEvent } from "~/server/appointmentLifecycle/googleCalendar";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   bookingConfirmationMessage,
-  cancellationConfirmationMessage,
-  cancellationManualMessage,
-  reminder24hMessage,
-  reminder2hMessage,
   rescheduleConfirmationMessage,
 } from "~/server/appointmentLifecycle/messages";
 import { matchCalendarEventToLead } from "~/server/appointmentLifecycle/matchLead";
@@ -15,9 +12,13 @@ import {
 } from "~/server/appointmentLifecycle/reminderSchedule";
 import { suppressSalesFollowUps } from "~/server/appointmentLifecycle/handoff";
 import { sendLifecycleSms } from "~/server/appointmentLifecycle/sms";
+import { canSendLifecycleSms } from "~/server/appointmentLifecycle/smsEligibility";
 import {
+  getActiveLifecycleForPhone,
+  getLeadForLifecycle,
   getLifecycleRecord,
   saveLifecycleRecord,
+  supersedeActiveLifecycle,
 } from "~/server/appointmentLifecycle/store";
 import type {
   AppointmentLifecycleRecord,
@@ -25,7 +26,6 @@ import type {
   NormalizedCalendarEvent,
   ProcessEventResult,
 } from "~/server/appointmentLifecycle/types";
-import { isOptedOut } from "~/server/speed2Lead/session";
 
 function messageContext(record: AppointmentLifecycleRecord) {
   return {
@@ -69,17 +69,77 @@ function buildRecordFromEvent(
   };
 }
 
-async function sendConfirmationIfAllowed(
+function isReplacementBooking(
+  existing: AppointmentLifecycleRecord,
+  event: NormalizedCalendarEvent,
+  lead: LeadIndexEntry,
+): boolean {
+  if (existing.lifecycleStatus === "reschedule_pending") {
+    return true;
+  }
+  if (lead.selfReportedBookingAt || existing.selfReportedBeforeDetection) {
+    return true;
+  }
+  if (existing.reschedulePendingAt) {
+    return true;
+  }
+  const existingStart = new Date(existing.appointmentStart).getTime();
+  const newStart = new Date(event.appointmentStart).getTime();
+  const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+  return Math.abs(existingStart - newStart) <= fourteenDays;
+}
+
+async function tryCancelOldEvent(eventId: string): Promise<boolean> {
+  if (!isGoogleCalendarApiConfigured()) {
+    return false;
+  }
+  return cancelCalendarEvent(eventId);
+}
+
+async function handleExistingActiveLifecycle(
+  existing: AppointmentLifecycleRecord,
+  event: NormalizedCalendarEvent,
+  lead: LeadIndexEntry,
+): Promise<{ isReplacement: boolean; superseded?: AppointmentLifecycleRecord }> {
+  if (existing.calendarEventId === event.calendarEventId) {
+    return { isReplacement: false };
+  }
+
+  const replacement = isReplacementBooking(existing, event, lead);
+  const cancelled = await tryCancelOldEvent(existing.calendarEventId);
+
+  const superseded = await supersedeActiveLifecycle(existing, event.calendarEventId, {
+    manualCleanupRequired: !cancelled,
+  });
+
+  logAppointmentEvent("lifecycle_superseded", {
+    oldEventId: existing.calendarEventId,
+    newEventId: event.calendarEventId,
+    phone: lead.phone,
+    replacement: replacement ? "yes" : "conservative",
+    calendarCancelled: cancelled,
+  });
+
+  if (!cancelled) {
+    logAppointmentEvent("manual_cleanup_required", {
+      eventId: existing.calendarEventId,
+      phone: lead.phone,
+      reason: "replacement_without_api_cancel",
+    });
+  }
+
+  return { isReplacement: replacement, superseded };
+}
+
+async function sendLifecycleMessageIfAllowed(
   record: AppointmentLifecycleRecord,
+  lead: LeadIndexEntry,
   messageType: "confirmation" | "reschedule_confirmation",
 ): Promise<boolean> {
   if (!record.phone) return false;
-  if (await isOptedOut(record.phone)) {
-    logAppointmentEvent("sms_suppressed_opt_out", {
-      phone: record.phone,
-      eventId: record.calendarEventId,
-      messageType,
-    });
+
+  const eligibility = await canSendLifecycleSms(record.phone, lead);
+  if (!eligibility.allowed) {
     return false;
   }
 
@@ -94,6 +154,26 @@ async function sendConfirmationIfAllowed(
     eventId: record.calendarEventId,
   });
   return true;
+}
+
+function applyConfirmationState(
+  record: AppointmentLifecycleRecord,
+  confirmedAt: Date,
+): AppointmentLifecycleRecord {
+  const updated = {
+    ...record,
+    confirmationSentAt: confirmedAt.toISOString(),
+    lifecycleStatus: "confirmed" as const,
+    remindersSuppressed: false,
+    updatedAt: confirmedAt.toISOString(),
+  };
+  if (shouldSkip24hForLeadTime(updated, confirmedAt)) {
+    updated.reminder24hSentAt = "skipped_short_lead_time";
+  }
+  if (shouldSkip2hForLeadTime(updated, confirmedAt)) {
+    updated.reminder2hSentAt = "skipped_short_lead_time";
+  }
+  return updated;
 }
 
 export async function processCalendarEvent(
@@ -151,38 +231,59 @@ export async function processCalendarEvent(
     method: match.method,
   });
 
-  const record = buildRecordFromEvent(event, match.lead, match.method, {
-    lifecycleStatus: "booking_detected",
-  });
+  let messageType: "confirmation" | "reschedule_confirmation" = "confirmation";
+  let rescheduledFromEventId: string | undefined;
 
-  const confirmedAt = new Date();
-  const smsSent = await sendConfirmationIfAllowed(record, "confirmation");
-
-  if (smsSent) {
-    record.confirmationSentAt = confirmedAt.toISOString();
-    record.lifecycleStatus = "confirmed";
-    if (shouldSkip24hForLeadTime(record, confirmedAt)) {
-      record.reminder24hSentAt = "skipped_short_lead_time";
-    }
-    if (shouldSkip2hForLeadTime(record, confirmedAt)) {
-      record.reminder2hSentAt = "skipped_short_lead_time";
+  const activeLifecycle = await getActiveLifecycleForPhone(match.lead.phone);
+  if (activeLifecycle && activeLifecycle.calendarEventId !== event.calendarEventId) {
+    const { isReplacement, superseded } = await handleExistingActiveLifecycle(
+      activeLifecycle,
+      event,
+      match.lead,
+    );
+    if (superseded) {
+      rescheduledFromEventId = superseded.calendarEventId;
+      if (isReplacement) {
+        messageType = "reschedule_confirmation";
+      }
     }
   }
 
-  await saveLifecycleRecord(record);
-  await suppressSalesFollowUps(record.phone!);
+  const record = buildRecordFromEvent(event, match.lead, match.method, {
+    lifecycleStatus: "booking_detected",
+    rescheduledFromEventId,
+    remindersSuppressed: false,
+  });
+
+  const confirmedAt = new Date();
+  const smsSent = await sendLifecycleMessageIfAllowed(record, match.lead, messageType);
+
+  let finalRecord = record;
+  if (smsSent) {
+    finalRecord = applyConfirmationState(record, confirmedAt);
+  } else {
+    finalRecord = {
+      ...record,
+      lifecycleStatus: "booking_detected",
+      updatedAt: confirmedAt.toISOString(),
+    };
+  }
+
+  await saveLifecycleRecord(finalRecord);
+  await suppressSalesFollowUps(finalRecord.phone!);
 
   logAppointmentEvent("booking_detected", {
     eventId: event.calendarEventId,
-    phone: record.phone,
-    source: record.source,
+    phone: finalRecord.phone,
+    source: finalRecord.source,
+    messageType,
   });
 
   return {
     eventId: event.calendarEventId,
-    action: "created",
+    action: rescheduledFromEventId ? "rescheduled" : "created",
     smsSent,
-    messageType: "confirmation",
+    messageType,
   };
 }
 
@@ -191,6 +292,11 @@ async function processRescheduledEvent(
   existing: AppointmentLifecycleRecord,
 ): Promise<ProcessEventResult> {
   if (!existing.phone) {
+    return { eventId: event.calendarEventId, action: "updated" };
+  }
+
+  const lead = await getLeadForLifecycle(existing);
+  if (!lead) {
     return { eventId: event.calendarEventId, action: "updated" };
   }
 
@@ -205,26 +311,25 @@ async function processRescheduledEvent(
     lifecycleStatus: "rescheduled",
     reminder24hSentAt: undefined,
     reminder2hSentAt: undefined,
+    remindersSuppressed: false,
+    reschedulePendingAt: undefined,
     updatedAt: new Date().toISOString(),
   };
 
-  const smsSent = await sendConfirmationIfAllowed(updated, "reschedule_confirmation");
+  const smsSent = await sendLifecycleMessageIfAllowed(
+    updated,
+    lead,
+    "reschedule_confirmation",
+  );
+  let finalRecord = updated;
   if (smsSent) {
-    updated.confirmationSentAt = new Date().toISOString();
-    updated.lifecycleStatus = "confirmed";
-    const confirmedAt = new Date();
-    if (shouldSkip24hForLeadTime(updated, confirmedAt)) {
-      updated.reminder24hSentAt = "skipped_short_lead_time";
-    }
-    if (shouldSkip2hForLeadTime(updated, confirmedAt)) {
-      updated.reminder2hSentAt = "skipped_short_lead_time";
-    }
+    finalRecord = applyConfirmationState(updated, new Date());
   }
 
-  await saveLifecycleRecord(updated);
+  await saveLifecycleRecord(finalRecord);
   logAppointmentEvent("booking_rescheduled", {
     eventId: event.calendarEventId,
-    phone: updated.phone,
+    phone: finalRecord.phone,
   });
 
   return {
@@ -248,6 +353,7 @@ async function processCancelledEvent(
     eventStatus: "cancelled",
     lifecycleStatus: "cancelled",
     cancelledAt: new Date().toISOString(),
+    remindersSuppressed: true,
     updatedAt: new Date().toISOString(),
   };
   await saveLifecycleRecord(updated);

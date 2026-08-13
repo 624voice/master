@@ -14,7 +14,11 @@ export type AppointmentLogEvent =
   | "twilio_error"
   | "lifecycle_handoff"
   | "reschedule_pending"
-  | "cancellation_failed";
+  | "sms_suppressed_no_consent"
+  | "lifecycle_superseded"
+  | "manual_cleanup_required"
+  | "reminder_suppressed_reschedule_pending"
+  | "reschedule_pending_expired";
 
 export function logAppointmentEvent(
   event: AppointmentLogEvent,

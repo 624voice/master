@@ -2,7 +2,7 @@
  * 624 Voice — Google Calendar sync for appointment lifecycle (Phase B)
  *
  * Polls the shared booking calendar and POSTs new/updated events to the site.
- * Deploy as a time-driven Apps Script trigger (every 10–15 minutes).
+ * Deploy as a time-driven Apps Script trigger (every 1 minute for booking detection).
  *
  * Setup:
  * 1. Enable Calendar advanced service OR use CalendarApp (built-in)
@@ -19,7 +19,7 @@
 const CALENDAR_ID = "primary"; // Replace with booking calendar ID if different
 const SYNC_URL = "https://www.624voice.com/api/calendar/sync";
 const SYNC_SECRET = ""; // Set in Script Properties: CALENDAR_SYNC_SECRET
-const LOOKBACK_MINUTES = 20;
+const LOOKBACK_MINUTES = 3;
 const SYNC_CURSOR_KEY = "calendar_sync_cursor";
 
 function getSyncSecret() {
@@ -142,7 +142,9 @@ function setupCalendarSyncTrigger() {
       ScriptApp.deleteTrigger(trigger);
     }
   });
-  ScriptApp.newTrigger("syncCalendarEvents").timeBased().everyMinutes(10).create();
+  // 1-minute polling for near-immediate booking confirmations.
+  // Google Apps Script allows minimum 1-minute time-driven triggers.
+  ScriptApp.newTrigger("syncCalendarEvents").timeBased().everyMinutes(1).create();
 }
 
 function testCalendarSync() {

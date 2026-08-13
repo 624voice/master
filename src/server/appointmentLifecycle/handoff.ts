@@ -18,6 +18,7 @@ export async function registerLeadForLifecycle(input: {
   businessName?: string;
   email?: string;
   source: S2LSource;
+  smsConsent: boolean;
   shortNeedSummary?: string;
 }): Promise<void> {
   const entry: LeadIndexEntry = {
@@ -27,8 +28,9 @@ export async function registerLeadForLifecycle(input: {
     lastName: input.lastName,
     businessName: input.businessName,
     source: input.source,
-    shortNeedSummary: input.shortNeedSummary,
+    smsConsent: input.smsConsent,
     registeredAt: new Date().toISOString(),
+    shortNeedSummary: input.shortNeedSummary,
   };
   await saveLeadIndex(entry);
 }

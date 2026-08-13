@@ -1,20 +1,22 @@
-import { getBookingCalendarLink } from "~/server/appointmentLifecycle/config";
+import { getBookingCalendarLink, isGoogleCalendarApiConfigured } from "~/server/appointmentLifecycle/config";
 import { classifyLifecycleIntent, isAmbiguousCancellation } from "~/server/appointmentLifecycle/intents";
+import { cancelCalendarEvent } from "~/server/appointmentLifecycle/googleCalendar";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   cancellationConfirmationMessage,
   cancellationManualMessage,
+  meetingBookedAckMessage,
   rescheduleLinkMessage,
 } from "~/server/appointmentLifecycle/messages";
+import { markSelfReportedAndAcknowledge } from "~/server/appointmentLifecycle/handoff";
 import { sendLifecycleSms } from "~/server/appointmentLifecycle/sms";
+import { canSendLifecycleSms } from "~/server/appointmentLifecycle/smsEligibility";
 import {
   getActiveLifecycleForPhone,
+  getLeadForLifecycle,
   saveLifecycleRecord,
 } from "~/server/appointmentLifecycle/store";
-import { cancelCalendarEvent } from "~/server/appointmentLifecycle/googleCalendar";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
-import { meetingBookedAckMessage } from "~/server/appointmentLifecycle/messages";
-import { markSelfReportedAndAcknowledge, suppressSalesFollowUps } from "~/server/appointmentLifecycle/handoff";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { saveSession } from "~/server/speed2Lead/session";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
@@ -32,6 +34,7 @@ export async function handleAppointmentLifecycleInbound(
   const globalIntent = classifyGlobalIntent(body);
   const lifecycleIntent = classifyLifecycleIntent(body);
   const active = await getActiveLifecycleForPhone(phone);
+  const lead = active ? await getLeadForLifecycle(active) : null;
 
   if (globalIntent === "meeting_booked" && session) {
     await markSelfReportedAndAcknowledge(phone);
@@ -58,11 +61,11 @@ export async function handleAppointmentLifecycleInbound(
   }
 
   if (lifecycleIntent === "reschedule") {
-    const link = active.rescheduleLink ?? getBookingCalendarLink();
     const updated = {
       ...active,
       lifecycleStatus: "reschedule_pending" as const,
       reschedulePendingAt: new Date().toISOString(),
+      remindersSuppressed: true,
       updatedAt: new Date().toISOString(),
     };
     await saveLifecycleRecord(updated);
@@ -70,17 +73,22 @@ export async function handleAppointmentLifecycleInbound(
       phone,
       eventId: active.calendarEventId,
     });
+
     const reply = rescheduleLinkMessage({
       firstName: active.firstName ?? "there",
       appointmentStart: active.appointmentStart,
       timezone: active.timezone,
-      rescheduleLink: link,
+      rescheduleLink: active.rescheduleLink,
       calendarLink: getBookingCalendarLink(),
     });
-    await sendLifecycleSms(phone, reply, {
-      messageType: "reschedule_link",
-      eventId: active.calendarEventId,
-    });
+
+    const eligibility = await canSendLifecycleSms(phone, lead);
+    if (eligibility.allowed) {
+      await sendLifecycleSms(phone, reply, {
+        messageType: "reschedule_link",
+        eventId: active.calendarEventId,
+      });
+    }
     return { handled: true, reply };
   }
 
@@ -89,13 +97,20 @@ export async function handleAppointmentLifecycleInbound(
       return { handled: false };
     }
 
-    const cancelled = await cancelCalendarEvent(active.calendarEventId);
+    const eligibility = await canSendLifecycleSms(phone, lead);
+    if (!eligibility.allowed) {
+      return { handled: true };
+    }
+
+    const cancelled =
+      isGoogleCalendarApiConfigured() && (await cancelCalendarEvent(active.calendarEventId));
     if (cancelled) {
       const updated = {
         ...active,
         lifecycleStatus: "cancelled" as const,
         eventStatus: "cancelled" as const,
         cancelledAt: new Date().toISOString(),
+        remindersSuppressed: true,
         updatedAt: new Date().toISOString(),
       };
       await saveLifecycleRecord(updated);

@@ -9,13 +9,16 @@ import {
   reminder2hMessage,
 } from "~/server/appointmentLifecycle/messages";
 import { sendLifecycleSms } from "~/server/appointmentLifecycle/sms";
+import { canSendLifecycleSms } from "~/server/appointmentLifecycle/smsEligibility";
 import {
+  expireReschedulePendingIfStale,
+  getLeadForLifecycle,
   getLifecycleRecord,
   getReminderIndexEventIds,
   saveLifecycleRecord,
+  shouldSendReminders,
 } from "~/server/appointmentLifecycle/store";
 import type { AppointmentLifecycleRecord } from "~/server/appointmentLifecycle/types";
-import { isOptedOut } from "~/server/speed2Lead/session";
 
 function messageContext(record: AppointmentLifecycleRecord) {
   return {
@@ -36,12 +39,9 @@ async function sendReminder(
 ): Promise<boolean> {
   if (!record.phone) return false;
 
-  if (await isOptedOut(record.phone)) {
-    logAppointmentEvent("sms_suppressed_opt_out", {
-      phone: record.phone,
-      eventId: record.calendarEventId,
-      messageType: `${kind}_reminder`,
-    });
+  const lead = await getLeadForLifecycle(record);
+  const eligibility = await canSendLifecycleSms(record.phone, lead);
+  if (!eligibility.allowed) {
     return false;
   }
 
@@ -84,8 +84,21 @@ export async function processAppointmentReminders(now = new Date()): Promise<num
   let sent = 0;
 
   for (const eventId of eventIds) {
-    const record = await getLifecycleRecord(eventId);
+    let record = await getLifecycleRecord(eventId);
     if (!record) continue;
+
+    record = await expireReschedulePendingIfStale(record, now);
+
+    if (!shouldSendReminders(record, now)) {
+      if (record.lifecycleStatus === "reschedule_pending") {
+        logAppointmentEvent("reminder_suppressed_reschedule_pending", {
+          eventId: record.calendarEventId,
+          phone: record.phone,
+        });
+      }
+      continue;
+    }
+
     if (record.lifecycleStatus === "cancelled") continue;
     if (!record.confirmationSentAt) continue;
 
@@ -112,6 +125,7 @@ export async function processAppointmentReminders(now = new Date()): Promise<num
     if (kind === "24h" && record.reminder24hSentAt) continue;
     if (kind === "2h" && record.reminder2hSentAt) continue;
 
+    if (!record.phone) continue;
     const ok = await sendReminder(record, kind, now);
     if (ok) sent += 1;
   }
