@@ -1,3 +1,4 @@
+import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle/handleInbound";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import {
@@ -59,6 +60,11 @@ export async function handleInboundSms(from: string, body: string): Promise<void
   }
 
   if (await isOptedOut(phone)) {
+    return;
+  }
+
+  const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session);
+  if (lifecycle.handled) {
     return;
   }
 

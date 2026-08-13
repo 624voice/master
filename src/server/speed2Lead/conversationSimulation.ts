@@ -234,7 +234,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
   { flow: "demo", name: "Demo: demo error", steps: ["she misunderstood my address", "she thought we were in dallas", "yes"], expect: { maxQuestions: 2, expectCompleted: true, expectCalendar: true } },
   { flow: "demo", name: "Demo: how much", steps: ["how much?"], expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true, replyContains: ["Pricing"] } },
   { flow: "demo", name: "Demo: already use AI", steps: ["we already use AI"], expect: { maxQuestions: 1, expectNotCompleted: true } },
-  { flow: "demo", name: "Demo: I booked", steps: ["I booked"], expect: { expectCompleted: true, replyContains: ["booking come through"], expectNoCalendar: true } },
+  { flow: "demo", name: "Demo: I booked", steps: ["I booked"], expect: { expectCompleted: true, replyContains: ["confirm the details"], expectNoCalendar: true } },
   { flow: "demo", name: "Demo: not interested", steps: ["not interested"], expect: { expectCompleted: true, expectNoCalendar: true } },
   { flow: "demo", name: "Demo: who is this", steps: ["who is this?"], expect: { maxQuestions: 1, expectNotCompleted: true, replyContains: ["Jessica demo"] } },
   { flow: "demo", name: "Demo: maybe", steps: ["maybe", "follow up texts"], expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },

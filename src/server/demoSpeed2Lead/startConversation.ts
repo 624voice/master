@@ -1,3 +1,4 @@
+import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { getBookingUrl, isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { isOptedOut, saveSession } from "~/server/speed2Lead/session";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
@@ -78,6 +79,14 @@ export async function startDemoSpeed2Lead(input: {
   });
 
   await saveSession(context);
+  await registerLeadForLifecycle({
+    phone,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    businessName: input.businessName,
+    email: input.email,
+    source: "demo",
+  });
   await sendConversationSms(phone, initialMessage(context), context);
   await registerDemoFollowUp(context);
 }

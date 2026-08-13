@@ -103,7 +103,7 @@ describe("demo global intents", () => {
 
     expect(context.state).toBe("completed");
     expect(context.meetingBooked).toBe(true);
-    expect(replies[0]).toContain("booking come through");
+    expect(replies[0]).toContain("confirm the details");
   });
 });
 

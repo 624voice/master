@@ -47,7 +47,9 @@ export type ReportTokenData = {
 export type StartSpeed2LeadInput = {
   phone: string;
   firstName: string;
+  lastName?: string;
   businessName: string;
+  email?: string;
   annualOpportunity: string;
   primaryOpportunity: string;
   reportUrl: string;

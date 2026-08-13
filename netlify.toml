@@ -5,6 +5,12 @@
 [functions."demo-followups"]
   schedule = "*/15 * * * *"
 
+[functions."appointment-reminders"]
+  schedule = "*/15 * * * *"
+
+[functions."appointment-calendar-sync"]
+  schedule = "*/10 * * * *"
+
 [dev]
   command = "bun run dev"
   port = 3000

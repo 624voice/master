@@ -92,7 +92,9 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
         await startSpeed2Lead({
           phone: normalizedLead.phone,
           firstName: normalizedLead.firstName,
+          lastName: normalizedLead.lastName,
           businessName: normalizedLead.businessName,
+          email: normalizedLead.email,
           annualOpportunity: moderateRoi,
           primaryOpportunity,
           reportUrl,

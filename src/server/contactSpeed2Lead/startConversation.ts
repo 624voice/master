@@ -1,3 +1,4 @@
+import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { buildContactResources, buildShortNeedSummary } from "~/server/contactSpeed2Lead/needSummary";
 import { initialMessage } from "~/server/contactSpeed2Lead/messages";
 import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
@@ -33,7 +34,9 @@ export function createContactSession(input: {
 export async function startContactSpeed2Lead(input: {
   phone: string;
   firstName: string;
+  lastName?: string;
   businessName: string;
+  email?: string;
   message: string;
 }): Promise<void> {
   if (!isSpeed2LeadEnabled()) {
@@ -53,5 +56,14 @@ export async function startContactSpeed2Lead(input: {
   });
 
   await saveSession(context);
+  await registerLeadForLifecycle({
+    phone,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    businessName: input.businessName,
+    email: input.email,
+    source: "contact",
+    shortNeedSummary: context.shortNeedSummary,
+  });
   await sendConversationSms(phone, initialMessage(context), context);
 }

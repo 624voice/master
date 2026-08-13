@@ -74,7 +74,9 @@ export const submitContactLead = createServerFn({ method: "POST" })
         await startContactSpeed2Lead({
           phone: normalizedLead.phone,
           firstName: normalizedLead.firstName,
+          lastName: normalizedLead.lastName,
           businessName: normalizedLead.businessName,
+          email: normalizedLead.email,
           message: data.message.trim(),
         });
       } catch (error) {

@@ -1,4 +1,5 @@
 import type { RoiResult } from "~/lib/roi/computeRoi";
+import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { getBookingUrl, isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { initialMessage } from "~/server/speed2Lead/messages";
 import {
@@ -36,5 +37,13 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
   });
 
   await saveSession(context);
+  await registerLeadForLifecycle({
+    phone,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    businessName: input.businessName,
+    email: input.email,
+    source: "roi",
+  });
   await sendConversationSms(phone, initialMessage(context), context);
 }

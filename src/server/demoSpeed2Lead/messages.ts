@@ -261,7 +261,7 @@ export function declineMessage(): string {
 
 export function meetingBookedMessage(context: DemoConversationContext): string {
   return fill(
-    "Thanks, [FIRST NAME]. I saw your booking come through.\n\nI am looking forward to learning more about your current process and where AI could create the most value.",
+    "Thanks, [FIRST NAME]. I'll confirm the details once your booking comes through.",
     context,
   );
 }
