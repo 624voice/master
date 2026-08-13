@@ -128,7 +128,7 @@ export function shouldSendFollowUp(context: DemoConversationContext, now = new D
     return false;
   }
 
-  if (context.state !== "awaiting_demo_feature" && context.state !== "completed") {
+  if (context.state !== "awaiting_fit" && context.state !== "completed") {
     return false;
   }
 

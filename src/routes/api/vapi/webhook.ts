@@ -67,6 +67,7 @@ export const Route = createFileRoute("/api/vapi/webhook")({
                 phone: metadata.phone,
                 firstName: metadata.firstName,
                 lastName: metadata.lastName,
+                businessName: metadata.businessName,
                 email: metadata.email,
                 hasWebsite: hasWebsiteFromMetadata(metadata.website),
                 smsConsent: true,

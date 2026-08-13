@@ -1,4 +1,5 @@
 import { SESSION_TTL_SECONDS } from "~/server/speed2Lead/config";
+import { usesDirectOpening } from "~/server/speed2Lead/messages";
 import { getRedis } from "~/server/speed2Lead/redis";
 import type { AnyConversationContext, ConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
@@ -48,6 +49,10 @@ export function createSession(input: {
   reportUrl: string;
   bookingUrl: string;
 }): ConversationContext {
+  const directOpening = usesDirectOpening({
+    annualOpportunity: input.annualOpportunity,
+  } as ConversationContext);
+
   return {
     flow: "roi",
     phone: normalizePhone(input.phone),
@@ -57,7 +62,8 @@ export function createSession(input: {
     primaryOpportunity: input.primaryOpportunity,
     reportUrl: input.reportUrl,
     bookingUrl: input.bookingUrl,
-    state: "awaiting_goal",
+    state: "awaiting_problem",
+    directOpening,
     updatedAt: new Date().toISOString(),
   };
 }

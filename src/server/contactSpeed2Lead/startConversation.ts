@@ -25,7 +25,7 @@ export function createContactSession(input: {
     relevantLink: resources.relevantLink,
     relevantExample: resources.relevantExample,
     bookingUrl: input.bookingUrl,
-    state: "awaiting_contact_goal",
+    state: "awaiting_prompt",
     updatedAt: new Date().toISOString(),
   };
 }

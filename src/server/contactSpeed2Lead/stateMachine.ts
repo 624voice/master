@@ -1,107 +1,120 @@
-import { restateCustomerGoal } from "~/server/contactSpeed2Lead/needSummary";
+import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
 import {
-  classifyContactIntent,
-  type ContactIntent,
-} from "~/server/contactSpeed2Lead/intents";
+  shouldSendCalendarNow,
+  type PainCategory,
+} from "~/server/speed2Lead/naturalLanguage";
 import * as messages from "~/server/contactSpeed2Lead/messages";
-import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
+import type {
+  ContactConversationContext,
+  ContactConversationState,
+  ContactFollowUpKind,
+} from "~/server/contactSpeed2Lead/types";
 
 type TransitionResult = {
   context: ContactConversationContext;
   reply: string;
 };
 
-const FREE_FORM_ANSWER_STATES = new Set<ContactConversationContext["state"]>([
-  "awaiting_contact_booking_calls_window",
-  "awaiting_contact_booking_response_speed",
-  "awaiting_contact_booking_followup_process",
-  "awaiting_contact_staff_time",
-  "awaiting_contact_calls_fewer_missed",
-  "awaiting_contact_calls_after_hours",
-  "awaiting_contact_calls_consistent_answers",
-  "awaiting_contact_calls_easier_scheduling",
-  "awaiting_contact_both_revenue_slippage",
-  "awaiting_contact_both_time_task",
-  "awaiting_contact_something_else",
-  "awaiting_contact_faq_voice",
-  "awaiting_contact_faq_website",
-  "awaiting_contact_answering_service_gap",
-  "awaiting_contact_office_staff_task",
-  "awaiting_contact_vague_staff_task",
-  "awaiting_contact_vague_calls_improvement",
-]);
-
-const SUBGOAL_INTENTS = new Set<ContactIntent>([
-  "subgoal_answering_calls",
-  "subgoal_responding_faster",
-  "subgoal_follow_up",
-]);
-
-const CALL_IMPROVEMENT_INTENTS = new Set<ContactIntent>([
-  "call_fewer_missed",
-  "call_after_hours",
-  "call_consistent_answers",
-  "call_easier_scheduling",
+const FREE_FORM_STATES = new Set<ContactConversationState>([
+  "awaiting_follow_up",
+  "awaiting_info_area",
+  "awaiting_answering_service_gap",
+  "awaiting_office_staff_task",
 ]);
 
 function withState(
   context: ContactConversationContext,
-  state: ContactConversationContext["state"],
+  state: ContactConversationState,
+  extra: Partial<ContactConversationContext> = {},
 ): ContactConversationContext {
   return {
     ...context,
+    ...extra,
     state,
     updatedAt: new Date().toISOString(),
   };
 }
 
-function complete(context: ContactConversationContext, reply: string): TransitionResult {
+function withInbound(
+  context: ContactConversationContext,
+  inboundText: string,
+  extra: Partial<ContactConversationContext> = {},
+): ContactConversationContext {
   return {
-    context: withState(context, "completed"),
+    ...context,
+    ...extra,
+    lastCustomerMessage: inboundText.trim(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function complete(
+  context: ContactConversationContext,
+  reply: string,
+  extra: Partial<ContactConversationContext> = {},
+): TransitionResult {
+  return {
+    context: withState(context, "completed", extra),
     reply,
   };
 }
 
+function chooseFollowUpKind(pains: PainCategory[], text: string): ContactFollowUpKind {
+  if (pains.includes("website")) {
+    return "website";
+  }
+  if (
+    pains.includes("missed_calls") ||
+    pains.includes("after_hours") ||
+    includesAfterHoursNeed(text)
+  ) {
+    return "missed_calls";
+  }
+  return "general";
+}
+
+function includesAfterHoursNeed(text: string): boolean {
+  const lower = text.toLowerCase();
+  return lower.includes("after hours") || lower.includes("after 5") || lower.includes("phones");
+}
+
 function handleGlobalIntents(
   context: ContactConversationContext,
-  intent: ContactIntent,
+  inboundText: string,
 ): TransitionResult | null {
+  const intent = classifyGlobalIntent(inboundText);
+
   switch (intent) {
     case "stop":
     case "decline":
       return complete(context, messages.declineMessage());
-    case "faq":
+    case "schedule_ready":
+      return complete(context, messages.scheduleYesMessage(context));
+    case "price":
+      return complete(context, messages.priceMessage(context));
+    case "tell_me_more":
       return {
-        context: withState(context, "awaiting_contact_faq_followup"),
+        context: withState(context, "awaiting_faq_followup"),
         reply: messages.faqMessage(context),
       };
     case "request_information":
       return {
-        context: withState(context, "awaiting_contact_info_followup"),
+        context: withState(context, "awaiting_info_followup"),
         reply: messages.requestInfoMessage(context),
       };
     case "not_ready":
       return {
-        context: withState(context, "awaiting_contact_not_ready_followup"),
+        context: withState(context, "awaiting_not_ready_followup"),
         reply: messages.notReadyMessage(context),
       };
-    case "schedule_yes":
-      return complete(context, messages.scheduleYesMessage(context));
-    case "vague_yes":
-      return {
-        context: withState(context, "awaiting_contact_vague_clarification"),
-        reply: messages.vagueClarificationMessage(context),
-      };
-    case "price":
-      return complete(context, messages.priceMessage(context));
     case "answering_service":
       return {
-        context: withState(context, "awaiting_contact_answering_service_gap"),
+        context: withState(context, "awaiting_answering_service_gap"),
         reply: messages.answeringServiceQuestion(context),
       };
     case "office_staff":
       return {
-        context: withState(context, "awaiting_contact_office_staff_task"),
+        context: withState(context, "awaiting_office_staff_task"),
         reply: messages.officeStaffQuestion(context),
       };
     default:
@@ -109,313 +122,202 @@ function handleGlobalIntents(
   }
 }
 
-function handleContactGoal(
+function handlePromptResponse(
   context: ContactConversationContext,
-  intent: ContactIntent,
+  inboundText: string,
 ): TransitionResult {
-  switch (intent) {
-    case "goal_booking_jobs":
-      return {
-        context: withState(context, "awaiting_contact_booking_subgoal"),
-        reply: messages.bookingSubgoalMessage(context),
-      };
-    case "goal_growing_staff":
-      return {
-        context: withState(context, "awaiting_contact_staff_task"),
-        reply: messages.staffTaskQuestion(context),
-      };
-    case "goal_improving_calls":
-      return {
-        context: withState(context, "awaiting_contact_calls_improvement"),
-        reply: messages.callsImprovementQuestion(context),
-      };
-    case "goal_both":
-      return {
-        context: withState(context, "awaiting_contact_both_priority"),
-        reply: messages.bothPriorityQuestion(context),
-      };
-    case "goal_something_else":
-      return {
-        context: withState(context, "awaiting_contact_something_else"),
-        reply: messages.somethingElseQuestion(context),
-      };
-    default:
-      return {
-        context,
-        reply: messages.initialMessage(context),
-      };
-  }
-}
+  const ctx = withInbound(context, inboundText);
+  const signals = getSignals(inboundText);
 
-function handleBookingSubgoal(
-  context: ContactConversationContext,
-  intent: ContactIntent,
-): TransitionResult {
-  switch (intent) {
-    case "subgoal_answering_calls":
-      return {
-        context: withState(context, "awaiting_contact_booking_calls_window"),
-        reply: messages.bookingCallsWindowMessage(context),
-      };
-    case "subgoal_responding_faster":
-      return {
-        context: withState(context, "awaiting_contact_booking_response_speed"),
-        reply: messages.bookingResponseSpeedQuestion(context),
-      };
-    case "subgoal_follow_up":
-      return {
-        context: withState(context, "awaiting_contact_booking_followup_process"),
-        reply: messages.bookingFollowUpQuestion(context),
-      };
-    default:
-      return {
-        context,
-        reply: messages.bookingSubgoalMessage(context),
-      };
+  if (shouldSendCalendarNow(signals)) {
+    if (
+      signals.pains.includes("after_hours") ||
+      includesAfterHoursNeed(inboundText) ||
+      inboundText.toLowerCase().includes("after 5")
+    ) {
+      return complete(ctx, messages.urgentAfterHoursCalendarMessage(ctx), {
+        detectedPains: signals.pains,
+      });
+    }
+    return complete(ctx, messages.calendarMessage(ctx), { detectedPains: signals.pains });
   }
-}
 
-function handleCallsImprovement(
-  context: ContactConversationContext,
-  intent: ContactIntent,
-): TransitionResult {
-  switch (intent) {
-    case "call_fewer_missed":
-      return {
-        context: withState(context, "awaiting_contact_calls_fewer_missed"),
-        reply: messages.callsFewerMissedQuestion(context),
-      };
-    case "call_after_hours":
-      return {
-        context: withState(context, "awaiting_contact_calls_after_hours"),
-        reply: messages.callsAfterHoursQuestion(context),
-      };
-    case "call_consistent_answers":
-      return {
-        context: withState(context, "awaiting_contact_calls_consistent_answers"),
-        reply: messages.callsConsistentAnswersQuestion(context),
-      };
-    case "call_easier_scheduling":
-      return {
-        context: withState(context, "awaiting_contact_calls_easier_scheduling"),
-        reply: messages.callsEasierSchedulingQuestion(context),
-      };
-    default:
-      return {
-        context,
-        reply: messages.callsImprovementQuestion(context),
-      };
-  }
-}
-
-function handleBothPriority(
-  context: ContactConversationContext,
-  intent: ContactIntent,
-): TransitionResult {
-  if (
-    intent === "subgoal_booking_revenue" ||
-    intent === "goal_booking_jobs"
-  ) {
+  if (signals.notReady || signals.requestInformation || includesAnyLookingForInfo(inboundText)) {
     return {
-      context: withState(context, "awaiting_contact_both_revenue_slippage"),
-      reply: messages.bothRevenueSlippageQuestion(context),
+      context: withState(ctx, "awaiting_info_area", { detectedPains: signals.pains }),
+      reply: messages.infoAreaQuestion(ctx),
     };
   }
 
-  if (
-    intent === "subgoal_freeing_time" ||
-    intent === "goal_growing_staff"
-  ) {
+  const followUpKind = chooseFollowUpKind(signals.pains, inboundText);
+
+  if (followUpKind === "none" || signals.pains.length === 0) {
+    if (signals.vague) {
+      return complete(ctx, messages.calendarMessage(ctx));
+    }
+    return complete(ctx, messages.calendarMessage(ctx));
+  }
+
+  if (followUpKind === "website") {
     return {
-      context: withState(context, "awaiting_contact_both_time_task"),
-      reply: messages.bothTimeTaskQuestion(context),
+      context: withState(ctx, "awaiting_follow_up", {
+        followUpKind: "website",
+        detectedPains: signals.pains,
+      }),
+      reply: messages.websiteFollowUpQuestion(ctx),
     };
   }
 
-  return {
-    context,
-    reply: messages.bothPriorityQuestion(context),
-  };
+  if (followUpKind === "missed_calls") {
+    return {
+      context: withState(ctx, "awaiting_follow_up", {
+        followUpKind: "missed_calls",
+        detectedPains: signals.pains,
+      }),
+      reply: messages.missedCallsFollowUpQuestion(ctx),
+    };
+  }
+
+  return complete(ctx, messages.calendarMessage(ctx), { detectedPains: signals.pains });
 }
 
-function handleVagueClarification(
+function includesAnyLookingForInfo(text: string): boolean {
+  const lower = text.toLowerCase();
+  return (
+    lower.includes("just looking") ||
+    lower.includes("looking for information") ||
+    lower.includes("more information")
+  );
+}
+
+function isInformationSeeking(text: string): boolean {
+  return includesAnyLookingForInfo(text);
+}
+
+function handleFollowUpResponse(
   context: ContactConversationContext,
-  intent: ContactIntent,
+  inboundText: string,
 ): TransitionResult {
-  switch (intent) {
-    case "goal_booking_jobs":
-      return {
-        context: withState(context, "awaiting_contact_vague_booking_subgoal"),
-        reply: messages.vagueBookingSubgoalMessage(context),
-      };
-    case "goal_growing_staff":
-      return {
-        context: withState(context, "awaiting_contact_vague_staff_task"),
-        reply: messages.vagueStaffTaskQuestion(context),
-      };
-    case "goal_improving_calls":
-      return {
-        context: withState(context, "awaiting_contact_vague_calls_improvement"),
-        reply: messages.vagueCallsImprovementQuestion(context),
-      };
-    case "goal_both":
-      return {
-        context: withState(context, "awaiting_contact_both_priority"),
-        reply: messages.bothPriorityQuestion(context),
-      };
-    default:
-      if (
-        intent === "goal_not_sure" ||
-        intent === "vague_yes" ||
-        intent === "detail"
-      ) {
-        return complete(context, messages.vagueFallbackFollowUp(context));
-      }
-      return {
-        context,
-        reply: messages.vagueClarificationMessage(context),
-      };
+  const ctx = withInbound(context, inboundText);
+
+  if (context.followUpKind === "website") {
+    return complete(ctx, messages.websiteCalendarMessage(ctx));
   }
+
+  return complete(ctx, messages.calendarMessage(ctx));
+}
+
+function handleInfoAreaResponse(
+  context: ContactConversationContext,
+  inboundText: string,
+): TransitionResult {
+  const ctx = withInbound(context, inboundText);
+  const text = inboundText.toLowerCase();
+
+  if (text.includes("website") || text.includes("web site")) {
+    return complete(ctx, messages.faqWebsiteBrief(ctx));
+  }
+
+  return complete(ctx, messages.faqVoiceBrief(ctx));
+}
+
+function migrateLegacyState(state: string): ContactConversationState {
+  return "awaiting_prompt";
+}
+
+function isKnownState(state: string): state is ContactConversationState {
+  return [
+    "awaiting_prompt",
+    "awaiting_follow_up",
+    "awaiting_info_area",
+    "awaiting_faq_followup",
+    "awaiting_not_ready_followup",
+    "awaiting_info_followup",
+    "awaiting_answering_service_gap",
+    "awaiting_office_staff_task",
+    "completed",
+  ].includes(state);
 }
 
 export function advanceContactConversation(
   context: ContactConversationContext,
   inboundText: string,
 ): TransitionResult {
-  const intent = classifyContactIntent(inboundText, context.state);
+  const state =
+    context.state === "awaiting_contact_goal" || !isKnownState(context.state)
+      ? migrateLegacyState(context.state)
+      : context.state;
 
-  if (!FREE_FORM_ANSWER_STATES.has(context.state)) {
-    const global = handleGlobalIntents(context, intent);
+  const workingContext = state === context.state ? context : withState(context, state);
+
+  if (workingContext.state === "awaiting_prompt" && isInformationSeeking(inboundText)) {
+    return {
+      context: withState(withInbound(workingContext, inboundText), "awaiting_info_area"),
+      reply: messages.infoAreaQuestion(workingContext),
+    };
+  }
+
+  if (!FREE_FORM_STATES.has(workingContext.state)) {
+    const global = handleGlobalIntents(workingContext, inboundText);
     if (global) {
       return global;
     }
   }
 
-  switch (context.state) {
-    case "awaiting_contact_goal":
-      return handleContactGoal(context, intent);
+  switch (workingContext.state) {
+    case "awaiting_prompt":
+      return handlePromptResponse(workingContext, inboundText);
 
-    case "awaiting_contact_booking_subgoal":
-      return handleBookingSubgoal(context, intent);
+    case "awaiting_follow_up":
+      return handleFollowUpResponse(workingContext, inboundText);
 
-    case "awaiting_contact_booking_calls_window":
-      return complete(context, messages.bookingCallsWindowFollowUp(context));
+    case "awaiting_info_area":
+      return handleInfoAreaResponse(workingContext, inboundText);
 
-    case "awaiting_contact_booking_response_speed":
-      return complete(context, messages.bookingResponseSpeedFollowUp(context));
+    case "awaiting_faq_followup":
+      return complete(
+        withInbound(workingContext, inboundText),
+        messages.scheduleYesMessage(workingContext),
+      );
 
-    case "awaiting_contact_booking_followup_process":
-      return complete(context, messages.bookingFollowUpFollowUp(context));
-
-    case "awaiting_contact_staff_task":
-      return {
-        context: withState(context, "awaiting_contact_staff_time"),
-        reply: messages.staffTimeQuestion(context),
-      };
-
-    case "awaiting_contact_staff_time":
-      return complete(context, messages.staffTimeFollowUp(context));
-
-    case "awaiting_contact_calls_improvement":
-      return handleCallsImprovement(context, intent);
-
-    case "awaiting_contact_calls_fewer_missed":
-      return complete(context, messages.callsFewerMissedFollowUp(context));
-
-    case "awaiting_contact_calls_after_hours":
-      return complete(context, messages.callsAfterHoursFollowUp(context));
-
-    case "awaiting_contact_calls_consistent_answers":
-      return complete(context, messages.callsConsistentAnswersFollowUp(context));
-
-    case "awaiting_contact_calls_easier_scheduling":
-      return complete(context, messages.callsEasierSchedulingFollowUp(context));
-
-    case "awaiting_contact_both_priority":
-      return handleBothPriority(context, intent);
-
-    case "awaiting_contact_both_revenue_slippage":
-      return complete(context, messages.bothRevenueFollowUp(context));
-
-    case "awaiting_contact_both_time_task":
-      return complete(context, messages.bothTimeFollowUp(context));
-
-    case "awaiting_contact_something_else":
-      return complete(context, messages.somethingElseFollowUp({
-        ...context,
-        lastCustomerMessage: restateCustomerGoal(inboundText),
-      }));
-
-    case "awaiting_contact_faq_followup":
-      if (intent === "faq_voice_ai") {
-        return {
-          context: withState(context, "awaiting_contact_faq_voice"),
-          reply: messages.faqVoiceQuestion(context),
-        };
+    case "awaiting_info_followup": {
+      const signals = getSignals(inboundText);
+      if (signals.yes) {
+        return complete(
+          withInbound(workingContext, inboundText),
+          messages.requestInfoFollowUp(workingContext),
+        );
       }
-      if (intent === "faq_website") {
-        return {
-          context: withState(context, "awaiting_contact_faq_website"),
-          reply: messages.faqWebsiteQuestion(context),
-        };
+      return complete(withInbound(workingContext, inboundText), messages.declineMessage());
+    }
+
+    case "awaiting_not_ready_followup": {
+      const signals = getSignals(inboundText);
+      if (signals.yes) {
+        return complete(
+          withInbound(workingContext, inboundText),
+          messages.notReadyFollowUp(workingContext),
+        );
       }
-      return {
-        context,
-        reply: messages.faqMessage(context),
-      };
+      return complete(withInbound(workingContext, inboundText), messages.declineMessage());
+    }
 
-    case "awaiting_contact_faq_voice":
-      return complete(context, messages.faqVoiceFollowUp(context));
+    case "awaiting_answering_service_gap":
+      return complete(
+        withInbound(workingContext, inboundText),
+        messages.answeringServiceFollowUp(workingContext),
+      );
 
-    case "awaiting_contact_faq_website":
-      return complete(context, messages.faqWebsiteFollowUp(context));
-
-    case "awaiting_contact_info_followup":
-      if (intent === "yes" || intent === "vague_yes") {
-        return complete(context, messages.requestInfoFollowUp(context));
-      }
-      return complete(context, messages.declineMessage());
-
-    case "awaiting_contact_not_ready_followup":
-      if (intent === "yes" || intent === "vague_yes") {
-        return complete(context, messages.notReadyFollowUp(context));
-      }
-      return complete(context, messages.declineMessage());
-
-    case "awaiting_contact_vague_clarification":
-      return handleVagueClarification(context, intent);
-
-    case "awaiting_contact_vague_booking_subgoal":
-      if (SUBGOAL_INTENTS.has(intent)) {
-        return complete(context, messages.vagueBookingFollowUp(context));
-      }
-      return {
-        context,
-        reply: messages.vagueBookingSubgoalMessage(context),
-      };
-
-    case "awaiting_contact_vague_staff_task":
-      return complete(context, messages.vagueStaffFollowUp(context));
-
-    case "awaiting_contact_vague_calls_improvement":
-      if (CALL_IMPROVEMENT_INTENTS.has(intent)) {
-        return complete(context, messages.vagueCallsFollowUp(context));
-      }
-      return complete(context, messages.vagueCallsFollowUp(context));
-
-    case "awaiting_contact_answering_service_gap":
-      return complete(context, messages.answeringServiceFollowUp(context));
-
-    case "awaiting_contact_office_staff_task":
-      return complete(context, messages.officeStaffFollowUp(context));
+    case "awaiting_office_staff_task":
+      return complete(
+        withInbound(workingContext, inboundText),
+        messages.officeStaffFollowUp(workingContext),
+      );
 
     case "completed":
-      return handleContactGoal(context, intent);
+      return handlePromptResponse(workingContext, inboundText);
 
     default:
-      return {
-        context: withState(context, "awaiting_contact_goal"),
-        reply: messages.initialMessage(context),
-      };
+      return handlePromptResponse(withState(workingContext, "awaiting_prompt"), inboundText);
   }
 }

@@ -14,6 +14,7 @@ export function createDemoSession(input: {
   phone: string;
   firstName: string;
   lastName: string;
+  businessName?: string;
   email: string;
   hasWebsite: boolean;
   smsConsent: boolean;
@@ -26,13 +27,14 @@ export function createDemoSession(input: {
     phone: normalizePhone(input.phone),
     firstName: input.firstName,
     lastName: input.lastName,
+    businessName: input.businessName,
     email: input.email,
     hasWebsite: input.hasWebsite,
     smsConsent: input.smsConsent,
     demoCompleted: true,
     demoCompletedAt,
     bookingUrl: input.bookingUrl,
-    state: "awaiting_demo_feature",
+    state: "awaiting_fit",
     followUpStage: 0,
     updatedAt: new Date().toISOString(),
   };
@@ -44,6 +46,7 @@ export async function startDemoSpeed2Lead(input: {
   phone: string;
   firstName: string;
   lastName: string;
+  businessName?: string;
   email: string;
   hasWebsite: boolean;
   smsConsent: boolean;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildShortNeedSummary, restateCustomerGoal } from "./needSummary";
+import { buildShortNeedSummary } from "./needSummary";
 import { advanceContactConversation } from "./stateMachine";
 import { createContactSession } from "./startConversation";
 
@@ -30,99 +30,64 @@ describe("contact need summary", () => {
   test("detects website requests", () => {
     expect(buildShortNeedSummary("We need a new website")).toBe("a new website");
   });
-
-  test("restates free-form goals", () => {
-    expect(restateCustomerGoal("Better lead follow-up")).toContain("follow-up");
-  });
 });
 
-describe("contact opening flow", () => {
-  test("booking more jobs follow-up branch completes", () => {
+describe("contact natural-language flow", () => {
+  test("missed calls follow-up then calendar", () => {
     const { context, replies } = walk([
-      "Booking more jobs",
-      "Following up more consistently",
-      "Manually",
+      "We keep missing calls after hours.",
+      "Mostly voicemail",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("biggest opportunity right now");
-    expect(replies[2]).toContain("consistent follow-up process");
+    expect(replies[0]).toContain("What happens with those calls today");
+    expect(replies[1]).toContain("calendar");
   });
 
-  test("reducing workload branch completes", () => {
+  test("urgent after-hours request skips follow-up", () => {
     const { context, replies } = walk([
-      "Reducing the workload on our office team",
-      "Following up with leads",
-      "About 10 hours",
+      "We desperately need something answering our phones after 5. Can your system do that?",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[1]).toContain("About how much time would you estimate");
+    expect(replies[0]).toContain("after-hours");
+    expect(replies[0]).toContain("calendar.app.google/test");
+    expect(replies).toHaveLength(1);
   });
 
-  test("improving customer calls branch completes", () => {
+  test("website branch asks one question then calendar", () => {
     const { context, replies } = walk([
-      "Improving how customer calls are handled",
-      "Fewer missed calls",
-      "After hours",
+      "Need a new website.",
+      "Our current site looks outdated",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("coverage issue more than a lead generation issue");
+    expect(replies[0]).toContain("biggest issue with the site");
+    expect(replies[1]).toContain("calendar");
   });
 
-  test("both revenue branch closes after one answer", () => {
+  test("information seeker gets area question then calendar path", () => {
     const { context, replies } = walk([
-      "Both",
-      "More booked revenue",
-      "Unanswered calls",
+      "Just looking for information.",
+      "The AI side",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("clearest path to measuring revenue impact");
-    expect(replies).toHaveLength(3);
-  });
-
-  test("something else branch restates the customer goal", () => {
-    const { context, replies } = walk([
-      "Something else",
-      "We need better scheduling for our dispatch team",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[1]).toContain("main goal is");
-    expect(replies[1]).toContain("calendar.app.google/test");
-  });
-});
-
-describe("contact objection flows", () => {
-  test("faq voice ai branch completes", () => {
-    const { context, replies } = walk([
-      "How does it work?",
-      "Voice AI",
-      "Inbound calls",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("Which part are you most interested in");
-    expect(replies[2]).toContain("good starting point");
-  });
-
-  test("vague yes booking branch completes", () => {
-    const { context, replies } = walk([
-      "Sure",
-      "Booking more jobs",
-      "Answering more calls",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("tells me where to focus");
+    expect(replies[0]).toContain("website side or the AI");
+    expect(replies[1]).toContain("calendar");
   });
 
   test("price question completes immediately", () => {
     const { context, replies } = walk(["What does it cost?"]);
 
     expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("Based on your form");
+    expect(replies[0]).toContain("Pricing depends");
+  });
+});
+
+describe("contact opening message", () => {
+  test("uses free-form prompt opening", () => {
+    const context = createContext();
+    expect(context.state).toBe("awaiting_prompt");
   });
 });

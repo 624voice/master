@@ -1,3 +1,4 @@
+import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import {
   declineMessage as demoDeclineMessage,
@@ -23,7 +24,6 @@ import {
   optOutConfirmationMessage,
   unknownInboundMessage,
 } from "~/server/speed2Lead/messages";
-import { classifyIntent } from "~/server/speed2Lead/intents";
 import {
   logInboundConversationSms,
   sendConversationSms,
@@ -43,14 +43,10 @@ function isDemoSession(
   return session?.flow === "demo";
 }
 
-function usesContactStyleRouting(session: AnyConversationContext | null): boolean {
-  return isContactSession(session) || isDemoSession(session);
-}
-
 export async function handleInboundSms(from: string, body: string): Promise<void> {
   const phone = normalizePhone(from);
   const session = await getSession(phone);
-  const intent = classifyIntent(body, usesContactStyleRouting(session) ? undefined : session?.state);
+  const intent = classifyGlobalIntent(body);
 
   logInboundConversationSms(phone, body, session);
 

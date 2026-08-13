@@ -1,12 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { advanceDemoConversation } from "./stateMachine";
 import { createDemoSession } from "./startConversation";
+import { initialMessage } from "./messages";
 
 function createContext() {
   return createDemoSession({
     phone: "+15551234567",
     firstName: "Alex",
     lastName: "Smith",
+    businessName: "Smith Plumbing",
     email: "alex@example.com",
     hasWebsite: true,
     smsConsent: true,
@@ -28,63 +30,56 @@ function walk(steps: string[], startContext = createContext()) {
   return { context, replies };
 }
 
-describe("demo opening flow", () => {
-  test("faq after-hours branch completes", () => {
+describe("demo natural-language flow", () => {
+  test("yes branch asks workload then calendar", () => {
     const { context, replies } = walk([
-      "She answered questions well",
-      "After hours calls",
-      "Voicemail",
+      "Yeah I could see it working",
+      "Answering after-hours calls",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("most valuable in your business");
-    expect(replies[1]).toContain("voicemail");
-    expect(replies[2]).toContain("booking link");
+    expect(replies[0]).toContain("take off your team's plate");
+    expect(replies[1]).toContain("calendar");
   });
 
-  test("booking scheduling branch completes", () => {
-    const { context, replies } = walk([
-      "Booking the visit",
-      "Reducing scheduling work",
-      "Confirming appointments",
-    ]);
+  test("strong positive sends calendar immediately", () => {
+    const { context, replies } = walk(["That was awesome"]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("consultation");
+    expect(replies[0]).toContain("Glad you liked it");
+    expect(replies[0]).toContain("calendar.app.google/test");
+    expect(replies).toHaveLength(1);
   });
 
-  test("maintenance recurring revenue yes branch completes", () => {
+  test("mild positive asks workload question first", () => {
     const { context, replies } = walk([
-      "The maintenance plan",
-      "Creating recurring revenue",
-      "Yes",
-      "Not very consistently",
+      "Pretty cool",
+      "Scheduling",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[3]).toContain("recurring revenue");
+    expect(replies[0]).toContain("take off your team's plate");
   });
 
-  test("multiple features revenue branch completes", () => {
+  test("no branch asks objection then may offer calendar", () => {
     const { context, replies } = walk([
-      "All of it",
-      "Capturing more revenue",
-      "Unanswered inquiries",
+      "No",
+      "We are too custom for something like that but maybe if it handled after hours",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("AI workflows");
+    expect(replies[0]).toContain("biggest reason");
+    expect(replies[1]).toContain("calendar");
   });
 
-  test("not sure immediate response branch completes", () => {
+  test("negative feedback branch completes", () => {
     const { context, replies } = walk([
-      "I'm not sure",
-      "Immediate response",
-      "When they call after hours",
+      "It felt robotic",
+      "The scheduling felt fake",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[2]).toContain("customer journey gap");
+    expect(replies[1]).toContain("fictional plumbing company");
   });
 });
 
@@ -100,7 +95,7 @@ describe("demo global intents", () => {
     const { context, replies } = walk(["Let's talk"]);
 
     expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("25-minute time");
+    expect(replies[0]).toContain("calendar.app.google/test");
   });
 
   test("meeting booked completes with confirmation", () => {
@@ -110,23 +105,15 @@ describe("demo global intents", () => {
     expect(context.meetingBooked).toBe(true);
     expect(replies[0]).toContain("booking come through");
   });
-
-  test("negative feedback branch completes", () => {
-    const { context, replies } = walk([
-      "It felt robotic",
-      "The scheduling felt fake",
-    ]);
-
-    expect(context.state).toBe("completed");
-    expect(replies[1]).toContain("fictional plumbing company");
-  });
 });
 
 describe("demo session bootstrap", () => {
-  test("initial message uses first name only", () => {
+  test("initial message uses business name and fit question", () => {
     const context = createContext();
     expect(context.flow).toBe("demo");
-    expect(context.state).toBe("awaiting_demo_feature");
+    expect(context.state).toBe("awaiting_fit");
+    expect(initialMessage(context)).toContain("Smith Plumbing");
+    expect(initialMessage(context)).toContain("could you actually see");
     expect(context.nextFollowUpAt).toBeTruthy();
   });
 });

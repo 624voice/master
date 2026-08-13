@@ -1,20 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { classifyIntent } from "./intents";
+import { classifyGlobalIntent } from "./globalIntents";
 
-describe("classifyIntent", () => {
+describe("classifyGlobalIntent", () => {
   test("detects stop", () => {
-    expect(classifyIntent("STOP")).toBe("stop");
+    expect(classifyGlobalIntent("STOP")).toBe("stop");
   });
 
-  test("detects booking goal", () => {
-    expect(classifyIntent("Booking more jobs")).toBe("goal_booking_jobs");
+  test("detects schedule ready", () => {
+    expect(classifyGlobalIntent("Can we talk?")).toBe("schedule_ready");
   });
 
-  test("detects both", () => {
-    expect(classifyIntent("Both")).toBe("goal_both");
-  });
-
-  test("detects vague yes", () => {
-    expect(classifyIntent("sure")).toBe("vague_yes");
+  test("detects price", () => {
+    expect(classifyGlobalIntent("How much does it cost?")).toBe("price");
   });
 });
