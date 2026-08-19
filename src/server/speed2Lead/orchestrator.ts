@@ -416,7 +416,7 @@ export async function orchestrateInboundTurn(
     toolState,
     gateResult.calendarLinkAllowed,
   );
-  const validated = await validateOrRepair(
+  let validated = await validateOrRepair(
     draft,
     workingContext,
     toolState,
