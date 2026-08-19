@@ -51,7 +51,7 @@ const TIME_HINT_RE =
 const ORDINAL_SLOT_RE =
   /\b(first|1st|second|2nd|third|3rd|fourth|4th|last|that\s+one|this\s+one)\b/i;
 
-const TIME_SELECTION_RE = /\b(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\b/i;
+const TIME_SELECTION_RE = /\b(\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}\s*(?:am|pm))\b/i;
 
 const IMPLIED_AVAILABILITY_RE =
   /\b(i\s+have\s+(?:some\s+)?openings?|here\s+are\s+(?:some\s+)?(?:times|slots|options)|let\s+me\s+(?:find|check|look\s+for)\s+(?:a\s+)?time|let'?s\s+find\s+a\s+time|find\s+a\s+time\s+that\s+works)\b/i;
@@ -108,11 +108,15 @@ function slotLabel(startIso: string): string {
 }
 
 function parseTimeToMinutes(raw: string): number | null {
-  const match = raw.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  const normalized = raw.trim().toLowerCase().replace(/\s+/g, "");
+  const match = normalized.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/i);
   if (!match) return null;
   let hour = Number.parseInt(match[1] ?? "0", 10);
   const minute = Number.parseInt(match[2] ?? "0", 10);
-  const meridiem = (match[3] ?? "").toLowerCase();
+  let meridiem = (match[3] ?? "").toLowerCase();
+  if (!meridiem) {
+    meridiem = hour >= 8 && hour <= 11 ? "am" : "pm";
+  }
   if (meridiem === "pm" && hour < 12) hour += 12;
   if (meridiem === "am" && hour === 12) hour = 0;
   if (hour >= 24 || minute >= 60) return null;
@@ -130,7 +134,7 @@ function resolveOrdinalIndex(message: string, slotCount: number): number | null 
   if (/\b(second|2nd)\b/.test(lower)) return Math.min(1, slotCount - 1);
   if (/\b(third|3rd)\b/.test(lower)) return Math.min(2, slotCount - 1);
   if (/\b(fourth|4th|last)\b/.test(lower)) return slotCount - 1;
-  if (/\b(that\s+one|this\s+one|works|good|perfect|sounds\s+good)\b/.test(lower) && slotCount === 1) {
+  if (/\b(that\s+one|this\s+one|works|good|perfect|sounds\s+good|the\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}\s*(?:am|pm)\s+slot)\b/.test(lower) && slotCount === 1) {
     return 0;
   }
   return null;
@@ -231,7 +235,12 @@ export function planSchedulingGate(args: {
       };
     }
 
-    if (hasSchedulingPreference(inboundMessage) || TIME_SELECTION_RE.test(inboundMessage)) {
+    const requestsDifferentTime =
+      hasSchedulingPreference(inboundMessage) ||
+      TIME_SELECTION_RE.test(inboundMessage) ||
+      /\b(instead|anything around|different time|other time|later time)\b/i.test(inboundMessage);
+
+    if (requestsDifferentTime) {
       const requestInput = preferenceInput ?? defaultAvailabilityInput(now);
       return {
         action: {

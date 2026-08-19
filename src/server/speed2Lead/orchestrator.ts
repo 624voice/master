@@ -427,6 +427,16 @@ export async function orchestrateInboundTurn(
     gateResult.calendarLinkAllowed,
   );
 
+  if (!validated && gateResult.forcedReply) {
+    const forcedPass = validateOutboundSms(gateResult.forcedReply, {
+      session: workingContext,
+      toolState,
+    });
+    if (forcedPass.ok) {
+      validated = forcedPass.text;
+    }
+  }
+
   if (!validated) {
     if (toolState.bookingFailed) {
       logOrchestratorEvent("fallback_rules", {

@@ -1,5 +1,10 @@
 import { centralDateAt, parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
+import {
+  inferAvailabilityInputFromMessage,
+  resolveLaterThisWeekRange,
+  tomorrowCentralDate,
+} from "~/server/speed2Lead/schedulingRange";
 import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
 import type { DemoConversationContext } from "~/server/demoSpeed2Lead/types";
 import type { ScenarioExpectations } from "~/server/speed2Lead/eval/scoring";
@@ -142,10 +147,45 @@ export function slotsForWeekday(
 }
 
 export function tuesdayAfternoonSlots(now: Date): string[] {
-  return slotsForWeekday(now, "Tue", [13, 14, 16]).map((iso, i) => {
-    if (i === 1) return iso;
-    return iso;
-  });
+  return slotsForWeekday(now, "Tue", [13, 14, 16]);
+}
+
+function slotsForCentralDate(date: string, hours: number[]): string[] {
+  const [year, month, day] = date.split("-").map(Number);
+  return hours.map((hour) => centralDateAt(year, month, day, hour, 0, TZ).toISOString());
+}
+
+function slotsForTomorrow(now: Date, hours: number[]): string[] {
+  return slotsForCentralDate(tomorrowCentralDate(now), hours);
+}
+
+function slotsForLaterThisWeek(now: Date, hours: number[]): string[] {
+  const range = resolveLaterThisWeekRange(now);
+  const slots: string[] = [];
+  let cursor = new Date(range.rangeStart.getTime());
+  while (cursor.getTime() <= range.rangeEnd.getTime()) {
+    const parts = parseCentralParts(cursor, TZ);
+    if (parts.weekday !== "Sat" && parts.weekday !== "Sun") {
+      slots.push(
+        ...hours.map((hour) =>
+          centralDateAt(parts.year, parts.month, parts.day, hour, 0, TZ).toISOString(),
+        ),
+      );
+    }
+    cursor = new Date(cursor.getTime() + 24 * 60 * 60 * 1000);
+  }
+  return slots;
+}
+
+function slotsMatchingMessage(message: string, now: Date, hours: number[]): string[] {
+  const inferred = inferAvailabilityInputFromMessage(message, now);
+  if (inferred?.centralDate) {
+    return slotsForCentralDate(inferred.centralDate, hours);
+  }
+  if (inferred?.rangeStart && inferred?.rangeEnd) {
+    return slotsForLaterThisWeek(now, hours);
+  }
+  return tuesdayAfternoonSlots(now);
 }
 
 export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
@@ -184,7 +224,10 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
       shouldOfferSlots: true,
       maxQuestionsPerTurn: 1,
     },
-    presetSlots: (now) => slotsForWeekday(now, "Tue", [14, 15, 16]),
+    presetSlots: (now) => [
+      ...slotsForTomorrow(now, [14, 15, 16]),
+      ...slotsForWeekday(now, "Thu", [9, 10, 11]),
+    ],
   },
   {
     id: "roi-objection-price",
@@ -425,7 +468,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     buildSession: (now) => buildRoiSession(now, evalPhone("0305")),
     customerTurns: ["Interested in a consultation", "Later this week is best"],
     expectations: { shouldOfferSlots: true },
-    presetSlots: (now) => tuesdayAfternoonSlots(now).slice(0, 3),
+    presetSlots: (now) => slotsForLaterThisWeek(now, [10, 13, 14, 16]),
   },
   {
     id: "sched-change-days",
@@ -448,7 +491,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     buildSession: (now) => buildRoiSession(now, evalPhone("0307")),
     customerTurns: ["Ready to book", "Tuesday afternoon", "The 2pm slot works"],
     expectations: { shouldOfferSlots: true, shouldConfirmBooking: true },
-    presetSlots: tuesdayAfternoonSlots,
+    presetSlots: (now) => slotsForWeekday(now, "Tue", [13, 14, 16]),
   },
   {
     id: "sched-different-time",
@@ -458,7 +501,10 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     buildSession: (now) => buildRoiSession(now, evalPhone("0308")),
     customerTurns: ["Let's talk", "Tuesday afternoon", "Do you have anything around 4:30 instead?"],
     expectations: { shouldOfferSlots: true, mustNotConfirmBooking: true },
-    presetSlots: tuesdayAfternoonSlots,
+    presetSlots: (now) => [
+      ...slotsForWeekday(now, "Tue", [13, 14, 16]),
+      ...slotsMatchingMessage("around 4:30", now, [16, 17]),
+    ],
   },
   {
     id: "sched-slot-conflict",

@@ -203,6 +203,7 @@ export function resolveAvailabilityRange(
 
 export function inferPartOfDay(message: string): AvailabilityRangeInput["partOfDay"] {
   const lower = message.toLowerCase();
+  if (/\b(after lunch)\b/.test(lower)) return "afternoon";
   if (/\b(morning|before noon)\b/.test(lower)) return "morning";
   if (/\b(afternoon|after lunch)\b/.test(lower)) return "afternoon";
   if (/\b(evening)\b/.test(lower)) return "evening";
@@ -239,11 +240,27 @@ export function inferAvailabilityInputFromMessage(
     }
   }
 
-  const aroundTime = lower.match(/\b(?:around|at)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
-  if (aroundTime) {
-    const date = /\btomorrow\b/.test(lower) ? tomorrowCentralDate(now) : formatCentralDate(centralPartsFromDate(now));
+  const bareHour = lower.match(/\b(?:around|at)?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+  if (bareHour) {
+    let meridiem = (bareHour[3] ?? "").toLowerCase();
+    const hour = Number.parseInt(bareHour[1] ?? "0", 10);
+    if (!meridiem) {
+      meridiem = hour >= 8 && hour <= 11 ? "am" : "pm";
+    }
+    const date = /\btomorrow\b/.test(lower)
+      ? tomorrowCentralDate(now)
+      : inferWeekdayDateFromMessage(lower, now) ?? formatCentralDate(centralPartsFromDate(now));
     return { centralDate: date, partOfDay: inferPartOfDay(lower) };
   }
 
+  return null;
+}
+
+function inferWeekdayDateFromMessage(message: string, now: Date): string | null {
+  for (const weekday of WEEKDAY_NAMES) {
+    if (new RegExp(`\\b${weekday}\\b`).test(message)) {
+      return nextWeekdayCentral(weekday, now);
+    }
+  }
   return null;
 }
