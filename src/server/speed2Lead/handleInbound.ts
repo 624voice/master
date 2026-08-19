@@ -14,6 +14,7 @@ import {
 import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
 import { advanceConversation } from "~/server/speed2Lead/stateMachine";
 import {
+  appendUserMessage,
   clearSession,
   getSession,
   isOptedOut,
@@ -46,7 +47,7 @@ function isDemoSession(
 
 export async function handleInboundSms(from: string, body: string): Promise<void> {
   const phone = normalizePhone(from);
-  const session = await getSession(phone);
+  let session = await getSession(phone);
   const intent = classifyGlobalIntent(body);
 
   logInboundConversationSms(phone, body, session);
@@ -55,7 +56,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     await setOptedOut(phone);
     await clearSession(phone);
     await removeDemoFollowUp(phone);
-    await sendConversationSms(phone, optOutConfirmationMessage(), session);
+    await sendConversationSms(phone, optOutConfirmationMessage());
     return;
   }
 
@@ -63,8 +64,15 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     return;
   }
 
+  if (session) {
+    session = appendUserMessage(session, body);
+  }
+
   const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session);
   if (lifecycle.handled) {
+    if (session && !lifecycle.sessionPersisted) {
+      await saveSession(session);
+    }
     return;
   }
 
@@ -79,7 +87,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
       state: "completed" as const,
       updatedAt: new Date().toISOString(),
     };
-    await sendConversationSms(
+    const updated = await sendConversationSms(
       phone,
       isDemoSession(session)
         ? demoDeclineMessage()
@@ -88,7 +96,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
           : declineMessage(),
       completed,
     );
-    await saveSession(completed);
+    await saveSession(updated ?? completed);
     if (isDemoSession(session)) {
       await removeDemoFollowUp(phone);
     }
@@ -105,8 +113,8 @@ export async function handleInboundSms(from: string, body: string): Promise<void
       ? advanceContactConversation(session, body)
       : advanceConversation(session, body);
 
-  await sendConversationSms(phone, result.reply, result.context);
-  await saveSession(result.context);
+  const updated = await sendConversationSms(phone, result.reply, result.context);
+  await saveSession(updated ?? result.context);
 
   if (isDemoSession(result.context) && result.context.meetingBooked) {
     await removeDemoFollowUp(phone);

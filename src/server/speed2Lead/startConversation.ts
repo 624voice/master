@@ -36,7 +36,6 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
     bookingUrl: getBookingUrl(),
   });
 
-  await saveSession(context);
   await registerLeadForLifecycle({
     phone,
     firstName: input.firstName,
@@ -46,5 +45,8 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
     source: "roi",
     smsConsent: true,
   });
-  await sendConversationSms(phone, initialMessage(context), context);
+
+  const opening = initialMessage(context);
+  const updated = await sendConversationSms(phone, opening, context);
+  await saveSession(updated ?? context);
 }
