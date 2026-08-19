@@ -434,6 +434,17 @@ export async function orchestrateInboundTurn(
     });
     if (forcedPass.ok) {
       validated = forcedPass.text;
+    } else {
+      validated = await validateOrRepair(
+        gateResult.forcedReply,
+        workingContext,
+        toolState,
+        buildConversationInput(workingContext),
+        deps,
+        model,
+        runModel,
+        gateResult.calendarLinkAllowed,
+      );
     }
   }
 
