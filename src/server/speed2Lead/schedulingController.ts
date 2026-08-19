@@ -411,8 +411,10 @@ export async function enforceSchedulingGate(args: {
   }
 
   if (action.type === "get_availability" || action.type === "get_availability_for_request") {
-    if (!args.llmCalledGetAvailability) {
-      gateApplied = true;
+    if (!args.llmCalledGetAvailability || toolState.offeredSlots.length === 0) {
+      if (!args.llmCalledGetAvailability) {
+        gateApplied = true;
+      }
       const fetched = await runGetAvailability(action.input, context, toolState, now);
       context = fetched.context;
       toolState = fetched.toolState;
@@ -434,8 +436,8 @@ export async function enforceSchedulingGate(args: {
   }
 
   if (action.type === "book_appointment") {
-    if (!args.llmCalledBookAppointment) {
-      gateApplied = true;
+    if (!toolState.bookingConfirmed) {
+      gateApplied = gateApplied || !args.llmCalledBookAppointment;
       bookingAttempted = true;
       const booked = await runBookAppointment(action.start, context, toolState, now);
       context = booked.context;

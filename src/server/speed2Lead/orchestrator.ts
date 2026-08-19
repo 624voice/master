@@ -438,7 +438,17 @@ export async function orchestrateInboundTurn(
   }
 
   if (!validated) {
-    if (toolState.bookingFailed) {
+    if (toolState.bookingFailed && gateResult.forcedReply) {
+      const conflictPass = validateOutboundSms(gateResult.forcedReply, {
+        session: workingContext,
+        toolState,
+      });
+      if (conflictPass.ok) {
+        validated = conflictPass.text;
+      }
+    }
+
+    if (!validated && toolState.bookingFailed) {
       logOrchestratorEvent("fallback_rules", {
         flow: context.flow ?? "roi",
         reason: "booking_failed",
