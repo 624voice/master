@@ -1,4 +1,5 @@
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
+import type { SessionMemoryFields } from "~/server/speed2Lead/sessionMemoryTypes";
 
 export type ContactConversationState =
   | "awaiting_prompt"
@@ -17,7 +18,7 @@ export type ContactFollowUpKind =
   | "general"
   | "none";
 
-export type ContactConversationContext = {
+export type ContactConversationContext = SessionMemoryFields & {
   flow: "contact";
   phone: string;
   firstName: string;

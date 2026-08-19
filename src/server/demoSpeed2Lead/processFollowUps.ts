@@ -71,7 +71,7 @@ export async function processDemoFollowUps(now = new Date()): Promise<number> {
     const nextFollowUpAt =
       nextStage === 3 ? undefined : computeNextFollowUpAt(session, nextStage);
 
-    const updated: DemoConversationContext = {
+    const beforeSend: DemoConversationContext = {
       ...session,
       followUpStage: nextStage,
       nextFollowUpAt,
@@ -80,8 +80,8 @@ export async function processDemoFollowUps(now = new Date()): Promise<number> {
       updatedAt: now.toISOString(),
     };
 
-    await sendConversationSms(phone, message, updated);
-    await saveSession(updated);
+    const persisted = await sendConversationSms(phone, message, beforeSend);
+    await saveSession(persisted ?? beforeSend);
 
     if (nextStage === 3) {
       await removeDemoFollowUp(phone);

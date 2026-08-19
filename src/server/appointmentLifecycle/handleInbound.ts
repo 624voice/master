@@ -24,6 +24,8 @@ import type { AnyConversationContext } from "~/server/speed2Lead/types";
 export type LifecycleInboundResult = {
   handled: boolean;
   reply?: string;
+  /** When true, the lifecycle handler already persisted the sales session. */
+  sessionPersisted?: boolean;
 };
 
 export async function handleAppointmentLifecycleInbound(
@@ -51,9 +53,9 @@ export async function handleAppointmentLifecycleInbound(
             updatedAt: now,
           }
         : { ...session, state: "completed" as const, updatedAt: now };
-    await saveSession(completed);
-    await sendConversationSms(phone, reply, completed);
-    return { handled: true, reply };
+    const updated = await sendConversationSms(phone, reply, completed);
+    await saveSession(updated ?? completed);
+    return { handled: true, reply, sessionPersisted: true };
   }
 
   if (!active) {
