@@ -4,6 +4,7 @@ import { createDemoSession } from "~/server/demoSpeed2Lead/startConversation";
 import {
   appendAssistantMessage,
   appendUserMessage,
+  applyConfirmedScheduling,
   MAX_CONVERSATION_MESSAGES,
   normalizeSessionMemory,
   seedKnownFacts,
@@ -204,6 +205,22 @@ describe("session message history", () => {
     expect(session.messages.filter((message) => message.role === "assistant")).toHaveLength(
       1,
     );
+  });
+});
+
+describe("applyConfirmedScheduling", () => {
+  test("sets scheduling confirmation fields without changing conversation state", () => {
+    const session = applyConfirmedScheduling(legacyRoiSession(), {
+      selectedStart: "2026-08-19T15:00:00.000Z",
+      calendarEventId: "evt-agent-1",
+    });
+
+    expect(session.scheduling).toEqual({
+      status: "confirmed",
+      selectedStart: "2026-08-19T15:00:00.000Z",
+      calendarEventId: "evt-agent-1",
+    });
+    expect(session.state).toBe("awaiting_problem");
   });
 });
 

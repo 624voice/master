@@ -251,3 +251,20 @@ export function prepareSessionForSave<T extends AnyConversationContext>(
 ): T & Required<SessionMemoryFields> {
   return normalizeSessionMemory(context);
 }
+
+export function applyConfirmedScheduling<T extends AnyConversationContext>(
+  context: T,
+  booking: { selectedStart: string; calendarEventId: string },
+): T {
+  const normalized = normalizeSessionMemory(context);
+  return {
+    ...normalized,
+    scheduling: {
+      ...normalized.scheduling,
+      status: "confirmed",
+      selectedStart: booking.selectedStart,
+      calendarEventId: booking.calendarEventId,
+    },
+    updatedAt: new Date().toISOString(),
+  } as T;
+}

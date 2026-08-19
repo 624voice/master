@@ -86,6 +86,7 @@ export function createSession(input: {
 export {
   appendAssistantMessage,
   appendUserMessage,
+  applyConfirmedScheduling,
   normalizeSessionMemory,
   prepareSessionForSave,
 } from "~/server/speed2Lead/memory";
