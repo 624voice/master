@@ -130,7 +130,10 @@ export function syncKnownFactsFromDetections(
   const messages = context.messages ?? [];
   updated = {
     ...updated,
-    questionsAsked: countAssistantQuestions(messages),
+    questionsAsked:
+      (context as SessionMemoryFields).orchestratorManagedQuestions === true
+        ? knownFacts.questionsAsked
+        : countAssistantQuestions(messages),
   };
 
   return updated;
@@ -264,6 +267,52 @@ export function applyConfirmedScheduling<T extends AnyConversationContext>(
       status: "confirmed",
       selectedStart: booking.selectedStart,
       calendarEventId: booking.calendarEventId,
+    },
+    updatedAt: new Date().toISOString(),
+  } as T;
+}
+
+export type KnownFactsUpdateInput = Partial<
+  Pick<KnownFacts, "primaryPain" | "urgency" | "fit" | "objection" | "customerGoal">
+> & {
+  discoveryQuestionAsked?: boolean;
+};
+
+export function applyKnownFactsUpdate<T extends AnyConversationContext>(
+  context: T,
+  update: KnownFactsUpdateInput,
+): T {
+  const normalized = normalizeSessionMemory(context);
+  const { discoveryQuestionAsked, ...factsPatch } = update;
+  let questionsAsked = normalized.knownFacts.questionsAsked;
+
+  if (discoveryQuestionAsked) {
+    questionsAsked += 1;
+  }
+
+  return {
+    ...normalized,
+    orchestratorManagedQuestions: true,
+    knownFacts: {
+      ...normalized.knownFacts,
+      ...factsPatch,
+      questionsAsked,
+    },
+    updatedAt: new Date().toISOString(),
+  } as T;
+}
+
+export function applyOfferedSlots<T extends AnyConversationContext>(
+  context: T,
+  offeredSlots: string[],
+): T {
+  const normalized = normalizeSessionMemory(context);
+  return {
+    ...normalized,
+    scheduling: {
+      ...normalized.scheduling,
+      status: "slots_offered",
+      offeredSlots,
     },
     updatedAt: new Date().toISOString(),
   } as T;

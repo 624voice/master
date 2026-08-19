@@ -1,5 +1,7 @@
 import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle/handleInbound";
+import { isSpeed2LeadLlmEnabled } from "~/server/speed2Lead/config";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
+import { orchestrateInboundTurn } from "~/server/speed2Lead/orchestrator";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import {
   declineMessage as demoDeclineMessage,
@@ -105,6 +107,22 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   if (isDemoSession(session)) {
     await removeDemoFollowUp(phone);
+  }
+
+  if (isSpeed2LeadLlmEnabled()) {
+    const orchestrated = await orchestrateInboundTurn(session, body);
+    if (orchestrated.handled) {
+      const updated = await sendConversationSms(
+        phone,
+        orchestrated.reply,
+        orchestrated.context,
+      );
+      await saveSession(updated ?? orchestrated.context);
+      if (isDemoSession(orchestrated.context) && orchestrated.context.meetingBooked) {
+        await removeDemoFollowUp(phone);
+      }
+      return;
+    }
   }
 
   const result = isDemoSession(session)

@@ -41,4 +41,6 @@ export type SessionMemoryFields = {
   messages?: ConversationMessage[];
   knownFacts?: KnownFacts;
   scheduling?: SchedulingState;
+  /** When true, knownFacts.questionsAsked is managed by the LLM orchestrator. */
+  orchestratorManagedQuestions?: boolean;
 };

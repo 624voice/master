@@ -87,6 +87,8 @@ export {
   appendAssistantMessage,
   appendUserMessage,
   applyConfirmedScheduling,
+  applyKnownFactsUpdate,
+  applyOfferedSlots,
   normalizeSessionMemory,
   prepareSessionForSave,
 } from "~/server/speed2Lead/memory";
