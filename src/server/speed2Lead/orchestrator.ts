@@ -192,6 +192,11 @@ async function validateOrRepair(
     toolState.offeredSlots.length > 0
   ) {
     const offer = buildSlotOfferMessage(toolState.offeredSlots);
+    const retry = `That exact time isn't open — ${offer.charAt(0).toLowerCase()}${offer.slice(1)}`;
+    const retryPass = validateOutboundSms(retry, guardrailContext);
+    if (retryPass.ok) {
+      return retryPass.text;
+    }
     const offerPass = validateOutboundSms(offer, guardrailContext);
     if (offerPass.ok) {
       return offerPass.text;
@@ -281,6 +286,18 @@ export async function orchestrateInboundTurn(
 
   let workingContext = context;
   let toolState = createInitialToolState();
+  const priorScheduling = context.scheduling;
+  if (priorScheduling?.offeredSlots?.length) {
+    toolState = { ...toolState, offeredSlots: priorScheduling.offeredSlots };
+  }
+  if (priorScheduling?.status === "confirmed" && priorScheduling.selectedStart) {
+    toolState = {
+      ...toolState,
+      bookingConfirmed: true,
+      bookingStart: priorScheduling.selectedStart,
+      bookingEventId: priorScheduling.calendarEventId,
+    };
+  }
   const instructions = buildOrchestratorInstructions(workingContext, now);
   const conversationInput: ResponseInputItem[] = buildConversationInput(workingContext);
   let latestDraft = "";

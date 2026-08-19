@@ -44,7 +44,7 @@ export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
     type: "function",
     name: "get_availability",
     description:
-      "Fetch real consultation slots from Google Calendar for a normalized Central-time range. Only offer slots returned by this tool.",
+      "Fetch real consultation slots from Google Calendar for a normalized Central-time range. Call this whenever the customer mentions scheduling, a day, a time, or availability — before offering any times. Only offer slots returned by this tool.",
     strict: true,
     parameters: {
       type: "object",
@@ -205,7 +205,7 @@ async function handleGetAvailability(
   }
 
   const offered = availability.slots.slice(0, maxSlots);
-  state = { ...state, offeredSlots: offered, calendarUnavailable: offered.length === 0 };
+  state = { ...state, offeredSlots: offered };
 
   return {
     result: {
@@ -355,7 +355,7 @@ export async function executeOrchestratorTool(
 export function shouldSuggestCalendarLink(state: ToolExecutionState): boolean {
   return (
     state.calendarUnavailable ||
-    state.availabilityAttempts >= 2 ||
+    (state.availabilityAttempts >= 2 && state.offeredSlots.length === 0) ||
     state.bookingAttempts >= 2
   );
 }

@@ -588,9 +588,9 @@ describe("speed2Lead orchestrator behavioral tests", () => {
       { runModel, now },
     );
 
-    expect(result.handled).toBe(false);
-    if (result.handled) return;
-    expect(result.fallbackToRules).toBe(true);
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.reply.toLowerCase()).not.toMatch(/\b(booked|you're all set|confirmed)\b/);
   });
 
   test("Slot conflict returns alternatives instead of false confirmation", async () => {

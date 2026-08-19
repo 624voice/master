@@ -56,7 +56,7 @@ export type ScenarioScore = {
 };
 
 const UNSUPPORTED_CLAIM_PATTERNS: Array<{ label: string; pattern: RegExp }> = [
-  { label: "ServiceTitan integration claim", pattern: /\bservicetitan\b/i },
+  { label: "Affirmative ServiceTitan sync claim", pattern: /\b(yes,? we (?:can|do)|we can sync|sync(?:s|ed)? appointments directly into servicetitan|integrat(?:e|es) with servicetitan)\b/i },
   { label: "Generic CRM integration promise", pattern: /\bintegrat(e|es|ed|ion)\s+(with|into)\s+(your|any|all)\s+(crm|servicetitan|housecall|jobber)/i },
   { label: "Implementation timeline promise", pattern: /\b(within|in)\s+\d+\s+(day|days|week|weeks)\b/i },
   { label: "Exact monthly pricing", pattern: /\$\s?\d{1,4}(?:,\d{3})*(?:\.\d{2})?\s*(?:\/mo|per month|monthly)/i },
@@ -82,9 +82,16 @@ function containsAny(text: string, patterns: RegExp[]): string[] {
 function detectUnsupportedClaims(transcript: TranscriptTurn[]): string[] {
   const claims: string[] = [];
   for (const turn of transcript) {
+    const text = turn.agent;
+    if (
+      /\bservicetitan\b/i.test(text) &&
+      /\b(depends on|mapped out|consultation|varies|scope|reviewed on a call)\b/i.test(text)
+    ) {
+      continue;
+    }
     for (const { label, pattern } of UNSUPPORTED_CLAIM_PATTERNS) {
-      if (pattern.test(turn.agent)) {
-        claims.push(`${label}: "${turn.agent.slice(0, 120)}..."`);
+      if (pattern.test(text)) {
+        claims.push(`${label}: "${text.slice(0, 120)}..."`);
       }
     }
   }

@@ -10,6 +10,7 @@ const ALLOWED_624VOICE_FACTS = [
   "Pricing depends on scope and what the customer wants handled; exact pricing is not quoted over SMS.",
   "The next step for qualified interest is usually a 25-minute AI orchestration consultation with Chris.",
   "624Voice focuses on capturing more revenue and reducing office workload without adding the same amount of staff.",
+  "Do not claim a specific CRM integration (ServiceTitan, Housecall Pro, Jobber, etc.) unless it is already confirmed in knownFacts. Say integrations depend on scope and are reviewed on a consultation call.",
 ];
 
 function currentCentralContext(now = new Date()): Record<string, string> {
@@ -88,7 +89,9 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
     discovery:
       "Adaptive NEPQ-lite discovery. Usually no more than 2-3 meaningful discovery questions before scheduling, but skip discovery when pain, interest, urgency, or explicit talk intent is already clear. Do not interrogate. Do not ask for facts already known.",
     scheduling:
-      "When interest is sufficient, transition naturally to scheduling. Do not default to sending a calendar link. Use get_availability, offer 2-3 real returned slots, then book_appointment when they choose. Only confirm booking after book_appointment succeeds.",
+      "When interest is sufficient, transition naturally to scheduling. Never send the booking URL on the first scheduling turn — call get_availability first. Offer 2-3 real returned slots, then book_appointment when they choose. If the customer wants a time you have not returned, call get_availability again with their preference. Only confirm booking after book_appointment succeeds. Send the calendar link only after repeated calendar/tool failures or if the customer explicitly asks for the link.",
+    integrations:
+      "Never confirm a named CRM, dispatch, or field-service integration unless it is already verified in context. For ServiceTitan or similar questions, explain that integration scope depends on their stack and is mapped out on a consultation — do not say yes we integrate or sync automatically.",
     customerQuestions:
       "Answer reasonable questions directly when supported by known facts, then continue naturally. Do not force every reply into another discovery question.",
     pricing:

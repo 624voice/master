@@ -20,6 +20,8 @@ const BOOKED_CLAIM_PATTERN =
   /\b(you(?:'re| are)? (?:all )?set|booked|confirmed|see you then|you're on the calendar|appointment is set)\b/i;
 const GUARANTEE_PATTERN =
   /\b(guarantee|guaranteed|will (?:make|save|earn)|promise you'll)\b/i;
+const CRM_INTEGRATION_CLAIM_PATTERN =
+  /\b(yes,? we (?:can|do)|we can|we do|sync(?:s|ed|ing)?|integrat(?:e|es|ed|ing))\b[^.\n]{0,80}\b(servicetitan|housecall pro|jobber|fieldpulse|hcp|crm)\b/i;
 
 function allowedRoiPriceTokens(session: AnyConversationContext): string[] {
   if (session.flow !== "roi" && !("annualOpportunity" in session)) {
@@ -86,6 +88,16 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
 
   if (GUARANTEE_PATTERN.test(trimmed)) {
     return { ok: false, reason: "SMS contains unsupported guarantee language" };
+  }
+
+  if (CRM_INTEGRATION_CLAIM_PATTERN.test(trimmed)) {
+    const hedged =
+      /\b(depends on|consultation|scope|mapped out|reviewed|varies|not sure|typically|usually)\b/i.test(
+        trimmed,
+      );
+    if (!hedged) {
+      return { ok: false, reason: "SMS claims a CRM integration that is not verified" };
+    }
   }
 
   if (BOOKED_CLAIM_PATTERN.test(trimmed) && !ctx.toolState.bookingConfirmed) {
