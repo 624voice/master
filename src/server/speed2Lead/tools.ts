@@ -49,18 +49,28 @@ export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
     parameters: {
       type: "object",
       additionalProperties: false,
+      required: ["rangeStart", "rangeEnd", "centralDate", "partOfDay", "maxSlots"],
       properties: {
-        rangeStart: { type: "string", description: "ISO8601 range start" },
-        rangeEnd: { type: "string", description: "ISO8601 range end" },
+        rangeStart: {
+          type: ["string", "null"],
+          description: "ISO8601 range start, or null when using centralDate/partOfDay",
+        },
+        rangeEnd: {
+          type: ["string", "null"],
+          description: "ISO8601 range end, or null when using centralDate/partOfDay",
+        },
         centralDate: {
-          type: "string",
+          type: ["string", "null"],
           description: "Central date YYYY-MM-DD when using partOfDay instead of explicit ISO range",
         },
         partOfDay: {
-          type: "string",
-          enum: ["morning", "afternoon", "evening", "full_day"],
+          type: ["string", "null"],
+          enum: ["morning", "afternoon", "evening", "full_day", null],
         },
-        maxSlots: { type: "number", description: "Maximum slots to return, default 3" },
+        maxSlots: {
+          type: ["number", "null"],
+          description: "Maximum slots to return, default 3",
+        },
       },
     },
   },
@@ -73,10 +83,10 @@ export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
     parameters: {
       type: "object",
       additionalProperties: false,
-      required: ["start"],
+      required: ["start", "notes"],
       properties: {
         start: { type: "string", description: "ISO8601 start time from offered slots" },
-        notes: { type: "string" },
+        notes: { type: ["string", "null"] },
       },
     },
   },
@@ -89,14 +99,22 @@ export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
     parameters: {
       type: "object",
       additionalProperties: false,
+      required: [
+        "primaryPain",
+        "urgency",
+        "fit",
+        "objection",
+        "customerGoal",
+        "discoveryQuestionAsked",
+      ],
       properties: {
-        primaryPain: { type: "string" },
-        urgency: { type: "string", enum: ["low", "medium", "high"] },
-        fit: { type: "string", enum: ["yes", "maybe", "no"] },
-        objection: { type: "string" },
-        customerGoal: { type: "string" },
+        primaryPain: { type: ["string", "null"] },
+        urgency: { type: ["string", "null"], enum: ["low", "medium", "high", null] },
+        fit: { type: ["string", "null"], enum: ["yes", "maybe", "no", null] },
+        objection: { type: ["string", "null"] },
+        customerGoal: { type: ["string", "null"] },
         discoveryQuestionAsked: {
-          type: "boolean",
+          type: ["boolean", "null"],
           description: "Set true only when this turn asks one genuine discovery question",
         },
       },
