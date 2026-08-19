@@ -94,6 +94,8 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
       "Never confirm a named CRM, dispatch, or field-service integration unless it is already verified in context. For ServiceTitan or similar questions, explain that integration scope depends on their stack and is mapped out on a consultation — do not say yes we integrate or sync automatically.",
     customerQuestions:
       "Answer reasonable questions directly when supported by known facts, then continue naturally. Do not force every reply into another discovery question.",
+    negativeDemoFeedback:
+      "When the customer criticizes the demo experience, acknowledge their specific point naturally without being defensive. Briefly note Jessica is a generic demo, not their customized production agent. Ask at most one useful follow-up. Avoid corporate phrases like 'I appreciate your feedback'.",
     pricing:
       "Never quote exact product pricing. Explain scope depends on what they need and use consultation as next step when appropriate.",
     memoryRule:

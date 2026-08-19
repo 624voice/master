@@ -699,6 +699,76 @@ describe("speed2Lead orchestrator behavioral tests", () => {
 
     expect(result.handled).toBe(true);
   });
+
+  test("Yeah let's talk cannot end with generic scheduling prose", async () => {
+    const runModel = createScriptedModel([
+      () => ({
+        output: textOutput("Great, let's find a time that works for you soon."),
+        outputText: "Great, let's find a time that works for you soon.",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(roiSession(), "Yeah let's talk", { runModel, now });
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.reply.toLowerCase()).toMatch(/what day|morning|afternoon/);
+  });
+
+  test("Calendar link is not sent when the model skips availability tools", async () => {
+    const runModel = createScriptedModel([
+      () => ({
+        output: textOutput(
+          "Easiest may be my calendar link: https://calendar.app.google/test",
+        ),
+        outputText:
+          "Easiest may be my calendar link: https://calendar.app.google/test",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(roiSession(), "Yeah let's talk", { runModel, now });
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.reply).not.toContain("calendar.app.google");
+  });
+
+  test("Scheduling gate forces availability when the model only discusses times", async () => {
+    const tuesday = futureTuesdayAfternoon(now);
+    consultationSlots = tuesday.slots;
+
+    const runModel = createScriptedModel([
+      () => ({
+        output: textOutput("Tuesday afternoon should work — I'll look for a time."),
+        outputText: "Tuesday afternoon should work — I'll look for a time.",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(roiSession(), "Tuesday afternoon", { runModel, now });
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.context.scheduling.status).toBe("slots_offered");
+  });
+
+  test("Gate forces booking when customer selects an offered slot without model tool call", async () => {
+    const slot = centralDateAt(2026, 8, 26, 13, 30, TZ).toISOString();
+    bookingResult = { ok: true, eventId: "evt-gate", selectedStart: slot, replayed: false };
+
+    const runModel = createScriptedModel([
+      () => ({
+        output: textOutput("Perfect, I'll get that booked for you."),
+        outputText: "Perfect, I'll get that booked for you.",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(
+      roiSession({ scheduling: { status: "slots_offered", offeredSlots: [slot] } }),
+      "1:30 works",
+      { runModel, now },
+    );
+
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.context.scheduling.status).toBe("confirmed");
+  });
 });
 
 describe("schedulingRange", () => {

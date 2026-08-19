@@ -18,6 +18,8 @@ const EXACT_PRICE_PATTERN =
   /\$\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\b\d{1,3}(?:,\d{3})+\s?(?:per month|\/mo|monthly|annual|year)\b/i;
 const BOOKED_CLAIM_PATTERN =
   /\b(you(?:'re| are)? (?:all )?set|booked|confirmed|see you then|you're on the calendar|appointment is set)\b/i;
+const IMPLIED_AVAILABILITY_PATTERN =
+  /\b(i have (?:some )?openings?|here are (?:some )?(?:times|slots|options)|let me find a time|let's find a time|find a time that works|let me check (?:my )?availability)\b/i;
 const GUARANTEE_PATTERN =
   /\b(guarantee|guaranteed|will (?:make|save|earn)|promise you'll)\b/i;
 const CRM_INTEGRATION_CLAIM_PATTERN =
@@ -102,6 +104,14 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
 
   if (BOOKED_CLAIM_PATTERN.test(trimmed) && !ctx.toolState.bookingConfirmed) {
     return { ok: false, reason: "SMS claims booking without successful booking tool result" };
+  }
+
+  if (
+    IMPLIED_AVAILABILITY_PATTERN.test(trimmed) &&
+    ctx.toolState.offeredSlots.length === 0 &&
+    !ctx.toolState.bookingConfirmed
+  ) {
+    return { ok: false, reason: "SMS implies availability without tool results" };
   }
 
   const allowedSlots = [

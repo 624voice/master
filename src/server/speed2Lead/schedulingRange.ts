@@ -16,6 +16,26 @@ export type ResolvedAvailabilityRange = {
   rangeEnd: Date;
 };
 
+const WEEKDAY_TO_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+const WEEKDAY_NAMES = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
 function parseCentralDate(date: string): { year: number; month: number; day: number } | null {
   const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) {
@@ -45,6 +65,82 @@ function partOfDayHours(partOfDay: AvailabilityRangeInput["partOfDay"]): {
     default:
       return { startHour: 9, startMinute: 0, endHour: 17, endMinute: 0 };
   }
+}
+
+function formatCentralDate(parts: { year: number; month: number; day: number }): string {
+  return `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+}
+
+function centralPartsFromDate(date: Date) {
+  return parseCentralParts(date, CONSULTATION_TIMEZONE);
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+export function nextWeekdayCentral(
+  weekdayName: (typeof WEEKDAY_NAMES)[number],
+  now = new Date(),
+): string {
+  const target = WEEKDAY_NAMES.indexOf(weekdayName);
+  if (target < 0) {
+    throw new Error(`Unknown weekday: ${weekdayName}`);
+  }
+
+  let candidate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  for (let i = 0; i < 14; i++) {
+    const parts = centralPartsFromDate(candidate);
+    if (WEEKDAY_TO_INDEX[parts.weekday] === target) {
+      return formatCentralDate(parts);
+    }
+    candidate = addDays(candidate, 1);
+  }
+
+  throw new Error(`Could not find upcoming ${weekdayName}`);
+}
+
+export function tomorrowCentralDate(now = new Date()): string {
+  return formatCentralDate(centralPartsFromDate(addDays(now, 1)));
+}
+
+export function resolveLaterThisWeekRange(now = new Date()): ResolvedAvailabilityRange {
+  const today = centralPartsFromDate(now);
+  let start = addDays(now, 1);
+  let startParts = centralPartsFromDate(start);
+
+  while (startParts.weekday === "Sat" || startParts.weekday === "Sun") {
+    start = addDays(start, 1);
+    startParts = centralPartsFromDate(start);
+  }
+
+  let endParts = { ...today };
+  while (endParts.weekday !== "Fri") {
+    const next = addDays(
+      centralDateAt(endParts.year, endParts.month, endParts.day, 12, 0, CONSULTATION_TIMEZONE),
+      1,
+    );
+    endParts = centralPartsFromDate(next);
+  }
+
+  const rangeStart = centralDateAt(
+    startParts.year,
+    startParts.month,
+    startParts.day,
+    9,
+    0,
+    CONSULTATION_TIMEZONE,
+  );
+  const rangeEnd = centralDateAt(
+    endParts.year,
+    endParts.month,
+    endParts.day,
+    17,
+    0,
+    CONSULTATION_TIMEZONE,
+  );
+
+  return { rangeStart, rangeEnd };
 }
 
 export function resolveAvailabilityRange(
@@ -103,4 +199,51 @@ export function resolveAvailabilityRange(
   }
 
   return { rangeStart, rangeEnd };
+}
+
+export function inferPartOfDay(message: string): AvailabilityRangeInput["partOfDay"] {
+  const lower = message.toLowerCase();
+  if (/\b(morning|before noon)\b/.test(lower)) return "morning";
+  if (/\b(afternoon|after lunch)\b/.test(lower)) return "afternoon";
+  if (/\b(evening)\b/.test(lower)) return "evening";
+  return "full_day";
+}
+
+export function inferAvailabilityInputFromMessage(
+  message: string,
+  now = new Date(),
+): AvailabilityRangeInput | null {
+  const lower = message.toLowerCase();
+
+  if (/\blater this week\b/.test(lower)) {
+    const range = resolveLaterThisWeekRange(now);
+    return {
+      rangeStart: range.rangeStart.toISOString(),
+      rangeEnd: range.rangeEnd.toISOString(),
+    };
+  }
+
+  if (/\btomorrow\b/.test(lower)) {
+    return {
+      centralDate: tomorrowCentralDate(now),
+      partOfDay: inferPartOfDay(lower),
+    };
+  }
+
+  for (const weekday of WEEKDAY_NAMES) {
+    if (new RegExp(`\\b${weekday}\\b`).test(lower)) {
+      return {
+        centralDate: nextWeekdayCentral(weekday, now),
+        partOfDay: inferPartOfDay(lower),
+      };
+    }
+  }
+
+  const aroundTime = lower.match(/\b(?:around|at)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+  if (aroundTime) {
+    const date = /\btomorrow\b/.test(lower) ? tomorrowCentralDate(now) : formatCentralDate(centralPartsFromDate(now));
+    return { centralDate: date, partOfDay: inferPartOfDay(lower) };
+  }
+
+  return null;
 }

@@ -24,6 +24,12 @@ import {
 } from "~/server/speed2Lead/guardrails";
 import { normalizeSessionMemory } from "~/server/speed2Lead/memory";
 import {
+  enforceSchedulingGate,
+  planSchedulingGate,
+  selectOutboundSchedulingReply,
+  stripUnauthorizedCalendarLink,
+} from "~/server/speed2Lead/schedulingController";
+import {
   createInitialToolState,
   executeOrchestratorTool,
   ORCHESTRATOR_TOOLS,
@@ -136,21 +142,23 @@ function resolveFinalReply(
   draft: string,
   context: AnyConversationContext,
   toolState: ToolExecutionState,
+  calendarLinkAllowed = false,
 ): string {
-  if (shouldSuggestCalendarLink(toolState)) {
+  const sanitized = stripUnauthorizedCalendarLink(draft, calendarLinkAllowed);
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
     return calendarLinkFallbackMessage(context);
   }
 
   if (toolState.bookingConfirmed && toolState.bookingStart) {
-    return draft.trim() || `Perfect — you're booked. I'll send the details shortly.`;
+    return sanitized.trim() || `Perfect — you're booked. I'll send the details shortly.`;
   }
 
   if (toolState.bookingFailed) {
-    return draft.trim() || genericRecoveryMessage(context);
+    return sanitized.trim() || genericRecoveryMessage(context);
   }
 
-  if (draft.trim()) {
-    return draft.trim();
+  if (sanitized.trim()) {
+    return sanitized.trim();
   }
 
   return genericRecoveryMessage(context);
@@ -164,6 +172,7 @@ async function validateOrRepair(
   deps: OrchestratorDeps,
   model: string,
   runModel: ModelRunner,
+  calendarLinkAllowed = false,
 ): Promise<string | null> {
   const guardrailContext: GuardrailContext = { session: context, toolState };
   const firstPass = validateOutboundSms(draft, guardrailContext);
@@ -203,7 +212,7 @@ async function validateOrRepair(
     }
   }
 
-  if (shouldSuggestCalendarLink(toolState)) {
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
     return calendarLinkFallbackMessage(context);
   }
 
@@ -237,7 +246,12 @@ async function validateOrRepair(
       repairInstructions: buildRepairInstructions(firstPass.reason),
     });
 
-    const repairedDraft = resolveFinalReply(repaired.outputText, context, toolState);
+    const repairedDraft = resolveFinalReply(
+      repaired.outputText,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
     const secondPass = validateOutboundSms(repairedDraft, guardrailContext);
     if (secondPass.ok) {
       return secondPass.text;
@@ -250,7 +264,7 @@ async function validateOrRepair(
     });
   }
 
-  if (shouldSuggestCalendarLink(toolState)) {
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
     return calendarLinkFallbackMessage(context);
   }
 
@@ -285,7 +299,10 @@ export async function orchestrateInboundTurn(
   const runModel = deps.runModel ?? createDefaultModelRunner(client!);
 
   let workingContext = context;
+  const gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
   let toolState = createInitialToolState();
+  let llmCalledGetAvailability = false;
+  let llmCalledBookAppointment = false;
   const priorScheduling = context.scheduling;
   if (priorScheduling?.offeredSlots?.length) {
     toolState = { ...toolState, offeredSlots: priorScheduling.offeredSlots };
@@ -336,6 +353,13 @@ export async function orchestrateInboundTurn(
           iteration,
         });
 
+        if (call.name === "get_availability") {
+          llmCalledGetAvailability = true;
+        }
+        if (call.name === "book_appointment") {
+          llmCalledBookAppointment = true;
+        }
+
         const executed = await executeOrchestratorTool(
           call.name,
           parsedArgs,
@@ -368,7 +392,30 @@ export async function orchestrateInboundTurn(
     return { handled: false, fallbackToRules: true, reason: "openai_error" };
   }
 
-  const draft = resolveFinalReply(latestDraft, workingContext, toolState);
+  const gateResult = await enforceSchedulingGate({
+    plan: gatePlan,
+    inboundMessage,
+    context: workingContext,
+    toolState,
+    llmReply: latestDraft,
+    llmCalledGetAvailability,
+    llmCalledBookAppointment,
+    now,
+  });
+  workingContext = gateResult.context;
+  toolState = gateResult.toolState;
+
+  const composedDraft = selectOutboundSchedulingReply({
+    llmReply: latestDraft,
+    gateResult,
+    firstName: workingContext.firstName,
+  });
+  const draft = resolveFinalReply(
+    composedDraft,
+    workingContext,
+    toolState,
+    gateResult.calendarLinkAllowed,
+  );
   const validated = await validateOrRepair(
     draft,
     workingContext,
@@ -377,6 +424,7 @@ export async function orchestrateInboundTurn(
     deps,
     model,
     runModel,
+    gateResult.calendarLinkAllowed,
   );
 
   if (!validated) {
