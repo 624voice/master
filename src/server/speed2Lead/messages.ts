@@ -130,6 +130,17 @@ export function declineMessage(): string {
   return "No problem. I will leave you with the report, and you can reach out if the numbers raise any questions.\n\nReply STOP if you do not want to receive additional texts.";
 }
 
+export function softCloseMessage(context: ConversationContext): string {
+  return fill(
+    "Totally understand, [FIRST NAME]. I'll leave the report with you — text back anytime if you want to dig in.",
+    context,
+  );
+}
+
+export function softCloseAckMessage(): string {
+  return "Sounds good.";
+}
+
 export function optOutConfirmationMessage(): string {
   return "You have been unsubscribed and will not receive additional texts from 624 Voice.";
 }

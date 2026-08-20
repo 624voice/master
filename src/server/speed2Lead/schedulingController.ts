@@ -18,11 +18,13 @@ import {
   applySchedulingMeta,
   applySchedulingIntent,
   applyOfferedSlots,
+  applySchedulingConstraints,
 } from "~/server/speed2Lead/memory";
 import type { KnownFacts, SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
 import {
   buildAvailabilityInputFromSchedulingState,
   detectRepetitionCorrection,
+  detectSchedulingConstraints,
   detectSchedulingRefinement,
   extractRequestedTimeMinutes,
   hasKnownSchedulingDay,
@@ -31,6 +33,7 @@ import {
   parseFlexibleTimeToken,
   slotMatchesMinutes,
 } from "~/server/speed2Lead/schedulingContext";
+import { shouldBlockSchedulingTurn, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
 import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import { executeOrchestratorTool, shouldSuggestCalendarLink, type ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
@@ -52,7 +55,7 @@ export type SchedulingGatePlan = {
 };
 
 const STRONG_INTEREST_RE =
-  /\b(yes|yeah|yep|sure|ok(?:ay)?|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|i'?d\s+like\s+to\s+(?:see|talk|chat|connect|learn)|can\s+we\s+(?:set\s+(?:up|something)|schedule|talk|chat|connect)|set\s+(?:something|it)\s+up|schedule\s+(?:a\s+)?(?:call|time|consultation)|how\s+this\s+would\s+work|ready\s+to\s+book)\b/i;
+  /\b(yes|yeah|yep|sure|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|i'?d\s+like\s+to\s+(?:see|talk|chat|connect|learn)|can\s+we\s+(?:set\s+(?:up|something)|schedule|talk|chat|connect)|set\s+(?:something|it)\s+up|schedule\s+(?:a\s+)?(?:call|time|consultation)|how\s+this\s+would\s+work|ready\s+to\s+book|sounds\s+useful|show\s+me)\b/i;
 
 const SCHEDULING_INTENT_RE =
   /\b(when\s+(?:are\s+you|can\s+we)|what\s+times?|available|availability|schedule|book|appointment|consultation|set\s+(?:something|it)\s+up|pick\s+a\s+time|find\s+a\s+time|talk\s+(?:tomorrow|today|this\s+week|next\s+week)|meet|call\s+(?:me|tomorrow|today))\b/i;
@@ -98,13 +101,27 @@ function hasSchedulingPreference(message: string): boolean {
   return false;
 }
 
-function detectStrongInterest(message: string, knownFacts: KnownFacts): boolean {
+function detectStrongInterest(
+  message: string,
+  knownFacts: KnownFacts,
+  context?: AnyConversationContext,
+): boolean {
+  if (context && !shouldTreatAsStrongInterest(message, context)) {
+    return false;
+  }
   if (knownFacts.urgency === "high" || knownFacts.fit === "yes") return true;
   return STRONG_INTEREST_RE.test(message);
 }
 
-function detectSchedulingIntent(message: string, knownFacts: KnownFacts): boolean {
-  if (detectStrongInterest(message, knownFacts)) return true;
+function detectSchedulingIntent(
+  message: string,
+  knownFacts: KnownFacts,
+  context?: AnyConversationContext,
+): boolean {
+  if (context && shouldBlockSchedulingTurn(context, message)) {
+    return false;
+  }
+  if (detectStrongInterest(message, knownFacts, context)) return true;
   if (SCHEDULING_INTENT_RE.test(message)) return true;
   if (hasSchedulingPreference(message)) return true;
   return false;
@@ -296,6 +313,18 @@ export function planSchedulingGate(args: {
 }): SchedulingGatePlan {
   const now = args.now ?? new Date();
   const { inboundMessage, context } = args;
+
+  if (shouldBlockSchedulingTurn(context, inboundMessage)) {
+    return {
+      action: { type: "none" },
+      schedulingIntent: false,
+      strongInterest: false,
+      explicitCalendarLinkRequest: detectExplicitCalendarLinkRequest(inboundMessage),
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
+
   const knownFacts = context.knownFacts ?? {
     firstName: context.firstName,
     phone: context.phone,
@@ -304,8 +333,8 @@ export function planSchedulingGate(args: {
   };
   const scheduling = context.scheduling;
   const explicitCalendarLinkRequest = detectExplicitCalendarLinkRequest(inboundMessage);
-  const schedulingIntent = detectSchedulingIntent(inboundMessage, knownFacts);
-  const strongInterest = detectStrongInterest(inboundMessage, knownFacts);
+  const schedulingIntent = detectSchedulingIntent(inboundMessage, knownFacts, context);
+  const strongInterest = detectStrongInterest(inboundMessage, knownFacts, context);
   const preferenceInput = buildPreferenceInput(inboundMessage, now, context);
 
   if (scheduling?.status === "slots_offered" && (scheduling.offeredSlots?.length ?? 0) > 0) {
@@ -735,6 +764,16 @@ export async function enforceSchedulingGate(args: {
 }): Promise<SchedulingGateResult> {
   const now = args.now ?? new Date();
   let { context, toolState } = args;
+
+  const constraintPatch = detectSchedulingConstraints(
+    args.inboundMessage,
+    context.scheduling,
+    context.scheduling?.offeredSlots ?? [],
+  );
+  if (Object.keys(constraintPatch).length > 0) {
+    context = applySchedulingConstraints(context, constraintPatch);
+  }
+
   context = applySchedulingMeta(
     context,
     mergeSchedulingIntentFromMessage(context.scheduling, args.inboundMessage, now),
@@ -791,9 +830,16 @@ export async function enforceSchedulingGate(args: {
         now,
       );
       context = applySchedulingIntent(context, action.input, {
-        anchorTimeMinutes: refinement?.rankPreferences.anchorMinutes,
-        searchAfterMinutes: refinement?.rankPreferences.searchAfterMinutes,
-        searchBeforeMinutes: refinement?.rankPreferences.searchBeforeMinutes,
+        anchorTimeMinutes:
+          refinement?.rankPreferences.anchorMinutes ?? context.scheduling?.anchorTimeMinutes,
+        searchAfterMinutes:
+          refinement?.rankPreferences.searchAfterMinutes ?? context.scheduling?.searchAfterMinutes,
+        searchBeforeMinutes:
+          refinement?.rankPreferences.searchBeforeMinutes ?? context.scheduling?.searchBeforeMinutes,
+        earliestAllowedMinutes: context.scheduling?.earliestAllowedMinutes,
+        latestAllowedMinutes: context.scheduling?.latestAllowedMinutes,
+        rejectedPartOfDay: context.scheduling?.rejectedPartOfDay,
+        rejectedSlotStarts: context.scheduling?.rejectedSlotStarts,
       });
       context = applySchedulingMeta(
         context,

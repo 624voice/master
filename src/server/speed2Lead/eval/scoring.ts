@@ -17,6 +17,9 @@ export type ScenarioExpectations = {
   shouldConfirmBooking?: boolean;
   shouldIncludeCalendarLink?: boolean;
   mustNotConfirmBooking?: boolean;
+  mustNotReopenAfterSoftClose?: boolean;
+  mustPreserveSchedulingConstraints?: boolean;
+  maxDiscoveryTurns?: number;
   maxQuestionsPerTurn?: number;
   mustAcknowledgeFeedback?: boolean;
   mustNotBeAggressive?: boolean;
@@ -130,6 +133,30 @@ export function scoreScenario(input: {
     notes.push("Expected offered slots but none were recorded");
   }
 
+  if (expectations.mustNotReopenAfterSoftClose) {
+    const schedulingAfterSoftClose = /\b(what day works|morning or afternoon|grab a time|schedule a call)\b/i;
+    const softCloseIndex = transcript.findIndex((t) =>
+      /\b(busy|not right now|not now)\b/i.test(t.customer),
+    );
+    if (softCloseIndex >= 0) {
+      const after = transcript.slice(softCloseIndex + 1);
+      const genericAck = after.find((t) => /^(ok|okay|k|thanks)\.?$/i.test(t.customer.trim()));
+      if (genericAck && schedulingAfterSoftClose.test(genericAck.agent)) {
+        technicalPass = false;
+        notes.push("Reopened scheduling after soft close on generic acknowledgment");
+      }
+    }
+  }
+
+  if (expectations.maxDiscoveryTurns !== undefined) {
+    const discoveryQuestions = transcript.filter((t) =>
+      /\?\s*$/.test(t.agent) && !/\b(morning or afternoon|what day|which works|does that work)\b/i.test(t.agent),
+    ).length;
+    if (discoveryQuestions > expectations.maxDiscoveryTurns) {
+      notes.push(`Too many discovery questions: ${discoveryQuestions} > ${expectations.maxDiscoveryTurns}`);
+    }
+  }
+
   for (const [index, turn] of transcript.entries()) {
     const turnToolState = toolStatesByTurn?.[index] ?? finalToolState;
     const guard = validateOutboundSms(turn.agent, {
@@ -202,7 +229,13 @@ export function scoreScenario(input: {
     answeredDirectQuestions: 0.8,
     notInterrogative: oneQuestionMax,
     oneQuestionMax,
-    skippedUnneededDiscovery: expectations.shouldReachScheduling ? 0.85 : 0.75,
+    skippedUnneededDiscovery: expectations.maxDiscoveryTurns
+      ? transcript.filter((t) => t.agent.includes("?")).length <= expectations.maxDiscoveryTurns + 1
+        ? 1
+        : 0.4
+      : expectations.shouldReachScheduling
+        ? 0.85
+        : 0.75,
     pacedWeakInterest: expectations.mustNotBeAggressive ? (agentTexts.match(/calendar|book|schedule/gi) ?? []).length > 2 ? 0.5 : 0.9 : 0.8,
     efficientStrongInterest: expectations.shouldReachScheduling ? (finalToolState.offeredSlots.length > 0 || /calendar|time|slot|tuesday|thursday|tomorrow/i.test(agentTexts) ? 1 : 0.5) : 0.75,
     naturalNotTemplated,

@@ -27,6 +27,29 @@ const WEEKDAY_NAMES = [
   "saturday",
 ] as const;
 
+const REJECT_MORNING_RE =
+  /\b(morning(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no mornings?|not mornings?|can'?t do mornings?|cant do mornings?|mornings?\s+(?:are\s+)?(?:out|off the table))\b/i;
+
+const REJECT_AFTERNOON_RE =
+  /\b(afternoon(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no afternoons?|not afternoons?|can'?t do afternoons?)\b/i;
+
+const REJECT_EVENING_RE =
+  /\b(evening(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no evenings?|not evenings?)\b/i;
+
+const REJECT_OFFERED_RE =
+  /\b(none of those|not those|any(?:thing)? else|something else|different times?|other options?|doesn'?t work|dont work|won'?t work|wont work|too early|too late)\b/i;
+
+const PREFER_AFTERNOON_RE =
+  /\b(need afternoon|want afternoon|what about afternoon|afternoons?|after lunch|after noon)\b/i;
+
+const PREFER_MORNING_RE = /\b(what about morning|mornings?|before noon)\b/i;
+
+const PREFER_EVENING_RE =
+  /\b(evenings?|after work|after 5|after five|late afternoon|end of day)\b/i;
+
+const BARE_TIME_PREFERENCE_RE =
+  /\b(?:like|around|about|at|maybe|probably|roughly|say)?\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\b/i;
+
 const REPETITION_CORRECTION_RE =
   /\b(you already asked|already told you|i already said|like i just said|you keep asking|same question again|asked me that)\b/i;
 
@@ -44,6 +67,111 @@ const ANCHOR_TIME_RE =
 
 const AFTER_BEFORE_TIME_RE =
   /\b(after|before)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\b/i;
+
+export type SchedulingConstraintPatch = Partial<
+  Pick<
+    import("~/server/speed2Lead/sessionMemoryTypes").SchedulingState,
+    | "rejectedPartOfDay"
+    | "partOfDay"
+    | "anchorTimeMinutes"
+    | "searchAfterMinutes"
+    | "searchBeforeMinutes"
+    | "earliestAllowedMinutes"
+    | "latestAllowedMinutes"
+    | "rejectedSlotStarts"
+    | "centralDate"
+  >
+>;
+
+export function detectSchedulingConstraints(
+  message: string,
+  scheduling: SchedulingState | undefined,
+  offeredSlots: string[] = [],
+): SchedulingConstraintPatch {
+  const patch: SchedulingConstraintPatch = {};
+  const lower = message.toLowerCase();
+  const rejected = new Set(scheduling?.rejectedPartOfDay ?? []);
+
+  if (REJECT_MORNING_RE.test(lower)) {
+    rejected.add("morning");
+    patch.partOfDay = "afternoon";
+    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
+    patch.searchAfterMinutes = Math.max(scheduling?.searchAfterMinutes ?? 0, 12 * 60 - 1);
+  }
+
+  if (REJECT_AFTERNOON_RE.test(lower)) {
+    rejected.add("afternoon");
+    patch.partOfDay = "evening";
+    patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
+  }
+
+  if (REJECT_EVENING_RE.test(lower)) {
+    rejected.add("evening");
+    patch.partOfDay = "afternoon";
+  }
+
+  if (PREFER_AFTERNOON_RE.test(lower) && !rejected.has("afternoon")) {
+    patch.partOfDay = "afternoon";
+    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
+  }
+
+  if (PREFER_MORNING_RE.test(lower) && !rejected.has("morning")) {
+    patch.partOfDay = "morning";
+    patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
+  }
+
+  if (PREFER_EVENING_RE.test(lower) && !rejected.has("evening")) {
+    patch.partOfDay = "evening";
+    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 16 * 60);
+  }
+
+  if (REFINEMENT_LATER_RE.test(lower)) {
+    const latest = latestOfferedMinutes(offeredSlots) ?? scheduling?.lastOfferedLatestMinutes;
+    if (latest != null) {
+      patch.searchAfterMinutes = latest;
+      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, latest + 1);
+    }
+  }
+
+  if (REFINEMENT_EARLIER_RE.test(lower)) {
+    const earliest = earliestOfferedMinutes(offeredSlots) ?? scheduling?.lastOfferedEarliestMinutes;
+    if (earliest != null) {
+      patch.searchBeforeMinutes = earliest;
+      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, earliest - 1);
+    }
+  }
+
+  const anchor = extractAnchorMinutes(message) ?? extractRequestedTimeMinutes(message);
+  if (anchor != null) {
+    patch.anchorTimeMinutes = anchor;
+    if (/\bafter\b/i.test(lower)) {
+      patch.searchAfterMinutes = Math.max(scheduling?.searchAfterMinutes ?? 0, anchor);
+      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, anchor);
+    } else if (/\bbefore\b/i.test(lower)) {
+      patch.searchBeforeMinutes = anchor;
+      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, anchor);
+    } else if (/\b(around|about|like|at|closer|near|roughly|probably)\b/i.test(lower) || BARE_TIME_PREFERENCE_RE.test(lower)) {
+      const part =
+        anchor < 12 * 60 ? "morning" : anchor < 17 * 60 ? "afternoon" : "evening";
+      if (!rejected.has(part)) {
+        patch.partOfDay = part;
+      }
+    }
+  }
+
+  if (REJECT_OFFERED_RE.test(lower) && offeredSlots.length > 0) {
+    patch.rejectedSlotStarts = [
+      ...(scheduling?.rejectedSlotStarts ?? []),
+      ...offeredSlots,
+    ];
+  }
+
+  if (rejected.size > 0) {
+    patch.rejectedPartOfDay = [...rejected];
+  }
+
+  return patch;
+}
 
 export type SchedulingRefinement = {
   input: AvailabilityRangeInput;
@@ -116,9 +244,23 @@ function messageChangesDay(message: string): boolean {
 
 function messageChangesPartOfDay(message: string): boolean {
   const lower = message.toLowerCase();
-  return /\b(morning instead|afternoon instead|evening instead|what about morning|what about afternoon|morning|afternoon|evening|before noon|after lunch)\b/.test(
-    lower,
-  );
+  if (REJECT_MORNING_RE.test(lower) || REJECT_AFTERNOON_RE.test(lower) || REJECT_EVENING_RE.test(lower)) {
+    return true;
+  }
+  if (PREFER_AFTERNOON_RE.test(lower) || PREFER_MORNING_RE.test(lower) || PREFER_EVENING_RE.test(lower)) {
+    return true;
+  }
+  if (PART_OF_DAY_SWITCH_RE.test(lower)) return true;
+  if (/\b(morning instead|afternoon instead|evening instead)\b/.test(lower)) return true;
+  return false;
+}
+
+function explicitPartOfDayFromMessage(message: string): SchedulingPartOfDay | null {
+  const lower = message.toLowerCase();
+  if (/\b(morning|before noon)\b/.test(lower) && !REJECT_MORNING_RE.test(lower)) return "morning";
+  if (/\b(after lunch|afternoon)\b/.test(lower) && !REJECT_AFTERNOON_RE.test(lower)) return "afternoon";
+  if (/\b(evening|after work)\b/.test(lower) && !REJECT_EVENING_RE.test(lower)) return "evening";
+  return null;
 }
 
 export function buildAvailabilityInputFromSchedulingState(
@@ -130,9 +272,11 @@ export function buildAvailabilityInputFromSchedulingState(
   const mergedDate = messageChangesDay(message)
     ? (inferred?.centralDate ?? scheduling?.centralDate)
     : (scheduling?.centralDate ?? inferred?.centralDate);
+
+  const explicitPart = explicitPartOfDayFromMessage(message);
   const mergedPart = messageChangesPartOfDay(message)
-    ? (inferred?.partOfDay ?? scheduling?.partOfDay ?? "full_day")
-    : (scheduling?.partOfDay ?? inferred?.partOfDay ?? (mergedDate ? "full_day" : undefined));
+    ? (explicitPart ?? inferred?.partOfDay ?? scheduling?.partOfDay ?? "full_day")
+    : (scheduling?.partOfDay ?? explicitPart ?? inferred?.partOfDay);
 
   if (mergedDate) {
     return {
@@ -249,16 +393,35 @@ export function detectSchedulingRefinement(
   }
 
   for (const weekday of WEEKDAY_NAMES) {
-    if (/\bactually\b/.test(lower) && new RegExp(`\\b${weekday}\\b`).test(lower)) {
+    if (new RegExp(`\\b(?:what about|how about|instead|switch to)?\\s*(?:next\\s+)?${weekday}\\b`).test(lower)) {
       return {
         input: {
           centralDate: nextWeekdayCentral(weekday, now),
-          partOfDay: inferPartOfDay(lower),
+          partOfDay: scheduling?.partOfDay ?? inferPartOfDay(lower),
         },
-        rankPreferences: {},
+        rankPreferences: {
+          anchorMinutes: scheduling?.anchorTimeMinutes,
+          narrowAroundAnchor: scheduling?.anchorTimeMinutes != null,
+        },
         reason: "refine_change_day",
       };
     }
+  }
+
+  const bareTime = extractRequestedTimeMinutes(message);
+  if (
+    bareTime != null &&
+    offeredSlots.length > 0 &&
+    !/\b(works|good|perfect|book|take|yes|yeah|yep|that one|this one|the (?:first|second|third|last))\b/i.test(lower)
+  ) {
+    return {
+      input: baseInput,
+      rankPreferences: {
+        anchorMinutes: bareTime,
+        narrowAroundAnchor: true,
+      },
+      reason: "refine_anchor_time",
+    };
   }
 
   const anchor = extractAnchorMinutes(message);
@@ -292,17 +455,25 @@ export function buildSlotRankPreferencesFromState(
   searchAfterMinutes?: number;
   searchBeforeMinutes?: number;
   narrowAroundAnchor?: boolean;
+  rejectedPartOfDay?: SchedulingPartOfDay[];
+  earliestAllowedMinutes?: number;
+  latestAllowedMinutes?: number;
+  rejectedSlotStarts?: string[];
 } {
   const narrowAroundAnchor =
     scheduling?.anchorTimeMinutes != null &&
-    rangeInput.partOfDay === scheduling.partOfDay;
+    (rangeInput.partOfDay === scheduling.partOfDay || scheduling.partOfDay === "full_day");
 
   return {
     partOfDay: rangeInput.partOfDay ?? scheduling?.partOfDay,
     anchorMinutes: scheduling?.anchorTimeMinutes,
-    searchAfterMinutes: scheduling?.searchAfterMinutes,
-    searchBeforeMinutes: scheduling?.searchBeforeMinutes,
+    searchAfterMinutes: scheduling?.searchAfterMinutes ?? scheduling?.earliestAllowedMinutes,
+    searchBeforeMinutes: scheduling?.searchBeforeMinutes ?? scheduling?.latestAllowedMinutes,
     narrowAroundAnchor,
+    rejectedPartOfDay: scheduling?.rejectedPartOfDay,
+    earliestAllowedMinutes: scheduling?.earliestAllowedMinutes,
+    latestAllowedMinutes: scheduling?.latestAllowedMinutes,
+    rejectedSlotStarts: scheduling?.rejectedSlotStarts,
   };
 }
 

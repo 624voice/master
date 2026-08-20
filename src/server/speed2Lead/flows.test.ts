@@ -37,15 +37,15 @@ function walkToCompleted(
 }
 
 describe("ROI natural-language flow", () => {
-  test("clear problem then priority then calendar", () => {
+  test("clear pain skips priority and sends calendar", () => {
     const { context, replies } = walkToCompleted([
       "We miss a lot of calls after hours",
-      "It's a pretty big priority right now",
+      "Yeah our team can't keep up",
     ]);
 
     expect(context.state).toBe("completed");
-    expect(replies[0]).toContain("How much of a priority");
-    expect(replies[1]).toContain("calendar");
+    expect(replies[0]).toContain("calendar");
+    expect(replies.join(" ")).not.toContain("How much of a priority");
   });
 
   test("pain plus urgency skips priority question", () => {

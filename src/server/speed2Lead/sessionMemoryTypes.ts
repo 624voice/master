@@ -32,6 +32,13 @@ export type SchedulingStatus = "idle" | "slots_offered" | "confirmed";
 
 export type SchedulingPartOfDay = "morning" | "afternoon" | "evening" | "full_day";
 
+export type ConversationDisposition =
+  | "active"
+  | "soft_closed"
+  | "declined"
+  | "scheduling"
+  | "booked";
+
 export type SchedulingState = {
   status: SchedulingStatus;
   offeredSlots?: string[];
@@ -57,12 +64,22 @@ export type SchedulingState = {
   /** Most recent offered range for relative refinements. */
   lastOfferedEarliestMinutes?: number;
   lastOfferedLatestMinutes?: number;
+  /** Parts of day the customer explicitly rejected. */
+  rejectedPartOfDay?: SchedulingPartOfDay[];
+  /** Earliest acceptable slot minute (customer constraint). */
+  earliestAllowedMinutes?: number;
+  /** Latest acceptable slot minute (customer constraint). */
+  latestAllowedMinutes?: number;
+  /** ISO starts the customer rejected — avoid re-offering. */
+  rejectedSlotStarts?: string[];
 };
 
 export type SessionMemoryFields = {
   messages?: ConversationMessage[];
   knownFacts?: KnownFacts;
   scheduling?: SchedulingState;
+  /** Lightweight conversation posture for re-engagement guardrails. */
+  disposition?: ConversationDisposition;
   /** When true, knownFacts.questionsAsked is managed by the LLM orchestrator. */
   orchestratorManagedQuestions?: boolean;
 };

@@ -92,6 +92,7 @@ export {
   appendAssistantMessage,
   appendUserMessage,
   applyConfirmedScheduling,
+  applyDisposition,
   applyKnownFactsUpdate,
   applyOfferedSlots,
   normalizeSessionMemory,

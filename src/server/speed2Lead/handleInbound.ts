@@ -27,6 +27,7 @@ import type { ContactConversationContext } from "~/server/contactSpeed2Lead/type
 import { advanceConversation } from "~/server/speed2Lead/stateMachine";
 import {
   appendUserMessage,
+  applyDisposition,
   clearSession,
   getSession,
   isOptedOut,
@@ -36,8 +37,15 @@ import {
 import {
   declineMessage,
   optOutConfirmationMessage,
+  softCloseAckMessage,
   unknownInboundMessage,
 } from "~/server/speed2Lead/messages";
+import {
+  isGenericAcknowledgment,
+  isSubstantiveReengagement,
+  resolveDispositionAfterInbound,
+  shouldBlockSchedulingTurn,
+} from "~/server/speed2Lead/conversationDisposition";
 import {
   logInboundConversationSms,
   sendConversationSms,
@@ -85,6 +93,8 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   if (session) {
     session = appendUserMessage(session, body);
+    const disposition = resolveDispositionAfterInbound(session, body);
+    session = applyDisposition(session, disposition);
   }
 
   const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session);
@@ -124,6 +134,23 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   if (isDemoSession(session)) {
     await removeDemoFollowUp(phone);
+  }
+
+  if (
+    session.disposition === "soft_closed" &&
+    isGenericAcknowledgment(body) &&
+    !isSubstantiveReengagement(body)
+  ) {
+    const ack = softCloseAckMessage();
+    const updated = await sendConversationSms(phone, ack, session);
+    await saveSession(updated ?? session);
+    logSpeed2LeadTestEvent(phone, "outbound_sent", {
+      flow: session.flow ?? "roi",
+      replyLength: ack.length,
+      handledBy: "soft_close_ack",
+      disposition: "soft_closed",
+    });
+    return;
   }
 
   const useLlmOrchestrator = shouldUseSpeed2LeadLlmForPhone(phone);

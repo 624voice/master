@@ -11,10 +11,25 @@ export type SlotRankPreferences = {
   maxOffer?: number;
   /** When true, pick slots closest to anchor rather than spread across window. */
   narrowAroundAnchor?: boolean;
+  rejectedPartOfDay?: SchedulingPartOfDay[];
+  earliestAllowedMinutes?: number;
+  latestAllowedMinutes?: number;
+  rejectedSlotStarts?: string[];
 };
 
 const DEFAULT_MIN_SEPARATION_MINUTES = 45;
 const DEFAULT_MAX_OFFER = 3;
+
+function partOfDayForMinutes(minutes: number): SchedulingPartOfDay {
+  if (minutes < 12 * 60) return "morning";
+  if (minutes < 17 * 60) return "afternoon";
+  return "evening";
+}
+
+function slotMatchesPartOfDay(minutes: number, part: SchedulingPartOfDay): boolean {
+  if (part === "full_day") return true;
+  return partOfDayForMinutes(minutes) === part;
+}
 
 export function slotStartMinutes(iso: string): number | null {
   const { time } = formatTimeOnly(iso, CONSULTATION_TIMEZONE);
@@ -101,6 +116,42 @@ export function rankSlotsForOffer(
   let candidates = sortByTime(allSlots);
   if (candidates.length === 0) return [];
 
+  if (preferences.rejectedSlotStarts?.length) {
+    const rejected = new Set(
+      preferences.rejectedSlotStarts.map((slot) => new Date(slot).getTime()),
+    );
+    candidates = candidates.filter((slot) => !rejected.has(new Date(slot).getTime()));
+  }
+
+  if (preferences.rejectedPartOfDay?.length) {
+    const rejected = new Set(preferences.rejectedPartOfDay);
+    candidates = candidates.filter((slot) => {
+      const minutes = slotStartMinutes(slot);
+      if (minutes === null) return true;
+      return !rejected.has(partOfDayForMinutes(minutes));
+    });
+  }
+
+  if (preferences.partOfDay && preferences.partOfDay !== "full_day") {
+    candidates = candidates.filter((slot) => {
+      const minutes = slotStartMinutes(slot);
+      if (minutes === null) return true;
+      return slotMatchesPartOfDay(minutes, preferences.partOfDay!);
+    });
+  }
+
+  if (preferences.earliestAllowedMinutes != null) {
+    candidates = candidates.filter(
+      (slot) => (slotStartMinutes(slot) ?? 0) >= preferences.earliestAllowedMinutes!,
+    );
+  }
+
+  if (preferences.latestAllowedMinutes != null) {
+    candidates = candidates.filter(
+      (slot) => (slotStartMinutes(slot) ?? 0) <= preferences.latestAllowedMinutes!,
+    );
+  }
+
   if (preferences.searchAfterMinutes != null) {
     candidates = candidates.filter(
       (slot) => (slotStartMinutes(slot) ?? 0) > preferences.searchAfterMinutes!,
@@ -121,9 +172,9 @@ export function rankSlotsForOffer(
     return pickClosestToAnchor(candidates, preferences.anchorMinutes, maxOffer);
   }
 
-  if (preferences.anchorMinutes != null && candidates.length > maxOffer) {
+  if (preferences.anchorMinutes != null) {
     const closest = pickClosestToAnchor(candidates, preferences.anchorMinutes, maxOffer);
-    if (closest.length >= Math.min(maxOffer, candidates.length)) {
+    if (closest.length > 0) {
       return sortByTime(closest);
     }
   }

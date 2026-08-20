@@ -344,6 +344,10 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     searchBeforeMinutes?: number;
     lastOfferedEarliestMinutes?: number;
     lastOfferedLatestMinutes?: number;
+    rejectedPartOfDay?: SchedulingPartOfDay[];
+    earliestAllowedMinutes?: number;
+    latestAllowedMinutes?: number;
+    rejectedSlotStarts?: string[];
   },
 ): T {
   const normalized = normalizeSessionMemory(context);
@@ -364,6 +368,10 @@ export function applySchedulingIntent<T extends AnyConversationContext>(
     anchorTimeMinutes?: number;
     searchAfterMinutes?: number;
     searchBeforeMinutes?: number;
+    earliestAllowedMinutes?: number;
+    latestAllowedMinutes?: number;
+    rejectedPartOfDay?: SchedulingPartOfDay[];
+    rejectedSlotStarts?: string[];
   } = {},
 ): T {
   const normalized = normalizeSessionMemory(context);
@@ -373,5 +381,61 @@ export function applySchedulingIntent<T extends AnyConversationContext>(
     anchorTimeMinutes: extras.anchorTimeMinutes ?? normalized.scheduling?.anchorTimeMinutes,
     searchAfterMinutes: extras.searchAfterMinutes,
     searchBeforeMinutes: extras.searchBeforeMinutes,
+    earliestAllowedMinutes:
+      extras.earliestAllowedMinutes ?? normalized.scheduling?.earliestAllowedMinutes,
+    latestAllowedMinutes: extras.latestAllowedMinutes ?? normalized.scheduling?.latestAllowedMinutes,
+    rejectedPartOfDay: extras.rejectedPartOfDay ?? normalized.scheduling?.rejectedPartOfDay,
+    rejectedSlotStarts: extras.rejectedSlotStarts ?? normalized.scheduling?.rejectedSlotStarts,
+  }) as T;
+}
+
+export function applyDisposition<T extends AnyConversationContext>(
+  context: T,
+  disposition: import("~/server/speed2Lead/sessionMemoryTypes").ConversationDisposition,
+): T {
+  const normalized = normalizeSessionMemory(context);
+  return {
+    ...normalized,
+    disposition,
+    updatedAt: new Date().toISOString(),
+  } as T;
+}
+
+export function applySchedulingConstraints<T extends AnyConversationContext>(
+  context: T,
+  patch: Partial<
+    Pick<
+      SchedulingState,
+      | "rejectedPartOfDay"
+      | "partOfDay"
+      | "anchorTimeMinutes"
+      | "searchAfterMinutes"
+      | "searchBeforeMinutes"
+      | "earliestAllowedMinutes"
+      | "latestAllowedMinutes"
+      | "rejectedSlotStarts"
+      | "centralDate"
+    >
+  >,
+): T {
+  const normalized = normalizeSessionMemory(context);
+  const scheduling = normalized.scheduling;
+  const mergedRejectedParts = patch.rejectedPartOfDay ?? scheduling.rejectedPartOfDay;
+  const mergedRejectedSlots =
+    patch.rejectedSlotStarts && patch.rejectedSlotStarts.length > 0
+      ? [...new Set([...(scheduling.rejectedSlotStarts ?? []), ...patch.rejectedSlotStarts])]
+      : scheduling.rejectedSlotStarts;
+
+  return applySchedulingMeta(normalized, {
+    centralDate: patch.centralDate ?? scheduling.centralDate,
+    partOfDay: patch.partOfDay ?? scheduling.partOfDay,
+    anchorTimeMinutes: patch.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
+    searchAfterMinutes: patch.searchAfterMinutes ?? scheduling.searchAfterMinutes,
+    searchBeforeMinutes: patch.searchBeforeMinutes ?? scheduling.searchBeforeMinutes,
+    earliestAllowedMinutes:
+      patch.earliestAllowedMinutes ?? scheduling.earliestAllowedMinutes,
+    latestAllowedMinutes: patch.latestAllowedMinutes ?? scheduling.latestAllowedMinutes,
+    rejectedPartOfDay: mergedRejectedParts,
+    rejectedSlotStarts: mergedRejectedSlots,
   }) as T;
 }

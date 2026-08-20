@@ -3,10 +3,12 @@ import { centralDateAt } from "~/server/appointmentLifecycle/consultationSlots";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import {
   detectRepetitionCorrection,
+  detectSchedulingConstraints,
   detectSchedulingRefinement,
   extractRequestedTimeMinutes,
   mergeSchedulingIntentFromMessage,
 } from "~/server/speed2Lead/schedulingContext";
+import { rankSlotsForOffer, slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import {
   planSchedulingGate,
   resolveOfferedSlotSelection,
@@ -176,6 +178,63 @@ describe("scheduling conversation hardening", () => {
       "refine_change_day",
     );
   });
+
+  test("morning rejection excludes morning slots and preserves afternoon", () => {
+    const patch = detectSchedulingConstraints("Morning doesn't work for me", {
+      status: "slots_offered",
+      centralDate: "2026-08-26",
+      partOfDay: "full_day",
+    });
+    expect(patch.rejectedPartOfDay).toContain("morning");
+    expect(patch.partOfDay).toBe("afternoon");
+
+    const allSlots = [
+      centralDateAt(2026, 8, 26, 9, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 12, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 16, 0, TZ).toISOString(),
+    ];
+    const ranked = rankSlotsForOffer(allSlots, {
+      rejectedPartOfDay: ["morning"],
+      partOfDay: "afternoon",
+      maxOffer: 3,
+    });
+    expect(ranked.every((slot) => new Date(slot).getHours() >= 12)).toBe(true);
+  });
+
+  test("around 4pm ranks closest afternoon slots not noon", () => {
+    const allSlots = [
+      centralDateAt(2026, 8, 26, 12, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 12, 45, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 13, 30, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 15, 30, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 16, 0, TZ).toISOString(),
+    ];
+    const ranked = rankSlotsForOffer(allSlots, {
+      partOfDay: "afternoon",
+      anchorMinutes: 16 * 60,
+      narrowAroundAnchor: true,
+      maxOffer: 3,
+    });
+    expect(slotStartMinutes(ranked[0]!)).toBe(16 * 60);
+    expect(ranked.every((slot) => (slotStartMinutes(slot) ?? 0) >= 12 * 60)).toBe(true);
+    expect(ranked.every((slot) => (slotStartMinutes(slot) ?? 0) <= 17 * 60)).toBe(true);
+  });
+
+  test("Friday change preserves evening preference", () => {
+    const refinement = detectSchedulingRefinement(
+      "Actually what about Friday instead",
+      {
+        status: "slots_offered",
+        centralDate: "2026-08-26",
+        partOfDay: "evening",
+        anchorTimeMinutes: 19 * 60,
+      },
+      [],
+      now,
+    );
+    expect(refinement?.reason).toBe("refine_change_day");
+    expect(refinement?.input.partOfDay).toBe("evening");
+  });
 });
 
 describe("live phone regression sequence", () => {
@@ -244,5 +303,15 @@ describe("live phone regression sequence", () => {
     expect(plan.action.type).toBe("get_availability_for_request");
     expect(plan.preferenceInput?.centralDate).toBe("2026-08-26");
     expect(plan.preferenceInput?.partOfDay).toBe("afternoon");
+  });
+
+  test("soft_closed OK does not trigger scheduling", () => {
+    const plan = planSchedulingGate({
+      inboundMessage: "Ok",
+      context: roiSession({ disposition: "soft_closed" }),
+      now,
+    });
+    expect(plan.action.type).toBe("none");
+    expect(plan.schedulingIntent).toBe(false);
   });
 });
