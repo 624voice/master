@@ -681,6 +681,7 @@ describe("speed2Lead orchestrator behavioral tests", () => {
     if (result.handled) return;
     expect(result.fallbackToRules).toBe(true);
     expect(result.reason).toBe("openai_error");
+    expect(result.context.scheduling).toBeDefined();
   });
 
   test("Unknown off-topic reply still returns handled response", async () => {

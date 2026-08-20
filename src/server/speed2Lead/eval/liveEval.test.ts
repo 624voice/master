@@ -72,7 +72,9 @@ function toolStateFromContext(context: AnyConversationContext) {
     bookingConfirmed: scheduling.status === "confirmed",
     bookingStart: scheduling.selectedStart,
     bookingEventId: scheduling.calendarEventId,
-    calendarUnavailable: availabilityMode === "unconfigured",
+    calendarUnavailable: scheduling.calendarUnavailable ?? availabilityMode === "unconfigured",
+    availabilityAttempts: scheduling.availabilityAttempts ?? 0,
+    bookingAttempts: scheduling.bookingAttempts ?? 0,
   };
 }
 
@@ -97,6 +99,9 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
     const result = await orchestrateInboundTurn(context, customerTurn, { now: EVAL_NOW });
 
     if (!result.handled) {
+      if ("context" in result && result.context) {
+        context = result.context;
+      }
       transcript.push({
         customer: customerTurn,
         agent: `[FALLBACK:${result.reason}]`,

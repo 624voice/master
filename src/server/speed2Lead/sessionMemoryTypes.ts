@@ -35,6 +35,13 @@ export type SchedulingState = {
   offeredSlots?: string[];
   selectedStart?: string;
   calendarEventId?: string;
+  /** Stable key for the current scheduling preference/range request. */
+  activeRequestKey?: string;
+  /** Failed availability lookups scoped to activeRequestKey. */
+  availabilityAttempts?: number;
+  /** Booking attempts scoped to activeRequestKey. */
+  bookingAttempts?: number;
+  calendarUnavailable?: boolean;
 };
 
 export type SessionMemoryFields = {

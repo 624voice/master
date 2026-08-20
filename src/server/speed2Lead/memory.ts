@@ -313,6 +313,28 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
       ...normalized.scheduling,
       status: "slots_offered",
       offeredSlots,
+      selectedStart: undefined,
+      calendarEventId: undefined,
+    },
+    updatedAt: new Date().toISOString(),
+  } as T;
+}
+
+export function applySchedulingMeta<T extends AnyConversationContext>(
+  context: T,
+  meta: {
+    activeRequestKey?: string;
+    availabilityAttempts?: number;
+    bookingAttempts?: number;
+    calendarUnavailable?: boolean;
+  },
+): T {
+  const normalized = normalizeSessionMemory(context);
+  return {
+    ...normalized,
+    scheduling: {
+      ...normalized.scheduling,
+      ...meta,
     },
     updatedAt: new Date().toISOString(),
   } as T;

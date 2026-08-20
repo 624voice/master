@@ -24,8 +24,13 @@ import {
 } from "~/server/speed2Lead/guardrails";
 import { normalizeSessionMemory } from "~/server/speed2Lead/memory";
 import {
+  buildDeterministicRecoveryReply,
   enforceSchedulingGate,
+  hydrateToolStateFromContext,
+  isActiveV2Scheduling,
+  persistSchedulingToolState,
   planSchedulingGate,
+  resolveAuthoritativeSchedulingReply,
   selectOutboundSchedulingReply,
   stripUnauthorizedCalendarLink,
 } from "~/server/speed2Lead/schedulingController";
@@ -48,6 +53,8 @@ export type OrchestratorTurnResult =
       handled: false;
       fallbackToRules: true;
       reason: string;
+      context: AnyConversationContext;
+      recoveryReply?: string;
     };
 
 export type ModelRunnerInput = {
@@ -292,7 +299,7 @@ export async function orchestrateInboundTurn(
       flow: context.flow ?? "roi",
       reason: "openai_not_configured",
     });
-    return { handled: false, fallbackToRules: true, reason: "openai_not_configured" };
+    return { handled: false, fallbackToRules: true, reason: "openai_not_configured", context };
   }
 
   const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -300,21 +307,9 @@ export async function orchestrateInboundTurn(
 
   let workingContext = context;
   const gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
-  let toolState = createInitialToolState();
+  let toolState = hydrateToolStateFromContext(workingContext, createInitialToolState());
   let llmCalledGetAvailability = false;
   let llmCalledBookAppointment = false;
-  const priorScheduling = context.scheduling;
-  if (priorScheduling?.offeredSlots?.length) {
-    toolState = { ...toolState, offeredSlots: priorScheduling.offeredSlots };
-  }
-  if (priorScheduling?.status === "confirmed" && priorScheduling.selectedStart) {
-    toolState = {
-      ...toolState,
-      bookingConfirmed: true,
-      bookingStart: priorScheduling.selectedStart,
-      bookingEventId: priorScheduling.calendarEventId,
-    };
-  }
   const instructions = buildOrchestratorInstructions(workingContext, now);
   const conversationInput: ResponseInputItem[] = buildConversationInput(workingContext);
   let latestDraft = "";
@@ -389,7 +384,45 @@ export async function orchestrateInboundTurn(
       stage: "tool_loop",
       error: error instanceof Error ? error.message : String(error),
     });
-    return { handled: false, fallbackToRules: true, reason: "openai_error" };
+
+    const gateResult = await enforceSchedulingGate({
+      plan: gatePlan,
+      inboundMessage,
+      context: workingContext,
+      toolState,
+      llmReply: latestDraft,
+      llmCalledGetAvailability,
+      llmCalledBookAppointment,
+      now,
+    });
+    workingContext = gateResult.context;
+    toolState = gateResult.toolState;
+
+    const recovery = resolveAuthoritativeSchedulingReply({
+      gateResult,
+      llmReply: latestDraft,
+      firstName: workingContext.firstName,
+      context: workingContext,
+      toolState,
+      calendarLinkAllowed: gateResult.calendarLinkAllowed,
+    });
+    if (recovery) {
+      workingContext = persistSchedulingToolState(
+        workingContext,
+        toolState,
+        gateResult.activeRequestKey,
+      );
+      return { handled: true, reply: recovery, context: workingContext };
+    }
+
+    return {
+      handled: false,
+      fallbackToRules: true,
+      reason: "openai_error",
+      context: workingContext,
+      recoveryReply: buildDeterministicRecoveryReply({ context: workingContext, toolState, gateResult })
+        ?? undefined,
+    };
   }
 
   const gateResult = await enforceSchedulingGate({
@@ -404,6 +437,34 @@ export async function orchestrateInboundTurn(
   });
   workingContext = gateResult.context;
   toolState = gateResult.toolState;
+  workingContext = persistSchedulingToolState(
+    workingContext,
+    toolState,
+    gateResult.activeRequestKey,
+  );
+
+  const authoritativeReply = resolveAuthoritativeSchedulingReply({
+    gateResult,
+    llmReply: latestDraft,
+    firstName: workingContext.firstName,
+    context: workingContext,
+    toolState,
+    calendarLinkAllowed: gateResult.calendarLinkAllowed,
+  });
+
+  if (authoritativeReply) {
+    logOrchestratorEvent("turn_complete", {
+      flow: workingContext.flow ?? "roi",
+      bookingConfirmed: toolState.bookingConfirmed,
+      offeredSlots: toolState.offeredSlots.length,
+      authoritativeScheduling: true,
+    });
+    return {
+      handled: true,
+      reply: authoritativeReply,
+      context: workingContext,
+    };
+  }
 
   const composedDraft = selectOutboundSchedulingReply({
     llmReply: latestDraft,
@@ -416,62 +477,58 @@ export async function orchestrateInboundTurn(
     toolState,
     gateResult.calendarLinkAllowed,
   );
-  let validated = await validateOrRepair(
-    draft,
-    workingContext,
-    toolState,
-    buildConversationInput(workingContext),
-    deps,
-    model,
-    runModel,
-    gateResult.calendarLinkAllowed,
-  );
 
-  if (!validated && gateResult.forcedReply) {
-    const forcedPass = validateOutboundSms(gateResult.forcedReply, {
-      session: workingContext,
+  let validated: string | null = null;
+  if (!gateResult.gateApplied) {
+    validated = await validateOrRepair(
+      draft,
+      workingContext,
       toolState,
-    });
-    if (forcedPass.ok) {
-      validated = forcedPass.text;
-    } else {
-      validated = await validateOrRepair(
-        gateResult.forcedReply,
-        workingContext,
-        toolState,
-        buildConversationInput(workingContext),
-        deps,
-        model,
-        runModel,
-        gateResult.calendarLinkAllowed,
-      );
-    }
+      buildConversationInput(workingContext),
+      deps,
+      model,
+      runModel,
+      gateResult.calendarLinkAllowed,
+    );
   }
 
   if (!validated) {
-    if (toolState.bookingFailed && gateResult.forcedReply) {
-      const conflictPass = validateOutboundSms(gateResult.forcedReply, {
-        session: workingContext,
-        toolState,
-      });
-      if (conflictPass.ok) {
-        validated = conflictPass.text;
-      }
-    }
+    validated = buildDeterministicRecoveryReply({
+      context: workingContext,
+      toolState,
+      gateResult,
+    });
+  }
 
-    if (!validated && toolState.bookingFailed) {
+  if (!validated) {
+    if (isActiveV2Scheduling(workingContext)) {
       logOrchestratorEvent("fallback_rules", {
         flow: context.flow ?? "roi",
-        reason: "booking_failed",
+        reason: "v2_scheduling_recovery",
       });
-      return { handled: false, fallbackToRules: true, reason: "booking_failed" };
+      return {
+        handled: false,
+        fallbackToRules: true,
+        reason: "guardrail_or_empty_reply",
+        context: workingContext,
+        recoveryReply:
+          gateResult.forcedReply ??
+          (toolState.offeredSlots.length > 0
+            ? buildSlotOfferMessage(toolState.offeredSlots)
+            : genericRecoveryMessage(workingContext)),
+      };
     }
 
     logOrchestratorEvent("fallback_rules", {
       flow: context.flow ?? "roi",
       reason: "guardrail_or_empty_reply",
     });
-    return { handled: false, fallbackToRules: true, reason: "guardrail_or_empty_reply" };
+    return {
+      handled: false,
+      fallbackToRules: true,
+      reason: "guardrail_or_empty_reply",
+      context: workingContext,
+    };
   }
 
   logOrchestratorEvent("turn_complete", {

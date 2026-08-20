@@ -1,8 +1,11 @@
 import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
+import { parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
 import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
+  calendarLinkFallbackMessage,
+  validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
 import {
   inferAvailabilityInputFromMessage,
@@ -10,8 +13,13 @@ import {
   resolveLaterThisWeekRange,
   type AvailabilityRangeInput,
 } from "~/server/speed2Lead/schedulingRange";
+import {
+  applyConfirmedScheduling,
+  applySchedulingMeta,
+  applyOfferedSlots,
+} from "~/server/speed2Lead/memory";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
-import { executeOrchestratorTool, type ToolExecutionState } from "~/server/speed2Lead/tools";
+import { executeOrchestratorTool, shouldSuggestCalendarLink, type ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 export type SchedulingGateAction =
@@ -51,7 +59,8 @@ const TIME_HINT_RE =
 const ORDINAL_SLOT_RE =
   /\b(first|1st|second|2nd|third|3rd|fourth|4th|last|that\s+one|this\s+one)\b/i;
 
-const TIME_SELECTION_RE = /\b(\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}\s*(?:am|pm))\b/i;
+const TIME_SELECTION_RE =
+  /\b(\d{1,2}(?::\d{2})?(?:\s*(?:am|pm))?|\d{1,2}\s*(?:am|pm))\b/i;
 
 const IMPLIED_AVAILABILITY_RE =
   /\b(i\s+have\s+(?:some\s+)?openings?|here\s+are\s+(?:some\s+)?(?:times|slots|options)|let\s+me\s+(?:find|check|look\s+for)\s+(?:a\s+)?time|let'?s\s+find\s+a\s+time|find\s+a\s+time\s+that\s+works)\b/i;
@@ -172,6 +181,27 @@ export function resolveOfferedSlotSelection(
         if (label.includes(part)) return start;
       } else if (/\bworks\b|\bgood\b|\bperfect\b|\bsounds\s+good\b/i.test(message)) {
         return start;
+      }
+    }
+  }
+
+  if (/\b(yes|yeah|yep)\b/i.test(lower) && TIME_SELECTION_RE.test(message)) {
+    const timeMatch = message.match(TIME_SELECTION_RE);
+    if (timeMatch) {
+      const requested = parseTimeToMinutes(timeMatch[1] ?? "");
+      if (requested !== null) {
+        let best: string | null = null;
+        let bestDelta = Number.POSITIVE_INFINITY;
+        for (const start of offeredSlots) {
+          const slotMinutes = slotStartMinutes(start);
+          if (slotMinutes === null) continue;
+          const delta = Math.abs(slotMinutes - requested);
+          if (delta < bestDelta) {
+            bestDelta = delta;
+            best = start;
+          }
+        }
+        if (best && bestDelta <= 45) return best;
       }
     }
   }
@@ -347,6 +377,222 @@ async function runBookAppointment(
   return { context: executed.context, toolState: executed.state, result: executed.result };
 }
 
+export function schedulingRequestKey(input: AvailabilityRangeInput): string {
+  if (input.rangeStart && input.rangeEnd) {
+    return `range:${input.rangeStart}|${input.rangeEnd}|${input.partOfDay ?? "full_day"}`;
+  }
+  return `date:${input.centralDate ?? "unknown"}|${input.partOfDay ?? "full_day"}`;
+}
+
+export function isActiveV2Scheduling(context: AnyConversationContext): boolean {
+  const scheduling = context.scheduling;
+  if (!scheduling) return false;
+  if (scheduling.status === "slots_offered" && (scheduling.offeredSlots?.length ?? 0) > 0) {
+    return true;
+  }
+  if (scheduling.status === "confirmed") return true;
+  if ((scheduling.availabilityAttempts ?? 0) > 0) return true;
+  if ((scheduling.bookingAttempts ?? 0) > 0) return true;
+  return false;
+}
+
+export function hydrateToolStateFromContext(
+  context: AnyConversationContext,
+  base: ToolExecutionState,
+): ToolExecutionState {
+  const scheduling = context.scheduling ?? { status: "idle" as const };
+  return {
+    ...base,
+    offeredSlots: scheduling.offeredSlots ?? base.offeredSlots,
+    bookingConfirmed: scheduling.status === "confirmed",
+    bookingStart: scheduling.selectedStart,
+    bookingEventId: scheduling.calendarEventId,
+    calendarUnavailable: scheduling.calendarUnavailable ?? base.calendarUnavailable,
+    availabilityAttempts: scheduling.availabilityAttempts ?? 0,
+    bookingAttempts: scheduling.bookingAttempts ?? 0,
+  };
+}
+
+export function persistSchedulingToolState(
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  activeRequestKey?: string,
+): AnyConversationContext {
+  let updated = context;
+
+  if (toolState.bookingConfirmed && toolState.bookingStart && toolState.bookingEventId) {
+    updated = applyConfirmedScheduling(updated, {
+      selectedStart: toolState.bookingStart,
+      calendarEventId: toolState.bookingEventId,
+    });
+  } else if (toolState.offeredSlots.length > 0) {
+    updated = applyOfferedSlots(updated, toolState.offeredSlots);
+  }
+
+  return applySchedulingMeta(updated, {
+    activeRequestKey: activeRequestKey ?? updated.scheduling?.activeRequestKey,
+    availabilityAttempts: toolState.availabilityAttempts,
+    bookingAttempts: toolState.bookingAttempts,
+    calendarUnavailable: toolState.calendarUnavailable,
+  });
+}
+
+function prepareToolStateForRequest(
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  requestKey: string,
+): ToolExecutionState {
+  const priorKey = context.scheduling?.activeRequestKey;
+  if (priorKey && priorKey !== requestKey) {
+    return {
+      ...toolState,
+      availabilityAttempts: 0,
+      bookingAttempts: 0,
+      bookingFailed: false,
+      offeredSlots: [],
+    };
+  }
+  return { ...toolState, bookingFailed: false };
+}
+
+function recordAvailabilityAttempt(
+  toolState: ToolExecutionState,
+  slotsReturned: number,
+): ToolExecutionState {
+  if (slotsReturned > 0) {
+    return {
+      ...toolState,
+      availabilityAttempts: 0,
+      bookingFailed: false,
+    };
+  }
+  return {
+    ...toolState,
+    availabilityAttempts: toolState.availabilityAttempts + 1,
+  };
+}
+
+export function validateDeterministicSchedulingReply(
+  text: string,
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  calendarLinkAllowed: boolean,
+): { ok: true; text: string } | { ok: false; reason: string } {
+  const sanitized = stripUnauthorizedCalendarLink(text, calendarLinkAllowed);
+  return validateOutboundSms(sanitized, { session: context, toolState });
+}
+
+export function resolveAuthoritativeSchedulingReply(args: {
+  gateResult: SchedulingGateResult;
+  llmReply: string;
+  firstName: string;
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  calendarLinkAllowed: boolean;
+}): string | null {
+  const { gateResult, context, toolState, calendarLinkAllowed } = args;
+  const schedulingTurn =
+    gateResult.gateApplied ||
+    gateResult.availabilityFetched ||
+    gateResult.bookingAttempted ||
+    gateResult.schedulingIntent;
+
+  if (!schedulingTurn) {
+    return null;
+  }
+
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
+    const linkReply = calendarLinkFallbackMessage(context);
+    const linkPass = validateDeterministicSchedulingReply(
+      linkReply,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (linkPass.ok) return linkPass.text;
+  }
+
+  if (gateResult.gateApplied && gateResult.forcedReply) {
+    const forcedPass = validateDeterministicSchedulingReply(
+      gateResult.forcedReply,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (forcedPass.ok) return forcedPass.text;
+  }
+
+  const composed = selectOutboundSchedulingReply({
+    llmReply: args.llmReply,
+    gateResult,
+    firstName: args.firstName,
+  });
+  const composedPass = validateDeterministicSchedulingReply(
+    composed,
+    context,
+    toolState,
+    calendarLinkAllowed,
+  );
+  if (composedPass.ok) return composedPass.text;
+
+  if (toolState.bookingConfirmed && toolState.bookingStart) {
+    const confirmation = buildBookingConfirmationMessage(toolState.bookingStart, context.firstName);
+    const confirmPass = validateDeterministicSchedulingReply(
+      confirmation,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (confirmPass.ok) return confirmPass.text;
+  }
+
+  if (toolState.offeredSlots.length > 0) {
+    const offer = buildSlotOfferMessage(toolState.offeredSlots);
+    const offerPass = validateDeterministicSchedulingReply(
+      offer,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (offerPass.ok) return offerPass.text;
+  }
+
+  if (gateResult.forcedReply) {
+    const retryPass = validateDeterministicSchedulingReply(
+      gateResult.forcedReply,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (retryPass.ok) return retryPass.text;
+  }
+
+  return null;
+}
+
+export function buildDeterministicRecoveryReply(args: {
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  gateResult: SchedulingGateResult;
+}): string | null {
+  return resolveAuthoritativeSchedulingReply({
+    gateResult: args.gateResult,
+    llmReply: "",
+    firstName: args.context.firstName,
+    context: args.context,
+    toolState: args.toolState,
+    calendarLinkAllowed: args.gateResult.calendarLinkAllowed,
+  });
+}
+
+function inferAvailabilityInputFromOfferedSlot(
+  startIso: string,
+): AvailabilityRangeInput | null {
+  const parts = parseCentralParts(new Date(startIso), CONSULTATION_TIMEZONE);
+  const centralDate = `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+  return { centralDate, partOfDay: "full_day" };
+}
+
 function formatAskPreference(firstName: string): string {
   return `Happy to set up a quick call, ${firstName} — what day works best, morning or afternoon?`;
 }
@@ -367,6 +613,8 @@ export type SchedulingGateResult = {
   calendarLinkAllowed: boolean;
   availabilityFetched: boolean;
   bookingAttempted: boolean;
+  activeRequestKey?: string;
+  schedulingIntent: boolean;
 };
 
 export async function enforceSchedulingGate(args: {
@@ -385,6 +633,7 @@ export async function enforceSchedulingGate(args: {
   let gateApplied = false;
   let availabilityFetched = args.llmCalledGetAvailability;
   let bookingAttempted = args.llmCalledBookAppointment;
+  let activeRequestKey = context.scheduling?.activeRequestKey;
 
   const calendarLinkAllowed = allowCalendarLinkFallback({
     plan: args.plan,
@@ -399,6 +648,7 @@ export async function enforceSchedulingGate(args: {
     if (!asksPreference || mentionsUnauthorizedAvailability(args.llmReply, toolState)) {
       forcedReply = formatAskPreference(context.firstName);
     }
+    context = persistSchedulingToolState(context, toolState, activeRequestKey);
     return {
       context,
       toolState,
@@ -407,17 +657,21 @@ export async function enforceSchedulingGate(args: {
       calendarLinkAllowed,
       availabilityFetched,
       bookingAttempted,
+      activeRequestKey,
+      schedulingIntent: args.plan.schedulingIntent,
     };
   }
 
   if (action.type === "get_availability" || action.type === "get_availability_for_request") {
+    const requestKey = schedulingRequestKey(action.input);
+    activeRequestKey = requestKey;
+    toolState = prepareToolStateForRequest(context, toolState, requestKey);
+
     if (!args.llmCalledGetAvailability || toolState.offeredSlots.length === 0) {
-      if (!args.llmCalledGetAvailability) {
-        gateApplied = true;
-      }
+      gateApplied = gateApplied || !args.llmCalledGetAvailability;
       const fetched = await runGetAvailability(action.input, context, toolState, now);
       context = fetched.context;
-      toolState = fetched.toolState;
+      toolState = recordAvailabilityAttempt(fetched.toolState, fetched.toolState.offeredSlots.length);
       availabilityFetched = true;
     }
 
@@ -449,10 +703,17 @@ export async function enforceSchedulingGate(args: {
         const refreshInput =
           args.plan.preferenceInput ??
           inferAvailabilityInputFromMessage(args.inboundMessage, now) ??
+          inferAvailabilityInputFromOfferedSlot(action.start) ??
           defaultAvailabilityInput(now);
+        const refreshKey = schedulingRequestKey(refreshInput);
+        activeRequestKey = refreshKey;
+        toolState = prepareToolStateForRequest(context, toolState, refreshKey);
         const refreshed = await runGetAvailability(refreshInput, context, toolState, now);
         context = refreshed.context;
-        toolState = refreshed.toolState;
+        toolState = {
+          ...recordAvailabilityAttempt(refreshed.toolState, refreshed.toolState.offeredSlots.length),
+          bookingFailed: false,
+        };
         availabilityFetched = true;
         forcedReply = formatConflictReply(toolState.offeredSlots);
       }
@@ -467,15 +728,19 @@ export async function enforceSchedulingGate(args: {
   ) {
     gateApplied = true;
     const input = args.plan.preferenceInput ?? defaultAvailabilityInput(now);
+    activeRequestKey = schedulingRequestKey(input);
+    toolState = prepareToolStateForRequest(context, toolState, activeRequestKey);
     const fetched = await runGetAvailability(input, context, toolState, now);
     context = fetched.context;
-    toolState = fetched.toolState;
+    toolState = recordAvailabilityAttempt(fetched.toolState, fetched.toolState.offeredSlots.length);
     availabilityFetched = true;
     forcedReply =
       toolState.offeredSlots.length > 0
         ? buildSlotOfferMessage(toolState.offeredSlots)
         : formatAskPreference(context.firstName);
   }
+
+  context = persistSchedulingToolState(context, toolState, activeRequestKey);
 
   return {
     context,
@@ -485,6 +750,8 @@ export async function enforceSchedulingGate(args: {
     calendarLinkAllowed,
     availabilityFetched,
     bookingAttempted,
+    activeRequestKey,
+    schedulingIntent: args.plan.schedulingIntent,
   };
 }
 
@@ -545,5 +812,5 @@ export function selectOutboundSchedulingReply(args: {
     return draft;
   }
 
-  return forcedReply ?? formatAskPreference(args.firstName);
+  return forcedReply ?? "";
 }
