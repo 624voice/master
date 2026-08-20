@@ -18,5 +18,4 @@
 # Controlled real-phone SMS test on PR deploy previews (see PR #61 readiness report)
 [context.deploy-preview.environment]
   SPEED2LEAD_LLM_ENABLED = "true"
-  SPEED2LEAD_TEST_PHONES = "+18178544399"
   TWILIO_WEBHOOK_URL = "https://deploy-preview-61--624voice.netlify.app/api/sms/inbound"
