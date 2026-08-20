@@ -16,9 +16,22 @@ import {
 import {
   applyConfirmedScheduling,
   applySchedulingMeta,
+  applySchedulingIntent,
   applyOfferedSlots,
 } from "~/server/speed2Lead/memory";
-import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
+import type { KnownFacts, SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
+import {
+  buildAvailabilityInputFromSchedulingState,
+  detectRepetitionCorrection,
+  detectSchedulingRefinement,
+  extractRequestedTimeMinutes,
+  hasKnownSchedulingDay,
+  hasKnownSchedulingPartOfDay,
+  mergeSchedulingIntentFromMessage,
+  parseFlexibleTimeToken,
+  slotMatchesMinutes,
+} from "~/server/speed2Lead/schedulingContext";
+import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import { executeOrchestratorTool, shouldSuggestCalendarLink, type ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -101,10 +114,18 @@ function detectExplicitCalendarLinkRequest(message: string): boolean {
   return EXPLICIT_CALENDAR_LINK_RE.test(message);
 }
 
-function shouldAskPreferenceOnly(message: string, knownFacts: KnownFacts): boolean {
+function shouldAskPreferenceOnly(
+  message: string,
+  knownFacts: KnownFacts,
+  scheduling?: SchedulingState,
+): boolean {
   if (!detectStrongInterest(message, knownFacts)) return false;
   if (hasSchedulingPreference(message)) return false;
+  if (hasKnownSchedulingDay(scheduling) && hasKnownSchedulingPartOfDay(scheduling)) {
+    return false;
+  }
   if (EXPLICIT_AVAILABILITY_QUESTION_RE.test(message)) return false;
+  if (detectRepetitionCorrection(message)) return false;
   return true;
 }
 
@@ -121,21 +142,31 @@ function buildPreferenceInput(
   now: Date,
   context?: AnyConversationContext,
 ): AvailabilityRangeInput | null {
-  const offered = context?.scheduling?.offeredSlots ?? [];
+  const scheduling = context?.scheduling;
+  const offered = scheduling?.offeredSlots ?? [];
   const hasWeekdayInMessage = WEEKDAY_RE.test(message);
   const anchorToOfferedDay =
     offered.length > 0 &&
     (isNonSelectionSchedulingRequest(message) ||
-      (TIME_SELECTION_RE.test(message) && !hasWeekdayInMessage));
+      (extractRequestedTimeMinutes(message) !== null && !hasWeekdayInMessage));
 
   if (anchorToOfferedDay) {
     const anchor = inferAvailabilityInputFromOfferedSlot(offered[0]!);
     if (anchor) {
       return {
         ...anchor,
-        partOfDay: inferPartOfDayFromMessage(message) ?? anchor.partOfDay,
+        centralDate: scheduling?.centralDate ?? anchor.centralDate,
+        partOfDay:
+          inferPartOfDayFromMessage(message) ??
+          scheduling?.partOfDay ??
+          anchor.partOfDay,
       };
     }
+  }
+
+  const fromState = buildAvailabilityInputFromSchedulingState(scheduling, message, now);
+  if (fromState) {
+    return fromState;
   }
 
   return inferAvailabilityInputFromMessage(message, now);
@@ -172,7 +203,7 @@ function findClosestOfferedSlot(
   let best: string | null = null;
   let bestDelta = Number.POSITIVE_INFINITY;
   for (const start of offeredSlots) {
-    const slotMinutes = slotStartMinutes(start);
+    const slotMinutes = slotStartMinutesFromIso(start);
     if (slotMinutes === null) continue;
     const delta = Math.abs(slotMinutes - requestedMinutes);
     if (delta < bestDelta) {
@@ -190,33 +221,25 @@ function slotLabel(startIso: string): string {
 }
 
 function parseTimeToMinutes(raw: string): number | null {
-  const normalized = raw.trim().toLowerCase().replace(/\s+/g, "");
-  const match = normalized.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/i);
-  if (!match) return null;
-  let hour = Number.parseInt(match[1] ?? "0", 10);
-  const minute = Number.parseInt(match[2] ?? "0", 10);
-  let meridiem = (match[3] ?? "").toLowerCase();
-  if (!meridiem) {
-    meridiem = hour >= 8 && hour <= 11 ? "am" : "pm";
-  }
-  if (meridiem === "pm" && hour < 12) hour += 12;
-  if (meridiem === "am" && hour === 12) hour = 0;
-  if (hour >= 24 || minute >= 60) return null;
-  return hour * 60 + minute;
+  return parseFlexibleTimeToken(raw);
 }
 
-function slotStartMinutes(startIso: string): number | null {
-  const { time } = formatTimeOnly(startIso, CONSULTATION_TIMEZONE);
-  return parseTimeToMinutes(time);
+function slotStartMinutesFromIso(startIso: string): number | null {
+  return slotStartMinutes(startIso);
 }
 
 function resolveOrdinalIndex(message: string, slotCount: number): number | null {
   const lower = message.toLowerCase();
   if (/\b(first|1st|that\s+first)\b/.test(lower)) return 0;
-  if (/\b(second|2nd)\b/.test(lower)) return Math.min(1, slotCount - 1);
+  if (/\b(second|2nd|middle)\b/.test(lower)) return Math.min(1, slotCount - 1);
   if (/\b(third|3rd)\b/.test(lower)) return Math.min(2, slotCount - 1);
   if (/\b(fourth|4th|last)\b/.test(lower)) return slotCount - 1;
-  if (/\b(that\s+one|this\s+one|works|good|perfect|sounds\s+good|the\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)|\d{1,2}\s*(?:am|pm)\s+slot)\b/.test(lower) && slotCount === 1) {
+  if (
+    /\b(that\s+one|this\s+one|that\s+works|this\s+works|works|good|perfect|sounds\s+good)\b/.test(
+      lower,
+    ) &&
+    slotCount === 1
+  ) {
     return 0;
   }
   return null;
@@ -234,60 +257,29 @@ export function resolveOfferedSlotSelection(
     return offeredSlots[ordinal] ?? null;
   }
 
-  const lower = message.toLowerCase();
-  for (const start of offeredSlots) {
-    const label = slotLabel(start).toLowerCase();
-    const weekdayMatch = label.match(/^(mon|tue|wed|thu|fri|sat|sun)/i);
-    if (weekdayMatch && lower.includes(weekdayMatch[0]!.toLowerCase())) {
-      const slotMinutes = slotStartMinutes(start);
-      const timeMatch = message.match(TIME_SELECTION_RE);
-      if (timeMatch) {
-        const requested = parseTimeToMinutes(timeMatch[1] ?? "");
-        if (requested !== null && slotMinutes !== null && Math.abs(requested - slotMinutes) <= SLOT_SELECTION_MAX_DELTA_MINUTES) {
-          return start;
-        }
-      } else if (/\b(morning|afternoon|evening)\b/i.test(message)) {
-        const part = /\bmorning\b/i.test(message)
-          ? "am"
-          : /\bafternoon\b/i.test(message)
-            ? "pm"
-            : "pm";
-        if (label.includes(part)) return start;
-      } else if (/\bworks\b|\bgood\b|\bperfect\b|\bsounds\s+good\b/i.test(message)) {
-        return start;
-      }
+  const requestedMinutes = extractRequestedTimeMinutes(message);
+  if (requestedMinutes !== null) {
+    const exact = offeredSlots.find((slot) => slotMatchesMinutes(slot, requestedMinutes, 0));
+    if (exact) return exact;
+
+    if (SLOT_SELECTION_AFFIRMATIVE_RE.test(message) || /\b(that|this)\b/i.test(message)) {
+      return findClosestOfferedSlot(
+        requestedMinutes,
+        offeredSlots,
+        SLOT_SELECTION_MAX_DELTA_MINUTES,
+      );
     }
   }
 
-  if (/\b(yes|yeah|yep)\b/i.test(lower) && TIME_SELECTION_RE.test(message)) {
-    const timeMatch = message.match(TIME_SELECTION_RE);
-    if (timeMatch) {
-      const requested = parseTimeToMinutes(timeMatch[1] ?? "");
-      if (requested !== null) {
-        const matched = findClosestOfferedSlot(
-          requested,
-          offeredSlots,
-          SLOT_SELECTION_MAX_DELTA_MINUTES,
-        );
-        if (matched) return matched;
-      }
-    }
+  if (/\b(last one|final one)\b/i.test(message)) {
+    return offeredSlots[offeredSlots.length - 1] ?? null;
   }
 
-  const bareTime = message.match(TIME_SELECTION_RE);
-  if (bareTime) {
-    const requested = parseTimeToMinutes(bareTime[1] ?? "");
-    if (requested !== null) {
-      const exact = findClosestOfferedSlot(requested, offeredSlots, 0);
-      if (exact) return exact;
-      if (SLOT_SELECTION_AFFIRMATIVE_RE.test(message)) {
-        return findClosestOfferedSlot(
-          requested,
-          offeredSlots,
-          SLOT_SELECTION_MAX_DELTA_MINUTES,
-        );
-      }
-    }
+  if (
+    /\b(yes|yeah|yep|that works|that one|this one|book it|sounds good)\b/i.test(message) &&
+    offeredSlots.length === 1
+  ) {
+    return offeredSlots[0] ?? null;
   }
 
   if (ORDINAL_SLOT_RE.test(message) && offeredSlots.length === 1) {
@@ -330,9 +322,25 @@ export function planSchedulingGate(args: {
       };
     }
 
+    const refinement = detectSchedulingRefinement(inboundMessage, scheduling, offered, now);
+    if (refinement) {
+      return {
+        action: {
+          type: "get_availability_for_request",
+          input: refinement.input,
+          reason: refinement.reason,
+        },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: refinement.input,
+      };
+    }
+
     const requestsDifferentTime =
       hasSchedulingPreference(inboundMessage) ||
-      TIME_SELECTION_RE.test(inboundMessage) ||
+      extractRequestedTimeMinutes(inboundMessage) !== null ||
       /\b(instead|anything around|different time|other time|later time)\b/i.test(inboundMessage);
 
     if (requestsDifferentTime) {
@@ -352,8 +360,27 @@ export function planSchedulingGate(args: {
     }
   }
 
+  if (detectRepetitionCorrection(inboundMessage)) {
+    const requestInput =
+      buildAvailabilityInputFromSchedulingState(scheduling, inboundMessage, now) ??
+      preferenceInput ??
+      defaultAvailabilityInput(now);
+    return {
+      action: {
+        type: "get_availability",
+        input: requestInput,
+        reason: "repetition_correction_recovery",
+      },
+      schedulingIntent: true,
+      strongInterest,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: requestInput,
+    };
+  }
+
   if (schedulingIntent) {
-    if (shouldAskPreferenceOnly(inboundMessage, knownFacts)) {
+    if (shouldAskPreferenceOnly(inboundMessage, knownFacts, scheduling)) {
       return {
         action: { type: "ask_preference" },
         schedulingIntent: true,
@@ -364,7 +391,10 @@ export function planSchedulingGate(args: {
       };
     }
 
-    const input = preferenceInput ?? defaultAvailabilityInput(now);
+    const input =
+      preferenceInput ??
+      buildAvailabilityInputFromSchedulingState(scheduling, inboundMessage, now) ??
+      defaultAvailabilityInput(now);
     return {
       action: { type: "get_availability", input, reason: "scheduling_intent" },
       schedulingIntent: true,
@@ -658,8 +688,19 @@ function inferAvailabilityInputFromOfferedSlot(
   return { centralDate, partOfDay: "full_day" };
 }
 
-function formatAskPreference(firstName: string): string {
-  return `Happy to set up a quick call, ${firstName} — what day works best, morning or afternoon?`;
+function formatAskPreference(firstName: string, scheduling?: SchedulingState): string {
+  const hasDay = hasKnownSchedulingDay(scheduling);
+  const hasPart = hasKnownSchedulingPartOfDay(scheduling);
+
+  if (hasDay && hasPart) {
+    return `Got it, ${firstName} — let me check what I have open.`;
+  }
+
+  if (hasDay) {
+    return `Happy to set up a quick call, ${firstName} — would morning or afternoon work better that day?`;
+  }
+
+  return `Happy to set up a quick call, ${firstName} — what day works best for you?`;
 }
 
 function formatConflictReply(slots: string[]): string {
@@ -694,6 +735,10 @@ export async function enforceSchedulingGate(args: {
 }): Promise<SchedulingGateResult> {
   const now = args.now ?? new Date();
   let { context, toolState } = args;
+  context = applySchedulingMeta(
+    context,
+    mergeSchedulingIntentFromMessage(context.scheduling, args.inboundMessage, now),
+  );
   let forcedReply: string | null = null;
   let gateApplied = false;
   let availabilityFetched = args.llmCalledGetAvailability;
@@ -711,7 +756,7 @@ export async function enforceSchedulingGate(args: {
     gateApplied = true;
     const asksPreference = /\b(what day|which day|morning or afternoon)\b/i.test(args.llmReply);
     if (!asksPreference || mentionsUnauthorizedAvailability(args.llmReply, toolState)) {
-      forcedReply = formatAskPreference(context.firstName);
+      forcedReply = formatAskPreference(context.firstName, context.scheduling);
     }
     context = persistSchedulingToolState(context, toolState, activeRequestKey);
     return {
@@ -739,6 +784,21 @@ export async function enforceSchedulingGate(args: {
 
     if (mustRefreshAvailability) {
       gateApplied = gateApplied || !args.llmCalledGetAvailability || action.type === "get_availability_for_request";
+      const refinement = detectSchedulingRefinement(
+        args.inboundMessage,
+        context.scheduling,
+        context.scheduling?.offeredSlots ?? [],
+        now,
+      );
+      context = applySchedulingIntent(context, action.input, {
+        anchorTimeMinutes: refinement?.rankPreferences.anchorMinutes,
+        searchAfterMinutes: refinement?.rankPreferences.searchAfterMinutes,
+        searchBeforeMinutes: refinement?.rankPreferences.searchBeforeMinutes,
+      });
+      context = applySchedulingMeta(
+        context,
+        mergeSchedulingIntentFromMessage(context.scheduling, args.inboundMessage, now),
+      );
       const fetched = await runGetAvailability(action.input, context, toolState, now);
       context = fetched.context;
       toolState = recordAvailabilityAttempt(fetched.toolState, fetched.toolState.offeredSlots.length);
@@ -755,7 +815,11 @@ export async function enforceSchedulingGate(args: {
     ) {
       forcedReply = buildSlotOfferMessage(slots);
     } else if (gateApplied && slots.length === 0) {
-      forcedReply = formatAskPreference(context.firstName);
+      if (hasKnownSchedulingDay(context.scheduling) && hasKnownSchedulingPartOfDay(context.scheduling)) {
+        forcedReply = `I don't have anything open in that window — want to try another time on that day?`;
+      } else {
+        forcedReply = formatAskPreference(context.firstName, context.scheduling);
+      }
     }
   }
 
@@ -810,7 +874,7 @@ export async function enforceSchedulingGate(args: {
     forcedReply =
       toolState.offeredSlots.length > 0
         ? buildSlotOfferMessage(toolState.offeredSlots)
-        : formatAskPreference(context.firstName);
+        : formatAskPreference(context.firstName, context.scheduling);
   }
 
   context = persistSchedulingToolState(context, toolState, activeRequestKey);

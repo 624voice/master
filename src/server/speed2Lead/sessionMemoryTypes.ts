@@ -30,6 +30,8 @@ export type KnownFacts = {
 
 export type SchedulingStatus = "idle" | "slots_offered" | "confirmed";
 
+export type SchedulingPartOfDay = "morning" | "afternoon" | "evening" | "full_day";
+
 export type SchedulingState = {
   status: SchedulingStatus;
   offeredSlots?: string[];
@@ -42,6 +44,19 @@ export type SchedulingState = {
   /** Booking attempts scoped to activeRequestKey. */
   bookingAttempts?: number;
   calendarUnavailable?: boolean;
+  /** Normalized day preference retained across turns. */
+  centralDate?: string;
+  /** Normalized part-of-day preference retained across turns. */
+  partOfDay?: SchedulingPartOfDay;
+  /** Anchor time in minutes from midnight when customer names a target time. */
+  anchorTimeMinutes?: number;
+  /** Search only for slots after this minute on the active day. */
+  searchAfterMinutes?: number;
+  /** Search only for slots before this minute on the active day. */
+  searchBeforeMinutes?: number;
+  /** Most recent offered range for relative refinements. */
+  lastOfferedEarliestMinutes?: number;
+  lastOfferedLatestMinutes?: number;
 };
 
 export type SessionMemoryFields = {

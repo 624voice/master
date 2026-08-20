@@ -1,9 +1,15 @@
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
 import { primaryPainLabel } from "~/server/speed2Lead/naturalLanguage";
+import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
+import {
+  earliestOfferedMinutes,
+  latestOfferedMinutes,
+} from "~/server/speed2Lead/slotRanking";
 import type {
   ConversationMessage,
   ConversationMessageRole,
   KnownFacts,
+  SchedulingPartOfDay,
   SchedulingState,
   SessionMemoryFields,
 } from "~/server/speed2Lead/sessionMemoryTypes";
@@ -315,6 +321,10 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
       offeredSlots,
       selectedStart: undefined,
       calendarEventId: undefined,
+      lastOfferedEarliestMinutes: earliestOfferedMinutes(offeredSlots) ?? undefined,
+      lastOfferedLatestMinutes: latestOfferedMinutes(offeredSlots) ?? undefined,
+      searchAfterMinutes: undefined,
+      searchBeforeMinutes: undefined,
     },
     updatedAt: new Date().toISOString(),
   } as T;
@@ -327,6 +337,13 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     availabilityAttempts?: number;
     bookingAttempts?: number;
     calendarUnavailable?: boolean;
+    centralDate?: string;
+    partOfDay?: SchedulingPartOfDay;
+    anchorTimeMinutes?: number;
+    searchAfterMinutes?: number;
+    searchBeforeMinutes?: number;
+    lastOfferedEarliestMinutes?: number;
+    lastOfferedLatestMinutes?: number;
   },
 ): T {
   const normalized = normalizeSessionMemory(context);
@@ -338,4 +355,23 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     },
     updatedAt: new Date().toISOString(),
   } as T;
+}
+
+export function applySchedulingIntent<T extends AnyConversationContext>(
+  context: T,
+  input: AvailabilityRangeInput,
+  extras: {
+    anchorTimeMinutes?: number;
+    searchAfterMinutes?: number;
+    searchBeforeMinutes?: number;
+  } = {},
+): T {
+  const normalized = normalizeSessionMemory(context);
+  return applySchedulingMeta(normalized, {
+    centralDate: input.centralDate ?? normalized.scheduling?.centralDate,
+    partOfDay: input.partOfDay ?? normalized.scheduling?.partOfDay,
+    anchorTimeMinutes: extras.anchorTimeMinutes ?? normalized.scheduling?.anchorTimeMinutes,
+    searchAfterMinutes: extras.searchAfterMinutes,
+    searchBeforeMinutes: extras.searchBeforeMinutes,
+  }) as T;
 }

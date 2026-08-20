@@ -10,6 +10,12 @@ import {
   normalizeSessionMemory,
 } from "~/server/speed2Lead/memory";
 import {
+  buildSlotRankPreferencesFromState,
+} from "~/server/speed2Lead/schedulingContext";
+import {
+  rankSlotsForOffer,
+} from "~/server/speed2Lead/slotRanking";
+import {
   resolveAvailabilityRange,
   type AvailabilityRangeInput,
 } from "~/server/speed2Lead/schedulingRange";
@@ -184,7 +190,7 @@ async function handleGetAvailability(
   const availability = await getConsultationSlots({
     rangeStart: resolved.rangeStart,
     rangeEnd: resolved.rangeEnd,
-    maxSlots,
+    maxSlots: 48,
     now,
   });
 
@@ -204,7 +210,11 @@ async function handleGetAvailability(
     };
   }
 
-  const offered = availability.slots.slice(0, maxSlots);
+  const rankPreferences = buildSlotRankPreferencesFromState(context.scheduling, rangeInput);
+  const offered = rankSlotsForOffer(availability.slots, {
+    ...rankPreferences,
+    maxOffer: maxSlots,
+  });
   state = { ...state, offeredSlots: offered };
 
   return {
