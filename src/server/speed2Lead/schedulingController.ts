@@ -62,6 +62,15 @@ const ORDINAL_SLOT_RE =
 const TIME_SELECTION_RE =
   /\b(\d{1,2}(?::\d{2})?(?:\s*(?:am|pm))?|\d{1,2}\s*(?:am|pm))\b/i;
 
+const NON_SELECTION_SCHEDULING_REQUEST_RE =
+  /\b(?:instead|anything\s+around|do\s+you\s+have|any(?:thing)?\s+(?:around|at|for|open)|what\s+about|how\s+about|different\s+time|other\s+time|later\s+time|something\s+(?:around|at|closer))\b/i;
+
+const SLOT_SELECTION_AFFIRMATIVE_RE =
+  /\b(works|good|perfect|sounds\s+good|book|take|yes|yeah|yep|that\s+one|this\s+one|slot)\b/i;
+
+/** Max minutes a requested time may differ from an offered slot when affirmatively selecting. */
+const SLOT_SELECTION_MAX_DELTA_MINUTES = 30;
+
 const IMPLIED_AVAILABILITY_RE =
   /\b(i\s+have\s+(?:some\s+)?openings?|here\s+are\s+(?:some\s+)?(?:times|slots|options)|let\s+me\s+(?:find|check|look\s+for)\s+(?:a\s+)?time|let'?s\s+find\s+a\s+time|find\s+a\s+time\s+that\s+works)\b/i;
 
@@ -107,8 +116,72 @@ function defaultAvailabilityInput(now: Date): AvailabilityRangeInput {
   };
 }
 
-function buildPreferenceInput(message: string, now: Date): AvailabilityRangeInput | null {
+function buildPreferenceInput(
+  message: string,
+  now: Date,
+  context?: AnyConversationContext,
+): AvailabilityRangeInput | null {
+  const offered = context?.scheduling?.offeredSlots ?? [];
+  const hasWeekdayInMessage = WEEKDAY_RE.test(message);
+  const anchorToOfferedDay =
+    offered.length > 0 &&
+    (isNonSelectionSchedulingRequest(message) ||
+      (TIME_SELECTION_RE.test(message) && !hasWeekdayInMessage));
+
+  if (anchorToOfferedDay) {
+    const anchor = inferAvailabilityInputFromOfferedSlot(offered[0]!);
+    if (anchor) {
+      return {
+        ...anchor,
+        partOfDay: inferPartOfDayFromMessage(message) ?? anchor.partOfDay,
+      };
+    }
+  }
+
   return inferAvailabilityInputFromMessage(message, now);
+}
+
+function inferPartOfDayFromMessage(message: string): AvailabilityRangeInput["partOfDay"] | null {
+  const lower = message.toLowerCase();
+  if (/\b(morning|before noon)\b/.test(lower)) return "morning";
+  if (/\b(after lunch|afternoon)\b/.test(lower)) return "afternoon";
+  if (/\b(evening)\b/.test(lower)) return "evening";
+  const timeMatch = message.match(TIME_SELECTION_RE);
+  if (timeMatch) {
+    const minutes = parseTimeToMinutes(timeMatch[1] ?? "");
+    if (minutes !== null) {
+      if (minutes < 12 * 60) return "morning";
+      if (minutes < 17 * 60) return "afternoon";
+      return "evening";
+    }
+  }
+  return null;
+}
+
+function isNonSelectionSchedulingRequest(message: string): boolean {
+  if (NON_SELECTION_SCHEDULING_REQUEST_RE.test(message)) return true;
+  if (/\?\s*$/.test(message.trim()) && TIME_SELECTION_RE.test(message)) return true;
+  return false;
+}
+
+function findClosestOfferedSlot(
+  requestedMinutes: number,
+  offeredSlots: string[],
+  maxDeltaMinutes: number,
+): string | null {
+  let best: string | null = null;
+  let bestDelta = Number.POSITIVE_INFINITY;
+  for (const start of offeredSlots) {
+    const slotMinutes = slotStartMinutes(start);
+    if (slotMinutes === null) continue;
+    const delta = Math.abs(slotMinutes - requestedMinutes);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      best = start;
+    }
+  }
+  if (best && bestDelta <= maxDeltaMinutes) return best;
+  return null;
 }
 
 function slotLabel(startIso: string): string {
@@ -154,6 +227,7 @@ export function resolveOfferedSlotSelection(
   offeredSlots: string[],
 ): string | null {
   if (offeredSlots.length === 0) return null;
+  if (isNonSelectionSchedulingRequest(message)) return null;
 
   const ordinal = resolveOrdinalIndex(message, offeredSlots.length);
   if (ordinal !== null && offeredSlots[ordinal]) {
@@ -169,7 +243,7 @@ export function resolveOfferedSlotSelection(
       const timeMatch = message.match(TIME_SELECTION_RE);
       if (timeMatch) {
         const requested = parseTimeToMinutes(timeMatch[1] ?? "");
-        if (requested !== null && slotMinutes !== null && Math.abs(requested - slotMinutes) <= 30) {
+        if (requested !== null && slotMinutes !== null && Math.abs(requested - slotMinutes) <= SLOT_SELECTION_MAX_DELTA_MINUTES) {
           return start;
         }
       } else if (/\b(morning|afternoon|evening)\b/i.test(message)) {
@@ -190,18 +264,12 @@ export function resolveOfferedSlotSelection(
     if (timeMatch) {
       const requested = parseTimeToMinutes(timeMatch[1] ?? "");
       if (requested !== null) {
-        let best: string | null = null;
-        let bestDelta = Number.POSITIVE_INFINITY;
-        for (const start of offeredSlots) {
-          const slotMinutes = slotStartMinutes(start);
-          if (slotMinutes === null) continue;
-          const delta = Math.abs(slotMinutes - requested);
-          if (delta < bestDelta) {
-            bestDelta = delta;
-            best = start;
-          }
-        }
-        if (best && bestDelta <= 45) return best;
+        const matched = findClosestOfferedSlot(
+          requested,
+          offeredSlots,
+          SLOT_SELECTION_MAX_DELTA_MINUTES,
+        );
+        if (matched) return matched;
       }
     }
   }
@@ -210,18 +278,15 @@ export function resolveOfferedSlotSelection(
   if (bareTime) {
     const requested = parseTimeToMinutes(bareTime[1] ?? "");
     if (requested !== null) {
-      let best: string | null = null;
-      let bestDelta = Number.POSITIVE_INFINITY;
-      for (const start of offeredSlots) {
-        const slotMinutes = slotStartMinutes(start);
-        if (slotMinutes === null) continue;
-        const delta = Math.abs(slotMinutes - requested);
-        if (delta < bestDelta) {
-          bestDelta = delta;
-          best = start;
-        }
+      const exact = findClosestOfferedSlot(requested, offeredSlots, 0);
+      if (exact) return exact;
+      if (SLOT_SELECTION_AFFIRMATIVE_RE.test(message)) {
+        return findClosestOfferedSlot(
+          requested,
+          offeredSlots,
+          SLOT_SELECTION_MAX_DELTA_MINUTES,
+        );
       }
-      if (best && bestDelta <= 45) return best;
     }
   }
 
@@ -249,7 +314,7 @@ export function planSchedulingGate(args: {
   const explicitCalendarLinkRequest = detectExplicitCalendarLinkRequest(inboundMessage);
   const schedulingIntent = detectSchedulingIntent(inboundMessage, knownFacts);
   const strongInterest = detectStrongInterest(inboundMessage, knownFacts);
-  const preferenceInput = buildPreferenceInput(inboundMessage, now);
+  const preferenceInput = buildPreferenceInput(inboundMessage, now, context);
 
   if (scheduling?.status === "slots_offered" && (scheduling.offeredSlots?.length ?? 0) > 0) {
     const offered = scheduling.offeredSlots ?? [];
@@ -667,8 +732,13 @@ export async function enforceSchedulingGate(args: {
     activeRequestKey = requestKey;
     toolState = prepareToolStateForRequest(context, toolState, requestKey);
 
-    if (!args.llmCalledGetAvailability || toolState.offeredSlots.length === 0) {
-      gateApplied = gateApplied || !args.llmCalledGetAvailability;
+    const mustRefreshAvailability =
+      action.type === "get_availability_for_request" ||
+      !args.llmCalledGetAvailability ||
+      toolState.offeredSlots.length === 0;
+
+    if (mustRefreshAvailability) {
+      gateApplied = gateApplied || !args.llmCalledGetAvailability || action.type === "get_availability_for_request";
       const fetched = await runGetAvailability(action.input, context, toolState, now);
       context = fetched.context;
       toolState = recordAvailabilityAttempt(fetched.toolState, fetched.toolState.offeredSlots.length);

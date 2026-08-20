@@ -189,6 +189,30 @@ describe("schedulingController planning", () => {
     expect(plan.action.type).toBe("get_availability_for_request");
   });
 
+  test("around 4:30 instead does not select closest offered slot", () => {
+    const slots = [
+      centralDateAt(2026, 8, 26, 13, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 14, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 16, 0, TZ).toISOString(),
+    ];
+    expect(resolveOfferedSlotSelection("Do you have anything around 4:30 instead?", slots)).toBeNull();
+    const plan = planSchedulingGate({
+      inboundMessage: "Do you have anything around 4:30 instead?",
+      context: roiSession({ scheduling: { status: "slots_offered", offeredSlots: slots } }),
+      now,
+    });
+    expect(plan.action.type).toBe("get_availability_for_request");
+    expect(plan.action.type === "get_availability_for_request" && plan.action.input.centralDate).toBeTruthy();
+  });
+
+  test("2pm slot works still selects exact offered slot", () => {
+    const slots = [
+      centralDateAt(2026, 8, 26, 13, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 14, 0, TZ).toISOString(),
+    ];
+    expect(resolveOfferedSlotSelection("The 2pm slot works", slots)).toBe(slots[1]);
+  });
+
   test("Existing STOP/lifecycle routing remains unchanged", () => {
     const handleInboundSource = readFileSync(
       new URL("./handleInbound.ts", import.meta.url),

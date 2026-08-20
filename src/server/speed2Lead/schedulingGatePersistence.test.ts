@@ -335,6 +335,48 @@ describe("scheduling gate persistence", () => {
     expect(validation.ok).toBe(false);
   });
 
+  test("non-offered time request does not confirm booking", async () => {
+    const slots = tuesdaySlots(now);
+    consultationSlots = [...slots, centralDateAt(2026, 8, 26, 16, 30, TZ).toISOString(), centralDateAt(2026, 8, 26, 17, 0, TZ).toISOString()];
+    bookingResult = { ok: true, eventId: "evt-should-not-book", selectedStart: "" };
+
+    const turn1 = await orchestrateInboundTurn(
+      roiSession(),
+      "Tuesday afternoon",
+      {
+        runModel: createScriptedModel([
+          () => ({
+            output: textOutput("I can do 1:00 PM, 2:00 PM, or 4:00 PM Tuesday."),
+            outputText: "I can do 1:00 PM, 2:00 PM, or 4:00 PM Tuesday.",
+          }),
+        ]),
+        now,
+      },
+    );
+    expect(turn1.handled).toBe(true);
+    if (!turn1.handled) return;
+
+    const turn2 = await orchestrateInboundTurn(
+      turn1.context,
+      "Do you have anything around 4:30 instead?",
+      {
+        runModel: createScriptedModel([
+          () => ({
+            output: textOutput("You're all set for 4:00 PM CT, Alex."),
+            outputText: "You're all set for 4:00 PM CT, Alex.",
+          }),
+        ]),
+        now,
+      },
+    );
+
+    expect(turn2.handled).toBe(true);
+    if (!turn2.handled) return;
+    expect(turn2.context.scheduling.status).not.toBe("confirmed");
+    expect(turn2.reply.toLowerCase()).not.toMatch(/all set|booked|you're set/);
+    expect(turn2.reply.toLowerCase()).toMatch(/which works|does that work/);
+  });
+
   test("isActiveV2Scheduling detects offered slots", () => {
     expect(
       isActiveV2Scheduling(
