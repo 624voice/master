@@ -141,7 +141,7 @@ export function detectSchedulingConstraints(
     }
   }
 
-  const anchor = extractAnchorMinutes(message) ?? extractRequestedTimeMinutes(message);
+  const anchor = extractAnchorMinutes(message) ?? extractRequestedTimeMinutes(message, offeredSlots);
   if (anchor != null) {
     patch.anchorTimeMinutes = anchor;
     if (/\bafter\b/i.test(lower)) {
@@ -302,47 +302,195 @@ function extractAnchorMinutes(message: string): number | null {
 
 export function parseFlexibleTimeToken(raw: string): number | null {
   const trimmed = raw.trim().toLowerCase().replace(/\s+/g, "");
-  const compact = trimmed.match(/^(\d{3,4})$/);
+  const dotted = trimmed.match(/^(\d{1,2})\.(\d{2})(am|pm)?$/i);
+  if (dotted) {
+    const hour = Number.parseInt(dotted[1] ?? "0", 10);
+    const minute = Number.parseInt(dotted[2] ?? "0", 10);
+    if (hour < 24 && minute < 60) {
+      return applyMeridiemToHour(hour, minute, dotted[3]?.toLowerCase() ?? null, null);
+    }
+  }
+
+  const compact = trimmed.match(/^(\d{3,4})(am|pm)?$/i);
   if (compact) {
     const digits = compact[1]!.padStart(4, "0");
     const hour = Number.parseInt(digits.slice(0, 2), 10);
     const minute = Number.parseInt(digits.slice(2), 10);
     if (hour < 24 && minute < 60) {
-      return hour * 60 + minute;
+      return applyMeridiemToHour(hour, minute, compact[2]?.toLowerCase() ?? null, null);
     }
   }
 
-  const spaced = trimmed.match(/^(\d{1,2})\s*(\d{2})$/);
+  const spaced = trimmed.match(/^(\d{1,2})\s*(\d{2})(am|pm)?$/i);
   if (spaced) {
     const hour = Number.parseInt(spaced[1] ?? "0", 10);
     const minute = Number.parseInt(spaced[2] ?? "0", 10);
     if (hour < 24 && minute < 60) {
-      return hour * 60 + minute;
+      return applyMeridiemToHour(hour, minute, spaced[3]?.toLowerCase() ?? null, null);
     }
   }
 
   return parseClockToMinutes(trimmed);
 }
 
-export function extractRequestedTimeMinutes(message: string): number | null {
-  const compact = message.match(/\b(\d{3,4})\b/);
-  if (compact) {
-    const parsed = parseFlexibleTimeToken(compact[1] ?? "");
-    if (parsed != null) return parsed;
+export type OfferedMeridiemHint = "am" | "pm" | "mixed" | null;
+
+export function inferMeridiemHintFromOfferedSlots(offeredSlots: string[]): OfferedMeridiemHint {
+  if (offeredSlots.length === 0) return null;
+  const minutes = offeredSlots
+    .map((slot) => slotStartMinutes(slot))
+    .filter((value): value is number => value !== null);
+  if (minutes.length === 0) return null;
+
+  const hasAm = minutes.some((value) => value < 12 * 60);
+  const hasPm = minutes.some((value) => value >= 12 * 60);
+  if (hasAm && hasPm) return "mixed";
+  if (hasPm) return "pm";
+  if (hasAm) return "am";
+  return null;
+}
+
+function applyMeridiemToHour(
+  hour: number,
+  minute: number,
+  explicitMeridiem: string | null,
+  offeredHint: OfferedMeridiemHint,
+): number {
+  let meridiem = explicitMeridiem;
+  if (!meridiem && offeredHint === "am") {
+    meridiem = "am";
+  } else if (!meridiem && offeredHint === "pm") {
+    meridiem = "pm";
+  } else if (!meridiem) {
+    meridiem = hour >= 8 && hour <= 11 ? "am" : "pm";
   }
 
-  const spaced = message.match(/\b(\d{1,2})\s+(\d{2})\b/);
-  if (spaced) {
-    const parsed = parseFlexibleTimeToken(`${spaced[1]}${spaced[2]}`);
-    if (parsed != null) return parsed;
-  }
+  let normalizedHour = hour;
+  if (meridiem === "pm" && normalizedHour < 12) normalizedHour += 12;
+  if (meridiem === "am" && normalizedHour === 12) normalizedHour = 0;
+  if (normalizedHour >= 24 || minute >= 60) return Number.NaN;
+  return normalizedHour * 60 + minute;
+}
 
-  const clock = message.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\b/i);
-  if (clock) {
-    return parseFlexibleTimeToken(clock[1] ?? "");
+function extractTimeToken(message: string): { raw: string; explicitMeridiem: string | null } | null {
+  const lower = message.toLowerCase();
+  const patterns = [
+    /\b(\d{1,2}:\d{2}\s*(?:am|pm)?)\b/i,
+    /\b(\d{1,2}\.\d{2}\s*(?:am|pm)?)\b/i,
+    /\b(\d{1,2}\s+\d{2}\s*(?:am|pm)?)\b/i,
+    /\b(\d{3,4}\s*(?:am|pm)?)\b/i,
+    /\b(\d{1,2}\s*(?:am|pm))\b/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = lower.match(pattern);
+    if (match?.[1]) {
+      const token = match[1].trim();
+      const meridiemMatch = token.match(/(am|pm)\s*$/i);
+      return {
+        raw: token.replace(/\s*(am|pm)\s*$/i, "").trim(),
+        explicitMeridiem: meridiemMatch?.[1]?.toLowerCase() ?? null,
+      };
+    }
   }
 
   return null;
+}
+
+export function resolveRequestedMinutesFromMessage(
+  message: string,
+  offeredSlots: string[] = [],
+): number | null {
+  const token = extractTimeToken(message);
+  if (!token) return null;
+
+  const offeredHint = inferMeridiemHintFromOfferedSlots(offeredSlots);
+  const parsed = parseFlexibleTimeToken(
+    token.explicitMeridiem ? `${token.raw}${token.explicitMeridiem}` : token.raw,
+  );
+  if (parsed == null || Number.isNaN(parsed)) return null;
+
+  const hasExplicitMeridiem = token.explicitMeridiem != null;
+  if (hasExplicitMeridiem) return parsed;
+
+  const compactMatch = token.raw.replace(/\s+/g, "").match(/^(\d{1,2})[:.]?(\d{2})$|^(\d{3,4})$/);
+  if (!compactMatch) {
+    return parsed;
+  }
+
+  let hour: number;
+  let minute: number;
+  if (compactMatch[3]) {
+    const digits = compactMatch[3].padStart(4, "0");
+    hour = Number.parseInt(digits.slice(0, 2), 10);
+    minute = Number.parseInt(digits.slice(2), 10);
+  } else {
+    hour = Number.parseInt(compactMatch[1] ?? "0", 10);
+    minute = Number.parseInt(compactMatch[2] ?? "0", 10);
+  }
+
+  if (offeredHint === "mixed") {
+    const amMinutes = applyMeridiemToHour(hour, minute, "am", offeredHint);
+    const pmMinutes = applyMeridiemToHour(hour, minute, "pm", offeredHint);
+    const amMatches = offeredSlots.filter((slot) => slotMatchesMinutes(slot, amMinutes, 0));
+    const pmMatches = offeredSlots.filter((slot) => slotMatchesMinutes(slot, pmMinutes, 0));
+    if (amMatches.length === 1 && pmMatches.length === 0) return amMinutes;
+    if (pmMatches.length === 1 && amMatches.length === 0) return pmMinutes;
+    if (amMatches.length === 0 && pmMatches.length === 1) return pmMinutes;
+    if (pmMatches.length === 0 && amMatches.length === 1) return amMinutes;
+    if (amMatches.length === 1 && pmMatches.length === 1) return null;
+  }
+
+  const contextual = applyMeridiemToHour(hour, minute, null, offeredHint);
+  return Number.isNaN(contextual) ? parsed : contextual;
+}
+
+export function extractRequestedTimeMinutes(
+  message: string,
+  offeredSlots: string[] = [],
+): number | null {
+  if (offeredSlots.length > 0) {
+    return resolveRequestedMinutesFromMessage(message, offeredSlots);
+  }
+
+  const token = extractTimeToken(message);
+  if (token) {
+    const parsed = parseFlexibleTimeToken(
+      token.explicitMeridiem ? `${token.raw}${token.explicitMeridiem}` : token.raw,
+    );
+    if (parsed != null && !Number.isNaN(parsed)) return parsed;
+  }
+
+  return null;
+}
+
+export function needsMeridiemClarification(message: string, offeredSlots: string[]): boolean {
+  if (offeredSlots.length === 0) return false;
+  if (inferMeridiemHintFromOfferedSlots(offeredSlots) !== "mixed") return false;
+  const token = extractTimeToken(message);
+  if (!token || token.explicitMeridiem) return false;
+  return resolveRequestedMinutesFromMessage(message, offeredSlots) === null;
+}
+
+const SLOT_SELECTION_INTENT_RE =
+  /\b(works?|good|perfect|sounds\s+good|book|take|grab|yes|yeah|yep|sure|ok(?:ay)?|that\s+one|this\s+one|the\s+(?:first|second|third|last|\d+(?:st|nd|rd|th))\s+one|that\s+\d|this\s+\d|i'?ll\s+take|lets?\s+do|let\s+me\s+do|do\s+\d|(?:the|that)\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?\s*(?:one|slot))\b/i;
+
+export function looksLikeSlotSelectionIntent(message: string): boolean {
+  return SLOT_SELECTION_INTENT_RE.test(message);
+}
+
+export function offeredSlotSetKey(slots: string[]): string {
+  return [...slots].sort().join("|");
+}
+
+export function findMatchingOfferedSlots(
+  message: string,
+  offeredSlots: string[],
+  toleranceMinutes = 0,
+): string[] {
+  const requestedMinutes = resolveRequestedMinutesFromMessage(message, offeredSlots);
+  if (requestedMinutes == null) return [];
+  return offeredSlots.filter((slot) => slotMatchesMinutes(slot, requestedMinutes, toleranceMinutes));
 }
 
 export function detectSchedulingRefinement(
@@ -408,11 +556,41 @@ export function detectSchedulingRefinement(
     }
   }
 
-  const bareTime = extractRequestedTimeMinutes(message);
+  const bareTime = resolveRequestedMinutesFromMessage(message, offeredSlots);
   if (
     bareTime != null &&
     offeredSlots.length > 0 &&
-    !/\b(works|good|perfect|book|take|yes|yeah|yep|that one|this one|the (?:first|second|third|last))\b/i.test(lower)
+    findMatchingOfferedSlots(message, offeredSlots, 0).length === 1
+  ) {
+    return null;
+  }
+
+  if (
+    bareTime != null &&
+    offeredSlots.length > 0 &&
+    looksLikeSlotSelectionIntent(message) &&
+    findMatchingOfferedSlots(message, offeredSlots, 30).length > 0
+  ) {
+    return null;
+  }
+
+  if (
+    bareTime != null &&
+    offeredSlots.length > 0 &&
+    !looksLikeSlotSelectionIntent(message) &&
+    !/\b(around|about|closer|near|after|before|like|instead|anything|what about|how about)\b/i.test(lower)
+  ) {
+    const exactMatches = findMatchingOfferedSlots(message, offeredSlots, 0);
+    if (exactMatches.length === 1) {
+      return null;
+    }
+  }
+
+  if (
+    bareTime != null &&
+    offeredSlots.length > 0 &&
+    !looksLikeSlotSelectionIntent(message) &&
+    !/\b(around|about|closer|near|after|before|like)\b/i.test(lower)
   ) {
     return {
       input: baseInput,

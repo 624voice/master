@@ -132,7 +132,7 @@ describe("scheduling gate persistence", () => {
     if (!result.handled) return;
     expect(result.context.scheduling.status).toBe("slots_offered");
     expect(result.context.scheduling.offeredSlots?.length).toBeGreaterThan(0);
-    expect(result.reply.toLowerCase()).toMatch(/which works|does that work/);
+    expect(result.reply.toLowerCase()).toMatch(/any of those work|open|works/);
   });
 
   test("availability succeeds with invalid LLM slot draft sends deterministic slot offer", async () => {
@@ -374,7 +374,7 @@ describe("scheduling gate persistence", () => {
     if (!turn2.handled) return;
     expect(turn2.context.scheduling.status).not.toBe("confirmed");
     expect(turn2.reply.toLowerCase()).not.toMatch(/all set|booked|you're set/);
-    expect(turn2.reply.toLowerCase()).toMatch(/which works|does that work/);
+    expect(turn2.reply.toLowerCase()).toMatch(/any of those work|open|around then|works/);
   });
 
   test("isActiveV2Scheduling detects offered slots", () => {

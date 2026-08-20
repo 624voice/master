@@ -5,6 +5,7 @@ import {
   earliestOfferedMinutes,
   latestOfferedMinutes,
 } from "~/server/speed2Lead/slotRanking";
+import { offeredSlotSetKey } from "~/server/speed2Lead/schedulingContext";
 import type {
   ConversationMessage,
   ConversationMessageRole,
@@ -323,6 +324,8 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
       calendarEventId: undefined,
       lastOfferedEarliestMinutes: earliestOfferedMinutes(offeredSlots) ?? undefined,
       lastOfferedLatestMinutes: latestOfferedMinutes(offeredSlots) ?? undefined,
+      lastOfferedSlotKey: offeredSlotSetKey(offeredSlots),
+      bookingPending: false,
       searchAfterMinutes: undefined,
       searchBeforeMinutes: undefined,
     },
@@ -348,6 +351,8 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     earliestAllowedMinutes?: number;
     latestAllowedMinutes?: number;
     rejectedSlotStarts?: string[];
+    lastOfferedSlotKey?: string;
+    bookingPending?: boolean;
   },
 ): T {
   const normalized = normalizeSessionMemory(context);

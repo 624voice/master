@@ -8,6 +8,8 @@ import {
   extractRequestedTimeMinutes,
   mergeSchedulingIntentFromMessage,
 } from "~/server/speed2Lead/schedulingContext";
+import { buildContextualSlotOfferMessage } from "~/server/speed2Lead/schedulingReply";
+import { applyOfferedSlots } from "~/server/speed2Lead/memory";
 import { rankSlotsForOffer, slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import {
   planSchedulingGate,
@@ -234,6 +236,139 @@ describe("scheduling conversation hardening", () => {
     );
     expect(refinement?.reason).toBe("refine_change_day");
     expect(refinement?.input.partOfDay).toBe("evening");
+  });
+});
+
+describe("slot selection shorthand and priority", () => {
+  function afternoonFourSlots(): string[] {
+    return [0, 15, 30].map((minute) =>
+      centralDateAt(2026, 8, 26, 16, minute, TZ).toISOString(),
+    );
+  }
+
+  function morningSlots(): string[] {
+    return [0, 30, 90].map((minute) =>
+      centralDateAt(2026, 8, 26, 9, minute, TZ).toISOString(),
+    );
+  }
+
+  const selectionMessages = ["430", "Sure 430", "4 30", "4.30", "430pm", "I'll take 430", "that 4:30 slot"];
+
+  for (const message of selectionMessages) {
+    test(`${message} books offered 4:30 PM slot`, () => {
+      const slots = afternoonFourSlots();
+      expect(resolveOfferedSlotSelection(message, slots)).toBe(slots[2]);
+      const plan = planSchedulingGate({
+        inboundMessage: message,
+        context: roiSession({
+          scheduling: {
+            status: "slots_offered",
+            offeredSlots: slots,
+            centralDate: "2026-08-26",
+            partOfDay: "afternoon",
+          },
+        }),
+        now,
+      });
+      expect(plan.action.type).toBe("book_appointment");
+      expect(plan.action.type === "book_appointment" && plan.action.start).toBe(slots[2]);
+    });
+  }
+
+  test("afternoon offered slots + 430 infers PM", () => {
+    const slots = afternoonFourSlots();
+    expect(extractRequestedTimeMinutes("430", slots)).toBe(16 * 60 + 30);
+  });
+
+  test("morning offered slots + 930 infers AM", () => {
+    const slots = morningSlots();
+    expect(extractRequestedTimeMinutes("930", slots)).toBe(9 * 60 + 30);
+  });
+
+  test("ambiguous AM/PM with mixed offered slots asks for clarification", () => {
+    const mixed = [
+      centralDateAt(2026, 8, 26, 9, 30, TZ).toISOString(),
+      centralDateAt(2026, 8, 26, 21, 30, TZ).toISOString(),
+    ];
+    const plan = planSchedulingGate({
+      inboundMessage: "930",
+      context: roiSession({ scheduling: { status: "slots_offered", offeredSlots: mixed } }),
+      now,
+    });
+    expect(plan.action.type).toBe("ask_preference");
+    expect(resolveOfferedSlotSelection("930", mixed)).toBeNull();
+  });
+
+  test("slot selection outranks refinement parsing for bare 430", () => {
+    const slots = afternoonFourSlots();
+    expect(detectSchedulingRefinement("430", { status: "slots_offered", offeredSlots: slots, centralDate: "2026-08-26", partOfDay: "afternoon" }, slots, now)).toBeNull();
+  });
+
+  test("clear selection does not trigger another availability lookup", () => {
+    const slots = afternoonFourSlots();
+    const plan = planSchedulingGate({
+      inboundMessage: "430",
+      context: roiSession({
+        scheduling: { status: "slots_offered", offeredSlots: slots, centralDate: "2026-08-26", partOfDay: "afternoon" },
+      }),
+      now,
+    });
+    expect(plan.action.type).toBe("book_appointment");
+  });
+
+  test("deterministic slot offer copy avoids Which works best", () => {
+    const slots = afternoonFourSlots();
+    const first = buildContextualSlotOfferMessage({ slots, situation: "first_offer", variationSeed: "a" });
+    const second = buildContextualSlotOfferMessage({ slots, situation: "refinement", variationSeed: "b" });
+    expect(first.toLowerCase()).not.toContain("which works best");
+    expect(second.toLowerCase()).not.toContain("which works best");
+    expect(first).not.toBe(second);
+  });
+  test("applyOfferedSlots stores last offered slot fingerprint", () => {
+    const slots = afternoonFourSlots();
+    const updated = applyOfferedSlots(roiSession(), slots);
+    expect(updated.scheduling.lastOfferedSlotKey).toBe(slots.slice().sort().join("|"));
+  });
+});
+
+describe("live phone regression: afternoon 430 selection", () => {
+  function simulateOffer(session: ReturnType<typeof roiSession>, slots: string[]) {
+    return {
+      ...session,
+      scheduling: {
+        status: "slots_offered" as const,
+        offeredSlots: slots,
+        centralDate: "2026-08-26",
+        partOfDay: "afternoon" as const,
+        lastOfferedSlotKey: slots.slice().sort().join("|"),
+      },
+    };
+  }
+
+  test("full conversation ending in Sure 430 books 4:30 PM", () => {
+    const afternoonNearFour = [0, 15, 30].map((minute) =>
+      centralDateAt(2026, 8, 26, 16, minute, TZ).toISOString(),
+    );
+
+    let session = roiSession();
+    for (const message of [
+      "Missed call most likely",
+      "No, I need an afternoon time",
+      "No more like 4pm",
+    ]) {
+      planSchedulingGate({ inboundMessage: message, context: session, now });
+      session = simulateOffer(session, afternoonNearFour);
+    }
+
+    for (const message of ["Sure 430", "430", "4:30"]) {
+      const plan = planSchedulingGate({
+        inboundMessage: message,
+        context: simulateOffer(session, afternoonNearFour),
+        now,
+      });
+      expect(plan.action.type).toBe("book_appointment");
+      expect(plan.action.type === "book_appointment" && plan.action.start).toBe(afternoonNearFour[2]);
+    }
   });
 });
 

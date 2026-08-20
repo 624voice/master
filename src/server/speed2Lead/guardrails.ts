@@ -1,6 +1,18 @@
 import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { SPEED2LEAD_LLM_MAX_SMS_LENGTH } from "~/server/speed2Lead/config";
+import {
+  buildContextualSlotOfferMessage,
+  buildSlotOfferMessage,
+  type SlotOfferContext,
+  type SlotOfferSituation,
+} from "~/server/speed2Lead/schedulingReply";
+export {
+  buildContextualSlotOfferMessage,
+  buildSlotOfferMessage,
+  type SlotOfferContext,
+  type SlotOfferSituation,
+} from "~/server/speed2Lead/schedulingReply";
 import type { ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -124,19 +136,6 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
   }
 
   return { ok: true, text: trimmed };
-}
-
-export function buildSlotOfferMessage(slots: string[]): string {
-  const labels = slots
-    .slice(0, 3)
-    .map((slot) => formatTimeOnly(slot, CONSULTATION_TIMEZONE).time);
-  if (labels.length === 0) {
-    return "";
-  }
-  if (labels.length === 1) {
-    return `I can do ${labels[0]}. Does that work?`;
-  }
-  return `I can do ${labels.slice(0, -1).join(", ")}, or ${labels.at(-1)}. Which works best?`;
 }
 
 export function buildBookingConfirmationMessage(start: string, firstName: string): string {

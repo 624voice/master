@@ -72,6 +72,10 @@ export type SchedulingState = {
   latestAllowedMinutes?: number;
   /** ISO starts the customer rejected — avoid re-offering. */
   rejectedSlotStarts?: string[];
+  /** Stable fingerprint of the last slot set offered to the customer. */
+  lastOfferedSlotKey?: string;
+  /** True while a validated slot selection is being booked. */
+  bookingPending?: boolean;
 };
 
 export type SessionMemoryFields = {
