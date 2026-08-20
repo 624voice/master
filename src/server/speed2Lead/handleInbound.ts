@@ -4,6 +4,14 @@ import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { orchestrateInboundTurn } from "~/server/speed2Lead/orchestrator";
 import { isActiveV2Scheduling } from "~/server/speed2Lead/schedulingController";
 import { genericRecoveryMessage } from "~/server/speed2Lead/guardrails";
+import {
+  logSpeed2LeadTestEvent,
+  summarizeSchedulingState,
+} from "~/server/speed2Lead/testObservability";
+import {
+  isSpeed2LeadTestPhoneAllowlistActive,
+  shouldUseSpeed2LeadLlmForPhone,
+} from "~/server/speed2Lead/testPhoneAllowlist";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import {
   declineMessage as demoDeclineMessage,
@@ -55,6 +63,13 @@ export async function handleInboundSms(from: string, body: string): Promise<void
   const intent = classifyGlobalIntent(body);
 
   logInboundConversationSms(phone, body, session);
+
+  logSpeed2LeadTestEvent(phone, "inbound_received", {
+    flow: session?.flow ?? "none",
+    messageLength: body.length,
+    hasSession: Boolean(session),
+    ...summarizeSchedulingState(session),
+  });
 
   if (intent === "stop") {
     await setOptedOut(phone);
@@ -111,7 +126,25 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     await removeDemoFollowUp(phone);
   }
 
-  if (isSpeed2LeadLlmEnabled()) {
+  const useLlmOrchestrator = shouldUseSpeed2LeadLlmForPhone(phone);
+  if (
+    isSpeed2LeadLlmEnabled() &&
+    isSpeed2LeadTestPhoneAllowlistActive() &&
+    !useLlmOrchestrator
+  ) {
+    logSpeed2LeadTestEvent(phone, "rules_fallback", {
+      reason: "not_on_test_allowlist",
+      flow: session.flow ?? "roi",
+    });
+  }
+
+  if (useLlmOrchestrator) {
+    const turnStartedAt = Date.now();
+    logSpeed2LeadTestEvent(phone, "llm_turn_start", {
+      flow: session.flow ?? "roi",
+      ...summarizeSchedulingState(session),
+    });
+
     const orchestrated = await orchestrateInboundTurn(session, body);
     if (orchestrated.handled) {
       const updated = await sendConversationSms(
@@ -120,6 +153,13 @@ export async function handleInboundSms(from: string, body: string): Promise<void
         orchestrated.context,
       );
       await saveSession(updated ?? orchestrated.context);
+      logSpeed2LeadTestEvent(phone, "outbound_sent", {
+        flow: orchestrated.context.flow ?? "roi",
+        replyLength: orchestrated.reply.length,
+        handledBy: "llm",
+        durationMs: Date.now() - turnStartedAt,
+        ...summarizeSchedulingState(updated ?? orchestrated.context),
+      });
       if (isDemoSession(orchestrated.context) && orchestrated.context.meetingBooked) {
         await removeDemoFollowUp(phone);
       }
@@ -129,14 +169,31 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     if (isActiveV2Scheduling(orchestrated.context)) {
       const recoveryReply =
         orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context);
+      logSpeed2LeadTestEvent(phone, "rules_fallback", {
+        reason: orchestrated.reason,
+        v2Recovery: true,
+        forcedReplyUsed: Boolean(orchestrated.recoveryReply),
+      });
       const updated = await sendConversationSms(
         phone,
         recoveryReply,
         orchestrated.context,
       );
       await saveSession(updated ?? orchestrated.context);
+      logSpeed2LeadTestEvent(phone, "outbound_sent", {
+        flow: orchestrated.context.flow ?? "roi",
+        replyLength: recoveryReply.length,
+        handledBy: "v2_recovery",
+        durationMs: Date.now() - turnStartedAt,
+        ...summarizeSchedulingState(updated ?? orchestrated.context),
+      });
       return;
     }
+
+    logSpeed2LeadTestEvent(phone, "rules_fallback", {
+      reason: orchestrated.reason,
+      flow: session.flow ?? "roi",
+    });
   }
 
   const result = isDemoSession(session)
@@ -147,6 +204,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   const updated = await sendConversationSms(phone, result.reply, result.context);
   await saveSession(updated ?? result.context);
+  logSpeed2LeadTestEvent(phone, "outbound_sent", {
+    flow: result.context.flow ?? "roi",
+    replyLength: result.reply.length,
+    handledBy: useLlmOrchestrator ? "rules_after_llm_fallback" : "rules",
+    ...summarizeSchedulingState(updated ?? result.context),
+  });
 
   if (isDemoSession(result.context) && result.context.meetingBooked) {
     await removeDemoFollowUp(phone);

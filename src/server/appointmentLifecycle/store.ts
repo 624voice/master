@@ -154,6 +154,19 @@ export async function getActiveLifecycleForPhone(
   return record;
 }
 
+/** Clears the active lifecycle pointer for one phone (does not delete lifecycle records). */
+export async function clearActiveLifecycleForPhone(phone: string): Promise<boolean> {
+  const redis = getRedis();
+  const normalized = normalizePhone(phone);
+  const eventId = await redis.get<string>(activePhoneKey(normalized));
+  if (!eventId) {
+    return false;
+  }
+  await redis.del(activePhoneKey(normalized));
+  await redis.srem(REMINDER_INDEX_KEY, eventId);
+  return true;
+}
+
 export async function supersedeActiveLifecycle(
   oldRecord: AppointmentLifecycleRecord,
   newEventId: string,

@@ -14,10 +14,7 @@ import {
 } from "~/server/speed2Lead/eval/scoring";
 import { appendAssistantMessage, appendUserMessage } from "~/server/speed2Lead/memory";
 import { getSpeed2LeadLlmModel } from "~/server/speed2Lead/config";
-import {
-  hydrateToolStateFromContext,
-  persistSchedulingToolState,
-} from "~/server/speed2Lead/schedulingController";
+import { createInitialToolState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 const TZ = CONSULTATION_TIMEZONE;

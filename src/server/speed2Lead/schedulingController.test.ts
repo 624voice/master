@@ -219,7 +219,7 @@ describe("schedulingController planning", () => {
       "utf8",
     );
     const stopIndex = handleInboundSource.indexOf('intent === "stop"');
-    const llmIndex = handleInboundSource.indexOf("if (isSpeed2LeadLlmEnabled())");
+    const llmIndex = handleInboundSource.indexOf("shouldUseSpeed2LeadLlmForPhone(phone)");
     const lifecycleIndex = handleInboundSource.indexOf("handleAppointmentLifecycleInbound");
     expect(stopIndex).toBeGreaterThan(-1);
     expect(llmIndex).toBeGreaterThan(stopIndex);

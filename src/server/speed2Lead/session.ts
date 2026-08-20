@@ -27,6 +27,11 @@ export async function setOptedOut(phone: string): Promise<void> {
   await redis.set(optOutKey(phone), true);
 }
 
+export async function clearOptedOut(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.del(optOutKey(phone));
+}
+
 export async function getSession(phone: string): Promise<AnyConversationContext | null> {
   const redis = getRedis();
   const raw = await redis.get<AnyConversationContext>(sessionKey(phone));

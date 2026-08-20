@@ -35,6 +35,11 @@ import {
   stripUnauthorizedCalendarLink,
 } from "~/server/speed2Lead/schedulingController";
 import {
+  logSpeed2LeadTestEvent,
+  summarizeGateAction,
+  summarizeSchedulingState,
+} from "~/server/speed2Lead/testObservability";
+import {
   createInitialToolState,
   executeOrchestratorTool,
   ORCHESTRATOR_TOOLS,
@@ -191,6 +196,10 @@ async function validateOrRepair(
     flow: context.flow ?? "roi",
     reason: firstPass.reason,
   });
+  logSpeed2LeadTestEvent(context.phone, "guardrail_result", {
+    ok: false,
+    reason: firstPass.reason,
+  });
 
   if (toolState.bookingConfirmed && toolState.bookingStart) {
     const confirmation = buildBookingConfirmationMessage(
@@ -278,15 +287,40 @@ async function validateOrRepair(
   return null;
 }
 
+function logTestTurnComplete(
+  phone: string,
+  flow: string,
+  startedAt: number,
+  workingContext: AnyConversationContext,
+  extras: Record<string, string | number | boolean | undefined> = {},
+): void {
+  logSpeed2LeadTestEvent(phone, "scheduling_state_after", {
+    flow,
+    ...summarizeSchedulingState(workingContext),
+  });
+  logSpeed2LeadTestEvent(phone, "turn_complete", {
+    flow,
+    durationMs: Date.now() - startedAt,
+    ...summarizeSchedulingState(workingContext),
+    ...extras,
+  });
+}
+
 export async function orchestrateInboundTurn(
   session: AnyConversationContext,
   inboundMessage: string,
   deps: OrchestratorDeps = {},
 ): Promise<OrchestratorTurnResult> {
   const now = deps.now ?? new Date();
+  const turnStartedAt = Date.now();
   const context = normalizeSessionMemory(session);
   const model = getSpeed2LeadLlmModel();
   const maxIterations = getSpeed2LeadLlmMaxToolIterations();
+
+  logSpeed2LeadTestEvent(context.phone, "scheduling_state_before", {
+    flow: context.flow ?? "roi",
+    ...summarizeSchedulingState(context),
+  });
 
   logOrchestratorEvent("turn_start", {
     flow: context.flow ?? "roi",
@@ -307,6 +341,11 @@ export async function orchestrateInboundTurn(
 
   let workingContext = context;
   const gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
+  logSpeed2LeadTestEvent(context.phone, "scheduling_gate_action", {
+    flow: context.flow ?? "roi",
+    gateAction: summarizeGateAction(gatePlan),
+    schedulingIntent: gatePlan.schedulingIntent,
+  });
   let toolState = hydrateToolStateFromContext(workingContext, createInitialToolState());
   let llmCalledGetAvailability = false;
   let llmCalledBookAppointment = false;
@@ -347,12 +386,19 @@ export async function orchestrateInboundTurn(
           tool: call.name,
           iteration,
         });
+        logSpeed2LeadTestEvent(workingContext.phone, "tool_call", {
+          tool: call.name,
+          iteration,
+        });
 
         if (call.name === "get_availability") {
           llmCalledGetAvailability = true;
         }
         if (call.name === "book_appointment") {
           llmCalledBookAppointment = true;
+          logSpeed2LeadTestEvent(workingContext.phone, "booking_attempt", {
+            source: "llm_tool_loop",
+          });
         }
 
         const executed = await executeOrchestratorTool(
@@ -370,6 +416,18 @@ export async function orchestrateInboundTurn(
           tool: call.name,
           ok: Boolean((executed.result as { ok?: boolean }).ok),
         });
+        if (call.name === "get_availability") {
+          logSpeed2LeadTestEvent(workingContext.phone, "availability_result", {
+            slotCount: toolState.offeredSlots.length,
+            ok: Boolean((executed.result as { ok?: boolean }).ok),
+          });
+        }
+        if (call.name === "book_appointment") {
+          logSpeed2LeadTestEvent(workingContext.phone, "booking_result", {
+            ok: Boolean((executed.result as { ok?: boolean }).ok),
+            bookingConfirmed: toolState.bookingConfirmed,
+          });
+        }
 
         conversationInput.push({
           type: "function_call_output",
@@ -412,9 +470,18 @@ export async function orchestrateInboundTurn(
         toolState,
         gateResult.activeRequestKey,
       );
+      logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+        handled: true,
+        authoritativeScheduling: true,
+        openAiErrorRecovery: true,
+      });
       return { handled: true, reply: recovery, context: workingContext };
     }
 
+    logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+      handled: false,
+      reason: "openai_error",
+    });
     return {
       handled: false,
       fallbackToRules: true,
@@ -437,6 +504,28 @@ export async function orchestrateInboundTurn(
   });
   workingContext = gateResult.context;
   toolState = gateResult.toolState;
+  if (gatePlan.action.type === "book_appointment" || gateResult.bookingAttempted) {
+    logSpeed2LeadTestEvent(context.phone, "booking_attempt", {
+      source: "scheduling_gate",
+      gateApplied: gateResult.gateApplied,
+    });
+    logSpeed2LeadTestEvent(context.phone, "booking_result", {
+      bookingConfirmed: toolState.bookingConfirmed,
+      bookingFailed: toolState.bookingFailed,
+    });
+  }
+  if (gateResult.availabilityFetched) {
+    logSpeed2LeadTestEvent(context.phone, "availability_result", {
+      slotCount: toolState.offeredSlots.length,
+      source: "scheduling_gate",
+    });
+  }
+  if (gateResult.forcedReply) {
+    logSpeed2LeadTestEvent(context.phone, "forced_reply", {
+      gateApplied: gateResult.gateApplied,
+      replyLength: gateResult.forcedReply.length,
+    });
+  }
   workingContext = persistSchedulingToolState(
     workingContext,
     toolState,
@@ -457,6 +546,18 @@ export async function orchestrateInboundTurn(
       flow: workingContext.flow ?? "roi",
       bookingConfirmed: toolState.bookingConfirmed,
       offeredSlots: toolState.offeredSlots.length,
+      authoritativeScheduling: true,
+    });
+    logSpeed2LeadTestEvent(context.phone, "forced_reply", {
+      used: true,
+      authoritative: true,
+    });
+    logSpeed2LeadTestEvent(context.phone, "guardrail_result", {
+      ok: true,
+      path: "authoritative_scheduling",
+    });
+    logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+      handled: true,
       authoritativeScheduling: true,
     });
     return {
@@ -519,6 +620,10 @@ export async function orchestrateInboundTurn(
           offeredSlots: toolState.offeredSlots.length,
           v2SchedulingRecovery: true,
         });
+        logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+          handled: true,
+          v2SchedulingRecovery: true,
+        });
         return {
           handled: true,
           reply: recoveryPass.text,
@@ -531,6 +636,13 @@ export async function orchestrateInboundTurn(
       logOrchestratorEvent("fallback_rules", {
         flow: context.flow ?? "roi",
         reason: "v2_scheduling_recovery",
+      });
+      logSpeed2LeadTestEvent(context.phone, "rules_fallback", {
+        reason: "guardrail_or_empty_reply",
+        v2Scheduling: true,
+      });
+      logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+        handled: false,
       });
       return {
         handled: false,
@@ -546,6 +658,12 @@ export async function orchestrateInboundTurn(
       flow: context.flow ?? "roi",
       reason: "guardrail_or_empty_reply",
     });
+    logSpeed2LeadTestEvent(context.phone, "rules_fallback", {
+      reason: "guardrail_or_empty_reply",
+    });
+    logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+      handled: false,
+    });
     return {
       handled: false,
       fallbackToRules: true,
@@ -558,6 +676,13 @@ export async function orchestrateInboundTurn(
     flow: workingContext.flow ?? "roi",
     bookingConfirmed: toolState.bookingConfirmed,
     offeredSlots: toolState.offeredSlots.length,
+  });
+  logSpeed2LeadTestEvent(context.phone, "guardrail_result", {
+    ok: true,
+    path: "validated_or_repaired",
+  });
+  logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+    handled: true,
   });
 
   return {
