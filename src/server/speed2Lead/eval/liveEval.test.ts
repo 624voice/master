@@ -14,7 +14,10 @@ import {
 } from "~/server/speed2Lead/eval/scoring";
 import { appendAssistantMessage, appendUserMessage } from "~/server/speed2Lead/memory";
 import { getSpeed2LeadLlmModel } from "~/server/speed2Lead/config";
-import { createInitialToolState } from "~/server/speed2Lead/tools";
+import {
+  hydrateToolStateFromContext,
+  persistSchedulingToolState,
+} from "~/server/speed2Lead/schedulingController";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 const TZ = CONSULTATION_TIMEZONE;
@@ -93,6 +96,7 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
   }
 
   const transcript: TranscriptTurn[] = [];
+  const toolStatesByTurn: ReturnType<typeof toolStateFromContext>[] = [];
 
   for (const customerTurn of scenario.customerTurns) {
     context = appendUserMessage(context, customerTurn);
@@ -101,6 +105,18 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
     if (!result.handled) {
       if ("context" in result && result.context) {
         context = result.context;
+      }
+      const recoveryReply =
+        "recoveryReply" in result && result.recoveryReply ? result.recoveryReply : null;
+      if (recoveryReply) {
+        context = appendAssistantMessage(context, recoveryReply);
+        toolStatesByTurn.push(toolStateFromContext(context));
+        transcript.push({
+          customer: customerTurn,
+          agent: recoveryReply,
+          handled: true,
+        });
+        continue;
       }
       transcript.push({
         customer: customerTurn,
@@ -113,6 +129,7 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
 
     context = result.context;
     context = appendAssistantMessage(context, result.reply);
+    toolStatesByTurn.push(toolStateFromContext(context));
     transcript.push({
       customer: customerTurn,
       agent: result.reply,
@@ -125,6 +142,7 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
     expectations: scenario.expectations,
     finalContext: context,
     finalToolState: toolStateFromContext(context),
+    toolStatesByTurn,
     seededNeedSummary:
       context.flow === "contact"
         ? (context as AnyConversationContext & { shortNeedSummary?: string }).shortNeedSummary

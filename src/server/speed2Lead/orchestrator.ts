@@ -501,6 +501,32 @@ export async function orchestrateInboundTurn(
   }
 
   if (!validated) {
+    const recoveryCandidate =
+      gateResult.forcedReply ??
+      (toolState.offeredSlots.length > 0
+        ? buildSlotOfferMessage(toolState.offeredSlots)
+        : null);
+
+    if (isActiveV2Scheduling(workingContext) && recoveryCandidate) {
+      const recoveryPass = validateOutboundSms(recoveryCandidate, {
+        session: workingContext,
+        toolState,
+      });
+      if (recoveryPass.ok) {
+        logOrchestratorEvent("turn_complete", {
+          flow: workingContext.flow ?? "roi",
+          bookingConfirmed: toolState.bookingConfirmed,
+          offeredSlots: toolState.offeredSlots.length,
+          v2SchedulingRecovery: true,
+        });
+        return {
+          handled: true,
+          reply: recoveryPass.text,
+          context: workingContext,
+        };
+      }
+    }
+
     if (isActiveV2Scheduling(workingContext)) {
       logOrchestratorEvent("fallback_rules", {
         flow: context.flow ?? "roi",
@@ -512,10 +538,7 @@ export async function orchestrateInboundTurn(
         reason: "guardrail_or_empty_reply",
         context: workingContext,
         recoveryReply:
-          gateResult.forcedReply ??
-          (toolState.offeredSlots.length > 0
-            ? buildSlotOfferMessage(toolState.offeredSlots)
-            : genericRecoveryMessage(workingContext)),
+          recoveryCandidate ?? genericRecoveryMessage(workingContext),
       };
     }
 

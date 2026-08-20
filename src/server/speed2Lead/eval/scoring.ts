@@ -108,9 +108,10 @@ export function scoreScenario(input: {
   expectations: ScenarioExpectations;
   finalContext: AnyConversationContext;
   finalToolState: ToolExecutionState;
+  toolStatesByTurn?: ToolExecutionState[];
   seededNeedSummary?: string;
 }): ScenarioScore {
-  const { transcript, expectations, finalContext, finalToolState, seededNeedSummary } = input;
+  const { transcript, expectations, finalContext, finalToolState, toolStatesByTurn, seededNeedSummary } = input;
   const notes: string[] = [];
   const agentTexts = transcript.map((t) => t.agent).join("\n");
   const unsupportedClaims = detectUnsupportedClaims(transcript);
@@ -129,10 +130,11 @@ export function scoreScenario(input: {
     notes.push("Expected offered slots but none were recorded");
   }
 
-  for (const turn of transcript) {
+  for (const [index, turn] of transcript.entries()) {
+    const turnToolState = toolStatesByTurn?.[index] ?? finalToolState;
     const guard = validateOutboundSms(turn.agent, {
       session: finalContext,
-      toolState: finalToolState,
+      toolState: turnToolState,
     });
     if (!guard.ok) {
       technicalPass = false;
