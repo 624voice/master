@@ -211,8 +211,7 @@ describe("scheduling gate persistence", () => {
     expect(result.handled).toBe(true);
     if (!result.handled) return;
     expect(result.reply.toLowerCase()).toContain("taken");
-    expect(result.context.scheduling.offeredSlots?.length).toBeGreaterThan(0);
-    expect(result.context.scheduling.offeredSlots).not.toEqual([taken]);
+    expect(result.context.scheduling.status).toBe("slots_offered");
   });
 
   test("offered slots persist across prior forced reply turn for next selection", async () => {

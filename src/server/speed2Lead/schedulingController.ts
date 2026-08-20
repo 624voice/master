@@ -709,7 +709,10 @@ export async function enforceSchedulingGate(args: {
         activeRequestKey = refreshKey;
         toolState = prepareToolStateForRequest(context, toolState, refreshKey);
         const refreshed = await runGetAvailability(refreshInput, context, toolState, now);
-        context = refreshed.context;
+        context =
+          refreshed.toolState.offeredSlots.length > 0
+            ? applyOfferedSlots(refreshed.context, refreshed.toolState.offeredSlots)
+            : refreshed.context;
         toolState = {
           ...recordAvailabilityAttempt(refreshed.toolState, refreshed.toolState.offeredSlots.length),
           bookingFailed: false,
