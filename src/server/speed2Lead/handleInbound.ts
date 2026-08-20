@@ -44,7 +44,6 @@ import {
   isGenericAcknowledgment,
   isSubstantiveReengagement,
   resolveDispositionAfterInbound,
-  shouldBlockSchedulingTurn,
 } from "~/server/speed2Lead/conversationDisposition";
 import {
   logInboundConversationSms,
