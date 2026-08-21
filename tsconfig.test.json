@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": ["src/**/*.test.ts", "src/**/*.integration.test.ts"],
+  "exclude": ["node_modules", "bisect-*"],
+  "compilerOptions": {
+    "types": ["vite/client", "bun"]
+  }
+}

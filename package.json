@@ -10,6 +10,8 @@
     "publish": "bash ./publish.sh",
     "format": "prettier --write .",
     "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json",
+    "typecheck:test": "tsc -p tsconfig.test.json",
     "reset-s2l-test-phone": "bun run scripts/reset-s2l-test-phone.ts"
   },
   "dependencies": {
