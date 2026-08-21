@@ -1123,6 +1123,16 @@ export function resolveAuthoritativeSchedulingReply(args: {
     if (linkPass.ok) return linkPass.text;
   }
 
+  if (schedulingTurn && gateResult.schedulingIntent && !toolState.bookingConfirmed) {
+    const preferenceAsk = validateDeterministicSchedulingReply(
+      formatAskPreference(context.firstName, context.scheduling),
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (preferenceAsk.ok) return preferenceAsk.text;
+  }
+
   return null;
 }
 
@@ -1173,6 +1183,13 @@ function formatAskPreference(firstName: string, scheduling?: SchedulingState): s
   }
 
   return `Happy to set up a quick call, ${firstName} — what day works best for you?`;
+}
+
+export function buildSchedulingPreferenceAsk(
+  firstName: string,
+  scheduling?: SchedulingState,
+): string {
+  return formatAskPreference(firstName, scheduling);
 }
 
 function bookingConfirmationOptions(
@@ -1291,10 +1308,7 @@ export async function enforceSchedulingGate(args: {
         context.scheduling?.offeredSlots ?? [],
       );
     } else {
-      const asksPreference = /\b(what day|which day|morning or afternoon)\b/i.test(args.llmReply);
-      if (!asksPreference || mentionsUnauthorizedAvailability(args.llmReply, toolState)) {
-        forcedReply = formatAskPreference(context.firstName, context.scheduling);
-      }
+      forcedReply = formatAskPreference(context.firstName, context.scheduling);
     }
     context = persistSchedulingToolState(context, toolState, activeRequestKey);
     return {

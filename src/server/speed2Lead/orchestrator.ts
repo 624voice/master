@@ -34,7 +34,6 @@ import {
   buildDeterministicRecoveryReply,
   enforceSchedulingGate,
   hydrateToolStateFromContext,
-  isActiveV2Scheduling,
   isAvailabilityFetchAuthorized,
   persistSchedulingToolState,
   planSchedulingGate,
@@ -44,6 +43,7 @@ import {
   stripUnauthorizedCalendarLink,
   type SchedulingGateResult,
 } from "~/server/speed2Lead/schedulingController";
+import { buildSafeTurnRecovery, finalizeSafeTurnReply } from "~/server/speed2Lead/turnRecovery";
 import {
   logSpeed2LeadTestEvent,
   summarizeGateAction,
@@ -342,20 +342,63 @@ function finalizeOrchestratorOutbound(
 
   let updated = markBlockedFallback(context);
   if (gateResult) {
-    const recovery = buildDeterministicRecoveryReply({
+    const recovery = buildSafeTurnRecovery({
       context: updated,
       toolState: gateResult.toolState,
       gateResult,
     });
-    if (recovery) {
-      const recovered = finalizeCalendarLinkOutbound(recovery, updated, false);
-      if (recovered) {
-        return { reply: recovered, context: clearBlockedFallback(updated) };
-      }
+    const recovered = finalizeCalendarLinkOutbound(recovery, updated, false);
+    if (recovered) {
+      return { reply: recovered, context: clearBlockedFallback(updated) };
     }
   }
 
   return { reply: null, context: updated };
+}
+
+function completeSafeHandledTurn(args: {
+  phone: string;
+  flow: string;
+  turnStartedAt: number;
+  workingContext: AnyConversationContext;
+  toolState: ToolExecutionState;
+  gateResult: SchedulingGateResult;
+  replyCandidate?: string | null;
+  calendarLinkAllowed: boolean;
+  recoveryPath: string;
+  extras?: Record<string, string | number | boolean | undefined>;
+}): OrchestratorTurnResult {
+  const finalized = args.replyCandidate?.trim()
+    ? finalizeSafeTurnReply({
+        reply: args.replyCandidate,
+        context: args.workingContext,
+        toolState: args.toolState,
+        gateResult: args.gateResult,
+      })
+    : {
+        reply: buildSafeTurnRecovery({
+          context: args.workingContext,
+          toolState: args.toolState,
+          gateResult: args.gateResult,
+        }),
+        context: args.workingContext,
+      };
+
+  logSpeed2LeadTestEvent(args.phone, "guardrail_result", {
+    ok: true,
+    path: args.recoveryPath,
+  });
+  logTestTurnComplete(args.phone, args.flow, args.turnStartedAt, finalized.context, {
+    handled: true,
+    ...args.extras,
+  });
+
+  return {
+    handled: true,
+    reply: finalized.reply,
+    context: finalized.context,
+    calendarLinkAllowed: args.calendarLinkAllowed,
+  };
 }
 
 export async function orchestrateInboundTurn(
@@ -587,17 +630,23 @@ export async function orchestrateInboundTurn(
     }
 
     logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-      handled: false,
-      reason: "openai_error",
+      handled: true,
+      openAiErrorRecovery: true,
     });
-    return {
-      handled: false,
-      fallbackToRules: true,
-      reason: "openai_error",
-      context: workingContext,
-      recoveryReply: buildDeterministicRecoveryReply({ context: workingContext, toolState, gateResult })
-        ?? undefined,
-    };
+    return completeSafeHandledTurn({
+      phone: context.phone,
+      flow: workingContext.flow ?? "roi",
+      turnStartedAt,
+      workingContext,
+      toolState,
+      gateResult,
+      replyCandidate:
+        recovery ??
+        buildDeterministicRecoveryReply({ context: workingContext, toolState, gateResult }),
+      calendarLinkAllowed: gateResult.calendarLinkAllowed,
+      recoveryPath: "openai_error_safe_recovery",
+      extras: { openAiErrorRecovery: true },
+    });
   }
   }
 
@@ -728,98 +777,36 @@ export async function orchestrateInboundTurn(
     });
   }
 
-  if (validated) {
-    const outbound = finalizeOrchestratorOutbound(
-      validated,
-      workingContext,
-      gateResult.calendarLinkAllowed,
+  if (validated?.trim()) {
+    const finalized = finalizeSafeTurnReply({
+      reply: validated,
+      context: workingContext,
+      toolState,
       gateResult,
-    );
-    workingContext = outbound.context;
-    validated = outbound.reply;
+    });
+    workingContext = finalized.context;
+    validated = finalized.reply;
   }
 
-  if (!validated) {
-    const recoveryCandidate =
-      gateResult.forcedReply ??
-      (toolState.offeredSlots.length > 0
-        ? buildSlotOfferMessage(toolState.offeredSlots)
-        : null);
-
-    if (isActiveV2Scheduling(workingContext) && recoveryCandidate) {
-      const recoveryPass = validateOutboundSms(recoveryCandidate, {
-        session: workingContext,
-        toolState,
-      });
-      if (recoveryPass.ok) {
-        const outbound = finalizeOrchestratorOutbound(
-          recoveryPass.text,
-          workingContext,
-          gateResult.calendarLinkAllowed,
-          gateResult,
-        );
-        workingContext = outbound.context;
-        if (outbound.reply) {
-          logOrchestratorEvent("turn_complete", {
-            flow: workingContext.flow ?? "roi",
-            bookingConfirmed: toolState.bookingConfirmed,
-            offeredSlots: toolState.offeredSlots.length,
-            v2SchedulingRecovery: true,
-          });
-          logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-            handled: true,
-            v2SchedulingRecovery: true,
-          });
-          return {
-            handled: true,
-            reply: outbound.reply,
-            context: workingContext,
-            calendarLinkAllowed: gateResult.calendarLinkAllowed,
-          };
-        }
-      }
-    }
-
-    if (isActiveV2Scheduling(workingContext)) {
-      logOrchestratorEvent("fallback_rules", {
-        flow: context.flow ?? "roi",
-        reason: "v2_scheduling_recovery",
-      });
-      logSpeed2LeadTestEvent(context.phone, "rules_fallback", {
-        reason: "guardrail_or_empty_reply",
-        v2Scheduling: true,
-      });
-      logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-        handled: false,
-      });
-      return {
-        handled: false,
-        fallbackToRules: true,
-        reason: "guardrail_or_empty_reply",
-        context: workingContext,
-        recoveryReply:
-          recoveryCandidate ?? genericRecoveryMessage(workingContext),
-        calendarLinkAllowed: gateResult.calendarLinkAllowed,
-      };
-    }
-
+  if (!validated?.trim()) {
     logOrchestratorEvent("fallback_rules", {
       flow: context.flow ?? "roi",
-      reason: "guardrail_or_empty_reply",
+      reason: "safe_turn_recovery",
     });
     logSpeed2LeadTestEvent(context.phone, "rules_fallback", {
-      reason: "guardrail_or_empty_reply",
+      reason: "safe_turn_recovery",
     });
-    logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-      handled: false,
-    });
-    return {
-      handled: false,
-      fallbackToRules: true,
-      reason: "guardrail_or_empty_reply",
-      context: workingContext,
+    return completeSafeHandledTurn({
+      phone: context.phone,
+      flow: workingContext.flow ?? "roi",
+      turnStartedAt,
+      workingContext,
+      toolState,
+      gateResult,
       calendarLinkAllowed: gateResult.calendarLinkAllowed,
-    };
+      recoveryPath: "safe_turn_recovery",
+      extras: { safeTurnRecovery: true },
+    });
   }
 
   logOrchestratorEvent("turn_complete", {

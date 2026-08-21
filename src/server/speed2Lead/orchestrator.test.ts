@@ -702,16 +702,15 @@ describe("speed2Lead orchestrator behavioral tests", () => {
     expect(result.handled).toBe(true);
   });
 
-  test("LLM failure safely falls back to rules engine", async () => {
+  test("LLM failure returns safe handled recovery instead of dead turn", async () => {
     const runModel: ModelRunner = async () => {
       throw new Error("OpenAI unavailable");
     };
 
     const result = await orchestrateInboundTurn(roiSession(), "interested", { runModel, now });
-    expect(result.handled).toBe(false);
-    if (result.handled) return;
-    expect(result.fallbackToRules).toBe(true);
-    expect(result.reason).toBe("openai_error");
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.reply.trim().length).toBeGreaterThan(0);
     expect(result.context.scheduling).toBeDefined();
   });
 
