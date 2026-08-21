@@ -644,11 +644,20 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
   {
     id: "sched-calendar-fallback",
     category: "scheduling",
-    name: "Scheduling calendar unavailable fallback",
+    name: "Scheduling calendar unavailable fallback after repeated attempts",
     phone: evalPhone("0310"),
     buildSession: (now) => buildRoiSession(now, evalPhone("0310")),
-    customerTurns: ["I want to schedule a call", "Tuesday afternoon", "Okay what are my options?"],
-    expectations: { shouldIncludeCalendarLink: true, mustNotConfirmBooking: true },
+    customerTurns: [
+      "I'd like to schedule a call",
+      "Tuesday afternoon",
+      "Anything else that afternoon?",
+      "Send me the calendar link",
+    ],
+    expectations: {
+      shouldIncludeCalendarLink: true,
+      mustNotConfirmBooking: true,
+      forbiddenPatterns: [/grab a time here:\s*$/i],
+    },
     calendarMode: "unconfigured",
   },
   {
