@@ -338,9 +338,9 @@ describe("nurture follow-up cron safety", () => {
   });
 
   test("does not enqueue or send for allowlisted test phones", async () => {
-    process.env.SPEED2LEAD_TEST_PHONES = "+12148438991";
+    process.env.SPEED2LEAD_TEST_PHONES = "+15559876543";
     resetSpeed2LeadTestPhonesCacheForTests();
-    const phone = "+12148438991";
+    const phone = "+15559876543";
     const session = registerNurtureOnSession(roiNurtureSession(phone));
     expect(session.nurtureNextAt).toBeUndefined();
     await enqueueNurtureFollowUp(phone);
