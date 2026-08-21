@@ -105,6 +105,17 @@ function emptyModel(): ModelRunner {
   });
 }
 
+function createScriptedModel(
+  steps: Array<() => { output: Array<Record<string, unknown>>; outputText: string }>,
+): ModelRunner {
+  let index = 0;
+  return async () => {
+    const step = steps[Math.min(index, steps.length - 1)]!;
+    index += 1;
+    return step() as Awaited<ReturnType<ModelRunner>>;
+  };
+}
+
 function offersAlternativeTimes(reply: string): boolean {
   const lower = reply.toLowerCase();
   if (!lower.trim()) return false;
@@ -295,6 +306,44 @@ describe("LLM failure fallback preserves scheduling state", () => {
     expect(result.context.scheduling?.partOfDay).toBe("afternoon");
     expect(result.context.scheduling?.status).toBe("confirmed");
     expect(bookingCalls).toBe(1);
+  });
+  test("LLM book_appointment is blocked when gate plans availability refinement", async () => {
+    const slots = [
+      centralDateAt(2026, 8, 25, 13, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 25, 14, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 25, 16, 0, TZ).toISOString(),
+    ];
+    consultationSlots = [
+      ...slots,
+      centralDateAt(2026, 8, 25, 16, 30, TZ).toISOString(),
+      centralDateAt(2026, 8, 25, 17, 0, TZ).toISOString(),
+    ];
+    bookingCalls = 0;
+
+    const runModel = createScriptedModel([
+      () => ({
+        output: [
+          {
+            type: "function_call" as const,
+            call_id: "call-book",
+            name: "book_appointment",
+            arguments: JSON.stringify({ start: slots[0] }),
+          },
+        ],
+        outputText: "",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(
+      roiSession({ scheduling: { status: "slots_offered", offeredSlots: slots } }),
+      "Do you have anything around 4:30 instead?",
+      { runModel, now },
+    );
+
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(bookingCalls).toBe(0);
+    expect(result.context.scheduling?.status).not.toBe("confirmed");
   });
 });
 

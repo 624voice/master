@@ -395,6 +395,18 @@ export async function orchestrateInboundTurn(
           llmCalledGetAvailability = true;
         }
         if (call.name === "book_appointment") {
+          if (gatePlan.action.type !== "book_appointment") {
+            conversationInput.push({
+              type: "function_call_output",
+              call_id: call.call_id,
+              output: JSON.stringify({
+                ok: false,
+                reason: "not_authorized",
+                detail: "Booking requires a confirmed customer slot selection.",
+              }),
+            });
+            continue;
+          }
           llmCalledBookAppointment = true;
           logSpeed2LeadTestEvent(workingContext.phone, "booking_attempt", {
             source: "llm_tool_loop",
