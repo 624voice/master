@@ -30,6 +30,7 @@ import {
   isActiveV2Scheduling,
   persistSchedulingToolState,
   planSchedulingGate,
+  requiresDeterministicSchedulingCompletion,
   resolveAuthoritativeSchedulingReply,
   selectOutboundSchedulingReply,
   stripUnauthorizedCalendarLink,
@@ -349,10 +350,12 @@ export async function orchestrateInboundTurn(
   let toolState = hydrateToolStateFromContext(workingContext, createInitialToolState());
   let llmCalledGetAvailability = false;
   let llmCalledBookAppointment = false;
+  const skipLlmToolLoop = requiresDeterministicSchedulingCompletion(gatePlan, workingContext);
   const instructions = buildOrchestratorInstructions(workingContext, now);
   const conversationInput: ResponseInputItem[] = buildConversationInput(workingContext);
   let latestDraft = "";
 
+  if (!skipLlmToolLoop) {
   try {
     for (let iteration = 0; iteration < maxIterations; iteration += 1) {
       const modelResult = await runModel({
@@ -503,6 +506,7 @@ export async function orchestrateInboundTurn(
         ?? undefined,
     };
   }
+  }
 
   const gateResult = await enforceSchedulingGate({
     plan: gatePlan,
@@ -592,7 +596,7 @@ export async function orchestrateInboundTurn(
   );
 
   let validated: string | null = null;
-  if (!gateResult.gateApplied) {
+  if (!gateResult.gateApplied && !skipLlmToolLoop) {
     validated = await validateOrRepair(
       draft,
       workingContext,

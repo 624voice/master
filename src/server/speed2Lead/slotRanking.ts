@@ -169,10 +169,24 @@ export function rankSlotsForOffer(
   }
 
   if (preferences.narrowAroundAnchor && preferences.anchorMinutes != null) {
+    const exact = candidates.filter((slot) => {
+      const minutes = slotStartMinutes(slot);
+      return minutes !== null && minutes === preferences.anchorMinutes;
+    });
+    if (exact.length >= 1) {
+      return exact.slice(0, 1);
+    }
     return pickClosestToAnchor(candidates, preferences.anchorMinutes, maxOffer);
   }
 
   if (preferences.anchorMinutes != null) {
+    const exact = candidates.filter((slot) => {
+      const minutes = slotStartMinutes(slot);
+      return minutes !== null && minutes === preferences.anchorMinutes;
+    });
+    if (exact.length === 1) {
+      return exact;
+    }
     const closest = pickClosestToAnchor(candidates, preferences.anchorMinutes, maxOffer);
     if (closest.length > 0) {
       return sortByTime(closest);

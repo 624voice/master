@@ -38,8 +38,10 @@ import {
   needsMeridiemClarification,
   offeredSlotSetKey,
   parseFlexibleTimeToken,
+  resolveOfferedSlotSelectionCandidate,
   resolveRequestedMinutesFromMessage,
   slotMatchesMinutes,
+  classifySchedulingTimeIntent,
 } from "~/server/speed2Lead/schedulingContext";
 import { shouldBlockSchedulingTurn, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
 import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
@@ -156,6 +158,20 @@ function shouldAskPreferenceOnly(
   }
   if (EXPLICIT_AVAILABILITY_QUESTION_RE.test(message)) return false;
   if (detectRepetitionCorrection(message)) return false;
+  return true;
+}
+
+function availabilityInputHasResolvedDate(input: AvailabilityRangeInput | null | undefined): boolean {
+  return Boolean(input?.centralDate || (input?.rangeStart && input?.rangeEnd));
+}
+
+function shouldBlockAvailabilityWithoutDate(
+  message: string,
+  scheduling: SchedulingState | undefined,
+  preferenceInput: AvailabilityRangeInput | null,
+): boolean {
+  if (availabilityInputHasResolvedDate(preferenceInput)) return false;
+  if (hasKnownSchedulingDay(scheduling)) return false;
   return true;
 }
 
@@ -281,6 +297,10 @@ export function resolveOfferedSlotSelection(
   offeredSlots: string[],
 ): string | null {
   if (offeredSlots.length === 0) return null;
+
+  const candidate = resolveOfferedSlotSelectionCandidate(message, offeredSlots);
+  if (candidate) return candidate;
+
   if (isNonSelectionSchedulingRequest(message)) return null;
 
   const ordinal = resolveOrdinalIndex(message, offeredSlots.length);
@@ -438,6 +458,21 @@ function buildDeterministicSlotOffer(args: {
   });
 }
 
+export function requiresDeterministicSchedulingCompletion(
+  plan: SchedulingGatePlan,
+  context: AnyConversationContext,
+): boolean {
+  if (plan.action.type === "book_appointment") return true;
+  if (plan.action.type === "get_availability" || plan.action.type === "get_availability_for_request") {
+    const input =
+      plan.action.input ??
+      plan.preferenceInput ??
+      buildAvailabilityInputFromSchedulingState(context.scheduling, "", new Date());
+    return availabilityInputHasResolvedDate(input);
+  }
+  return false;
+}
+
 export function planSchedulingGate(args: {
   inboundMessage: string;
   context: AnyConversationContext;
@@ -483,7 +518,9 @@ export function planSchedulingGate(args: {
 
   if (scheduling?.status === "slots_offered" && (scheduling.offeredSlots?.length ?? 0) > 0) {
     const offered = scheduling.offeredSlots ?? [];
-    const selected = resolveOfferedSlotSelection(inboundMessage, offered);
+    const selected =
+      resolveOfferedSlotSelection(inboundMessage, offered) ??
+      resolveOfferedSlotSelectionCandidate(inboundMessage, offered);
     if (selected) {
       return {
         action: { type: "book_appointment", start: selected, reason: "offered_slot_selected" },
@@ -493,6 +530,27 @@ export function planSchedulingGate(args: {
         selectedSlotStart: selected,
         preferenceInput,
       };
+    }
+
+    if (
+      classifySchedulingTimeIntent(inboundMessage, scheduling) === "select" &&
+      looksLikeSlotSelectionIntent(inboundMessage)
+    ) {
+      const fallbackSelected = resolveOfferedSlotSelectionCandidate(inboundMessage, offered);
+      if (fallbackSelected) {
+        return {
+          action: {
+            type: "book_appointment",
+            start: fallbackSelected,
+            reason: "offered_slot_selected",
+          },
+          schedulingIntent: true,
+          strongInterest,
+          explicitCalendarLinkRequest,
+          selectedSlotStart: fallbackSelected,
+          preferenceInput,
+        };
+      }
     }
 
     if (needsMeridiemClarification(inboundMessage, offered)) {
@@ -570,6 +628,22 @@ export function planSchedulingGate(args: {
   }
 
   if (schedulingIntent) {
+    if (
+      shouldBlockAvailabilityWithoutDate(inboundMessage, scheduling, preferenceInput) ||
+      (EXPLICIT_AVAILABILITY_QUESTION_RE.test(inboundMessage) &&
+        !hasKnownSchedulingDay(scheduling) &&
+        !availabilityInputHasResolvedDate(preferenceInput))
+    ) {
+      return {
+        action: { type: "ask_preference" },
+        schedulingIntent: true,
+        strongInterest: true,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: null,
+      };
+    }
+
     if (shouldAskPreferenceOnly(inboundMessage, knownFacts, scheduling)) {
       return {
         action: { type: "ask_preference" },
@@ -607,9 +681,18 @@ export function planSchedulingGate(args: {
       };
     }
 
-    const input =
-      accumulatedInput ??
-      defaultAvailabilityInput(now);
+    const input = accumulatedInput;
+    if (!availabilityInputHasResolvedDate(input)) {
+      return {
+        action: { type: "ask_preference" },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: null,
+      };
+    }
+
     return {
       action: { type: "get_availability", input, reason: "scheduling_intent" },
       schedulingIntent: true,
@@ -932,14 +1015,7 @@ function formatAskPreference(firstName: string, scheduling?: SchedulingState): s
     return formatAskPartOfDay(firstName);
   }
 
-  const hasDay = hasKnownSchedulingDay(scheduling);
-  const hasPart = hasKnownSchedulingPartOfDay(scheduling);
-
-  if (hasDay && hasPart) {
-    return `Got it, ${firstName} — let me check what I have open.`;
-  }
-
-  if (hasDay) {
+  if (hasKnownSchedulingDay(scheduling)) {
     return `Happy to set up a quick call, ${firstName} — would morning or afternoon work better that day?`;
   }
 
@@ -1153,17 +1229,40 @@ export async function enforceSchedulingGate(args: {
         mentionsUnauthorizedAvailability(args.llmReply, toolState) ||
         !args.llmCalledGetAvailability)
     ) {
-      forcedReply =
-        buildDeterministicSlotOffer({
+      const selectionStart = resolveOfferedSlotSelectionCandidate(
+        args.inboundMessage,
+        slots,
+      );
+      if (
+        selectionStart &&
+        classifySchedulingTimeIntent(args.inboundMessage, context.scheduling) === "select"
+      ) {
+        gateApplied = true;
+        bookingAttempted = true;
+        context = applySchedulingMeta(context, { bookingPending: true });
+        const booked = await runBookAppointment(selectionStart, context, toolState, now);
+        context = booked.context;
+        toolState = booked.toolState;
+        if (toolState.bookingConfirmed) {
+          context = applySchedulingMeta(context, { bookingPending: false });
+          forcedReply = buildConfirmedReply(context, toolState);
+        } else if (toolState.bookingFailed) {
+          context = applySchedulingMeta(context, { bookingPending: false });
+          forcedReply = formatConflictReply(
+            toolState.offeredSlots,
+            args.inboundMessage,
+            context.scheduling,
+          );
+        }
+      } else {
+        forcedReply = buildDeterministicSlotOffer({
           slots,
           inboundMessage: args.inboundMessage,
           scheduling: context.scheduling,
           actionReason,
           allowRepeat: action.type === "get_availability_for_request",
-        }) ??
-        (looksLikeSlotSelectionIntent(args.inboundMessage)
-          ? `Got it — booking that now.`
-          : null);
+        });
+      }
     } else if (gateApplied && slots.length === 0) {
       if (hasKnownSchedulingDay(context.scheduling) && hasKnownSchedulingPartOfDay(context.scheduling)) {
         forcedReply = `I don't have anything open in that window — want to try another time on that day?`;

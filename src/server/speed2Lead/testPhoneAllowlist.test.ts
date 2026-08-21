@@ -264,17 +264,20 @@ function roiNurtureSession(
 }
 
 describe("nurture follow-up cron safety", () => {
+  beforeEach(() => {
+    delete process.env.SPEED2LEAD_TEST_PHONES;
+    resetSpeed2LeadTestPhonesCacheForTests();
+  });
+
   test("registers and sends stage 1 once when due", async () => {
     const phone = "+15551234567";
     const started = new Date("2026-08-21T10:00:00.000Z");
     const due = new Date(started.getTime() + 46 * 60 * 1000);
-    const session = registerNurtureOnSession(
-      roiNurtureSession(phone, {
-        nurtureStage: 0,
-        nurtureStartedAt: started.toISOString(),
-        nurtureNextAt: due.toISOString(),
-      }),
-    );
+    const session = roiNurtureSession(phone, {
+      nurtureStage: 0,
+      nurtureStartedAt: started.toISOString(),
+      nurtureNextAt: due.toISOString(),
+    });
     await saveSession(session);
     await enqueueNurtureFollowUp(phone);
 

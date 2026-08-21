@@ -40,7 +40,7 @@ const REJECT_OFFERED_RE =
   /\b(none of those|not those|any(?:thing)? else|something else|different times?|other options?|doesn'?t work|dont work|won'?t work|wont work|too early|too late)\b/i;
 
 const PREFER_AFTERNOON_RE =
-  /\b(need afternoon|want afternoon|what about afternoon|afternoons?|after lunch|after noon)\b/i;
+  /\b(need afternoon|want afternoon|what about afternoon|(?:i\s+)?said afternoon|afternoons?|after lunch|after noon)\b/i;
 
 const PREFER_MORNING_RE = /\b(what about morning|mornings?|before noon)\b/i;
 
@@ -491,10 +491,135 @@ export function looksLikeSlotSelectionIntent(message: string): boolean {
   return SLOT_SELECTION_INTENT_RE.test(message);
 }
 
+const BARE_HOUR_SELECTION_RE =
+  /\b(?:(?:let'?s\s+do|lets?\s+do|do|take|book|sure|yes|yeah|yep|ok(?:ay)?)\s+)?(\d{1,2})(?::(\d{2}))?\s*(?:is\s+)?(?:good|works?|perfect|fine|ok(?:ay)?)\b|\b(?:sure|yes|yeah|yep|ok(?:ay)?)\s+(\d{1,2})(?::(\d{2}))?\b|\b(?:sure|yes|yeah|yep|ok(?:ay)?)\s+(\d{3,4})\b|\b(?:let'?s\s+do|lets?\s+do|do|take|book)\s+(\d{1,2})(?::(\d{2}))?\b|\b(?:let'?s\s+do|lets?\s+do|do|take|book)\s+(\d{3,4})\b/i;
+
+/** Resolve bare-hour slot selections such as "3 is good" against offered slots. */
+export function resolveBareHourSelectionMinutes(
+  message: string,
+  offeredSlots: string[],
+): number | null {
+  if (!looksLikeSlotSelectionIntent(message)) return null;
+  const match = message.match(BARE_HOUR_SELECTION_RE);
+  if (!match) return null;
+
+  const compact = match[5] ?? match[9];
+  if (compact) {
+    const digits = compact.padStart(4, "0");
+    const hour = Number.parseInt(digits.slice(0, 2), 10);
+    const minute = Number.parseInt(digits.slice(2), 10);
+    const offeredHint = inferMeridiemHintFromOfferedSlots(offeredSlots);
+    const minutes = applyMeridiemToHour(hour, minute, null, offeredHint);
+    return Number.isNaN(minutes) ? null : minutes;
+  }
+
+  const hour = Number.parseInt(match[1] ?? match[3] ?? "0", 10);
+  const minute = Number.parseInt(match[2] ?? match[4] ?? "0", 10);
+  if (hour < 1 || hour > 12 || minute >= 60) return null;
+
+  const offeredHint = inferMeridiemHintFromOfferedSlots(offeredSlots);
+  const minutes = applyMeridiemToHour(hour, minute, null, offeredHint);
+  return Number.isNaN(minutes) ? null : minutes;
+}
+
+export type SchedulingTimeIntent = "select" | "request" | "none";
+
+export function classifySchedulingTimeIntent(
+  message: string,
+  scheduling?: SchedulingState,
+): SchedulingTimeIntent {
+  const offered = scheduling?.offeredSlots ?? [];
+  if (offered.length > 0 && isNonSelectionSchedulingRequest(message)) {
+    return "request";
+  }
+
+  if (offered.length > 0) {
+    if (resolveOfferedSlotSelectionCandidate(message, offered)) {
+      return "select";
+    }
+    if (looksLikeSlotSelectionIntent(message)) {
+      return "select";
+    }
+    const minutes = resolveRequestedMinutesFromMessage(message, offered);
+    if (minutes != null) {
+      if (isNonSelectionSchedulingRequest(message)) {
+        return "request";
+      }
+      if (/\?\s*$/.test(message.trim())) {
+        return "request";
+      }
+      if (/\b(around|about|like|need|anything|what about|how about|closer|near)\b/i.test(message)) {
+        return "request";
+      }
+    }
+  }
+
+  if (hasExplicitExactTimeRequest(message, scheduling)) {
+    return "request";
+  }
+
+  return "none";
+}
+
+function isNonSelectionSchedulingRequest(message: string): boolean {
+  return (
+    /\b(?:instead|anything\s+around|do\s+you\s+have|any(?:thing)?\s+(?:around|at|for|open)|what\s+about|how\s+about|different\s+time|other\s+time|later\s+time|something\s+(?:around|at|closer|later)|need\s+(?:something|later|a\s+time))\b/i.test(
+      message,
+    ) ||
+    (/\?\s*$/.test(message.trim()) && /\b(\d{1,2}|morning|afternoon|evening)\b/i.test(message))
+  );
+}
+
+export function resolveOfferedSlotSelectionCandidate(
+  message: string,
+  offeredSlots: string[],
+): string | null {
+  if (offeredSlots.length === 0) return null;
+  if (isNonSelectionSchedulingRequest(message)) return null;
+
+  const bareMinutes = resolveBareHourSelectionMinutes(message, offeredSlots);
+  if (bareMinutes != null) {
+    const exact = offeredSlots.filter((slot) => slotMatchesMinutes(slot, bareMinutes, 0));
+    if (exact.length === 1) return exact[0] ?? null;
+    const near = offeredSlots.filter((slot) =>
+      slotMatchesMinutes(slot, bareMinutes, 30),
+    );
+    if (near.length === 1) return near[0] ?? null;
+  }
+
+  const requestedMinutes = resolveRequestedMinutesFromMessage(message, offeredSlots);
+  if (requestedMinutes != null) {
+    const exactMatches = offeredSlots.filter((slot) =>
+      slotMatchesMinutes(slot, requestedMinutes, 0),
+    );
+    if (exactMatches.length === 1) return exactMatches[0] ?? null;
+
+    if (looksLikeSlotSelectionIntent(message)) {
+      const near = offeredSlots.filter((slot) =>
+        slotMatchesMinutes(slot, requestedMinutes, 30),
+      );
+      if (near.length === 1) return near[0] ?? null;
+    }
+  }
+
+  if (
+    looksLikeSlotSelectionIntent(message) &&
+    offeredSlots.length === 1 &&
+    /\b(yes|yeah|yep|sure|ok(?:ay)?|good|works?|perfect|that\s+one|this\s+one|book)\b/i.test(message)
+  ) {
+    return offeredSlots[0] ?? null;
+  }
+
+  return null;
+}
+
 export function hasExplicitExactTimeRequest(
   message: string,
   scheduling?: SchedulingState,
 ): boolean {
+  if (isNonSelectionSchedulingRequest(message)) {
+    return false;
+  }
   const minutes = resolveRequestedMinutesFromMessage(message, scheduling?.offeredSlots ?? []);
   if (minutes == null) return false;
   const lower = message.toLowerCase();
@@ -663,9 +788,7 @@ export function buildSlotRankPreferencesFromState(
   latestAllowedMinutes?: number;
   rejectedSlotStarts?: string[];
 } {
-  const narrowAroundAnchor =
-    scheduling?.anchorTimeMinutes != null &&
-    (rangeInput.partOfDay === scheduling.partOfDay || scheduling.partOfDay === "full_day");
+  const narrowAroundAnchor = scheduling?.anchorTimeMinutes != null;
 
   return {
     partOfDay: rangeInput.partOfDay ?? scheduling?.partOfDay,

@@ -32,6 +32,12 @@ const BOOKED_CLAIM_PATTERN =
   /\b(you(?:'re| are)? (?:all )?set|booked|confirmed|see you then|you're on the calendar|appointment is set)\b/i;
 const IMPLIED_AVAILABILITY_PATTERN =
   /\b(i have (?:some )?openings?|here are (?:some )?(?:times|slots|options)|let me find a time|let's find a time|find a time that works|let me check (?:my )?availability)\b/i;
+const PENDING_ACTION_PATTERN =
+  /\b(let me check what i have open|booking that now|i'?m checking availability|checking availability now)\b/i;
+const EXACT_PHRASE_CONFIRM_PATTERN =
+  /\b(reply with exactly|exactly \"|exact phrase|didn'?t get the exact)\b/i;
+const REDUNDANT_CONFIRM_PATTERN =
+  /\b(confirm you want|before i can book|lock that in|need you to confirm)\b/i;
 const GUARANTEE_PATTERN =
   /\b(guarantee|guaranteed|will (?:make|save|earn)|promise you'll)\b/i;
 const CRM_INTEGRATION_CLAIM_PATTERN =
@@ -116,6 +122,34 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
 
   if (BOOKED_CLAIM_PATTERN.test(trimmed) && !ctx.toolState.bookingConfirmed) {
     return { ok: false, reason: "SMS claims booking without successful booking tool result" };
+  }
+
+  if (
+    PENDING_ACTION_PATTERN.test(trimmed) &&
+    !ctx.toolState.bookingConfirmed &&
+    ctx.toolState.offeredSlots.length === 0
+  ) {
+    return { ok: false, reason: "SMS sends pending-work message without completed action" };
+  }
+
+  if (
+    PENDING_ACTION_PATTERN.test(trimmed) &&
+    !ctx.toolState.bookingConfirmed &&
+    /\bbooking that now\b/i.test(trimmed)
+  ) {
+    return { ok: false, reason: "SMS claims booking in progress without completed booking" };
+  }
+
+  if (EXACT_PHRASE_CONFIRM_PATTERN.test(trimmed)) {
+    return { ok: false, reason: "SMS requires exact confirmation phrase" };
+  }
+
+  if (
+    REDUNDANT_CONFIRM_PATTERN.test(trimmed) &&
+    ctx.session.scheduling?.status === "slots_offered" &&
+    (ctx.session.scheduling?.offeredSlots?.length ?? 0) > 0
+  ) {
+    return { ok: false, reason: "SMS asks redundant booking confirmation after slot selection" };
   }
 
   if (

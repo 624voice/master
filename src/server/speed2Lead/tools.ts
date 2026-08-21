@@ -365,9 +365,16 @@ export async function executeOrchestratorTool(
 }
 
 export function shouldSuggestCalendarLink(state: ToolExecutionState): boolean {
-  return (
-    state.calendarUnavailable ||
-    (state.availabilityAttempts >= 2 && state.offeredSlots.length === 0) ||
-    state.bookingAttempts >= 2
-  );
+  if (state.calendarUnavailable) return true;
+  if (state.availabilityAttempts >= 2 && state.offeredSlots.length === 0) {
+    return true;
+  }
+  if (
+    state.bookingAttempts >= 2 &&
+    state.offeredSlots.length === 0 &&
+    !state.bookingConfirmed
+  ) {
+    return true;
+  }
+  return false;
 }
