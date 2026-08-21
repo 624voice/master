@@ -1,21 +1,18 @@
 {
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "serve.ts"],
-  "exclude": [
-    "node_modules",
-    "bisect-*",
-    "**/*.test.ts",
-    "**/*.integration.test.ts"
-  ],
+  "exclude": ["node_modules", "bisect-*"],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],
+
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
+
     "skipLibCheck": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -26,6 +23,7 @@
     "paths": {
       "~/*": ["./src/*"]
     },
+
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
