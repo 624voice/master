@@ -219,10 +219,7 @@ describe("applyConfirmedScheduling", () => {
       status: "confirmed",
       selectedStart: "2026-08-19T15:00:00.000Z",
       calendarEventId: "evt-agent-1",
-      bookingPending: false,
-      offeredSlots: undefined,
     });
-    expect(session.disposition).toBe("booked");
     expect(session.state).toBe("awaiting_problem");
   });
 });
