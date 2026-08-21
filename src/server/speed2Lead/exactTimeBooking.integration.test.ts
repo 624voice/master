@@ -110,6 +110,7 @@ function roiSession(overrides: Partial<ConversationContext> = {}): ConversationC
       primaryPain: "Missed calls",
       fit: "yes",
       questionsAsked: 1,
+      meetingBridgeComplete: true,
     },
     scheduling: { status: "idle" },
     updatedAt: now.toISOString(),

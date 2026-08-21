@@ -26,6 +26,8 @@ export type KnownFacts = {
   objection?: string;
   customerGoal?: string;
   questionsAsked: number;
+  /** Customer agreed to a low-pressure meeting bridge or explicitly asked to schedule. */
+  meetingBridgeComplete?: boolean;
 };
 
 export type SchedulingStatus = "idle" | "slots_offered" | "confirmed";

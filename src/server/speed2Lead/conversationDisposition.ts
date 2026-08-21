@@ -1,4 +1,8 @@
 import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
+import {
+  detectExplicitSchedulingRequest,
+  shouldBlockSchedulingForMeetingBridge,
+} from "~/server/speed2Lead/conversationHandoff";
 import type { ConversationDisposition } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -94,6 +98,7 @@ export function shouldDeferSchedulingForDiscovery(
 
   const signals = analyzeMessage(inboundMessage);
   if (signals.explicitMeetingReady) return false;
+  if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   if (/\b(let'?s talk|schedule|book|appointment|when works|what time|tomorrow|monday|tuesday|wednesday|thursday|friday)\b/i.test(inboundMessage)) {
     return false;
   }
@@ -115,6 +120,9 @@ export function shouldTreatAsStrongInterest(
   context: AnyConversationContext,
 ): boolean {
   if (shouldBlockSchedulingTurn(context, message)) {
+    return false;
+  }
+  if (shouldBlockSchedulingForMeetingBridge(context, message)) {
     return false;
   }
   if (shouldDeferSchedulingForDiscovery(context, message)) {

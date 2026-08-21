@@ -81,15 +81,18 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
         ? {
             focus:
               "Missed calls, slow response, follow-up gaps, staffing burden, wasted labor, revenue leakage, operational inefficiency.",
-            path: "Opening asked their pain → understand it → usually 0–1 useful follow-up → natural meeting step.",
-            whenPainClear: "Move forward quickly; do not interrogate.",
+            path: "Opening asked about their current process → understand it → usually 0–1 useful follow-up → brief conditional value bridge → schedule when they agree.",
+            whenPainClear:
+              "After one useful follow-up, use one low-pressure conditional bridge tied to their stated problem before asking what day works. Skip the bridge if they already ask to meet or schedule.",
             whenUncertain:
               "If not sure / no idea / maybe — ask ONE easy operational question (what happens when calls come in). Never ask them to design the solution.",
             ceiling: "questionsAsked is a limit, not a goal.",
           }
         : undefined,
     meetingTransition:
-      "When fit is plausible, bridge their stated situation to missed revenue, response speed, workload, or operational simplicity — then schedule. Do not jump from vague pain straight to what day works. When they show talk/book intent, stop selling and schedule.",
+      "Bridge their stated situation to a practical 25-minute look — operator-to-operator, no hype. Do not jump from pain straight to what day works unless they already asked to meet. When they show talk/book intent, stop selling and schedule.",
+    nameUsage:
+      "Use the prospect first name only in the opening message and final booking confirmation — not in discovery, bridge, day preference, slot offers, or refinements.",
     disposition:
       disposition === "booked"
         ? "Meeting is booked. Do not re-sell or offer new times unless they ask to change it."

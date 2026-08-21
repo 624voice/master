@@ -107,6 +107,7 @@ function discoveryAfterPain(pain: "Missed calls" | "Slow response"): Conversatio
       primaryPain,
       customerGoal: pain,
       questionsAsked: 1,
+      meetingBridgeComplete: true,
     },
     messages: [
       {

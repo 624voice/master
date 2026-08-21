@@ -24,6 +24,7 @@ import {
   type GuardrailContext,
 } from "~/server/speed2Lead/guardrails";
 import { applyDisposition, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import { applyMeetingBridgeProgress } from "~/server/speed2Lead/conversationHandoff";
 import {
   isGenericAcknowledgment,
   isSubstantiveReengagement,
@@ -409,9 +410,10 @@ export async function orchestrateInboundTurn(
   const now = deps.now ?? new Date();
   const turnStartedAt = Date.now();
   const normalized = normalizeSessionMemory(session);
+  const bridged = applyMeetingBridgeProgress(normalized, inboundMessage);
   const context = applyDisposition(
-    normalized,
-    resolveDispositionAfterInbound(normalized, inboundMessage),
+    bridged,
+    resolveDispositionAfterInbound(bridged, inboundMessage),
   );
   const model = getSpeed2LeadLlmModel();
   const maxIterations = getSpeed2LeadLlmMaxToolIterations();

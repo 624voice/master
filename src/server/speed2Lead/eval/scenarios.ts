@@ -853,4 +853,110 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     },
     presetSlots: (now) => slotsForWeekday(now, "Wed", [15]),
   },
+  {
+    id: "roi-missed-calls-bridge-meeting",
+    category: "roi",
+    name: "Missed calls bridge then meeting",
+    phone: evalPhone("0060"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0060"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0060"),
+          flow: "roi",
+          businessName: "Test Plumbing",
+          customerGoal: "Missed calls",
+          primaryPain: "Missed calls",
+          questionsAsked: 1,
+        },
+      }),
+    openingMessage: (s) => roiOpening(s as ConversationContext),
+    customerTurns: [
+      "They go to voicemail after hours",
+      "Yeah worth a look",
+      "Thursday afternoon",
+    ],
+    expectations: {
+      shouldReachScheduling: true,
+      maxQuestionsPerTurn: 1,
+      forbiddenPatterns: [/grab a time here/i],
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Thu", [14, 15, 16]),
+  },
+  {
+    id: "roi-slow-response-bridge-meeting",
+    category: "roi",
+    name: "Slow response bridge then meeting",
+    phone: evalPhone("0061"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0061"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0061"),
+          flow: "roi",
+          businessName: "Test Plumbing",
+          customerGoal: "Slow response",
+          primaryPain: "Slow response",
+          questionsAsked: 1,
+        },
+      }),
+    openingMessage: (s) => roiOpening(s as ConversationContext),
+    customerTurns: ["We try but it's slow", "Sure makes sense", "Tuesday morning"],
+    expectations: {
+      shouldReachScheduling: true,
+      maxQuestionsPerTurn: 1,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Tue", [9, 10, 11]),
+  },
+  {
+    id: "sched-afternoon-please",
+    category: "scheduling",
+    name: "Semantic afternoon please after date known",
+    phone: evalPhone("0062"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0062"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0062"),
+          flow: "roi",
+          businessName: "Test Plumbing",
+          primaryPain: "Missed calls",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+        scheduling: {
+          status: "idle",
+          centralDate: inferAvailabilityInputFromMessage("Friday", now)?.centralDate,
+        },
+      }),
+    customerTurns: ["Let's do afternoon please"],
+    expectations: {
+      shouldOfferSlots: true,
+      forbiddenPatterns: [/morning or afternoon\?/i],
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
+  },
+  {
+    id: "sched-closed-day-request",
+    category: "scheduling",
+    name: "Closed day request redirects naturally",
+    phone: evalPhone("0063"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0063"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0063"),
+          flow: "roi",
+          primaryPain: "Missed calls",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+      }),
+    customerTurns: ["Tomorrow afternoon"],
+    expectations: {
+      shouldReachScheduling: true,
+      forbiddenPatterns: [/don't have anything open in that window/i],
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Mon", [14, 15, 16]),
+  },
 ];

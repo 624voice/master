@@ -56,7 +56,7 @@ describe("ROI opening behavior", () => {
     };
 
     const opening = roiInitialMessage(context);
-    expect(opening).toContain("where do you think you're losing the most opportunities");
+    expect(opening).toContain("what usually happens first on your end");
     expect(opening).not.toContain("calendar.app.google");
     expect(opening).not.toContain("jumped out at me");
   });

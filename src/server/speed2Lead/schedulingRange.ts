@@ -202,12 +202,89 @@ export function resolveAvailabilityRange(
 }
 
 export function inferPartOfDay(message: string): AvailabilityRangeInput["partOfDay"] {
+  const semantic = detectSemanticDaypartSelection(message);
+  if (semantic) return semantic;
   const lower = message.toLowerCase();
   if (/\b(after lunch)\b/.test(lower)) return "afternoon";
   if (/\b(morning|before noon)\b/.test(lower)) return "morning";
   if (/\b(afternoon|after lunch)\b/.test(lower)) return "afternoon";
   if (/\b(evening)\b/.test(lower)) return "evening";
   return "full_day";
+}
+
+/** Semantic daypart intent from meaning/context — not exact phrase matching. */
+export function detectSemanticDaypartSelection(
+  message: string,
+): Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined> | null {
+  const lower = message.toLowerCase().trim();
+  if (!lower) return null;
+
+  if (/\b(later in the day|later in day|end of day|later today)\b/.test(lower)) {
+    return "afternoon";
+  }
+
+  const letsDo = lower.match(/\b(?:let'?s|lets)\s+(?:do\s+)?(morning|afternoon|evening)\b/);
+  if (letsDo?.[1]) {
+    return letsDo[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;
+  }
+
+  const preference = lower.match(
+    /\b(?:how about\s+)?(morning|afternoon|evening)\b(?:\s+(?:please|pls|works?|would be best|is best|sounds good))?\b/,
+  );
+  if (preference?.[1]) {
+    return preference[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;
+  }
+
+  if (/\b(morning|before noon)\b/.test(lower)) return "morning";
+  if (/\b(after lunch|afternoon)\b/.test(lower)) return "afternoon";
+  if (/\b(evening|after work)\b/.test(lower)) return "evening";
+
+  return null;
+}
+
+export function isConfiguredBusinessDay(centralDate: string): boolean {
+  const parts = parseCentralDate(centralDate);
+  if (!parts) return false;
+  const weekday = parseCentralParts(
+    centralDateAt(parts.year, parts.month, parts.day, 12, 0, CONSULTATION_TIMEZONE),
+    CONSULTATION_TIMEZONE,
+  ).weekday;
+  return weekday !== "Sat" && weekday !== "Sun";
+}
+
+export function weekdayLabelFromCentralDate(centralDate: string): string {
+  const parts = parseCentralDate(centralDate);
+  if (!parts) return "that day";
+  const weekday = parseCentralParts(
+    centralDateAt(parts.year, parts.month, parts.day, 12, 0, CONSULTATION_TIMEZONE),
+    CONSULTATION_TIMEZONE,
+  ).weekday;
+  const labels: Record<string, string> = {
+    Mon: "Monday",
+    Tue: "Tuesday",
+    Wed: "Wednesday",
+    Thu: "Thursday",
+    Fri: "Friday",
+    Sat: "Saturday",
+    Sun: "Sunday",
+  };
+  return labels[weekday] ?? weekday;
+}
+
+export function nextOpenBusinessDayAfter(centralDate: string): string {
+  const parts = parseCentralDate(centralDate);
+  if (!parts) {
+    throw new Error(`Invalid centralDate: ${centralDate}`);
+  }
+  let candidate = centralDateAt(parts.year, parts.month, parts.day, 12, 0, CONSULTATION_TIMEZONE);
+  for (let i = 0; i < 8; i++) {
+    candidate = addDays(candidate, 1);
+    const weekday = centralPartsFromDate(candidate).weekday;
+    if (weekday !== "Sat" && weekday !== "Sun") {
+      return formatCentralDate(centralPartsFromDate(candidate));
+    }
+  }
+  throw new Error(`Could not find open business day after ${centralDate}`);
 }
 
 export function inferAvailabilityInputFromMessage(

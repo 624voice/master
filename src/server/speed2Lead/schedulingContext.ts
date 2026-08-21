@@ -8,6 +8,7 @@ import {
   slotStartMinutes,
 } from "~/server/speed2Lead/slotRanking";
 import {
+  detectSemanticDaypartSelection,
   inferAvailabilityInputFromMessage,
   inferPartOfDay,
   nextWeekdayCentral,
@@ -124,9 +125,21 @@ export function detectDaypartSelectionCorrection(
     return insteadMatch[1] as SchedulingPartOfDay;
   }
 
-  const explicitPart = explicitPartOfDayFromMessage(message);
+  const explicitPart = explicitPartOfDayFromMessage(message) ?? detectSemanticDaypartSelection(message);
   if (!explicitPart) {
     return null;
+  }
+
+  if (
+    REJECT_MORNING_RE.test(lower) ||
+    REJECT_AFTERNOON_RE.test(lower) ||
+    REJECT_EVENING_RE.test(lower)
+  ) {
+    return null;
+  }
+
+  if (scheduling?.centralDate && !hasKnownSchedulingPartOfDay(scheduling)) {
+    return explicitPart;
   }
 
   if (DAYPART_CORRECTION_RE.test(lower)) {
@@ -433,6 +446,7 @@ function messageChangesDay(message: string): boolean {
 
 function messageChangesPartOfDay(message: string): boolean {
   const lower = message.toLowerCase();
+  if (detectSemanticDaypartSelection(message)) return true;
   if (REJECT_MORNING_RE.test(lower) || REJECT_AFTERNOON_RE.test(lower) || REJECT_EVENING_RE.test(lower)) {
     return true;
   }
@@ -445,11 +459,7 @@ function messageChangesPartOfDay(message: string): boolean {
 }
 
 function explicitPartOfDayFromMessage(message: string): SchedulingPartOfDay | null {
-  const lower = message.toLowerCase();
-  if (/\b(morning|before noon)\b/.test(lower) && !REJECT_MORNING_RE.test(lower)) return "morning";
-  if (/\b(after lunch|afternoon)\b/.test(lower) && !REJECT_AFTERNOON_RE.test(lower)) return "afternoon";
-  if (/\b(evening|after work)\b/.test(lower) && !REJECT_EVENING_RE.test(lower)) return "evening";
-  return null;
+  return detectSemanticDaypartSelection(message);
 }
 
 export function buildAvailabilityInputFromSchedulingState(
