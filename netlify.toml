@@ -2,7 +2,7 @@
   command = "npm run build"
   publish = "dist/client"
 
-[functions."demo-followups"]
+[functions."speed2lead-followups"]
   schedule = "*/15 * * * *"
 
 [functions."appointment-reminders"]
