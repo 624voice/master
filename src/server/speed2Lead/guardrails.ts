@@ -15,6 +15,7 @@ export {
 } from "~/server/speed2Lead/schedulingReply";
 import type { ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
+import { filterSlotsForSchedulingState } from "~/server/speed2Lead/schedulingContext";
 
 export type GuardrailContext = {
   session: AnyConversationContext;
@@ -161,12 +162,22 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
   }
 
   const allowedSlots = [
-    ...ctx.toolState.offeredSlots,
+    ...filterSlotsForSchedulingState(ctx.toolState.offeredSlots, ctx.session.scheduling),
     ...(ctx.toolState.bookingStart ? [ctx.toolState.bookingStart] : []),
   ];
 
   if (mentionsUnlistedTime(trimmed, allowedSlots)) {
     return { ok: false, reason: "SMS mentions a calendar time that was not returned by tools" };
+  }
+
+  if (
+    ctx.session.scheduling?.partOfDay &&
+    ctx.session.scheduling.partOfDay !== "full_day" &&
+    allowedSlots.length > 0 &&
+    filterSlotsForSchedulingState(allowedSlots, ctx.session.scheduling).length !==
+      allowedSlots.length
+  ) {
+    return { ok: false, reason: "SMS offers slots outside the active daypart constraint" };
   }
 
   return { ok: true, text: trimmed };
@@ -210,6 +221,36 @@ export function calendarLinkFallbackMessage(context: AnyConversationContext): st
 
 export function genericRecoveryMessage(context: AnyConversationContext): string {
   return `Hey ${context.firstName}, Chris with 624Voice — I hit a snag on my side. Mind sending that again?`;
+}
+
+/** Block self-scheduling links when conversational scheduling is active unless explicitly authorized. */
+export function blockPrematureCalendarLink(
+  reply: string,
+  context: AnyConversationContext,
+  calendarLinkAllowed = false,
+): string {
+  if (calendarLinkAllowed || !reply.trim()) {
+    return reply;
+  }
+
+  const scheduling = context.scheduling;
+  const conversationalSchedulingActive =
+    context.orchestratorManagedQuestions === true ||
+    scheduling?.status === "slots_offered" ||
+    scheduling?.status === "confirmed" ||
+    (scheduling?.availabilityAttempts ?? 0) > 0 ||
+    Boolean(scheduling?.centralDate) ||
+    Boolean(scheduling?.partOfDay && scheduling.partOfDay !== "full_day");
+
+  if (!conversationalSchedulingActive) {
+    return reply;
+  }
+
+  let sanitized = reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
+  if (context.bookingUrl && sanitized.includes(context.bookingUrl)) {
+    sanitized = sanitized.replace(context.bookingUrl, "").replace(/\s{2,}/g, " ").trim();
+  }
+  return sanitized;
 }
 
 export function llmUnavailableFallbackMessage(context: AnyConversationContext): string {

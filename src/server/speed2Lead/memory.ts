@@ -5,7 +5,10 @@ import {
   earliestOfferedMinutes,
   latestOfferedMinutes,
 } from "~/server/speed2Lead/slotRanking";
-import { offeredSlotSetKey } from "~/server/speed2Lead/schedulingContext";
+import {
+  filterSlotsForSchedulingState,
+  offeredSlotConstraintKey,
+} from "~/server/speed2Lead/schedulingContext";
 import type {
   ConversationMessage,
   ConversationMessageRole,
@@ -312,22 +315,92 @@ export function applyKnownFactsUpdate<T extends AnyConversationContext>(
   } as T;
 }
 
+export function invalidateIncompatibleOfferedSlots<T extends AnyConversationContext>(
+  context: T,
+): T {
+  const normalized = normalizeSessionMemory(context);
+  const scheduling = normalized.scheduling;
+  const offered = scheduling.offeredSlots ?? [];
+  if (offered.length === 0) {
+    return normalized as T;
+  }
+
+  const compatible = filterSlotsForSchedulingState(offered, scheduling);
+  if (compatible.length === offered.length) {
+    return normalized as T;
+  }
+
+  if (compatible.length === 0) {
+    return {
+      ...normalized,
+      scheduling: {
+        ...scheduling,
+        status: "idle",
+        offeredSlots: undefined,
+        lastOfferedSlotKey: undefined,
+        lastOfferedEarliestMinutes: undefined,
+        lastOfferedLatestMinutes: undefined,
+      },
+      updatedAt: new Date().toISOString(),
+    } as T;
+  }
+
+  return applyOfferedSlots(normalized as T, compatible);
+}
+
+function constraintsMateriallyChanged(
+  scheduling: SchedulingState,
+  patch: Partial<SchedulingState>,
+): boolean {
+  if (patch.centralDate && patch.centralDate !== scheduling.centralDate) return true;
+  if (patch.partOfDay && patch.partOfDay !== scheduling.partOfDay) return true;
+  if (
+    patch.earliestAllowedMinutes != null &&
+    patch.earliestAllowedMinutes !== scheduling.earliestAllowedMinutes
+  ) {
+    return true;
+  }
+  if (
+    patch.latestAllowedMinutes != null &&
+    patch.latestAllowedMinutes !== scheduling.latestAllowedMinutes
+  ) {
+    return true;
+  }
+  if (patch.anchorTimeMinutes != null && patch.anchorTimeMinutes !== scheduling.anchorTimeMinutes) {
+    return true;
+  }
+  if (patch.searchAfterMinutes != null && patch.searchAfterMinutes !== scheduling.searchAfterMinutes) {
+    return true;
+  }
+  if (
+    patch.searchBeforeMinutes != null &&
+    patch.searchBeforeMinutes !== scheduling.searchBeforeMinutes
+  ) {
+    return true;
+  }
+  if (patch.rejectedPartOfDay && patch.rejectedPartOfDay.length > 0) return true;
+  if (patch.rejectedSlotStarts && patch.rejectedSlotStarts.length > 0) return true;
+  return false;
+}
+
 export function applyOfferedSlots<T extends AnyConversationContext>(
   context: T,
   offeredSlots: string[],
 ): T {
   const normalized = normalizeSessionMemory(context);
+  const compatible = filterSlotsForSchedulingState(offeredSlots, normalized.scheduling);
+  const slots = compatible.length > 0 ? compatible : offeredSlots;
   return {
     ...normalized,
     scheduling: {
       ...normalized.scheduling,
       status: "slots_offered",
-      offeredSlots,
+      offeredSlots: slots,
       selectedStart: undefined,
       calendarEventId: undefined,
-      lastOfferedEarliestMinutes: earliestOfferedMinutes(offeredSlots) ?? undefined,
-      lastOfferedLatestMinutes: latestOfferedMinutes(offeredSlots) ?? undefined,
-      lastOfferedSlotKey: offeredSlotSetKey(offeredSlots),
+      lastOfferedEarliestMinutes: earliestOfferedMinutes(slots) ?? undefined,
+      lastOfferedLatestMinutes: latestOfferedMinutes(slots) ?? undefined,
+      lastOfferedSlotKey: offeredSlotConstraintKey(slots, normalized.scheduling),
       bookingPending: false,
       searchAfterMinutes: undefined,
       searchBeforeMinutes: undefined,
@@ -383,18 +456,24 @@ export function applySchedulingIntent<T extends AnyConversationContext>(
   } = {},
 ): T {
   const normalized = normalizeSessionMemory(context);
-  return applySchedulingMeta(normalized, {
-    centralDate: input.centralDate ?? normalized.scheduling?.centralDate,
-    partOfDay: input.partOfDay ?? normalized.scheduling?.partOfDay,
-    anchorTimeMinutes: extras.anchorTimeMinutes ?? normalized.scheduling?.anchorTimeMinutes,
+  const scheduling = normalized.scheduling;
+  const patch = {
+    centralDate: input.centralDate ?? scheduling.centralDate,
+    partOfDay: input.partOfDay ?? scheduling.partOfDay,
+    anchorTimeMinutes: extras.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
     searchAfterMinutes: extras.searchAfterMinutes,
     searchBeforeMinutes: extras.searchBeforeMinutes,
     earliestAllowedMinutes:
-      extras.earliestAllowedMinutes ?? normalized.scheduling?.earliestAllowedMinutes,
-    latestAllowedMinutes: extras.latestAllowedMinutes ?? normalized.scheduling?.latestAllowedMinutes,
-    rejectedPartOfDay: extras.rejectedPartOfDay ?? normalized.scheduling?.rejectedPartOfDay,
-    rejectedSlotStarts: extras.rejectedSlotStarts ?? normalized.scheduling?.rejectedSlotStarts,
-  }) as T;
+      extras.earliestAllowedMinutes ?? scheduling.earliestAllowedMinutes,
+    latestAllowedMinutes: extras.latestAllowedMinutes ?? scheduling.latestAllowedMinutes,
+    rejectedPartOfDay: extras.rejectedPartOfDay ?? scheduling.rejectedPartOfDay,
+    rejectedSlotStarts: extras.rejectedSlotStarts ?? scheduling.rejectedSlotStarts,
+  };
+  let updated = applySchedulingMeta(normalized, patch) as T;
+  if (constraintsMateriallyChanged(scheduling, patch)) {
+    updated = invalidateIncompatibleOfferedSlots(updated);
+  }
+  return updated;
 }
 
 export function applyDisposition<T extends AnyConversationContext>(
@@ -434,7 +513,7 @@ export function applySchedulingConstraints<T extends AnyConversationContext>(
       ? [...new Set([...(scheduling.rejectedSlotStarts ?? []), ...patch.rejectedSlotStarts])]
       : scheduling.rejectedSlotStarts;
 
-  return applySchedulingMeta(normalized, {
+  const mergedPatch = {
     centralDate: patch.centralDate ?? scheduling.centralDate,
     partOfDay: patch.partOfDay ?? scheduling.partOfDay,
     anchorTimeMinutes: patch.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
@@ -445,5 +524,10 @@ export function applySchedulingConstraints<T extends AnyConversationContext>(
     latestAllowedMinutes: patch.latestAllowedMinutes ?? scheduling.latestAllowedMinutes,
     rejectedPartOfDay: mergedRejectedParts,
     rejectedSlotStarts: mergedRejectedSlots,
-  }) as T;
+  };
+  let updated = applySchedulingMeta(normalized, mergedPatch) as T;
+  if (constraintsMateriallyChanged(scheduling, mergedPatch)) {
+    updated = invalidateIncompatibleOfferedSlots(updated);
+  }
+  return updated;
 }

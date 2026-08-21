@@ -1,9 +1,9 @@
 import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle/handleInbound";
 import { isSpeed2LeadLlmEnabled } from "~/server/speed2Lead/config";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
-import { orchestrateInboundTurn } from "~/server/speed2Lead/orchestrator";
+import { orchestrateInboundTurn, type OrchestratorDeps } from "~/server/speed2Lead/orchestrator";
 import { isActiveV2Scheduling } from "~/server/speed2Lead/schedulingController";
-import { genericRecoveryMessage } from "~/server/speed2Lead/guardrails";
+import { genericRecoveryMessage, blockPrematureCalendarLink } from "~/server/speed2Lead/guardrails";
 import {
   logSpeed2LeadTestEvent,
   summarizeSchedulingState,
@@ -66,7 +66,13 @@ function isDemoSession(
   return session?.flow === "demo";
 }
 
-export async function handleInboundSms(from: string, body: string): Promise<void> {
+export type HandleInboundTestDeps = Pick<OrchestratorDeps, "now" | "runModel">;
+
+export async function handleInboundSms(
+  from: string,
+  body: string,
+  testDeps?: HandleInboundTestDeps,
+): Promise<void> {
   const phone = normalizePhone(from);
   let session = await getSession(phone);
   const intent = classifyGlobalIntent(body);
@@ -190,18 +196,22 @@ export async function handleInboundSms(from: string, body: string): Promise<void
       ...summarizeSchedulingState(session),
     });
 
-    const orchestrated = await orchestrateInboundTurn(session, body);
+    const orchestrated = await orchestrateInboundTurn(session, body, testDeps);
     if (orchestrated.handled) {
       if (orchestrated.reply.trim()) {
+        const outbound = blockPrematureCalendarLink(
+          orchestrated.reply,
+          orchestrated.context,
+        );
         const updated = await sendConversationSms(
           phone,
-          orchestrated.reply,
+          outbound,
           orchestrated.context,
         );
         await saveSession(updated ?? orchestrated.context);
         logSpeed2LeadTestEvent(phone, "outbound_sent", {
           flow: orchestrated.context.flow ?? "roi",
-          replyLength: orchestrated.reply.length,
+          replyLength: outbound.length,
           handledBy: "llm",
           durationMs: Date.now() - turnStartedAt,
           ...summarizeSchedulingState(updated ?? orchestrated.context),
@@ -225,34 +235,30 @@ export async function handleInboundSms(from: string, body: string): Promise<void
       return;
     }
 
-    if (isActiveV2Scheduling(orchestrated.context)) {
-      const recoveryReply =
-        orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context);
-      logSpeed2LeadTestEvent(phone, "rules_fallback", {
-        reason: orchestrated.reason,
-        v2Recovery: true,
-        forcedReplyUsed: Boolean(orchestrated.recoveryReply),
-      });
-      const updated = await sendConversationSms(
-        phone,
-        recoveryReply,
-        orchestrated.context,
-      );
-      await saveSession(updated ?? orchestrated.context);
-      logSpeed2LeadTestEvent(phone, "outbound_sent", {
-        flow: orchestrated.context.flow ?? "roi",
-        replyLength: recoveryReply.length,
-        handledBy: "v2_recovery",
-        durationMs: Date.now() - turnStartedAt,
-        ...summarizeSchedulingState(updated ?? orchestrated.context),
-      });
-      return;
-    }
-
+    const recoveryReply = blockPrematureCalendarLink(
+      orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context),
+      orchestrated.context,
+    );
     logSpeed2LeadTestEvent(phone, "rules_fallback", {
       reason: orchestrated.reason,
       flow: session.flow ?? "roi",
+      blockedRulesStateMachine: true,
+      v2Recovery: isActiveV2Scheduling(orchestrated.context),
     });
+    const updated = await sendConversationSms(
+      phone,
+      recoveryReply,
+      orchestrated.context,
+    );
+    await saveSession(updated ?? orchestrated.context);
+    logSpeed2LeadTestEvent(phone, "outbound_sent", {
+      flow: orchestrated.context.flow ?? "roi",
+      replyLength: recoveryReply.length,
+      handledBy: isActiveV2Scheduling(orchestrated.context) ? "v2_recovery" : "llm_recovery",
+      durationMs: Date.now() - turnStartedAt,
+      ...summarizeSchedulingState(updated ?? orchestrated.context),
+    });
+    return;
   }
 
   const result = isDemoSession(session)

@@ -30,18 +30,21 @@ import {
   detectSchedulingRefinement,
   extractRequestedTimeMinutes,
   findMatchingOfferedSlots,
+  filterSlotsForSchedulingState,
   hasKnownSchedulingDay,
   hasKnownSchedulingPartOfDay,
   hasExplicitExactTimeRequest,
   looksLikeSlotSelectionIntent,
   mergeSchedulingIntentFromMessage,
   needsMeridiemClarification,
+  offeredSlotConstraintKey,
   offeredSlotSetKey,
   parseFlexibleTimeToken,
   resolveOfferedSlotSelectionCandidate,
   resolveRequestedMinutesFromMessage,
   slotMatchesMinutes,
   classifySchedulingTimeIntent,
+  slotsCompatibleWithSchedulingState,
 } from "~/server/speed2Lead/schedulingContext";
 import { shouldBlockSchedulingTurn, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
 import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
@@ -298,6 +301,14 @@ export function resolveOfferedSlotSelection(
 ): string | null {
   if (offeredSlots.length === 0) return null;
 
+  const bareAffirmative =
+    /^(yes|yeah|yep|sure|ok(?:ay)?|that works|sounds good|let'?s do it|book it|take it)\.?$/i.test(
+      message.trim(),
+    );
+  if (bareAffirmative && offeredSlots.length === 1) {
+    return offeredSlots[0] ?? null;
+  }
+
   const candidate = resolveOfferedSlotSelectionCandidate(message, offeredSlots);
   if (candidate) return candidate;
 
@@ -413,7 +424,10 @@ function shouldRepeatSlotOffer(args: {
 }): boolean {
   if (args.allowRepeat) return true;
   if (args.slots.length === 0) return false;
-  const nextKey = offeredSlotSetKey(args.slots);
+  if (args.scheduling && !slotsCompatibleWithSchedulingState(args.slots, args.scheduling)) {
+    return true;
+  }
+  const nextKey = offeredSlotConstraintKey(args.slots, args.scheduling);
   if (nextKey !== args.scheduling?.lastOfferedSlotKey) return true;
   if (looksLikeSlotSelectionIntent(args.inboundMessage)) return false;
   if (resolveOfferedSlotSelection(args.inboundMessage, args.scheduling?.offeredSlots ?? args.slots)) {
@@ -431,9 +445,14 @@ function buildDeterministicSlotOffer(args: {
   allowRepeat?: boolean;
   situationOverride?: SlotOfferSituation;
 }): string | null {
+  const constrainedSlots = filterSlotsForSchedulingState(args.slots, args.scheduling);
+  if (constrainedSlots.length === 0) {
+    return null;
+  }
+
   if (
     !shouldRepeatSlotOffer({
-      slots: args.slots,
+      slots: constrainedSlots,
       scheduling: args.scheduling,
       inboundMessage: args.inboundMessage,
       allowRepeat: args.allowRepeat ?? false,
@@ -448,13 +467,13 @@ function buildDeterministicSlotOffer(args: {
       inboundMessage: args.inboundMessage,
       scheduling: args.scheduling,
       actionReason: args.actionReason,
-      slots: args.slots,
+      slots: constrainedSlots,
     });
 
   return buildContextualSlotOfferMessage({
-    slots: args.slots,
+    slots: constrainedSlots,
     situation,
-    variationSeed: offeredSlotSetKey(args.slots),
+    variationSeed: offeredSlotConstraintKey(constrainedSlots, args.scheduling),
   });
 }
 
@@ -794,9 +813,10 @@ export function hydrateToolStateFromContext(
   base: ToolExecutionState,
 ): ToolExecutionState {
   const scheduling = context.scheduling ?? { status: "idle" as const };
+  const offered = filterSlotsForSchedulingState(scheduling.offeredSlots ?? [], scheduling);
   return {
     ...base,
-    offeredSlots: scheduling.offeredSlots ?? base.offeredSlots,
+    offeredSlots: offered,
     bookingConfirmed: scheduling.status === "confirmed",
     bookingStart: scheduling.selectedStart,
     bookingEventId: scheduling.calendarEventId,
@@ -819,7 +839,19 @@ export function persistSchedulingToolState(
       calendarEventId: toolState.bookingEventId,
     });
   } else if (toolState.offeredSlots.length > 0) {
-    updated = applyOfferedSlots(updated, toolState.offeredSlots);
+    const filtered = filterSlotsForSchedulingState(toolState.offeredSlots, {
+      ...updated.scheduling,
+      activeRequestKey: activeRequestKey ?? updated.scheduling?.activeRequestKey,
+    });
+    updated = applyOfferedSlots(updated, filtered.length > 0 ? filtered : toolState.offeredSlots);
+  } else if ((updated.scheduling?.offeredSlots?.length ?? 0) > 0) {
+    updated = applySchedulingMeta(updated, {
+      status: "idle",
+      offeredSlots: undefined,
+      lastOfferedSlotKey: undefined,
+      lastOfferedEarliestMinutes: undefined,
+      lastOfferedLatestMinutes: undefined,
+    });
   }
 
   return applySchedulingMeta(updated, {
@@ -940,15 +972,28 @@ export function resolveAuthoritativeSchedulingReply(args: {
   }
 
   if (toolState.offeredSlots.length > 0) {
+    const constrained = filterSlotsForSchedulingState(
+      toolState.offeredSlots,
+      context.scheduling,
+    );
+    if (constrained.length === 0) {
+      if (
+        hasKnownSchedulingDay(context.scheduling) &&
+        hasKnownSchedulingPartOfDay(context.scheduling)
+      ) {
+        return `I don't have anything open in that window — want to try another time on that day?`;
+      }
+      return formatAskPreference(context.firstName, context.scheduling);
+    }
     const offer =
       buildDeterministicSlotOffer({
-        slots: toolState.offeredSlots,
+        slots: constrained,
         inboundMessage: "",
-        scheduling: context,
+        scheduling: context.scheduling,
         allowRepeat: true,
         situationOverride: "repeat_recovery",
       }) ?? buildContextualSlotOfferMessage({
-        slots: toolState.offeredSlots,
+        slots: constrained,
         situation: "repeat_recovery",
       });
     const offerPass = validateDeterministicSchedulingReply(
@@ -1182,6 +1227,40 @@ export async function enforceSchedulingGate(args: {
       availabilityFetched = true;
     }
 
+    let slots = filterSlotsForSchedulingState(toolState.offeredSlots, context.scheduling);
+    if (slots.length !== toolState.offeredSlots.length) {
+      toolState = { ...toolState, offeredSlots: slots };
+      context =
+        slots.length > 0
+          ? applyOfferedSlots(context, slots)
+          : applySchedulingMeta(context, {
+              status: "idle",
+              offeredSlots: undefined,
+              lastOfferedSlotKey: undefined,
+              lastOfferedEarliestMinutes: undefined,
+              lastOfferedLatestMinutes: undefined,
+            });
+    }
+
+    if (
+      action.type === "get_availability_for_request" &&
+      action.reason === "exact_time_request" &&
+      slots.length > 0 &&
+      !toolState.bookingConfirmed
+    ) {
+      const exactMinutes =
+        resolveRequestedMinutesFromMessage(args.inboundMessage, slots) ??
+        context.scheduling?.anchorTimeMinutes;
+      if (exactMinutes != null) {
+        const exactMatches = slots.filter((slot) => slotMatchesMinutes(slot, exactMinutes, 0));
+        if (exactMatches.length === 1) {
+          slots = exactMatches;
+          toolState = { ...toolState, offeredSlots: exactMatches };
+          context = applyOfferedSlots(context, exactMatches);
+        }
+      }
+    }
+
     if (
       action.type === "get_availability_for_request" &&
       action.reason === "exact_time_request" &&
@@ -1209,7 +1288,7 @@ export async function enforceSchedulingGate(args: {
       }
     }
 
-    const slots = toolState.offeredSlots;
+    slots = filterSlotsForSchedulingState(toolState.offeredSlots, context.scheduling);
     const actionReason = action.type === "get_availability_for_request" ? action.reason : "scheduling_intent";
     if (
       slots.length > 0 &&
@@ -1395,9 +1474,20 @@ export function selectOutboundSchedulingReply(args: {
 }): string {
   const { llmReply, gateResult } = args;
   const draft = llmReply.trim();
-  const { forcedReply, gateApplied, toolState } = gateResult;
+  const { forcedReply, gateApplied, toolState, schedulingIntent } = gateResult;
 
   if (toolState.bookingConfirmed && forcedReply) {
+    return forcedReply;
+  }
+
+  if (
+    forcedReply &&
+    gateApplied &&
+    (schedulingIntent ||
+      gateResult.availabilityFetched ||
+      gateResult.bookingAttempted ||
+      toolState.offeredSlots.length > 0)
+  ) {
     return forcedReply;
   }
 

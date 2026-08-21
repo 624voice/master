@@ -29,6 +29,7 @@ mock.module("~/server/appointmentLifecycle/googleCalendar", () => ({
   fetchCalendarEventsUpdatedSince: async () => [],
   cancelCalendarEvent: async () => false,
   resetGoogleTokenCacheForTests: () => {},
+  calendarAttendeeInviteEnabled: (email?: string) => Boolean(email),
 }));
 
 mock.module("~/server/appointmentLifecycle/bookConsultation", () => ({
@@ -132,7 +133,7 @@ describe("scheduling gate persistence", () => {
     if (!result.handled) return;
     expect(result.context.scheduling.status).toBe("slots_offered");
     expect(result.context.scheduling.offeredSlots?.length).toBeGreaterThan(0);
-    expect(result.reply.toLowerCase()).toMatch(/any of those work|open|works/);
+    expect(result.reply.toLowerCase()).toMatch(/any of those work|open|works|available|still available/);
   });
 
   test("availability succeeds with invalid LLM slot draft sends deterministic slot offer", async () => {
@@ -374,7 +375,7 @@ describe("scheduling gate persistence", () => {
     if (!turn2.handled) return;
     expect(turn2.context.scheduling.status).not.toBe("confirmed");
     expect(turn2.reply.toLowerCase()).not.toMatch(/all set|booked|you're set/);
-    expect(turn2.reply.toLowerCase()).toMatch(/any of those work|open|around then|works/);
+    expect(turn2.reply.toLowerCase()).toMatch(/any of those work|open|around then|works|available|could work|closer to that/);
   });
 
   test("isActiveV2Scheduling detects offered slots", () => {

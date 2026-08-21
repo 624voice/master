@@ -11,6 +11,7 @@ import {
 } from "~/server/speed2Lead/memory";
 import {
   buildSlotRankPreferencesFromState,
+  filterSlotsForSchedulingState,
 } from "~/server/speed2Lead/schedulingContext";
 import {
   rankSlotsForOffer,
@@ -214,10 +215,16 @@ async function handleGetAvailability(
   }
 
   const rankPreferences = buildSlotRankPreferencesFromState(context.scheduling, rangeInput);
-  const offered = rankSlotsForOffer(availability.slots, {
+  const mergedScheduling = {
+    ...context.scheduling,
+    centralDate: rangeInput.centralDate ?? context.scheduling?.centralDate,
+    partOfDay: rangeInput.partOfDay ?? context.scheduling?.partOfDay,
+  };
+  let offered = rankSlotsForOffer(availability.slots, {
     ...rankPreferences,
     maxOffer: maxSlots,
   });
+  offered = filterSlotsForSchedulingState(offered, mergedScheduling);
   state = {
     ...state,
     offeredSlots: offered,

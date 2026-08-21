@@ -4,6 +4,7 @@ import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultatio
 import type { ModelRunner } from "~/server/speed2Lead/orchestrator";
 import { appendAssistantMessage, appendUserMessage } from "~/server/speed2Lead/memory";
 import type { ConversationContext } from "~/server/speed2Lead/types";
+import { resetSpeed2LeadTestPhonesCacheForTests } from "~/server/speed2Lead/testPhoneAllowlist";
 
 const TZ = CONSULTATION_TIMEZONE;
 const now = centralDateAt(2026, 8, 19, 10, 0, TZ);
@@ -12,6 +13,7 @@ let consultationSlots: string[] = [];
 let bookingCalls = 0;
 let availabilityCalls = 0;
 let lastBookedStart: string | null = null;
+const deployedOutboundMessages: string[] = [];
 
 mock.module("~/server/appointmentLifecycle/googleCalendar", () => ({
   getConsultationSlots: async (input: { rangeStart: string | Date; rangeEnd: string | Date }) => {
@@ -46,7 +48,32 @@ mock.module("~/server/appointmentLifecycle/bookConsultation", () => ({
   },
 }));
 
+mock.module("~/server/sms/twilio", () => ({
+  sendSms: async (_to: string, body: string) => {
+    deployedOutboundMessages.push(body);
+  },
+}));
+
+mock.module("~/server/appointmentLifecycle/handleInbound", () => ({
+  handleAppointmentLifecycleInbound: async () => ({ handled: false, sessionPersisted: false }),
+}));
+
+mock.module("~/server/speed2Lead/nurtureFollowUp", () => ({
+  removeNurtureFollowUp: async () => {},
+}));
+
+mock.module("~/server/demoSpeed2Lead/processFollowUps", () => ({
+  removeDemoFollowUp: async () => {},
+  registerDemoFollowUp: async () => {},
+}));
+
+mock.module("~/server/speed2Lead/transcript", () => ({
+  logSmsTranscriptSafely: () => {},
+}));
+
 const { orchestrateInboundTurn } = await import("~/server/speed2Lead/orchestrator");
+const { handleInboundSms } = await import("~/server/speed2Lead/handleInbound");
+const { saveSession, clearSession, getSession } = await import("~/server/speed2Lead/session");
 
 function fridayParts(reference: Date) {
   let candidate = new Date(reference.getTime() + 24 * 60 * 60 * 1000);
@@ -371,5 +398,91 @@ describe("single booking confirmation", () => {
     expect(result.context.scheduling?.status).toBe("confirmed");
     expect(bookingCalls).toBe(1);
     expect(result.reply.trim()).toBe("");
+  });
+});
+
+describe("deployed Twilio inbound path", () => {
+  const deployedNow = centralDateAt(2026, 8, 20, 10, 0, TZ);
+  const deployedPhone = "+15559876543";
+
+  function deployedTomorrow(): string {
+    const parts = parseCentralParts(new Date(deployedNow.getTime() + 86400000), TZ);
+    return `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+  }
+
+  function deployedSlot(date: string, hour: number, minute = 0): string {
+    const [year, month, day] = date.split("-").map(Number);
+    return centralDateAt(year!, month!, day!, hour, minute, TZ).toISOString();
+  }
+
+  function deployedSession(overrides: Partial<ConversationContext> = {}): ConversationContext {
+    return {
+      ...roiSession(overrides),
+      phone: deployedPhone,
+      orchestratorManagedQuestions: true,
+    };
+  }
+
+  async function runDeployed(inbound: string, session: ConversationContext, model: ModelRunner = emptyModel()) {
+    await clearSession(deployedPhone);
+    await saveSession({ ...session, phone: deployedPhone });
+    deployedOutboundMessages.length = 0;
+    bookingCalls = 0;
+    lastBookedStart = null;
+    await handleInboundSms(deployedPhone, inbound, { now: deployedNow, runModel: model });
+    return getSession(deployedPhone);
+  }
+
+  beforeEach(() => {
+    deployedOutboundMessages.length = 0;
+    process.env.SPEED2LEAD_LLM_ENABLED = "true";
+    process.env.SPEED2LEAD_TEST_PHONES = deployedPhone;
+    process.env.OPENAI_API_KEY = "test-key";
+    resetSpeed2LeadTestPhonesCacheForTests();
+  });
+
+  test("tomorrow afternoon returns only afternoon slots through handleInbound", async () => {
+    const tomorrow = deployedTomorrow();
+    consultationSlots = [
+      deployedSlot(tomorrow, 10, 30),
+      deployedSlot(tomorrow, 13, 45),
+      deployedSlot(tomorrow, 15, 0),
+    ];
+
+    await runDeployed("I can do tomorrow afternoon", deployedSession());
+    expect(deployedOutboundMessages.length).toBe(1);
+    expect(deployedOutboundMessages[0]?.toLowerCase()).not.toMatch(/\b10:30|\b11:/);
+    expect(deployedOutboundMessages[0]?.toLowerCase()).toMatch(/1:45|3:00|3pm/);
+  });
+
+  test("clear yep after single offered slot books through handleInbound", async () => {
+    const tomorrow = deployedTomorrow();
+    const fourPm = deployedSlot(tomorrow, 16, 0);
+    consultationSlots = [fourPm];
+
+    const updated = await runDeployed(
+      "Yep",
+      deployedSession({
+        scheduling: {
+          status: "slots_offered",
+          centralDate: tomorrow,
+          partOfDay: "afternoon",
+          offeredSlots: [fourPm],
+        },
+      }),
+    );
+
+    expect(bookingCalls).toBe(1);
+    expect(lastBookedStart).toBe(fourPm);
+    expect(updated?.scheduling?.status).toBe("confirmed");
+  });
+
+  test("orchestrator failure does not fall through to rules calendar link", async () => {
+    consultationSlots = [deployedSlot(deployedTomorrow(), 14, 0)];
+    await runDeployed("We miss calls all day", deployedSession(), async () => {
+      throw new Error("model unavailable");
+    });
+    expect(deployedOutboundMessages.length).toBe(1);
+    expect(deployedOutboundMessages[0]?.includes("calendar.app.google")).toBe(false);
   });
 });

@@ -4,6 +4,7 @@ import {
   earliestOfferedMinutes,
   latestOfferedMinutes,
   parseClockToMinutes,
+  rankSlotsForOffer,
   slotStartMinutes,
 } from "~/server/speed2Lead/slotRanking";
 import {
@@ -631,6 +632,61 @@ export function hasExplicitExactTimeRequest(
 
 export function offeredSlotSetKey(slots: string[]): string {
   return [...slots].sort().join("|");
+}
+
+/** Stable fingerprint of active scheduling constraints — used to invalidate stale slot reuse. */
+export function schedulingConstraintFingerprint(scheduling?: SchedulingState): string {
+  if (!scheduling) return "none";
+  return [
+    scheduling.activeRequestKey ?? "",
+    scheduling.centralDate ?? "",
+    scheduling.partOfDay ?? "",
+    scheduling.anchorTimeMinutes ?? "",
+    scheduling.earliestAllowedMinutes ?? "",
+    scheduling.latestAllowedMinutes ?? "",
+    scheduling.searchAfterMinutes ?? "",
+    scheduling.searchBeforeMinutes ?? "",
+    (scheduling.rejectedPartOfDay ?? []).join(","),
+    (scheduling.rejectedSlotStarts ?? []).slice(0, 8).join(","),
+  ].join("|");
+}
+
+export function offeredSlotConstraintKey(
+  slots: string[],
+  scheduling?: SchedulingState,
+): string {
+  return `${schedulingConstraintFingerprint(scheduling)}::${offeredSlotSetKey(slots)}`;
+}
+
+/** Drop slots that violate persisted date/daypart/constraint state. */
+export function filterSlotsForSchedulingState(
+  slots: string[],
+  scheduling?: SchedulingState,
+): string[] {
+  if (slots.length === 0 || !scheduling) return slots;
+
+  const rankPrefs = buildSlotRankPreferencesFromState(scheduling, {
+    centralDate: scheduling.centralDate,
+    partOfDay: scheduling.partOfDay,
+  });
+  let filtered = rankSlotsForOffer(slots, { ...rankPrefs, maxOffer: 48 });
+
+  if (scheduling.centralDate) {
+    filtered = filtered.filter(
+      (slot) => centralDateFromOfferedSlot(slot) === scheduling.centralDate,
+    );
+  }
+
+  return filtered;
+}
+
+export function slotsCompatibleWithSchedulingState(
+  slots: string[],
+  scheduling?: SchedulingState,
+): boolean {
+  if (slots.length === 0) return true;
+  const compatible = filterSlotsForSchedulingState(slots, scheduling);
+  return compatible.length === slots.length && compatible.length > 0;
 }
 
 export function findMatchingOfferedSlots(

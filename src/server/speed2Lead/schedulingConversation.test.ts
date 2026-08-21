@@ -7,6 +7,7 @@ import {
   detectSchedulingRefinement,
   extractRequestedTimeMinutes,
   mergeSchedulingIntentFromMessage,
+  offeredSlotConstraintKey,
 } from "~/server/speed2Lead/schedulingContext";
 import { buildContextualSlotOfferMessage } from "~/server/speed2Lead/schedulingReply";
 import { applyOfferedSlots } from "~/server/speed2Lead/memory";
@@ -327,7 +328,9 @@ describe("slot selection shorthand and priority", () => {
   test("applyOfferedSlots stores last offered slot fingerprint", () => {
     const slots = afternoonFourSlots();
     const updated = applyOfferedSlots(roiSession(), slots);
-    expect(updated.scheduling.lastOfferedSlotKey).toBe(slots.slice().sort().join("|"));
+    expect(updated.scheduling.lastOfferedSlotKey).toBe(
+      offeredSlotConstraintKey(slots, updated.scheduling),
+    );
   });
 });
 

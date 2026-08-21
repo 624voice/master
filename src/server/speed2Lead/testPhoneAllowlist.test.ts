@@ -136,7 +136,7 @@ describe("SPEED2LEAD_TEST_PHONES allowlist", () => {
       "const useLlmOrchestrator = shouldUseSpeed2LeadLlmForPhone(phone)",
     );
     expect(handleInboundSource.indexOf("const useLlmOrchestrator")).toBeLessThan(
-      handleInboundSource.indexOf("await orchestrateInboundTurn(session, body)"),
+      handleInboundSource.indexOf("await orchestrateInboundTurn(session, body"),
     );
   });
 
