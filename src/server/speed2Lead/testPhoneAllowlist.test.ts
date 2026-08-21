@@ -58,6 +58,7 @@ const {
   isSpeed2LeadTestPhoneAllowlistActive,
 } = await import("~/server/speed2Lead/testPhoneAllowlist");
 const { resetSpeed2LeadTestPhone } = await import("~/server/speed2Lead/resetTestPhone");
+const { processNurtureFollowUps } = await import("~/server/speed2Lead/nurtureFollowUp");
 const {
   logSpeed2LeadTestEvent,
   maskPhoneForLog,
