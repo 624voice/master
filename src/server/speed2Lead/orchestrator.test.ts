@@ -566,7 +566,7 @@ describe("speed2Lead orchestrator behavioral tests", () => {
 
     expect(result.handled).toBe(true);
     if (!result.handled) return;
-    expect(result.reply.toLowerCase()).toContain("set");
+    expect(result.reply.trim()).toBe("");
     expect(result.context.scheduling.calendarEventId).toBe("evt-2");
   });
 

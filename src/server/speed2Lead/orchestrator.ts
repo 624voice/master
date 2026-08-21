@@ -464,7 +464,7 @@ export async function orchestrateInboundTurn(
       toolState,
       calendarLinkAllowed: gateResult.calendarLinkAllowed,
     });
-    if (recovery) {
+    if (recovery !== null) {
       workingContext = persistSchedulingToolState(
         workingContext,
         toolState,

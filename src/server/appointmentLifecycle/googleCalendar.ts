@@ -437,6 +437,11 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
   };
 }
 
+/** True when attendee email invites are requested on calendar event creation. */
+export function calendarAttendeeInviteEnabled(attendeeEmail?: string): boolean {
+  return Boolean(attendeeEmail?.trim()) && isGoogleCalendarApiConfigured();
+}
+
 async function insertCalendarEvent(
   body: ReturnType<typeof buildConsultationEventBody>,
 ): Promise<GoogleCalendarApiEvent | null> {
@@ -446,8 +451,13 @@ async function insertCalendarEvent(
   }
 
   const token = await getAccessToken();
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
-  const response = await fetch(url, {
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
+  );
+  if (body.attendees?.length) {
+    url.searchParams.set("sendUpdates", "all");
+  }
+  const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -185,7 +185,7 @@ describe("scheduling gate persistence", () => {
     expect(result.handled).toBe(true);
     if (!result.handled) return;
     expect(result.context.scheduling.status).toBe("confirmed");
-    expect(result.reply.toLowerCase()).toMatch(/set|booked/);
+    expect(result.reply.trim()).toBe("");
   });
 
   test("conflict refresh with invalid LLM draft sends refreshed slots", async () => {

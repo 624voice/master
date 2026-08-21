@@ -394,6 +394,18 @@ function extractTimeToken(message: string): { raw: string; explicitMeridiem: str
     }
   }
 
+  const selectionMatch = lower.match(
+    /\b(?:let'?s\s+do|lets?\s+do|let\s+me\s+do|i'?ll\s+take|take|book|do)\s+(\d{1,2})(?::(\d{2}))?\b/i,
+  );
+  if (selectionMatch?.[1]) {
+    const hour = selectionMatch[1];
+    const minute = selectionMatch[2];
+    return {
+      raw: minute ? `${hour}:${minute}` : hour,
+      explicitMeridiem: null,
+    };
+  }
+
   return null;
 }
 

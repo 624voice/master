@@ -2,6 +2,7 @@ import { addBusinessDays } from "~/server/demoSpeed2Lead/followUp";
 import { getRedis } from "~/server/speed2Lead/redis";
 import { getSession, isOptedOut, saveSession } from "~/server/speed2Lead/session";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
+import { isSpeed2LeadTestPhone } from "~/server/speed2Lead/testPhoneAllowlist";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
 import type { ConversationContext } from "~/server/speed2Lead/types";
@@ -82,6 +83,7 @@ export function computeNextNurtureAt(session: NurtureSession, stage: 1 | 2 | 3):
 }
 
 export function shouldSendNurtureFollowUp(session: NurtureSession, now = new Date()): boolean {
+  if (isSpeed2LeadTestPhone(session.phone)) return false;
   if (!session.nurtureNextAt) return false;
   if (!isNurtureEligible(session)) return false;
   if (hasCustomerReplied(session)) return false;
@@ -89,6 +91,7 @@ export function shouldSendNurtureFollowUp(session: NurtureSession, now = new Dat
 }
 
 export async function enqueueNurtureFollowUp(phone: string): Promise<void> {
+  if (isSpeed2LeadTestPhone(phone)) return;
   const redis = getRedis();
   await redis.sadd(NURTURE_INDEX_KEY, normalizePhone(phone));
 }
@@ -124,10 +127,14 @@ export async function processNurtureFollowUps(now = new Date()): Promise<number>
     }
 
     const message = nurtureMessage(session, nextStage);
+    const followingStage = getNextNurtureStage(nextStage);
     const updated: NurtureSession = {
       ...session,
       nurtureStage: nextStage,
-      nurtureNextAt: nextStage === 3 ? undefined : computeNextNurtureAt(session, nextStage),
+      nurtureNextAt:
+        followingStage == null
+          ? undefined
+          : computeNextNurtureAt({ ...session, nurtureStage: nextStage }, followingStage),
       updatedAt: now.toISOString(),
     };
     await sendConversationSms(phone, message, updated);
@@ -145,5 +152,6 @@ export async function processNurtureFollowUps(now = new Date()): Promise<number>
 export function registerNurtureOnSession<T extends ConversationContext | ContactConversationContext>(
   session: T,
 ): T {
+  if (isSpeed2LeadTestPhone(session.phone)) return session;
   return scheduleNurtureFollowUp(session) as T;
 }

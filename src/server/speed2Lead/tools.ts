@@ -288,8 +288,7 @@ async function handleBookAppointment(
     bookingConfirmed: true,
     bookingStart: booked.selectedStart,
     bookingEventId: booked.eventId,
-    lifecycleConfirmationSent:
-      booked.lifecycle.action === "confirmation" && booked.lifecycle.smsSent === true,
+    lifecycleConfirmationSent: booked.lifecycle.smsSent === true,
   };
 
   let updated = applyConfirmedScheduling(normalized, {

@@ -1,6 +1,7 @@
 import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
+import { calendarAttendeeInviteEnabled } from "~/server/appointmentLifecycle/googleCalendar";
 import {
   buildBookingConfirmationMessage,
   buildContextualSlotOfferMessage,
@@ -957,7 +958,7 @@ function bookingConfirmationOptions(
     context.knownFacts?.email ?? ("email" in context ? context.email : undefined);
   return {
     email,
-    sendsCalendarInvite: Boolean(email),
+    sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
     useLifecycleCopy: toolState.lifecycleConfirmationSent === true,
   };
 }
