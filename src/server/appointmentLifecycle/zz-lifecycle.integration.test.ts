@@ -2,17 +2,15 @@ import { describe, expect, test, mock, beforeEach, afterEach } from "bun:test";
 import type {
   AppointmentLifecycleRecord,
   LeadIndexEntry,
+  NormalizedCalendarEvent,
 } from "~/server/appointmentLifecycle/types";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { centralDateAt, parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
-import * as realStore from "~/server/appointmentLifecycle/store";
 
-const lifecycleStore = new Map<string, AppointmentLifecycleRecord>();
-const leadStore = new Map<string, LeadIndexEntry[]>();
-const activePhone = new Map<string, string>();
 const smsLog: Array<{ phone: string; body: string; type?: string }> = [];
 const optOut = new Set<string>();
 const redisStore = new Map<string, unknown>();
+const redisSets = new Map<string, Set<string>>();
 const calendarEvents: Array<{
   id: string;
   status?: string;
@@ -54,88 +52,17 @@ X/nyTQPJ4bTW1iF409XT1KO/
 -----END PRIVATE KEY-----`;
 
 const originalFetch = globalThis.fetch;
-
-mock.module("~/server/appointmentLifecycle/store", () => ({
-  ...realStore,
-  getLifecycleRecord: async (id: string) => lifecycleStore.get(id) ?? null,
-  saveLifecycleRecord: async (record: AppointmentLifecycleRecord) => {
-    lifecycleStore.set(record.calendarEventId, record);
-    if (record.phone) {
-      if (
-        ["cancelled", "completed", "unmatched_booking", "superseded"].includes(
-          record.lifecycleStatus,
-        )
-      ) {
-        if (activePhone.get(record.phone) === record.calendarEventId) {
-          activePhone.delete(record.phone);
-        }
-      } else {
-        activePhone.set(record.phone, record.calendarEventId);
-      }
-    }
-  },
-  getLeadsByPhone: async (phone: string) => leadStore.get(phone) ?? [],
-  getLeadByEmail: async (email: string) => {
-    for (const leads of leadStore.values()) {
-      const match = leads.find((l) => l.email?.toLowerCase() === email.toLowerCase());
-      if (match) return match;
-    }
-    return null;
-  },
-  getActiveLifecycleForPhone: async (phone: string) => {
-    const id = activePhone.get(phone);
-    if (!id) return null;
-    const record = lifecycleStore.get(id);
-    if (
-      !record ||
-      ["cancelled", "completed", "unmatched_booking", "superseded"].includes(
-        record.lifecycleStatus,
-      )
-    ) {
-      return null;
-    }
-    return record;
-  },
-  supersedeActiveLifecycle: async (
-    old: AppointmentLifecycleRecord,
-    newEventId: string,
-    opts: { manualCleanupRequired?: boolean },
-  ) => {
-    const superseded = {
-      ...old,
-      lifecycleStatus: "superseded" as const,
-      rescheduledToEventId: newEventId,
-      remindersSuppressed: true,
-      manualCleanupRequired: opts.manualCleanupRequired,
-      supersededAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    lifecycleStore.set(old.calendarEventId, superseded);
-    return superseded;
-  },
-  getLeadForLifecycle: async (record: AppointmentLifecycleRecord) => {
-    if (record.email) {
-      for (const leads of leadStore.values()) {
-        const match = leads.find((l) => l.email === record.email);
-        if (match) return match;
-      }
-    }
-    const leads = leadStore.get(record.phone ?? "") ?? [];
-    return leads[0] ?? null;
-  },
-  getReminderIndexEventIds: async () => [...lifecycleStore.keys()],
-  getSyncCursor: async () => null,
-  setSyncCursor: async () => {},
-}));
+const TZ = CONSULTATION_TIMEZONE;
+const phone = "+15551234567";
 
 mock.module("~/server/appointmentLifecycle/sms", () => ({
-  sendLifecycleSms: async (phone: string, body: string, meta?: { messageType?: string }) => {
-    smsLog.push({ phone, body, type: meta?.messageType });
+  sendLifecycleSms: async (phoneNumber: string, body: string, meta?: { messageType?: string }) => {
+    smsLog.push({ phone: phoneNumber, body, type: meta?.messageType });
   },
 }));
 
 mock.module("~/server/speed2Lead/session", () => ({
-  isOptedOut: async (phone: string) => optOut.has(phone),
+  isOptedOut: async (phoneNumber: string) => optOut.has(phoneNumber),
   getSession: async () => null,
   saveSession: async () => {},
   clearSession: async () => {},
@@ -155,6 +82,15 @@ mock.module("~/server/speed2Lead/redis", () => ({
     del: async (key: string) => {
       redisStore.delete(key);
     },
+    sadd: async (key: string, member: string) => {
+      const set = redisSets.get(key) ?? new Set<string>();
+      set.add(member);
+      redisSets.set(key, set);
+    },
+    srem: async (key: string, member: string) => {
+      redisSets.get(key)?.delete(member);
+    },
+    smembers: async (key: string) => [...(redisSets.get(key) ?? [])],
   }),
 }));
 
@@ -180,8 +116,8 @@ function installFetchMock() {
         status: "confirmed",
         summary: "624Voice AI Consultation - Jane HVAC",
         description: body.description,
-        start: { dateTime: body.start.dateTime, timeZone: CONSULTATION_TIMEZONE },
-        end: { dateTime: body.end.dateTime, timeZone: CONSULTATION_TIMEZONE },
+        start: { dateTime: body.start.dateTime, timeZone: TZ },
+        end: { dateTime: body.end.dateTime, timeZone: TZ },
         updated: new Date().toISOString(),
       };
       calendarEvents.push(created);
@@ -209,9 +145,11 @@ const { processCalendarEvent } = await import("~/server/appointmentLifecycle/pro
 const { resetGoogleTokenCacheForTests } = await import(
   "~/server/appointmentLifecycle/googleCalendar"
 );
-
-const TZ = CONSULTATION_TIMEZONE;
-const phone = "+15551234567";
+const {
+  getActiveLifecycleForPhone,
+  getLifecycleRecord,
+  saveLeadIndex,
+} = await import("~/server/appointmentLifecycle/store");
 
 function futureWeekdaySlot(hour: number, minute: number): Date {
   let candidate = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000);
@@ -238,22 +176,42 @@ function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
   };
 }
 
+function calendarEvent(
+  id: string,
+  overrides: Partial<NormalizedCalendarEvent> = {},
+): NormalizedCalendarEvent {
+  return {
+    calendarEventId: id,
+    status: "confirmed",
+    appointmentStart: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+    appointmentEnd: new Date(Date.now() + 48.5 * 60 * 60 * 1000).toISOString(),
+    timezone: TZ,
+    attendeePhone: phone,
+    attendeeEmail: "jane@example.com",
+    attendeeName: "Jane Doe",
+    updatedAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+async function seedLead(entry: LeadIndexEntry = lead()): Promise<void> {
+  await saveLeadIndex(entry);
+}
+
 describe("bookConsultation lifecycle integration", () => {
   let slotStart: Date;
   let availabilityNow: Date;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     slotStart = futureWeekdaySlot(10, 0);
     availabilityNow = new Date(slotStart.getTime() - 60 * 60 * 1000);
-    lifecycleStore.clear();
-    leadStore.clear();
-    activePhone.clear();
+    redisStore.clear();
+    redisSets.clear();
     smsLog.length = 0;
     optOut.clear();
-    redisStore.clear();
     calendarEvents.length = 0;
     createAttempts = 0;
-    leadStore.set(phone, [lead()]);
+    await seedLead();
     resetGoogleTokenCacheForTests();
     installFetchMock();
 
@@ -287,7 +245,7 @@ describe("bookConsultation lifecycle integration", () => {
     expect(result.lifecycle.smsSent).toBe(true);
     expect(smsLog.length).toBe(1);
 
-    const record = lifecycleStore.get(result.eventId);
+    const record = await getLifecycleRecord(result.eventId);
     expect(record?.confirmationSentAt).toBeTruthy();
     expect(record?.lifecycleStatus).toBe("confirmed");
   });
@@ -345,5 +303,70 @@ describe("bookConsultation lifecycle integration", () => {
     expect(second.lifecycle.action).toBe("duplicate_skipped");
     expect(smsLog.length).toBe(0);
     expect(createAttempts).toBe(1);
+  });
+});
+
+describe("processEvent production safety", () => {
+  beforeEach(async () => {
+    redisStore.clear();
+    smsLog.length = 0;
+    optOut.clear();
+    await seedLead();
+  });
+
+  test("matching lead with consent sends SMS", async () => {
+    const result = await processCalendarEvent(calendarEvent("evt-1"));
+    expect(result.smsSent).toBe(true);
+    expect(smsLog.length).toBe(1);
+  });
+
+  test("matching lead without consent sends no SMS", async () => {
+    await seedLead(lead({ smsConsent: false }));
+    const result = await processCalendarEvent(calendarEvent("evt-no-consent"));
+    expect(result.smsSent).toBe(false);
+    expect(smsLog.length).toBe(0);
+  });
+
+  test("opted-out lead sends no lifecycle SMS", async () => {
+    optOut.add(phone);
+    const result = await processCalendarEvent(calendarEvent("evt-optout"));
+    expect(result.smsSent).toBe(false);
+  });
+
+  test("two different event IDs for same lead supersede old lifecycle", async () => {
+    await processCalendarEvent(calendarEvent("evt-old"));
+    smsLog.length = 0;
+    const result = await processCalendarEvent(calendarEvent("evt-new"));
+    expect(result.action).toBe("rescheduled");
+    const old = await getLifecycleRecord("evt-old");
+    expect(old?.lifecycleStatus).toBe("superseded");
+    expect(old?.remindersSuppressed).toBe(true);
+    const active = await getActiveLifecycleForPhone(phone);
+    expect(active?.calendarEventId).toBe("evt-new");
+  });
+
+  test("duplicate calendar sync after booking does not duplicate confirmation", async () => {
+    await processCalendarEvent(calendarEvent("evt-1"));
+    smsLog.length = 0;
+    const dup = await processCalendarEvent(calendarEvent("evt-1"));
+    expect(dup.action).toBe("duplicate_skipped");
+    expect(smsLog.length).toBe(0);
+  });
+});
+
+describe("smsEligibility", () => {
+  test("leadHasSmsConsent requires explicit true", () => {
+    const { leadHasSmsConsent } =
+      require("~/server/appointmentLifecycle/smsEligibility") as typeof import("~/server/appointmentLifecycle/smsEligibility");
+    expect(leadHasSmsConsent(lead())).toBe(true);
+    expect(leadHasSmsConsent(lead({ smsConsent: false }))).toBe(false);
+  });
+
+  test("canSendLifecycleSms blocks missing consent", async () => {
+    const { canSendLifecycleSms } =
+      require("~/server/appointmentLifecycle/smsEligibility") as typeof import("~/server/appointmentLifecycle/smsEligibility");
+    const result = await canSendLifecycleSms(phone, lead({ smsConsent: false }));
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe("no_consent");
   });
 });
