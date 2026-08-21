@@ -510,6 +510,25 @@ describe("behavioral E2E A-P through orchestrateInboundTurn", () => {
     expect(bookingCalls).toBe(1);
     expect(turn.reply.trim()).toBe("");
   });
+
+  test("Q soft-closed generic OK does not reopen scheduling", async () => {
+    let session = roiSession();
+    for (const customerTurn of [
+      "Missed calls mostly",
+      "Not sure what we'd change honestly",
+      "Not right now, im busy",
+    ]) {
+      const turn = await runTurn(session, customerTurn, silentModel());
+      session = turn.session;
+    }
+    expect(session.disposition).toBe("soft_closed");
+
+    const ack = await runTurn(session, "Ok", toxicModel("What day works for a quick call?"));
+    expect(ack.session.disposition).toBe("soft_closed");
+    expect(ack.session.scheduling?.status ?? "idle").toBe("idle");
+    expect(ack.reply).not.toMatch(/what day works|morning or afternoon|schedule a call/i);
+    expect(ack.reply).toMatch(/sounds good/i);
+  });
 });
 
 describe("handset failure class replays with varied wording", () => {

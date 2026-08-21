@@ -1,4 +1,10 @@
 import { validateOutboundSms } from "~/server/speed2Lead/guardrails";
+import { isGenericAcknowledgment } from "~/server/speed2Lead/conversationDisposition";
+import {
+  collectSchedulingEvidence,
+  schedulingOfferEvidenceMet,
+  type SchedulingEvidence,
+} from "~/server/speed2Lead/eval/authoritativeState";
 import type { ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -47,11 +53,19 @@ export type QualityScores = {
   bookingTruthful: number;
 };
 
+export type EvalFailureClass =
+  | "model_judgment"
+  | "deterministic_orchestration"
+  | "eval_harness"
+  | "scoring_expectation"
+  | "expected_clarification";
+
 export type ScenarioScore = {
   technicalPass: boolean;
   conversationalPass: boolean;
   weak: boolean;
   failed: boolean;
+  failureClass?: EvalFailureClass;
   quality: QualityScores;
   overall: number;
   unsupportedClaims: string[];
@@ -116,33 +130,44 @@ export function scoreScenario(input: {
 }): ScenarioScore {
   const { transcript, expectations, finalContext, finalToolState, toolStatesByTurn, seededNeedSummary } = input;
   const notes: string[] = [];
+  let failureClass: EvalFailureClass | undefined;
   const agentTexts = transcript.map((t) => t.agent).join("\n");
   const unsupportedClaims = detectUnsupportedClaims(transcript);
+  const schedulingEvidence = collectSchedulingEvidence(
+    finalContext,
+    toolStatesByTurn ?? [finalToolState],
+  );
+  const authoritativeState = schedulingEvidence.finalState;
 
   let technicalPass = transcript.every((t) => t.handled);
-  if (expectations.shouldConfirmBooking && !finalToolState.bookingConfirmed) {
+  if (expectations.shouldConfirmBooking && !authoritativeState.bookingConfirmed) {
     technicalPass = false;
+    failureClass = "deterministic_orchestration";
     notes.push("Expected successful booking but bookingConfirmed is false");
   }
-  if (expectations.mustNotConfirmBooking && finalToolState.bookingConfirmed) {
+  if (expectations.mustNotConfirmBooking && authoritativeState.bookingConfirmed) {
     technicalPass = false;
+    failureClass = "deterministic_orchestration";
     notes.push("Booking was confirmed when it should not have been");
   }
-  if (expectations.shouldOfferSlots && finalToolState.offeredSlots.length === 0) {
+  if (expectations.shouldOfferSlots && !schedulingOfferEvidenceMet(schedulingEvidence)) {
     technicalPass = false;
-    notes.push("Expected offered slots but none were recorded");
+    failureClass = "deterministic_orchestration";
+    notes.push("Expected offered slots but none were recorded in authoritative session state");
   }
 
   if (expectations.mustNotReopenAfterSoftClose) {
-    const schedulingAfterSoftClose = /\b(what day works|morning or afternoon|grab a time|schedule a call)\b/i;
+    const schedulingAfterSoftClose =
+      /\b(what day works|morning or afternoon|grab a time|schedule a call|set up a quick call|find a time)\b/i;
     const softCloseIndex = transcript.findIndex((t) =>
-      /\b(busy|not right now|not now)\b/i.test(t.customer),
+      /\b(busy|not right now|not now|not ready)\b/i.test(t.customer),
     );
     if (softCloseIndex >= 0) {
       const after = transcript.slice(softCloseIndex + 1);
-      const genericAck = after.find((t) => /^(ok|okay|k|thanks)\.?$/i.test(t.customer.trim()));
+      const genericAck = after.find((t) => isGenericAcknowledgment(t.customer));
       if (genericAck && schedulingAfterSoftClose.test(genericAck.agent)) {
         technicalPass = false;
+        failureClass = "deterministic_orchestration";
         notes.push("Reopened scheduling after soft close on generic acknowledgment");
       }
     }
@@ -237,7 +262,12 @@ export function scoreScenario(input: {
         ? 0.85
         : 0.75,
     pacedWeakInterest: expectations.mustNotBeAggressive ? (agentTexts.match(/calendar|book|schedule/gi) ?? []).length > 2 ? 0.5 : 0.9 : 0.8,
-    efficientStrongInterest: expectations.shouldReachScheduling ? (finalToolState.offeredSlots.length > 0 || /calendar|time|slot|tuesday|thursday|tomorrow/i.test(agentTexts) ? 1 : 0.5) : 0.75,
+    efficientStrongInterest: expectations.shouldReachScheduling
+      ? schedulingOfferEvidenceMet(schedulingEvidence) ||
+        /calendar|time|slot|tuesday|thursday|tomorrow/i.test(agentTexts)
+        ? 1
+        : 0.5
+      : 0.75,
     naturalNotTemplated,
     smsConcise,
     chrisVoice: /\b624voice\b/i.test(agentTexts) || /\bchris\b/i.test(agentTexts) ? 0.9 : 0.75,
@@ -248,8 +278,15 @@ export function scoreScenario(input: {
         ? 0.2
         : 1,
     schedulingDeterministic:
-      finalToolState.offeredSlots.length > 0 || !/\b\d{1,2}:\d{2}\s*(am|pm)\b/i.test(agentTexts) ? 1 : 0.4,
-    bookingTruthful: finalToolState.bookingConfirmed || !/\b(booked|confirmed|you're all set|see you then)\b/i.test(agentTexts) ? 1 : 0.1,
+      schedulingOfferEvidenceMet(schedulingEvidence) ||
+      !/\b\d{1,2}:\d{2}\s*(am|pm)\b/i.test(agentTexts)
+        ? 1
+        : 0.4,
+    bookingTruthful:
+      authoritativeState.bookingConfirmed ||
+      !/\b(booked|confirmed|you're all set|see you then)\b/i.test(agentTexts)
+        ? 1
+        : 0.1,
   };
 
   const overall = average(Object.values(quality));
@@ -258,14 +295,28 @@ export function scoreScenario(input: {
     overall < 0.8 &&
     technicalPass &&
     (naturalNotTemplated < 0.8 || smsConcise < 0.7 || oneQuestionMax < 0.8);
+  if (expectations.mustAcknowledgeFeedback && !/\b(got it|understand|fair|helpful|feedback|custom|demo|jessica|configured)\b/i.test(agentTexts.toLowerCase())) {
+    // handled in liveEval.test.ts as weak conversational signal
+  }
+
   const conversationalPass = overall >= 0.8 && unsupportedClaims.length === 0 && oneQuestionMax >= 0.6;
   const failed = !technicalPass || overall < 0.65 || unsupportedClaims.length > 0;
+  if (failed && !failureClass) {
+    if (!technicalPass && unsupportedClaims.length > 0) {
+      failureClass = "model_judgment";
+    } else if (!technicalPass) {
+      failureClass = "model_judgment";
+    } else if (overall < 0.65) {
+      failureClass = "model_judgment";
+    }
+  }
 
   return {
     technicalPass,
     conversationalPass,
     weak,
     failed,
+    failureClass,
     quality,
     overall,
     unsupportedClaims,

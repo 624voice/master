@@ -707,6 +707,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     expectations: { maxQuestionsPerTurn: 1, maxDiscoveryTurns: 2 },
   },
   {
+    id: "edge-servicetitan-capability",
     category: "edge",
     name: "Edge ServiceTitan capability question",
     phone: evalPhone("0401"),

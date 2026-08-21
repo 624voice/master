@@ -643,6 +643,50 @@ export function findMatchingOfferedSlots(
   return offeredSlots.filter((slot) => slotMatchesMinutes(slot, requestedMinutes, toleranceMinutes));
 }
 
+const NON_SELECTION_SCHEDULING_REQUEST_RE =
+  /\b(?:instead|anything\s+around|do\s+you\s+have|any(?:thing)?\s+(?:around|at|for|open)|what\s+about|how\s+about|different\s+time|other\s+time|later\s+time|something\s+(?:around|at|closer|later))\b/i;
+
+function centralDateFromOfferedSlot(startIso: string): string {
+  const parts = parseCentralParts(new Date(startIso), CONSULTATION_TIMEZONE);
+  return `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+}
+
+function buildRefinementBaseInput(
+  message: string,
+  scheduling: SchedulingState | undefined,
+  offeredSlots: string[],
+  now: Date,
+): AvailabilityRangeInput | null {
+  const fromState = buildAvailabilityInputFromSchedulingState(scheduling, message, now);
+  if (offeredSlots.length === 0) {
+    return fromState;
+  }
+
+  const hasWeekdayInMessage = WEEKDAY_NAMES.some((day) =>
+    new RegExp(`\\b${day}\\b`, "i").test(message),
+  );
+  const requestedMinutes = resolveRequestedMinutesFromMessage(message, offeredSlots);
+  const refinesOfferedDay =
+    !messageChangesDay(message) &&
+    !hasWeekdayInMessage &&
+    (NON_SELECTION_SCHEDULING_REQUEST_RE.test(message) ||
+      (requestedMinutes !== null && !looksLikeSlotSelectionIntent(message)));
+
+  if (refinesOfferedDay) {
+    const offeredDay = centralDateFromOfferedSlot(offeredSlots[0]!);
+    return {
+      centralDate: scheduling?.centralDate ?? offeredDay,
+      partOfDay:
+        explicitPartOfDayFromMessage(message) ??
+        scheduling?.partOfDay ??
+        inferPartOfDay(message) ??
+        "full_day",
+    };
+  }
+
+  return fromState;
+}
+
 export function detectSchedulingRefinement(
   message: string,
   scheduling: SchedulingState | undefined,
@@ -650,7 +694,7 @@ export function detectSchedulingRefinement(
   now = new Date(),
 ): SchedulingRefinement | null {
   const lower = message.toLowerCase();
-  const baseInput = buildAvailabilityInputFromSchedulingState(scheduling, message, now);
+  const baseInput = buildRefinementBaseInput(message, scheduling, offeredSlots, now);
   if (!baseInput?.centralDate && !baseInput?.rangeStart) {
     return null;
   }

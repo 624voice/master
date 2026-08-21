@@ -180,11 +180,13 @@ function calendarEvent(
   id: string,
   overrides: Partial<NormalizedCalendarEvent> = {},
 ): NormalizedCalendarEvent {
+  const start = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+  const end = new Date(Date.now() + 48.5 * 60 * 60 * 1000).toISOString();
   return {
     calendarEventId: id,
     status: "confirmed",
-    appointmentStart: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-    appointmentEnd: new Date(Date.now() + 48.5 * 60 * 60 * 1000).toISOString(),
+    appointmentStart: start,
+    appointmentEnd: end,
     timezone: TZ,
     attendeePhone: phone,
     attendeeEmail: "jane@example.com",
@@ -309,6 +311,7 @@ describe("bookConsultation lifecycle integration", () => {
 describe("processEvent production safety", () => {
   beforeEach(async () => {
     redisStore.clear();
+    redisSets.clear();
     smsLog.length = 0;
     optOut.clear();
     await seedLead();
@@ -346,9 +349,10 @@ describe("processEvent production safety", () => {
   });
 
   test("duplicate calendar sync after booking does not duplicate confirmation", async () => {
-    await processCalendarEvent(calendarEvent("evt-1"));
+    const event = calendarEvent("evt-1");
+    await processCalendarEvent(event);
     smsLog.length = 0;
-    const dup = await processCalendarEvent(calendarEvent("evt-1"));
+    const dup = await processCalendarEvent(event);
     expect(dup.action).toBe("duplicate_skipped");
     expect(smsLog.length).toBe(0);
   });

@@ -22,7 +22,13 @@ import {
   validateOutboundSms,
   type GuardrailContext,
 } from "~/server/speed2Lead/guardrails";
-import { normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import { applyDisposition, normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import {
+  isGenericAcknowledgment,
+  isSubstantiveReengagement,
+  resolveDispositionAfterInbound,
+} from "~/server/speed2Lead/conversationDisposition";
+import { softCloseAckMessage } from "~/server/speed2Lead/messages";
 import {
   buildDeterministicRecoveryReply,
   enforceSchedulingGate,
@@ -314,7 +320,11 @@ export async function orchestrateInboundTurn(
 ): Promise<OrchestratorTurnResult> {
   const now = deps.now ?? new Date();
   const turnStartedAt = Date.now();
-  const context = normalizeSessionMemory(session);
+  const normalized = normalizeSessionMemory(session);
+  const context = applyDisposition(
+    normalized,
+    resolveDispositionAfterInbound(normalized, inboundMessage),
+  );
   const model = getSpeed2LeadLlmModel();
   const maxIterations = getSpeed2LeadLlmMaxToolIterations();
 
@@ -328,6 +338,18 @@ export async function orchestrateInboundTurn(
     phoneSuffix: context.phone.slice(-4),
     messageLength: inboundMessage.length,
   });
+
+  if (
+    context.disposition === "soft_closed" &&
+    isGenericAcknowledgment(inboundMessage) &&
+    !isSubstantiveReengagement(inboundMessage)
+  ) {
+    logTestTurnComplete(context.phone, context.flow ?? "roi", turnStartedAt, context, {
+      handled: true,
+      softCloseAck: true,
+    });
+    return { handled: true, reply: softCloseAckMessage(), context };
+  }
 
   if (!deps.runModel && !isOpenAiConfigured()) {
     logOrchestratorEvent("fallback_rules", {
