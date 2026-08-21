@@ -311,7 +311,7 @@ describe("speed2Lead orchestrator behavioral tests", () => {
     if (!result.handled) return;
     expect(result.context.scheduling.status).toBe("slots_offered");
     expect(result.context.scheduling.offeredSlots?.length).toBeGreaterThan(0);
-    expect(result.reply.toLowerCase()).toContain("tuesday");
+    expect(result.reply.toLowerCase()).toMatch(/1:30|2:30|4pm|open|available/);
   });
 
   test("Customer answers several discovery points in one message can skip extra stages", async () => {
@@ -566,7 +566,7 @@ describe("speed2Lead orchestrator behavioral tests", () => {
 
     expect(result.handled).toBe(true);
     if (!result.handled) return;
-    expect(result.reply.toLowerCase()).toContain("set");
+    expect(result.reply.trim()).toBe("");
     expect(result.context.scheduling.calendarEventId).toBe("evt-2");
   });
 

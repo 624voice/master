@@ -37,6 +37,8 @@ const redisStore = new Map<string, unknown>();
 const calendarEvents: GoogleCalendarApiEvent[] = [];
 let createAttempts = 0;
 let listCallCount = 0;
+let lastCreateUrl: string | null = null;
+let lastCreateBody: Record<string, unknown> | null = null;
 const originalFetch = globalThis.fetch;
 
 function apiEvent(id: string, start: Date, end: Date, phone: string): GoogleCalendarApiEvent {
@@ -64,11 +66,14 @@ function installFetchMock() {
 
     if (url.includes("/calendars/") && url.includes("/events") && init?.method === "POST") {
       createAttempts += 1;
+      lastCreateUrl = url;
       const body = JSON.parse(String(init.body)) as {
         start: { dateTime: string };
         end: { dateTime: string };
         description?: string;
+        attendees?: Array<{ email: string }>;
       };
+      lastCreateBody = body;
       const phoneMatch = body.description?.match(/Phone:\s(\S+)/);
       const phone = phoneMatch?.[1] ?? "+15551234567";
       const created = apiEvent(
@@ -152,6 +157,8 @@ describe("googleCalendar consultation booking", () => {
     calendarEvents.length = 0;
     createAttempts = 0;
     listCallCount = 0;
+    lastCreateUrl = null;
+    lastCreateBody = null;
     resetGoogleTokenCacheForTests();
     installFetchMock();
 
@@ -263,6 +270,35 @@ describe("googleCalendar consultation booking", () => {
     if (!result.ok) return;
     expect(result.eventId).toBe("evt-created-1");
     expect(result.normalizedEvent.calendarEventId).toBe("evt-created-1");
+  });
+
+  test("attendee email triggers sendUpdates=all on calendar insert", async () => {
+    const result = await createConsultationEvent({
+      start: slotStart.toISOString(),
+      attendeeName: "Jane Doe",
+      attendeeEmail: "jane@example.com",
+      phone,
+      source: "roi",
+      now: availabilityNow,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(lastCreateUrl).toContain("sendUpdates=all");
+    expect(lastCreateBody?.attendees).toEqual([{ email: "jane@example.com" }]);
+  });
+
+  test("missing attendee email still books without sendUpdates", async () => {
+    const result = await createConsultationEvent({
+      start: slotStart.toISOString(),
+      attendeeName: "Jane Doe",
+      phone,
+      source: "roi",
+      now: availabilityNow,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(lastCreateUrl).not.toContain("sendUpdates=");
+    expect(lastCreateBody?.attendees).toBeUndefined();
   });
 
   test("failed calendar creation never reports success", async () => {
