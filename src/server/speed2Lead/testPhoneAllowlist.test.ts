@@ -1,61 +1,23 @@
-import { describe, expect, test, beforeEach, afterEach, mock } from "bun:test";
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import { readFileSync } from "node:fs";
 import type { ConversationContext } from "~/server/speed2Lead/types";
+import {
+  capturedOutboundSms,
+  capturedRedisStore,
+  getDemoFollowUpMembers,
+  getNurtureMembers,
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+  seedDemoFollowUpMember,
+  seedNurtureMember,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
 
-const deletedKeys: string[] = [];
-const redisStore = new Map<string, unknown>();
-const followUpMembers = new Set<string>();
-const nurtureMembers = new Set<string>();
-
-mock.module("~/server/speed2Lead/redis", () => ({
-  getRedis: () => ({
-    get: async (key: string) => redisStore.get(key) ?? null,
-    set: async (key: string, value: unknown) => {
-      redisStore.set(key, value);
-    },
-    del: async (key: string) => {
-      deletedKeys.push(key);
-      redisStore.delete(key);
-    },
-    sadd: async (key: string, member: string) => {
-      if (key === "speed2lead:demo-followups") {
-        followUpMembers.add(member);
-      }
-      if (key === "speed2lead:nurture-followups") {
-        nurtureMembers.add(member);
-      }
-    },
-    srem: async (key: string, member: string) => {
-      if (key === "speed2lead:demo-followups") {
-        followUpMembers.delete(member);
-      }
-      if (key === "speed2lead:nurture-followups") {
-        nurtureMembers.delete(member);
-      }
-    },
-    smembers: async (key: string) => {
-      if (key === "speed2lead:nurture-followups") {
-        return [...nurtureMembers];
-      }
-      return [...followUpMembers];
-    },
-  }),
-}));
-
-const smsLog: string[] = [];
-
-mock.module("~/server/speed2Lead/conversationSms", () => ({
-  sendConversationSms: async (_phone: string, message: string) => {
-    smsLog.push(message);
-    return null;
-  },
-}));
+installSpeed2LeadIntegrationMocks();
 
 const {
   parseSpeed2LeadTestPhones,
   resetSpeed2LeadTestPhonesCacheForTests,
   shouldUseSpeed2LeadLlmForPhone,
-  isSpeed2LeadTestPhone,
   isSpeed2LeadTestPhoneAllowlistActive,
 } = await import("~/server/speed2Lead/testPhoneAllowlist");
 const { resetSpeed2LeadTestPhone } = await import("~/server/speed2Lead/resetTestPhone");
@@ -82,11 +44,7 @@ beforeEach(() => {
   delete process.env.SPEED2LEAD_LLM_ENABLED;
   delete process.env.SPEED2LEAD_TEST_PHONES;
   resetSpeed2LeadTestPhonesCacheForTests();
-  deletedKeys.length = 0;
-  redisStore.clear();
-  followUpMembers.clear();
-  nurtureMembers.clear();
-  smsLog.length = 0;
+  resetSpeed2LeadIntegrationMocks();
 });
 
 afterEach(() => {
@@ -160,21 +118,21 @@ describe("resetSpeed2LeadTestPhone", () => {
     process.env.SPEED2LEAD_TEST_PHONES = "+15551234567,+15559998888";
     resetSpeed2LeadTestPhonesCacheForTests();
 
-    redisStore.set("speed2lead:session:+15551234567", { flow: "roi" });
-    redisStore.set("speed2lead:session:+15559998888", { flow: "demo" });
-    redisStore.set("speed2lead:optout:+15551234567", true);
-    redisStore.set("appointment:active:phone:+15551234567", "evt-1");
-    followUpMembers.add("+15551234567");
-    nurtureMembers.add("+15551234567");
+    capturedRedisStore.set("speed2lead:session:+15551234567", { flow: "roi" });
+    capturedRedisStore.set("speed2lead:session:+15559998888", { flow: "demo" });
+    capturedRedisStore.set("speed2lead:optout:+15551234567", true);
+    capturedRedisStore.set("appointment:active:phone:+15551234567", "evt-1");
+    seedDemoFollowUpMember("+15551234567");
+    seedNurtureMember("+15551234567");
 
     const result = await resetSpeed2LeadTestPhone("+15551234567");
     expect(result.phone).toBe("+15551234567");
-    expect(redisStore.has("speed2lead:session:+15551234567")).toBe(false);
-    expect(redisStore.has("speed2lead:optout:+15551234567")).toBe(false);
-    expect(redisStore.has("appointment:active:phone:+15551234567")).toBe(false);
-    expect(followUpMembers.has("+15551234567")).toBe(false);
-    expect(nurtureMembers.has("+15551234567")).toBe(false);
-    expect(redisStore.has("speed2lead:session:+15559998888")).toBe(true);
+    expect(capturedRedisStore.has("speed2lead:session:+15551234567")).toBe(false);
+    expect(capturedRedisStore.has("speed2lead:optout:+15551234567")).toBe(false);
+    expect(capturedRedisStore.has("appointment:active:phone:+15551234567")).toBe(false);
+    expect(getDemoFollowUpMembers().includes("+15551234567")).toBe(false);
+    expect(getNurtureMembers().includes("+15551234567")).toBe(false);
+    expect(capturedRedisStore.has("speed2lead:session:+15559998888")).toBe(true);
 
     await expect(resetSpeed2LeadTestPhone("+15559997777")).rejects.toThrow(
       /not listed in SPEED2LEAD_TEST_PHONES/,
@@ -282,7 +240,7 @@ describe("nurture follow-up cron safety", () => {
     await enqueueNurtureFollowUp(phone);
 
     expect(await processNurtureFollowUps(due)).toBe(1);
-    expect(smsLog.length).toBe(1);
+    expect(capturedOutboundSms.length).toBe(1);
     expect(await processNurtureFollowUps(due)).toBe(0);
   });
 
@@ -332,12 +290,12 @@ describe("nurture follow-up cron safety", () => {
         nurtureStartedAt: due.toISOString(),
       }),
     );
-    redisStore.set(`speed2lead:optout:${phone}`, true);
+    capturedRedisStore.set(`speed2lead:optout:${phone}`, true);
     await enqueueNurtureFollowUp(phone);
 
     expect(await processNurtureFollowUps(due)).toBe(0);
-    expect(smsLog.length).toBe(0);
-    expect([...nurtureMembers]).toEqual([]);
+    expect(capturedOutboundSms.length).toBe(0);
+    expect(getNurtureMembers()).toEqual([]);
   });
 
   test("does not enqueue or send for allowlisted test phones", async () => {
@@ -347,17 +305,17 @@ describe("nurture follow-up cron safety", () => {
     const session = registerNurtureOnSession(roiNurtureSession(phone));
     expect(session.nurtureNextAt).toBeUndefined();
     await enqueueNurtureFollowUp(phone);
-    expect([...nurtureMembers]).toEqual([]);
+    expect(getNurtureMembers()).toEqual([]);
   });
 
   test("demo follow-up index stays separate from nurture index", async () => {
     const phone = "+15551234567";
     await enqueueNurtureFollowUp(phone);
-    followUpMembers.add(phone);
-    expect([...nurtureMembers]).toEqual([phone]);
-    expect([...followUpMembers]).toEqual([phone]);
+    seedDemoFollowUpMember(phone);
+    expect(getNurtureMembers()).toEqual([phone]);
+    expect(getDemoFollowUpMembers()).toEqual([phone]);
     await removeNurtureFollowUp(phone);
-    expect([...nurtureMembers]).toEqual([]);
-    expect([...followUpMembers]).toEqual([phone]);
+    expect(getNurtureMembers()).toEqual([]);
+    expect(getDemoFollowUpMembers()).toEqual([phone]);
   });
 });
