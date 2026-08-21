@@ -41,6 +41,15 @@ mock.module("~/server/speed2Lead/redis", () => ({
   }),
 }));
 
+const smsLog: string[] = [];
+
+mock.module("~/server/speed2Lead/conversationSms", () => ({
+  sendConversationSms: async (_phone: string, message: string) => {
+    smsLog.push(message);
+    return null;
+  },
+}));
+
 const {
   parseSpeed2LeadTestPhones,
   resetSpeed2LeadTestPhonesCacheForTests,
