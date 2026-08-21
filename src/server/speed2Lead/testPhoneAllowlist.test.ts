@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 const deletedKeys: string[] = [];
 const redisStore = new Map<string, unknown>();
 const followUpMembers = new Set<string>();
+const nurtureMembers = new Set<string>();
 
 mock.module("~/server/speed2Lead/redis", () => ({
   getRedis: () => ({
@@ -19,13 +20,24 @@ mock.module("~/server/speed2Lead/redis", () => ({
       if (key === "speed2lead:demo-followups") {
         followUpMembers.add(member);
       }
+      if (key === "speed2lead:nurture-followups") {
+        nurtureMembers.add(member);
+      }
     },
     srem: async (key: string, member: string) => {
       if (key === "speed2lead:demo-followups") {
         followUpMembers.delete(member);
       }
+      if (key === "speed2lead:nurture-followups") {
+        nurtureMembers.delete(member);
+      }
     },
-    smembers: async () => [...followUpMembers],
+    smembers: async (key: string) => {
+      if (key === "speed2lead:nurture-followups") {
+        return [...nurtureMembers];
+      }
+      return [...followUpMembers];
+    },
   }),
 }));
 
@@ -133,6 +145,7 @@ describe("resetSpeed2LeadTestPhone", () => {
     redisStore.set("speed2lead:optout:+15551234567", true);
     redisStore.set("appointment:active:phone:+15551234567", "evt-1");
     followUpMembers.add("+15551234567");
+    nurtureMembers.add("+15551234567");
 
     const result = await resetSpeed2LeadTestPhone("+15551234567");
     expect(result.phone).toBe("+15551234567");
@@ -140,6 +153,7 @@ describe("resetSpeed2LeadTestPhone", () => {
     expect(redisStore.has("speed2lead:optout:+15551234567")).toBe(false);
     expect(redisStore.has("appointment:active:phone:+15551234567")).toBe(false);
     expect(followUpMembers.has("+15551234567")).toBe(false);
+    expect(nurtureMembers.has("+15551234567")).toBe(false);
     expect(redisStore.has("speed2lead:session:+15559998888")).toBe(true);
 
     await expect(resetSpeed2LeadTestPhone("+15559997777")).rejects.toThrow(

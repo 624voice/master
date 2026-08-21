@@ -479,6 +479,19 @@ export function looksLikeSlotSelectionIntent(message: string): boolean {
   return SLOT_SELECTION_INTENT_RE.test(message);
 }
 
+export function hasExplicitExactTimeRequest(
+  message: string,
+  scheduling?: SchedulingState,
+): boolean {
+  const minutes = resolveRequestedMinutesFromMessage(message, scheduling?.offeredSlots ?? []);
+  if (minutes == null) return false;
+  const lower = message.toLowerCase();
+  if (/\b(around|about|roughly|maybe|probably|like|closer|near)\b/.test(lower)) {
+    return /\b(at|do|let'?s|take|book|works?|good|perfect|that|need)\b/.test(lower);
+  }
+  return true;
+}
+
 export function offeredSlotSetKey(slots: string[]): string {
   return [...slots].sort().join("|");
 }

@@ -1,4 +1,4 @@
-import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
+import { formatNaturalAppointmentParts, formatNaturalTime } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { SPEED2LEAD_LLM_MAX_SMS_LENGTH } from "~/server/speed2Lead/config";
 import {
@@ -54,10 +54,10 @@ function containsDisallowedPrice(text: string, allowedTokens: string[]): boolean
 }
 
 function slotTimeVariants(iso: string): string[] {
-  const { time } = formatTimeOnly(iso, CONSULTATION_TIMEZONE);
+  const { time } = formatNaturalTime(iso, CONSULTATION_TIMEZONE);
   const lower = time.toLowerCase();
-  const withoutPeriod = lower.replace(/\s*(am|pm)/, "").trim();
-  return [lower, withoutPeriod, withoutPeriod.replace(":", "")];
+  const withoutMeridiem = lower.replace(/(am|pm)/, "").trim();
+  return [lower, withoutMeridiem, withoutMeridiem.replace(":", "")];
 }
 
 function mentionsUnlistedTime(text: string, allowedSlots: string[]): boolean {
@@ -138,10 +138,35 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
   return { ok: true, text: trimmed };
 }
 
-export function buildBookingConfirmationMessage(start: string, firstName: string): string {
-  const { time, timezoneShort } = formatTimeOnly(start, CONSULTATION_TIMEZONE);
+export function buildBookingConfirmationMessage(
+  start: string,
+  firstName: string,
+  options: {
+    email?: string;
+    sendsCalendarInvite?: boolean;
+    useLifecycleCopy?: boolean;
+  } = {},
+): string {
+  const { weekday, month, day, time, timezoneShort } = formatNaturalAppointmentParts(
+    start,
+    CONSULTATION_TIMEZONE,
+  );
   const tz = timezoneShort ? ` ${timezoneShort}` : "";
-  return `You're all set for ${time}${tz}, ${firstName}.`;
+  const dateLabel = `${weekday}, ${month} ${day}`;
+
+  if (options.useLifecycleCopy) {
+    return "";
+  }
+
+  let message = `Got you booked for ${dateLabel} at ${time}${tz}, ${firstName}.`;
+  if (options.sendsCalendarInvite && options.email) {
+    message += ` I'll send the calendar invite to ${options.email}.`;
+  } else if (options.email) {
+    message += ` I'll send the details to ${options.email}.`;
+  } else {
+    message += ` I'll send a reminder before we meet.`;
+  }
+  return message;
 }
 
 export function calendarLinkFallbackMessage(context: AnyConversationContext): string {

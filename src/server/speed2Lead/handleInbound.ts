@@ -18,6 +18,7 @@ import {
   unknownInboundMessage as demoUnknownInboundMessage,
 } from "~/server/demoSpeed2Lead/messages";
 import { removeDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
+import { removeNurtureFollowUp } from "~/server/speed2Lead/nurtureFollowUp";
 import type { DemoConversationContext } from "~/server/demoSpeed2Lead/types";
 import { advanceContactConversation } from "~/server/contactSpeed2Lead/stateMachine";
 import {
@@ -42,6 +43,7 @@ import {
 } from "~/server/speed2Lead/messages";
 import {
   isGenericAcknowledgment,
+  isPostBookingAcknowledgment,
   isSubstantiveReengagement,
   resolveDispositionAfterInbound,
 } from "~/server/speed2Lead/conversationDisposition";
@@ -82,6 +84,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     await setOptedOut(phone);
     await clearSession(phone);
     await removeDemoFollowUp(phone);
+    await removeNurtureFollowUp(phone);
     await sendConversationSms(phone, optOutConfirmationMessage());
     return;
   }
@@ -94,6 +97,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     session = appendUserMessage(session, body);
     const disposition = resolveDispositionAfterInbound(session, body);
     session = applyDisposition(session, disposition);
+    await removeNurtureFollowUp(phone);
   }
 
   const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session);
@@ -152,6 +156,21 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     return;
   }
 
+  if (
+    (session.disposition === "booked" || session.scheduling?.status === "confirmed") &&
+    isPostBookingAcknowledgment(body) &&
+    !isSubstantiveReengagement(body)
+  ) {
+    await saveSession(session);
+    logSpeed2LeadTestEvent(phone, "outbound_sent", {
+      flow: session.flow ?? "roi",
+      replyLength: 0,
+      handledBy: "post_booking_ack_suppressed",
+      disposition: "booked",
+    });
+    return;
+  }
+
   const useLlmOrchestrator = shouldUseSpeed2LeadLlmForPhone(phone);
   if (
     isSpeed2LeadLlmEnabled() &&
@@ -173,21 +192,35 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
     const orchestrated = await orchestrateInboundTurn(session, body);
     if (orchestrated.handled) {
-      const updated = await sendConversationSms(
-        phone,
-        orchestrated.reply,
-        orchestrated.context,
-      );
-      await saveSession(updated ?? orchestrated.context);
-      logSpeed2LeadTestEvent(phone, "outbound_sent", {
-        flow: orchestrated.context.flow ?? "roi",
-        replyLength: orchestrated.reply.length,
-        handledBy: "llm",
-        durationMs: Date.now() - turnStartedAt,
-        ...summarizeSchedulingState(updated ?? orchestrated.context),
-      });
+      if (orchestrated.reply.trim()) {
+        const updated = await sendConversationSms(
+          phone,
+          orchestrated.reply,
+          orchestrated.context,
+        );
+        await saveSession(updated ?? orchestrated.context);
+        logSpeed2LeadTestEvent(phone, "outbound_sent", {
+          flow: orchestrated.context.flow ?? "roi",
+          replyLength: orchestrated.reply.length,
+          handledBy: "llm",
+          durationMs: Date.now() - turnStartedAt,
+          ...summarizeSchedulingState(updated ?? orchestrated.context),
+        });
+      } else {
+        await saveSession(orchestrated.context);
+        logSpeed2LeadTestEvent(phone, "outbound_sent", {
+          flow: orchestrated.context.flow ?? "roi",
+          replyLength: 0,
+          handledBy: "llm_lifecycle_confirmation_only",
+          durationMs: Date.now() - turnStartedAt,
+          ...summarizeSchedulingState(orchestrated.context),
+        });
+      }
       if (isDemoSession(orchestrated.context) && orchestrated.context.meetingBooked) {
         await removeDemoFollowUp(phone);
+      }
+      if (orchestrated.context.scheduling?.status === "confirmed") {
+        await removeNurtureFollowUp(phone);
       }
       return;
     }

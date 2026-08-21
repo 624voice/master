@@ -7,7 +7,7 @@ import {
   createInitialMemory,
   normalizeSessionMemory,
 } from "~/server/speed2Lead/memory";
-import { isOptedOut, saveSession } from "~/server/speed2Lead/session";
+import { enqueueNurtureFollowUp, registerNurtureOnSession } from "~/server/speed2Lead/nurtureFollowUp";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -64,11 +64,13 @@ export async function startContactSpeed2Lead(input: {
     return;
   }
 
-  const context = createContactSession({
-    ...input,
-    phone,
-    bookingUrl: getBookingUrl(),
-  });
+  const context = registerNurtureOnSession(
+    createContactSession({
+      ...input,
+      phone,
+      bookingUrl: getBookingUrl(),
+    }),
+  );
 
   await registerLeadForLifecycle({
     phone,
@@ -84,4 +86,5 @@ export async function startContactSpeed2Lead(input: {
   const opening = initialMessage(context);
   const updated = await sendConversationSms(phone, opening, context);
   await saveSession(updated ?? context);
+  await enqueueNurtureFollowUp(phone);
 }

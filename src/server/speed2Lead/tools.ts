@@ -32,6 +32,7 @@ export type ToolExecutionState = {
   calendarUnavailable: boolean;
   availabilityAttempts: number;
   bookingAttempts: number;
+  lifecycleConfirmationSent?: boolean;
 };
 
 export function createInitialToolState(): ToolExecutionState {
@@ -287,6 +288,8 @@ async function handleBookAppointment(
     bookingConfirmed: true,
     bookingStart: booked.selectedStart,
     bookingEventId: booked.eventId,
+    lifecycleConfirmationSent:
+      booked.lifecycle.action === "confirmation" && booked.lifecycle.smsSent === true,
   };
 
   let updated = applyConfirmedScheduling(normalized, {

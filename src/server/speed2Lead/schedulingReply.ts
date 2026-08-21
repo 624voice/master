@@ -7,7 +7,8 @@ export type SlotOfferSituation =
   | "after_rejection"
   | "conflict"
   | "narrowed"
-  | "repeat_recovery";
+  | "repeat_recovery"
+  | "exact_unavailable";
 
 export type SlotOfferContext = {
   slots: string[];
@@ -75,6 +76,11 @@ export function buildContextualSlotOfferMessage(context: SlotOfferContext): stri
       return pickVariant(seed, [
         `That time just got taken — I still have ${list}.`,
         `That slot filled up. ${list} are open if either works.`,
+      ]);
+    case "exact_unavailable":
+      return pickVariant(seed, [
+        `That exact time isn't open — closest I have is ${list}.`,
+        `Not open then, but ${list} could work.`,
       ]);
     case "repeat_recovery":
       return pickVariant(seed, [

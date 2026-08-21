@@ -541,7 +541,7 @@ export async function orchestrateInboundTurn(
     calendarLinkAllowed: gateResult.calendarLinkAllowed,
   });
 
-  if (authoritativeReply) {
+  if (authoritativeReply !== null) {
     logOrchestratorEvent("turn_complete", {
       flow: workingContext.flow ?? "roi",
       bookingConfirmed: toolState.bookingConfirmed,

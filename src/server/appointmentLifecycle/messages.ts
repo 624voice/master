@@ -1,6 +1,6 @@
 import type { S2LSource } from "~/server/appointmentLifecycle/types";
 import {
-  formatAppointmentParts,
+  formatNaturalAppointmentParts,
   formatTimeOnly,
   formatTomorrowReference,
 } from "~/server/appointmentLifecycle/formatTime";
@@ -26,7 +26,7 @@ function changeInstructions(): string {
 }
 
 export function bookingConfirmationMessage(ctx: MessageContext): string {
-  const { weekday, month, day, time, timezoneShort } = formatAppointmentParts(
+  const { weekday, month, day, time, timezoneShort } = formatNaturalAppointmentParts(
     ctx.appointmentStart,
     ctx.timezone,
   );
@@ -42,7 +42,7 @@ export function bookingConfirmationMessage(ctx: MessageContext): string {
 }
 
 export function rescheduleConfirmationMessage(ctx: MessageContext): string {
-  const { weekday, month, day, time, timezoneShort } = formatAppointmentParts(
+  const { weekday, month, day, time, timezoneShort } = formatNaturalAppointmentParts(
     ctx.appointmentStart,
     ctx.timezone,
   );

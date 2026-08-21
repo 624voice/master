@@ -6,7 +6,7 @@ const TIMING_PUSHBACK_RE =
   /\b(not right now|not now|i'?m busy|im busy|busy right now|too busy|maybe later|check back later|another time|reach out later|talk later|no time right now|can'?t talk now|cant talk now)\b/i;
 
 const GENERIC_ACK_RE =
-  /^(?:ok(?:ay)?|k|thanks|thank you|thx|got it|sounds good|cool|👍|🙏|sure\.?|yep\.?|yeah\.?|will do|no problem|np)\.?$/i;
+  /^(?:ok(?:ay)?|k|thanks|thank you|thx|got it|sounds good|cool|👍|🙏|sure|yep|yeah|will do|no problem|np)[!.?]*$/i;
 
 const SUBSTANTIVE_REENGAGEMENT_RE =
   /\b(how much|price|pricing|cost|what does|how does|can we|let'?s talk|schedule|book|tomorrow|monday|tuesday|wednesday|thursday|friday|appointment|call me|send me|what about|actually|interested|tell me|explain|walk me through|next week|when can|what time|morning|afternoon|evening|\?)\b/i;
@@ -80,11 +80,44 @@ export function shouldBlockSchedulingTurn(
   return false;
 }
 
+export function isPostBookingAcknowledgment(message: string): boolean {
+  return isGenericAcknowledgment(message);
+}
+
+export function shouldDeferSchedulingForDiscovery(
+  context: AnyConversationContext,
+  inboundMessage: string,
+): boolean {
+  if (context.flow !== "roi") return false;
+  if (context.scheduling?.status === "confirmed") return true;
+  if (context.disposition === "soft_closed" || context.disposition === "declined") return true;
+
+  const signals = analyzeMessage(inboundMessage);
+  if (signals.explicitMeetingReady) return false;
+  if (/\b(let'?s talk|schedule|book|appointment|when works|what time|tomorrow|monday|tuesday|wednesday|thursday|friday)\b/i.test(inboundMessage)) {
+    return false;
+  }
+
+  const facts = context.knownFacts;
+  const painKnown = Boolean(facts?.primaryPain || (context.detectedPains?.length ?? 0) > 0);
+  const vaguePain = signals.vague || !painKnown;
+  const uncertain = signals.vague || signals.fitResponse === "maybe" || signals.fitResponse === "unknown";
+
+  if (!vaguePain && !uncertain && painKnown) return false;
+  if ((facts?.questionsAsked ?? 0) >= 1 && painKnown) return false;
+  if (facts?.fit === "yes" || facts?.urgency === "high") return false;
+
+  return vaguePain || uncertain;
+}
+
 export function shouldTreatAsStrongInterest(
   message: string,
   context: AnyConversationContext,
 ): boolean {
   if (shouldBlockSchedulingTurn(context, message)) {
+    return false;
+  }
+  if (shouldDeferSchedulingForDiscovery(context, message)) {
     return false;
   }
   if (isGenericAcknowledgment(message)) {

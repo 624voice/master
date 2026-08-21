@@ -1,5 +1,6 @@
 import { clearActiveLifecycleForPhone } from "~/server/appointmentLifecycle/store";
 import { removeDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
+import { removeNurtureFollowUp } from "~/server/speed2Lead/nurtureFollowUp";
 import { clearOptedOut, clearSession } from "~/server/speed2Lead/session";
 import { isSpeed2LeadTestPhone } from "~/server/speed2Lead/testPhoneAllowlist";
 import { normalizePhone } from "~/server/sms/phone";
@@ -25,6 +26,7 @@ export async function resetSpeed2LeadTestPhone(
   await clearSession(normalized);
   await clearOptedOut(normalized);
   await removeDemoFollowUp(normalized);
+  await removeNurtureFollowUp(normalized);
   const clearedActiveLifecycle = await clearActiveLifecycleForPhone(normalized);
 
   return {

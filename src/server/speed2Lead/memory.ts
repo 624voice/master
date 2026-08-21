@@ -269,11 +269,14 @@ export function applyConfirmedScheduling<T extends AnyConversationContext>(
   const normalized = normalizeSessionMemory(context);
   return {
     ...normalized,
+    disposition: "booked",
     scheduling: {
       ...normalized.scheduling,
       status: "confirmed",
       selectedStart: booking.selectedStart,
       calendarEventId: booking.calendarEventId,
+      bookingPending: false,
+      offeredSlots: undefined,
     },
     updatedAt: new Date().toISOString(),
   } as T;
