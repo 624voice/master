@@ -76,6 +76,8 @@ export type SchedulingState = {
   lastOfferedSlotKey?: string;
   /** True while a validated slot selection is being booked. */
   bookingPending?: boolean;
+  /** Prior turn emitted a blocked/rejected self-scheduling fallback; recover conversationally. */
+  lastBlockedFallback?: boolean;
 };
 
 export type SessionMemoryFields = {

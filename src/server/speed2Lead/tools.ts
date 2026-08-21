@@ -380,7 +380,6 @@ export async function executeOrchestratorTool(
 }
 
 export function shouldSuggestCalendarLink(state: ToolExecutionState): boolean {
-  if (state.calendarUnavailable) return true;
   if (state.availabilityAttempts >= 2 && state.offeredSlots.length === 0) {
     return true;
   }

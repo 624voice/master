@@ -214,6 +214,28 @@ export function buildBookingConfirmationMessage(
   return message;
 }
 
+const UNAUTHORIZED_SELF_SCHEDULE_COPY_RE =
+  /\b(?:grab|pick|choose|select)\s+(?:a\s+)?time\b|\bself[\s-]?serv(?:ice|icing)\b|\bschedule\s+online\b/i;
+
+const TRAILING_LINK_ANCHOR_RE = /(?:here|below|link)\s*:\s*$/i;
+
+/** Detect outbound copy that offers self-scheduling without a deliverable URL. */
+export function isBrokenSelfSchedulingOutbound(
+  text: string,
+  calendarLinkAllowed: boolean,
+): boolean {
+  if (calendarLinkAllowed || !text.trim()) {
+    return false;
+  }
+  if (/https?:\/\//.test(text)) {
+    return false;
+  }
+  if (UNAUTHORIZED_SELF_SCHEDULE_COPY_RE.test(text) && TRAILING_LINK_ANCHOR_RE.test(text.trim())) {
+    return true;
+  }
+  return UNAUTHORIZED_SELF_SCHEDULE_COPY_RE.test(text);
+}
+
 export function calendarLinkFallbackMessage(context: AnyConversationContext): string {
   const firstName = context.firstName ?? "there";
   return `No problem, ${firstName}. If it's easier, you can grab a time here: ${context.bookingUrl}`;
@@ -223,34 +245,44 @@ export function genericRecoveryMessage(context: AnyConversationContext): string 
   return `Hey ${context.firstName}, Chris with 624Voice — I hit a snag on my side. Mind sending that again?`;
 }
 
-/** Block self-scheduling links when conversational scheduling is active unless explicitly authorized. */
-export function blockPrematureCalendarLink(
+/**
+ * Finalize outbound SMS calendar-link handling.
+ * Returns null when the entire reply must be rejected (never send dangling self-sched copy).
+ */
+export function finalizeCalendarLinkOutbound(
   reply: string,
   context: AnyConversationContext,
   calendarLinkAllowed = false,
-): string {
-  if (calendarLinkAllowed || !reply.trim()) {
-    return reply;
+): string | null {
+  if (!reply.trim()) {
+    return null;
   }
-
-  const scheduling = context.scheduling;
-  const conversationalSchedulingActive =
-    context.orchestratorManagedQuestions === true ||
-    scheduling?.status === "slots_offered" ||
-    scheduling?.status === "confirmed" ||
-    (scheduling?.availabilityAttempts ?? 0) > 0 ||
-    Boolean(scheduling?.centralDate) ||
-    Boolean(scheduling?.partOfDay && scheduling.partOfDay !== "full_day");
-
-  if (!conversationalSchedulingActive) {
-    return reply;
+  if (calendarLinkAllowed) {
+    return reply.trim();
   }
 
   let sanitized = reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
   if (context.bookingUrl && sanitized.includes(context.bookingUrl)) {
     sanitized = sanitized.replace(context.bookingUrl, "").replace(/\s{2,}/g, " ").trim();
   }
+
+  if (isBrokenSelfSchedulingOutbound(sanitized, false)) {
+    return null;
+  }
+  if (UNAUTHORIZED_SELF_SCHEDULE_COPY_RE.test(sanitized)) {
+    return null;
+  }
+
   return sanitized;
+}
+
+/** @deprecated Prefer finalizeCalendarLinkOutbound — rejects broken copy instead of sanitizing URLs only. */
+export function blockPrematureCalendarLink(
+  reply: string,
+  context: AnyConversationContext,
+  calendarLinkAllowed = false,
+): string {
+  return finalizeCalendarLinkOutbound(reply, context, calendarLinkAllowed) ?? "";
 }
 
 export function llmUnavailableFallbackMessage(context: AnyConversationContext): string {

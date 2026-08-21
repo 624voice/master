@@ -3,7 +3,7 @@ import { isSpeed2LeadLlmEnabled } from "~/server/speed2Lead/config";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { orchestrateInboundTurn, type OrchestratorDeps } from "~/server/speed2Lead/orchestrator";
 import { isActiveV2Scheduling } from "~/server/speed2Lead/schedulingController";
-import { genericRecoveryMessage, blockPrematureCalendarLink } from "~/server/speed2Lead/guardrails";
+import { genericRecoveryMessage, finalizeCalendarLinkOutbound } from "~/server/speed2Lead/guardrails";
 import {
   logSpeed2LeadTestEvent,
   summarizeSchedulingState,
@@ -199,10 +199,12 @@ export async function handleInboundSms(
     const orchestrated = await orchestrateInboundTurn(session, body, testDeps);
     if (orchestrated.handled) {
       if (orchestrated.reply.trim()) {
-        const outbound = blockPrematureCalendarLink(
-          orchestrated.reply,
-          orchestrated.context,
-        );
+        const outbound =
+          finalizeCalendarLinkOutbound(
+            orchestrated.reply,
+            orchestrated.context,
+            orchestrated.calendarLinkAllowed ?? false,
+          ) ?? genericRecoveryMessage(orchestrated.context);
         const updated = await sendConversationSms(
           phone,
           outbound,
@@ -235,10 +237,12 @@ export async function handleInboundSms(
       return;
     }
 
-    const recoveryReply = blockPrematureCalendarLink(
-      orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context),
-      orchestrated.context,
-    );
+    const recoveryReply =
+      finalizeCalendarLinkOutbound(
+        orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context),
+        orchestrated.context,
+        orchestrated.calendarLinkAllowed ?? false,
+      ) ?? genericRecoveryMessage(orchestrated.context);
     logSpeed2LeadTestEvent(phone, "rules_fallback", {
       reason: orchestrated.reason,
       flow: session.flow ?? "roi",

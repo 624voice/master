@@ -18,11 +18,12 @@ import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
   calendarLinkFallbackMessage,
+  finalizeCalendarLinkOutbound,
   genericRecoveryMessage,
   validateOutboundSms,
   type GuardrailContext,
 } from "~/server/speed2Lead/guardrails";
-import { applyDisposition, normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import { applyDisposition, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
 import {
   isGenericAcknowledgment,
   isSubstantiveReengagement,
@@ -34,12 +35,14 @@ import {
   enforceSchedulingGate,
   hydrateToolStateFromContext,
   isActiveV2Scheduling,
+  isAvailabilityFetchAuthorized,
   persistSchedulingToolState,
   planSchedulingGate,
   requiresDeterministicSchedulingCompletion,
   resolveAuthoritativeSchedulingReply,
   selectOutboundSchedulingReply,
   stripUnauthorizedCalendarLink,
+  type SchedulingGateResult,
 } from "~/server/speed2Lead/schedulingController";
 import {
   logSpeed2LeadTestEvent,
@@ -60,6 +63,7 @@ export type OrchestratorTurnResult =
       handled: true;
       reply: string;
       context: AnyConversationContext;
+      calendarLinkAllowed?: boolean;
     }
   | {
       handled: false;
@@ -67,6 +71,7 @@ export type OrchestratorTurnResult =
       reason: string;
       context: AnyConversationContext;
       recoveryReply?: string;
+      calendarLinkAllowed?: boolean;
     };
 
 export type ModelRunnerInput = {
@@ -163,7 +168,7 @@ function resolveFinalReply(
   toolState: ToolExecutionState,
   calendarLinkAllowed = false,
 ): string {
-  const sanitized = stripUnauthorizedCalendarLink(draft, calendarLinkAllowed);
+  const sanitized = stripUnauthorizedCalendarLink(draft, calendarLinkAllowed, context);
   if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
     return calendarLinkFallbackMessage(context);
   }
@@ -313,6 +318,46 @@ function logTestTurnComplete(
   });
 }
 
+function markBlockedFallback(context: AnyConversationContext): AnyConversationContext {
+  return applySchedulingMeta(context, { lastBlockedFallback: true });
+}
+
+function clearBlockedFallback(context: AnyConversationContext): AnyConversationContext {
+  if (!context.scheduling?.lastBlockedFallback) {
+    return context;
+  }
+  return applySchedulingMeta(context, { lastBlockedFallback: false });
+}
+
+function finalizeOrchestratorOutbound(
+  reply: string,
+  context: AnyConversationContext,
+  calendarLinkAllowed: boolean,
+  gateResult?: SchedulingGateResult,
+): { reply: string | null; context: AnyConversationContext } {
+  const finalized = finalizeCalendarLinkOutbound(reply, context, calendarLinkAllowed);
+  if (finalized) {
+    return { reply: finalized, context: clearBlockedFallback(context) };
+  }
+
+  let updated = markBlockedFallback(context);
+  if (gateResult) {
+    const recovery = buildDeterministicRecoveryReply({
+      context: updated,
+      toolState: gateResult.toolState,
+      gateResult,
+    });
+    if (recovery) {
+      const recovered = finalizeCalendarLinkOutbound(recovery, updated, false);
+      if (recovered) {
+        return { reply: recovered, context: clearBlockedFallback(updated) };
+      }
+    }
+  }
+
+  return { reply: null, context: updated };
+}
+
 export async function orchestrateInboundTurn(
   session: AnyConversationContext,
   inboundMessage: string,
@@ -417,6 +462,18 @@ export async function orchestrateInboundTurn(
         });
 
         if (call.name === "get_availability") {
+          if (!isAvailabilityFetchAuthorized(gatePlan)) {
+            conversationInput.push({
+              type: "function_call_output",
+              call_id: call.call_id,
+              output: JSON.stringify({
+                ok: false,
+                reason: "not_authorized",
+                detail: "Ask what day or morning/afternoon works before checking availability.",
+              }),
+            });
+            continue;
+          }
           llmCalledGetAvailability = true;
         }
         if (call.name === "book_appointment") {
@@ -507,12 +564,26 @@ export async function orchestrateInboundTurn(
         toolState,
         gateResult.activeRequestKey,
       );
-      logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-        handled: true,
-        authoritativeScheduling: true,
-        openAiErrorRecovery: true,
-      });
-      return { handled: true, reply: recovery, context: workingContext };
+      const outbound = finalizeOrchestratorOutbound(
+        recovery,
+        workingContext,
+        gateResult.calendarLinkAllowed,
+        gateResult,
+      );
+      workingContext = outbound.context;
+      if (outbound.reply) {
+        logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+          handled: true,
+          authoritativeScheduling: true,
+          openAiErrorRecovery: true,
+        });
+        return {
+          handled: true,
+          reply: outbound.reply,
+          context: workingContext,
+          calendarLinkAllowed: gateResult.calendarLinkAllowed,
+        };
+      }
     }
 
     logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
@@ -598,11 +669,29 @@ export async function orchestrateInboundTurn(
       handled: true,
       authoritativeScheduling: true,
     });
-    return {
-      handled: true,
-      reply: authoritativeReply,
-      context: workingContext,
-    };
+    if (!authoritativeReply.trim()) {
+      return {
+        handled: true,
+        reply: "",
+        context: workingContext,
+        calendarLinkAllowed: gateResult.calendarLinkAllowed,
+      };
+    }
+    const outbound = finalizeOrchestratorOutbound(
+      authoritativeReply,
+      workingContext,
+      gateResult.calendarLinkAllowed,
+      gateResult,
+    );
+    workingContext = outbound.context;
+    if (outbound.reply) {
+      return {
+        handled: true,
+        reply: outbound.reply,
+        context: workingContext,
+        calendarLinkAllowed: gateResult.calendarLinkAllowed,
+      };
+    }
   }
 
   const composedDraft = selectOutboundSchedulingReply({
@@ -639,6 +728,17 @@ export async function orchestrateInboundTurn(
     });
   }
 
+  if (validated) {
+    const outbound = finalizeOrchestratorOutbound(
+      validated,
+      workingContext,
+      gateResult.calendarLinkAllowed,
+      gateResult,
+    );
+    workingContext = outbound.context;
+    validated = outbound.reply;
+  }
+
   if (!validated) {
     const recoveryCandidate =
       gateResult.forcedReply ??
@@ -652,21 +752,31 @@ export async function orchestrateInboundTurn(
         toolState,
       });
       if (recoveryPass.ok) {
-        logOrchestratorEvent("turn_complete", {
-          flow: workingContext.flow ?? "roi",
-          bookingConfirmed: toolState.bookingConfirmed,
-          offeredSlots: toolState.offeredSlots.length,
-          v2SchedulingRecovery: true,
-        });
-        logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
-          handled: true,
-          v2SchedulingRecovery: true,
-        });
-        return {
-          handled: true,
-          reply: recoveryPass.text,
-          context: workingContext,
-        };
+        const outbound = finalizeOrchestratorOutbound(
+          recoveryPass.text,
+          workingContext,
+          gateResult.calendarLinkAllowed,
+          gateResult,
+        );
+        workingContext = outbound.context;
+        if (outbound.reply) {
+          logOrchestratorEvent("turn_complete", {
+            flow: workingContext.flow ?? "roi",
+            bookingConfirmed: toolState.bookingConfirmed,
+            offeredSlots: toolState.offeredSlots.length,
+            v2SchedulingRecovery: true,
+          });
+          logTestTurnComplete(context.phone, workingContext.flow ?? "roi", turnStartedAt, workingContext, {
+            handled: true,
+            v2SchedulingRecovery: true,
+          });
+          return {
+            handled: true,
+            reply: outbound.reply,
+            context: workingContext,
+            calendarLinkAllowed: gateResult.calendarLinkAllowed,
+          };
+        }
       }
     }
 
@@ -689,6 +799,7 @@ export async function orchestrateInboundTurn(
         context: workingContext,
         recoveryReply:
           recoveryCandidate ?? genericRecoveryMessage(workingContext),
+        calendarLinkAllowed: gateResult.calendarLinkAllowed,
       };
     }
 
@@ -707,6 +818,7 @@ export async function orchestrateInboundTurn(
       fallbackToRules: true,
       reason: "guardrail_or_empty_reply",
       context: workingContext,
+      calendarLinkAllowed: gateResult.calendarLinkAllowed,
     };
   }
 
@@ -727,5 +839,6 @@ export async function orchestrateInboundTurn(
     handled: true,
     reply: validated,
     context: workingContext,
+    calendarLinkAllowed: gateResult.calendarLinkAllowed,
   };
 }

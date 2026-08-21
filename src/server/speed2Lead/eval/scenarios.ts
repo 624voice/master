@@ -230,6 +230,41 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     ],
   },
   {
+    id: "roi-discovery-to-scheduling",
+    category: "roi",
+    name: "ROI operational answer transitions to conversational scheduling",
+    phone: evalPhone("0052"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0052"), {
+        orchestratorManagedQuestions: true,
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0052"),
+          flow: "roi",
+          businessName: "Test Plumbing",
+          customerGoal: "Slow response",
+          primaryPain: "Slow response",
+          fit: "yes",
+          questionsAsked: 1,
+        },
+        messages: [
+          {
+            role: "assistant",
+            content: "What's your process now when a new lead calls or texts?",
+            at: now.toISOString(),
+          },
+        ],
+      }),
+    openingMessage: (s) => roiOpening(s as ConversationContext),
+    customerTurns: ["We just try to get back to them asap", "Tuesday afternoon works"],
+    expectations: {
+      shouldReachScheduling: true,
+      maxQuestionsPerTurn: 1,
+      forbiddenPatterns: [/grab a time here/i, /https?:\/\//],
+    },
+    presetSlots: tuesdayAfternoonSlots,
+  },
+  {
     id: "roi-objection-price",
     category: "roi",
     name: "ROI price objection",

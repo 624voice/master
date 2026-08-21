@@ -6,6 +6,7 @@ import {
   buildBookingConfirmationMessage,
   buildContextualSlotOfferMessage,
   calendarLinkFallbackMessage,
+  finalizeCalendarLinkOutbound,
   genericRecoveryMessage,
   validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
@@ -51,6 +52,7 @@ import {
   slotsCompatibleWithSchedulingState,
 } from "~/server/speed2Lead/schedulingContext";
 import { shouldBlockSchedulingTurn, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
+import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import { executeOrchestratorTool, shouldSuggestCalendarLink, type ToolExecutionState } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
@@ -126,8 +128,29 @@ function detectStrongInterest(
   if (context && !shouldTreatAsStrongInterest(message, context)) {
     return false;
   }
-  if (knownFacts.urgency === "high" || knownFacts.fit === "yes") return true;
-  return STRONG_INTEREST_RE.test(message);
+  if (context?.scheduling?.lastBlockedFallback) {
+    return false;
+  }
+
+  const signals = analyzeMessage(message);
+  if (signals.negativeReaction || signals.objection) {
+    return false;
+  }
+
+  if (STRONG_INTEREST_RE.test(message)) return true;
+  if (knownFacts.urgency === "high") return true;
+
+  const painKnown = Boolean(knownFacts.primaryPain);
+  const questionsAsked = knownFacts.questionsAsked ?? 0;
+  if (painKnown && questionsAsked >= 1 && signals.hasSubstance) {
+    return true;
+  }
+
+  if (knownFacts.fit === "yes" && painKnown && signals.hasSubstance) {
+    return true;
+  }
+
+  return false;
 }
 
 function detectSchedulingIntent(
@@ -553,6 +576,17 @@ export function planSchedulingGate(args: {
     };
   }
 
+  if (context.scheduling?.lastBlockedFallback) {
+    return {
+      action: { type: "ask_preference" },
+      schedulingIntent: true,
+      strongInterest: true,
+      explicitCalendarLinkRequest: detectExplicitCalendarLinkRequest(inboundMessage),
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
+
   const scheduling = context.scheduling;
 
   if (scheduling?.status === "confirmed") {
@@ -796,11 +830,20 @@ export function allowCalendarLinkFallback(args: {
   toolState: ToolExecutionState;
 }): boolean {
   if (args.plan.explicitCalendarLinkRequest) return true;
-  if (args.toolState.calendarUnavailable) return true;
   if (args.toolState.availabilityAttempts >= 2 && args.toolState.offeredSlots.length === 0) {
     return true;
   }
   if (args.toolState.bookingAttempts >= 2 && !args.toolState.bookingConfirmed) {
+    return true;
+  }
+  return false;
+}
+
+export function isAvailabilityFetchAuthorized(plan: SchedulingGatePlan): boolean {
+  if (plan.action.type === "get_availability" || plan.action.type === "get_availability_for_request") {
+    return true;
+  }
+  if (plan.action.type === "book_appointment") {
     return true;
   }
   return false;
@@ -952,7 +995,10 @@ export function validateDeterministicSchedulingReply(
   toolState: ToolExecutionState,
   calendarLinkAllowed: boolean,
 ): { ok: true; text: string } | { ok: false; reason: string } {
-  const sanitized = stripUnauthorizedCalendarLink(text, calendarLinkAllowed);
+  const sanitized = finalizeCalendarLinkOutbound(text, context, calendarLinkAllowed);
+  if (!sanitized) {
+    return { ok: false, reason: "blocked_self_scheduling_copy" };
+  }
   return validateOutboundSms(sanitized, { session: context, toolState });
 }
 
@@ -977,17 +1023,6 @@ export function resolveAuthoritativeSchedulingReply(args: {
 
   if (toolState.bookingConfirmed && toolState.lifecycleConfirmationSent) {
     return "";
-  }
-
-  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
-    const linkReply = calendarLinkFallbackMessage(context);
-    const linkPass = validateDeterministicSchedulingReply(
-      linkReply,
-      context,
-      toolState,
-      calendarLinkAllowed,
-    );
-    if (linkPass.ok) return linkPass.text;
   }
 
   if (gateResult.gateApplied && gateResult.forcedReply) {
@@ -1077,6 +1112,17 @@ export function resolveAuthoritativeSchedulingReply(args: {
     if (retryPass.ok) return retryPass.text;
   }
 
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
+    const linkReply = calendarLinkFallbackMessage(context);
+    const linkPass = validateDeterministicSchedulingReply(
+      linkReply,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (linkPass.ok) return linkPass.text;
+  }
+
   return null;
 }
 
@@ -1110,7 +1156,7 @@ function buildProviderFailureReply(
   if (calendarLinkAllowed) {
     return calendarLinkFallbackMessage(context);
   }
-  return genericRecoveryMessage(context);
+  return formatAskPreference(context.firstName, context.scheduling);
 }
 
 function formatAskPartOfDay(firstName: string): string {
@@ -1229,10 +1275,11 @@ export async function enforceSchedulingGate(args: {
   let bookingAttempted = args.llmCalledBookAppointment;
   let activeRequestKey = context.scheduling?.activeRequestKey;
 
-  const calendarLinkAllowed = allowCalendarLinkFallback({
-    plan: args.plan,
-    toolState,
-  });
+  const calendarLinkAllowedNow = () =>
+    allowCalendarLinkFallback({
+      plan: args.plan,
+      toolState,
+    });
 
   const action = args.plan.action;
 
@@ -1255,7 +1302,7 @@ export async function enforceSchedulingGate(args: {
       toolState,
       forcedReply,
       gateApplied,
-      calendarLinkAllowed,
+      calendarLinkAllowed: calendarLinkAllowedNow(),
       availabilityFetched,
       bookingAttempted,
       activeRequestKey,
@@ -1414,7 +1461,7 @@ export async function enforceSchedulingGate(args: {
       }
     } else if (gateApplied && slots.length === 0) {
       if (toolState.calendarUnavailable) {
-        forcedReply = buildProviderFailureReply(context, calendarLinkAllowed);
+        forcedReply = buildProviderFailureReply(context, calendarLinkAllowedNow());
       } else if (hasKnownSchedulingDay(context.scheduling) && hasKnownSchedulingPartOfDay(context.scheduling)) {
         forcedReply = `I don't have anything open in that window — want to try another time on that day?`;
       } else {
@@ -1544,9 +1591,16 @@ function mentionsUnlistedTimes(reply: string, allowedSlots: string[]): boolean {
   });
 }
 
-export function stripUnauthorizedCalendarLink(reply: string, allowed: boolean): string {
-  if (allowed) return reply;
-  return reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
+export function stripUnauthorizedCalendarLink(
+  reply: string,
+  allowed: boolean,
+  context?: AnyConversationContext,
+): string {
+  if (!context) {
+    if (allowed) return reply;
+    return reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
+  }
+  return finalizeCalendarLinkOutbound(reply, context, allowed) ?? "";
 }
 
 export function selectOutboundSchedulingReply(args: {

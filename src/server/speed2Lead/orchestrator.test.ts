@@ -624,7 +624,7 @@ describe("speed2Lead orchestrator behavioral tests", () => {
     expect(result.reply.toLowerCase()).toContain("taken");
   });
 
-  test("Calendar failure can produce calendar-link fallback", async () => {
+  test("Calendar failure asks conversationally on first attempt", async () => {
     availabilityMode = "unconfigured";
 
     const runModel = createScriptedModel([
@@ -643,7 +643,40 @@ describe("speed2Lead orchestrator behavioral tests", () => {
 
     const result = await orchestrateInboundTurn(
       roiSession(),
-      "Can we schedule?",
+      "Tuesday afternoon works",
+      { runModel, now },
+    );
+
+    expect(result.handled).toBe(true);
+    if (!result.handled) return;
+    expect(result.reply).not.toContain("calendar.app.google/test");
+    expect(result.reply.toLowerCase()).toMatch(/what day|morning or afternoon|try another time/);
+  });
+
+  test("Repeated calendar failure can produce authorized calendar-link fallback", async () => {
+    availabilityMode = "unconfigured";
+
+    const runModel = createScriptedModel([
+      () => ({
+        output: toolCall("get_availability", {
+          centralDate: "2026-08-26",
+          partOfDay: "afternoon",
+        }),
+        outputText: "",
+      }),
+    ]);
+
+    const result = await orchestrateInboundTurn(
+      roiSession({
+        scheduling: {
+          status: "idle",
+          centralDate: "2026-08-26",
+          partOfDay: "afternoon",
+          availabilityAttempts: 1,
+          calendarUnavailable: true,
+        },
+      }),
+      "Tuesday afternoon works",
       { runModel, now },
     );
 

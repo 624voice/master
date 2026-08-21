@@ -410,7 +410,7 @@ describe("behavioral E2E A-P through orchestrateInboundTurn", () => {
     expect(bookingCalls).toBe(2);
   });
 
-  test("L calendar failure allows calendar link fallback", async () => {
+  test("L first calendar failure asks conversationally instead of calendar link", async () => {
     availabilityMode = "unconfigured";
 
     const turn = await runTurn(
@@ -436,8 +436,44 @@ describe("behavioral E2E A-P through orchestrateInboundTurn", () => {
       }),
     );
 
-    expect(turn.reply).toContain("calendar.app.google");
+    expect(turn.reply).not.toContain("calendar.app.google");
+    expect(turn.reply.toLowerCase()).toMatch(/what day|morning or afternoon|try another time/);
     expect(turn.session.scheduling?.calendarUnavailable).toBe(true);
+  });
+
+  test("L repeated calendar failure allows authorized calendar link fallback", async () => {
+    availabilityMode = "unconfigured";
+
+    const turn = await runTurn(
+      roiSession({
+        knownFacts: { ...roiSession().knownFacts!, fit: "yes" },
+        scheduling: {
+          status: "idle",
+          centralDate: fridayDateString(),
+          partOfDay: "afternoon",
+          availabilityAttempts: 1,
+          calendarUnavailable: true,
+        },
+      }),
+      "Friday afternoon",
+      async () => ({
+        output: [
+          {
+            type: "function_call" as const,
+            call_id: "avail-fail-2",
+            name: "get_availability",
+            arguments: JSON.stringify({
+              centralDate: fridayDateString(),
+              partOfDay: "afternoon",
+              maxSlots: 3,
+            }),
+          },
+        ],
+        outputText: "",
+      }),
+    );
+
+    expect(turn.reply).toContain("calendar.app.google");
   });
 
   test("M post-book acknowledgment does not restart scheduling", async () => {

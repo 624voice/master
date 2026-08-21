@@ -206,10 +206,10 @@ describe("scheduling orchestration invariants", () => {
     expect(shouldSuggestCalendarLink(state)).toBe(false);
   });
 
-  test("calendar link allowed when calendar unavailable", () => {
+  test("calendar link not suggested on first calendar unavailable signal", () => {
     const state = createInitialToolState();
     state.calendarUnavailable = true;
-    expect(shouldSuggestCalendarLink(state)).toBe(true);
+    expect(shouldSuggestCalendarLink(state)).toBe(false);
   });
 });
 

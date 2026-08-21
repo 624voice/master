@@ -147,7 +147,7 @@ describe("schedulingController planning", () => {
     ).toBe(false);
   });
 
-  test("Calendar link is allowed when calendar API is unavailable", () => {
+  test("Calendar link is not allowed on first calendar API failure", () => {
     const plan = planSchedulingGate({
       inboundMessage: "Yeah let's talk",
       context: roiSession(),
@@ -158,7 +158,7 @@ describe("schedulingController planning", () => {
         plan,
         toolState: { ...createInitialToolState(), calendarUnavailable: true },
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test("Selecting an offered slot plans booking", () => {
