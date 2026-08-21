@@ -850,19 +850,9 @@ function prepareToolStateForRequest(
 
 function recordAvailabilityAttempt(
   toolState: ToolExecutionState,
-  slotsReturned: number,
+  _slotsReturned: number,
 ): ToolExecutionState {
-  if (slotsReturned > 0) {
-    return {
-      ...toolState,
-      availabilityAttempts: 0,
-      bookingFailed: false,
-    };
-  }
-  return {
-    ...toolState,
-    availabilityAttempts: toolState.availabilityAttempts + 1,
-  };
+  return { ...toolState, bookingFailed: false };
 }
 
 export function validateDeterministicSchedulingReply(
@@ -1353,12 +1343,17 @@ export async function enforceSchedulingGate(args: {
 
   context = persistSchedulingToolState(context, toolState, activeRequestKey);
 
+  const finalCalendarLinkAllowed = allowCalendarLinkFallback({
+    plan: args.plan,
+    toolState,
+  });
+
   return {
     context,
     toolState,
     forcedReply,
     gateApplied,
-    calendarLinkAllowed,
+    calendarLinkAllowed: finalCalendarLinkAllowed,
     availabilityFetched,
     bookingAttempted,
     activeRequestKey,

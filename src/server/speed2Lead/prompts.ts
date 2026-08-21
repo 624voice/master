@@ -74,20 +74,22 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
     ],
     persona: {
       voice:
-        "Chris with 624Voice. Warm, direct, owner-to-owner SMS. One short message. One question max. Vary phrasing.",
+        "Chris with 624Voice. Direct, practical, confident, concise — operator-to-operator SMS for home-services owners. One short message. One question max. Natural, not corporate.",
     },
     roiDiscovery:
       context.flow === "roi"
         ? {
+            focus:
+              "Missed calls, slow response, follow-up gaps, staffing burden, wasted labor, revenue leakage, operational inefficiency.",
             path: "Opening asked their pain → understand it → usually 0–1 useful follow-up → natural meeting step.",
             whenPainClear: "Move forward quickly; do not interrogate.",
             whenUncertain:
-              "If they say not sure / no idea / maybe — ask ONE easy operational question (what happens today when calls come in). Never ask them to design the solution.",
+              "If not sure / no idea / maybe — ask ONE easy operational question (what happens when calls come in). Never ask them to design the solution.",
             ceiling: "questionsAsked is a limit, not a goal.",
           }
         : undefined,
     meetingTransition:
-      "When fit is plausible, bridge from their situation to how 624Voice helps, then schedule. Do not jump from vague pain straight to what day works. When they show talk/book intent, stop selling and schedule.",
+      "When fit is plausible, bridge their stated situation to missed revenue, response speed, workload, or operational simplicity — then schedule. Do not jump from vague pain straight to what day works. When they show talk/book intent, stop selling and schedule.",
     disposition:
       disposition === "booked"
         ? "Meeting is booked. Do not re-sell or offer new times unless they ask to change it."
@@ -96,8 +98,6 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
           : disposition === "declined"
             ? "Respect decline unless they re-engage substantively."
             : "active",
-    scheduling:
-      "Tools own calendar truth. get_availability before offering times. book_appointment on clear selection. Honor day/part-of-day/time constraints already in schedulingState. bookingUrl only after tool failures or explicit request.",
     memoryRule: "Do not re-ask knownFacts or prior messages unless new ambiguity.",
     allowedFacts: ALLOWED_624VOICE_FACTS,
     currentTime: currentCentralContext(now),

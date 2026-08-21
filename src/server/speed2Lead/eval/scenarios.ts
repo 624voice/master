@@ -728,4 +728,80 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     ],
     expectations: { forbiddenPatterns: [/\$\s?\d+\/mo/i, /\bwithin\s+\d+\s+weeks/i] },
   },
+  {
+    id: "stress-typo-selection",
+    category: "edge",
+    name: "Stress noisy typo slot selection",
+    phone: evalPhone("0501"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0501"), {
+        scheduling: {
+          status: "slots_offered",
+          offeredSlots: slotsForWeekday(now, "Wed", [15]),
+          centralDate: inferAvailabilityInputFromMessage("Wednesday afternoon", now)?.centralDate,
+          partOfDay: "afternoon",
+        },
+      }),
+    customerTurns: ["3pm s good"],
+    expectations: { shouldConfirmBooking: true },
+    presetSlots: (now) => slotsForWeekday(now, "Wed", [15]),
+  },
+  {
+    id: "stress-unauthorized-book",
+    category: "edge",
+    name: "Stress refinement blocks premature booking",
+    phone: evalPhone("0502"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0502"), {
+        scheduling: {
+          status: "slots_offered",
+          offeredSlots: slotsForWeekday(now, "Wed", [13, 14, 16]),
+        },
+      }),
+    customerTurns: ["Anything around 4:30 instead?"],
+    expectations: { mustNotConfirmBooking: true, shouldOfferSlots: true },
+    presetSlots: (now) => [
+      ...slotsForWeekday(now, "Wed", [13, 14, 16]),
+      ...slotsForWeekday(now, "Wed", [16, 30, 17]),
+    ],
+  },
+  {
+    id: "stress-premature-calendar-link",
+    category: "edge",
+    name: "Stress healthy calendar resists link fallback",
+    phone: evalPhone("0503"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0503"), {
+        scheduling: {
+          status: "idle",
+          centralDate: inferAvailabilityInputFromMessage("Friday afternoon", now)?.centralDate,
+          partOfDay: "afternoon",
+        },
+      }),
+    customerTurns: ["Friday afternoon"],
+    expectations: {
+      shouldOfferSlots: true,
+      forbiddenPatterns: [/calendar\.app\.google/i],
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
+  },
+  {
+    id: "stress-pending-work-reply",
+    category: "edge",
+    name: "Stress selection completes without pending-work SMS",
+    phone: evalPhone("0504"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0504"), {
+        scheduling: {
+          status: "slots_offered",
+          offeredSlots: slotsForWeekday(now, "Wed", [15]),
+        },
+      }),
+    customerTurns: ["3 is good"],
+    expectations: {
+      shouldConfirmBooking: true,
+      forbiddenPatterns: [/booking that now/i, /let me check/i, /reply with exactly/i],
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Wed", [15]),
+  },
 ];

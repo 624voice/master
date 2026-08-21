@@ -195,10 +195,12 @@ async function handleGetAvailability(
     now,
   });
 
-  state = { ...state, availabilityAttempts: state.availabilityAttempts + 1 };
-
   if (!availability.ok) {
-    state = { ...state, calendarUnavailable: availability.reason === "not_configured" };
+    state = {
+      ...state,
+      calendarUnavailable: availability.reason === "not_configured",
+      availabilityAttempts: state.availabilityAttempts + 1,
+    };
     return {
       result: {
         ok: false,
@@ -216,7 +218,11 @@ async function handleGetAvailability(
     ...rankPreferences,
     maxOffer: maxSlots,
   });
-  state = { ...state, offeredSlots: offered };
+  state = {
+    ...state,
+    offeredSlots: offered,
+    availabilityAttempts: offered.length > 0 ? 0 : state.availabilityAttempts + 1,
+  };
 
   return {
     result: {
