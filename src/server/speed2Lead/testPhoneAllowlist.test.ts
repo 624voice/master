@@ -1,5 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach, mock } from "bun:test";
 import { readFileSync } from "node:fs";
+import type { ConversationContext } from "~/server/speed2Lead/types";
 
 const deletedKeys: string[] = [];
 const redisStore = new Map<string, unknown>();
@@ -58,7 +59,14 @@ const {
   isSpeed2LeadTestPhoneAllowlistActive,
 } = await import("~/server/speed2Lead/testPhoneAllowlist");
 const { resetSpeed2LeadTestPhone } = await import("~/server/speed2Lead/resetTestPhone");
-const { processNurtureFollowUps } = await import("~/server/speed2Lead/nurtureFollowUp");
+const {
+  enqueueNurtureFollowUp,
+  processNurtureFollowUps,
+  registerNurtureOnSession,
+  removeNurtureFollowUp,
+  shouldSendNurtureFollowUp,
+} = await import("~/server/speed2Lead/nurtureFollowUp");
+const { saveSession } = await import("~/server/speed2Lead/session");
 const {
   logSpeed2LeadTestEvent,
   maskPhoneForLog,
@@ -77,6 +85,8 @@ beforeEach(() => {
   deletedKeys.length = 0;
   redisStore.clear();
   followUpMembers.clear();
+  nurtureMembers.clear();
+  smsLog.length = 0;
 });
 
 afterEach(() => {
@@ -223,5 +233,128 @@ describe("structured test logging", () => {
     expect(parsed.firstName).toBeUndefined();
     expect(parsed.messageLength).toBe(12);
     expect(JSON.stringify(parsed)).not.toContain("sk-secret");
+  });
+});
+
+function roiNurtureSession(
+  phone: string,
+  overrides: Partial<ConversationContext> = {},
+): ConversationContext {
+  return {
+    flow: "roi",
+    phone,
+    firstName: "Alex",
+    businessName: "Test Plumbing",
+    annualOpportunity: "$120,000",
+    primaryOpportunity: "Missed calls",
+    reportUrl: "https://624voice.com/report/test",
+    bookingUrl: "https://calendar.app.google/test",
+    state: "awaiting_problem",
+    messages: [],
+    knownFacts: {
+      firstName: "Alex",
+      phone,
+      flow: "roi",
+      questionsAsked: 0,
+    },
+    scheduling: { status: "idle" },
+    updatedAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+describe("nurture follow-up cron safety", () => {
+  test("registers and sends stage 1 once when due", async () => {
+    const phone = "+15551234567";
+    const started = new Date("2026-08-21T10:00:00.000Z");
+    const due = new Date(started.getTime() + 46 * 60 * 1000);
+    const session = registerNurtureOnSession(
+      roiNurtureSession(phone, {
+        nurtureStage: 0,
+        nurtureStartedAt: started.toISOString(),
+        nurtureNextAt: due.toISOString(),
+      }),
+    );
+    await saveSession(session);
+    await enqueueNurtureFollowUp(phone);
+
+    expect(await processNurtureFollowUps(due)).toBe(1);
+    expect(smsLog.length).toBe(1);
+    expect(await processNurtureFollowUps(due)).toBe(0);
+  });
+
+  test("does not send after customer reply", () => {
+    const due = new Date();
+    const session = roiNurtureSession("+15551234567", {
+      nurtureStage: 0,
+      nurtureNextAt: due.toISOString(),
+      nurtureStartedAt: due.toISOString(),
+      messages: [{ role: "user", content: "Hey", at: due.toISOString() }],
+    });
+    expect(shouldSendNurtureFollowUp(session, due)).toBe(false);
+  });
+
+  test("does not send for confirmed booking", async () => {
+    const phone = "+15551234567";
+    const due = new Date();
+    const session = roiNurtureSession(phone, {
+      nurtureStage: 0,
+      nurtureNextAt: due.toISOString(),
+      nurtureStartedAt: due.toISOString(),
+      scheduling: { status: "confirmed", selectedStart: due.toISOString(), calendarEventId: "evt-1" },
+    });
+    await saveSession(session);
+    await enqueueNurtureFollowUp(phone);
+    expect(await processNurtureFollowUps(due)).toBe(0);
+  });
+
+  test("does not send for soft_closed disposition", () => {
+    const due = new Date();
+    const session = roiNurtureSession("+15551234567", {
+      disposition: "soft_closed",
+      nurtureStage: 0,
+      nurtureNextAt: due.toISOString(),
+      nurtureStartedAt: due.toISOString(),
+    });
+    expect(shouldSendNurtureFollowUp(session, due)).toBe(false);
+  });
+
+  test("skips send and clears index when STOP opted out", async () => {
+    const phone = "+15551234567";
+    const due = new Date("2026-08-21T12:00:00.000Z");
+    await saveSession(
+      roiNurtureSession(phone, {
+        nurtureStage: 0,
+        nurtureNextAt: due.toISOString(),
+        nurtureStartedAt: due.toISOString(),
+      }),
+    );
+    redisStore.set(`speed2lead:optout:${phone}`, true);
+    await enqueueNurtureFollowUp(phone);
+
+    expect(await processNurtureFollowUps(due)).toBe(0);
+    expect(smsLog.length).toBe(0);
+    expect([...nurtureMembers]).toEqual([]);
+  });
+
+  test("does not enqueue or send for allowlisted test phones", async () => {
+    process.env.SPEED2LEAD_TEST_PHONES = "+12148438991";
+    resetSpeed2LeadTestPhonesCacheForTests();
+    const phone = "+12148438991";
+    const session = registerNurtureOnSession(roiNurtureSession(phone));
+    expect(session.nurtureNextAt).toBeUndefined();
+    await enqueueNurtureFollowUp(phone);
+    expect([...nurtureMembers]).toEqual([]);
+  });
+
+  test("demo follow-up index stays separate from nurture index", async () => {
+    const phone = "+15551234567";
+    await enqueueNurtureFollowUp(phone);
+    followUpMembers.add(phone);
+    expect([...nurtureMembers]).toEqual([phone]);
+    expect([...followUpMembers]).toEqual([phone]);
+    await removeNurtureFollowUp(phone);
+    expect([...nurtureMembers]).toEqual([]);
+    expect([...followUpMembers]).toEqual([phone]);
   });
 });
