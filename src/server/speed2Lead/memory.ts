@@ -7,6 +7,7 @@ import {
 } from "~/server/speed2Lead/slotRanking";
 import {
   filterSlotsForSchedulingState,
+  normalizeSchedulingStateConstraints,
   offeredSlotConstraintKey,
 } from "~/server/speed2Lead/schedulingContext";
 import type {
@@ -525,8 +526,12 @@ export function applySchedulingConstraints<T extends AnyConversationContext>(
     rejectedPartOfDay: mergedRejectedParts,
     rejectedSlotStarts: mergedRejectedSlots,
   };
-  let updated = applySchedulingMeta(normalized, mergedPatch) as T;
-  if (constraintsMateriallyChanged(scheduling, mergedPatch)) {
+  const normalizedPatch = normalizeSchedulingStateConstraints(
+    { ...scheduling, ...mergedPatch },
+    { prior: scheduling },
+  );
+  let updated = applySchedulingMeta(normalized, normalizedPatch) as T;
+  if (constraintsMateriallyChanged(scheduling, normalizedPatch)) {
     updated = invalidateIncompatibleOfferedSlots(updated);
   }
   return updated;

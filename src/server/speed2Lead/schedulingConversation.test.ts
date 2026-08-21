@@ -2,11 +2,14 @@ import { describe, expect, test } from "bun:test";
 import { centralDateAt } from "~/server/appointmentLifecycle/consultationSlots";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import {
+  detectDaypartSelectionCorrection,
   detectRepetitionCorrection,
   detectSchedulingConstraints,
   detectSchedulingRefinement,
   extractRequestedTimeMinutes,
   mergeSchedulingIntentFromMessage,
+  messageHasResolvedDayWithoutPartOfDay,
+  normalizeSchedulingStateConstraints,
   offeredSlotConstraintKey,
 } from "~/server/speed2Lead/schedulingContext";
 import { buildContextualSlotOfferMessage } from "~/server/speed2Lead/schedulingReply";
@@ -451,5 +454,79 @@ describe("live phone regression sequence", () => {
     });
     expect(plan.action.type).toBe("none");
     expect(plan.schedulingIntent).toBe(false);
+  });
+});
+
+describe("scheduling truth hardening", () => {
+  test("day-only weekday asks preference instead of fetching availability", () => {
+    const plan = planSchedulingGate({
+      inboundMessage: "Can you do Monday",
+      context: roiSession({
+        knownFacts: { ...roiSession().knownFacts!, fit: "yes", urgency: "high" },
+      }),
+      now,
+    });
+    expect(plan.action.type).toBe("ask_preference");
+  });
+
+  test("No afternoon pls after morning offer selects afternoon rather than rejecting it", () => {
+    const morningSlots = [
+      centralDateAt(2026, 8, 24, 9, 0, TZ).toISOString(),
+      centralDateAt(2026, 8, 24, 10, 0, TZ).toISOString(),
+    ];
+    const patch = detectSchedulingConstraints("No afternoon pls", {
+      status: "slots_offered",
+      centralDate: "2026-08-24",
+      partOfDay: "morning",
+      offeredSlots: morningSlots,
+    });
+    expect(patch.partOfDay).toBe("afternoon");
+    expect(patch.rejectedPartOfDay ?? []).not.toContain("afternoon");
+  });
+
+  test("normalizeSchedulingStateConstraints removes active part from rejected list", () => {
+    const normalized = normalizeSchedulingStateConstraints({
+      status: "idle",
+      centralDate: "2026-08-25",
+      partOfDay: "afternoon",
+      rejectedPartOfDay: ["afternoon"],
+    });
+    expect(normalized.partOfDay).toBe("afternoon");
+    expect(normalized.rejectedPartOfDay ?? []).not.toContain("afternoon");
+  });
+
+  test("date change clears stale rejected slots and offered slots", () => {
+    const normalized = normalizeSchedulingStateConstraints(
+      {
+        status: "slots_offered",
+        centralDate: "2026-08-25",
+        partOfDay: "afternoon",
+        rejectedPartOfDay: ["afternoon"],
+        offeredSlots: [centralDateAt(2026, 8, 24, 9, 0, TZ).toISOString()],
+      },
+      { prior: { status: "slots_offered", centralDate: "2026-08-24", partOfDay: "afternoon" } },
+    );
+    expect(normalized.centralDate).toBe("2026-08-25");
+    expect(normalized.rejectedPartOfDay ?? []).not.toContain("afternoon");
+    expect(normalized.offeredSlots).toBeUndefined();
+  });
+
+  test("messageHasResolvedDayWithoutPartOfDay detects weekday-only requests", () => {
+    expect(messageHasResolvedDayWithoutPartOfDay("How about next Tuesday", undefined, null, now)).toBe(
+      true,
+    );
+    expect(messageHasResolvedDayWithoutPartOfDay("Tuesday afternoon", undefined, null, now)).toBe(
+      false,
+    );
+  });
+
+  test("detectDaypartSelectionCorrection handles I meant afternoon", () => {
+    expect(
+      detectDaypartSelectionCorrection("I meant afternoon", {
+        status: "slots_offered",
+        centralDate: "2026-08-24",
+        partOfDay: "morning",
+      }),
+    ).toBe("afternoon");
   });
 });

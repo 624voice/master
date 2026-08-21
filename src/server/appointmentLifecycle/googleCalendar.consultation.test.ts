@@ -2,6 +2,13 @@ import { describe, expect, test, mock, beforeEach, afterEach } from "bun:test";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { centralDateAt, parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
 import type { GoogleCalendarApiEvent } from "~/server/appointmentLifecycle/parseCalendarEvent";
+import {
+  capturedRedisStore,
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
+
+installSpeed2LeadIntegrationMocks();
 
 const TEST_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDHcXTKGarLjzE2
@@ -33,7 +40,6 @@ X/nyTQPJ4bTW1iF409XT1KO/
 -----END PRIVATE KEY-----`;
 
 const TZ = CONSULTATION_TIMEZONE;
-const redisStore = new Map<string, unknown>();
 const calendarEvents: GoogleCalendarApiEvent[] = [];
 let createAttempts = 0;
 let listCallCount = 0;
@@ -110,18 +116,6 @@ function installFetchMock() {
   }) as typeof fetch;
 }
 
-mock.module("~/server/speed2Lead/redis", () => ({
-  getRedis: () => ({
-    get: async <T>(key: string) => (redisStore.get(key) as T | undefined) ?? null,
-    set: async (key: string, value: unknown) => {
-      redisStore.set(key, value);
-    },
-    del: async (key: string) => {
-      redisStore.delete(key);
-    },
-  }),
-}));
-
 const googleCalendar = await import("~/server/appointmentLifecycle/googleCalendar");
 const {
   createConsultationEvent,
@@ -153,7 +147,7 @@ describe("googleCalendar consultation booking", () => {
     slotStart = futureWeekdaySlot(10, 0);
     slotEnd = new Date(slotStart.getTime() + 25 * 60_000);
     availabilityNow = new Date(slotStart.getTime() - 60 * 60 * 1000);
-    redisStore.clear();
+    resetSpeed2LeadIntegrationMocks();
     calendarEvents.length = 0;
     createAttempts = 0;
     listCallCount = 0;

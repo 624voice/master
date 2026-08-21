@@ -125,7 +125,8 @@ describe("scheduling orchestration invariants", () => {
       context: session,
       now,
     });
-    expect(["ask_preference", "get_availability"]).toContain(dayPlan.action.type);
+    expect(dayPlan.action.type).toBe("ask_preference");
+
     session = {
       ...session,
       scheduling: {
@@ -138,10 +139,10 @@ describe("scheduling orchestration invariants", () => {
       context: session,
       now,
     });
-    expect(partPlan.action.type).not.toBe("get_availability");
-    expect(partPlan.action.type === "ask_preference" || partPlan.preferenceInput?.partOfDay === "afternoon").toBe(
-      true,
-    );
+    expect(partPlan.action.type).toBe("get_availability");
+    if (partPlan.action.type === "get_availability") {
+      expect(partPlan.action.input.partOfDay).toBe("afternoon");
+    }
   });
 
   test("afternoon filter excludes morning slots", () => {

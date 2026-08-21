@@ -276,17 +276,21 @@ function calendarEventsUrl(calendarId: string, params: URLSearchParams): string 
   return `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`;
 }
 
+export type FetchCalendarEventsResult =
+  | { ok: true; events: NormalizedCalendarEvent[] }
+  | { ok: false; reason: "not_configured" | "calendar_api_error"; detail?: string; status?: number };
+
 export async function fetchCalendarEventsInRange(
   timeMin: string,
   timeMax: string,
-): Promise<NormalizedCalendarEvent[]> {
+): Promise<FetchCalendarEventsResult> {
   if (!isGoogleCalendarApiConfigured()) {
-    return [];
+    return { ok: false, reason: "not_configured" };
   }
 
   const calendarId = getGoogleCalendarId();
   if (!calendarId) {
-    return [];
+    return { ok: false, reason: "not_configured" };
   }
 
   try {
@@ -310,7 +314,12 @@ export async function fetchCalendarEventsInRange(
         status: response.status,
         body: text.slice(0, 200),
       });
-      return [];
+      return {
+        ok: false,
+        reason: "calendar_api_error",
+        detail: text.slice(0, 200),
+        status: response.status,
+      };
     }
 
     const data = (await response.json()) as { items?: GoogleCalendarApiEvent[] };
@@ -323,13 +332,17 @@ export async function fetchCalendarEventsInRange(
       }
     }
 
-    return events;
+    return { ok: true, events };
   } catch (error) {
     logAppointmentEvent("calendar_api_error", {
       action: "list_events_range",
       error: error instanceof Error ? error.message : String(error),
     });
-    return [];
+    return {
+      ok: false,
+      reason: "calendar_api_error",
+      detail: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 
@@ -347,11 +360,14 @@ export async function getConsultationSlots(
   }
 
   try {
-    const events = await fetchCalendarEventsInRange(
+    const fetched = await fetchCalendarEventsInRange(
       rangeStart.toISOString(),
       rangeEnd.toISOString(),
     );
-    const busy = buildBusyIntervalsFromEvents(events);
+    if (!fetched.ok) {
+      return { ok: false, reason: fetched.reason, detail: fetched.detail };
+    }
+    const busy = buildBusyIntervalsFromEvents(fetched.events);
     const slots = selectConsultationSlots(
       {
         rangeStart,
@@ -376,11 +392,14 @@ async function isConsultationStartAvailable(start: string, now = new Date()): Pr
   const durationMinutes = getConsultationDurationMinutes();
   const rangeStart = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
   const rangeEnd = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
-  const events = await fetchCalendarEventsInRange(
+  const fetched = await fetchCalendarEventsInRange(
     rangeStart.toISOString(),
     rangeEnd.toISOString(),
   );
-  const busy = buildBusyIntervalsFromEvents(events);
+  if (!fetched.ok) {
+    return false;
+  }
+  const busy = buildBusyIntervalsFromEvents(fetched.events);
   const slots = selectConsultationSlots(
     {
       rangeStart,

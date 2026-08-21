@@ -6,6 +6,7 @@ import {
   buildBookingConfirmationMessage,
   buildContextualSlotOfferMessage,
   calendarLinkFallbackMessage,
+  genericRecoveryMessage,
   validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
 import type { SlotOfferSituation } from "~/server/speed2Lead/schedulingReply";
@@ -21,6 +22,7 @@ import {
   applySchedulingIntent,
   applyOfferedSlots,
   applySchedulingConstraints,
+  invalidateIncompatibleOfferedSlots,
 } from "~/server/speed2Lead/memory";
 import type { KnownFacts, SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
 import {
@@ -36,7 +38,9 @@ import {
   hasExplicitExactTimeRequest,
   looksLikeSlotSelectionIntent,
   mergeSchedulingIntentFromMessage,
+  messageHasResolvedDayWithoutPartOfDay,
   needsMeridiemClarification,
+  normalizeSchedulingStateConstraints,
   offeredSlotConstraintKey,
   offeredSlotSetKey,
   parseFlexibleTimeToken,
@@ -148,12 +152,50 @@ function shouldAskPartOfDayOnly(scheduling?: SchedulingState): boolean {
   return hasKnownSchedulingDay(scheduling) && !hasKnownSchedulingPartOfDay(scheduling);
 }
 
+function messageResolvesDaypartConstraint(
+  message: string,
+  scheduling?: SchedulingState,
+): boolean {
+  const patch = detectSchedulingConstraints(
+    message,
+    scheduling,
+    scheduling?.offeredSlots ?? [],
+  );
+  if (patch.partOfDay && patch.partOfDay !== "full_day") {
+    return true;
+  }
+  if (patch.rejectedPartOfDay && patch.rejectedPartOfDay.length > 0) {
+    return true;
+  }
+  return false;
+}
+
+function mergeConstraintPatchIntoAvailabilityInput(
+  input: AvailabilityRangeInput | null | undefined,
+  message: string,
+  scheduling?: SchedulingState,
+): AvailabilityRangeInput | null {
+  if (!input) return null;
+  const patch = detectSchedulingConstraints(
+    message,
+    scheduling,
+    scheduling?.offeredSlots ?? [],
+  );
+  if (!patch.partOfDay || patch.partOfDay === "full_day") {
+    return input;
+  }
+  return { ...input, partOfDay: patch.partOfDay };
+}
+
 function shouldAskPreferenceOnly(
   message: string,
   knownFacts: KnownFacts,
   scheduling?: SchedulingState,
+  now = new Date(),
 ): boolean {
+  if (messageResolvesDaypartConstraint(message, scheduling)) return false;
   if (shouldAskPartOfDayOnly(scheduling)) return true;
+  if (messageHasResolvedDayWithoutPartOfDay(message, scheduling, null, now)) return true;
   if (!detectStrongInterest(message, knownFacts)) return false;
   if (hasSchedulingPreference(message)) return false;
   if (hasKnownSchedulingDay(scheduling) && hasKnownSchedulingPartOfDay(scheduling)) {
@@ -663,7 +705,7 @@ export function planSchedulingGate(args: {
       };
     }
 
-    if (shouldAskPreferenceOnly(inboundMessage, knownFacts, scheduling)) {
+    if (shouldAskPreferenceOnly(inboundMessage, knownFacts, scheduling, now)) {
       return {
         action: { type: "ask_preference" },
         schedulingIntent: true,
@@ -674,8 +716,11 @@ export function planSchedulingGate(args: {
       };
     }
 
-    const accumulatedInput =
-      buildAvailabilityInputFromSchedulingState(scheduling, inboundMessage, now) ?? preferenceInput;
+    const accumulatedInput = mergeConstraintPatchIntoAvailabilityInput(
+      buildAvailabilityInputFromSchedulingState(scheduling, inboundMessage, now) ?? preferenceInput,
+      inboundMessage,
+      scheduling,
+    );
     const exactMinutes = resolveRequestedMinutesFromMessage(
       inboundMessage,
       scheduling?.offeredSlots ?? [],
@@ -709,6 +754,20 @@ export function planSchedulingGate(args: {
         explicitCalendarLinkRequest,
         selectedSlotStart: null,
         preferenceInput: null,
+      };
+    }
+
+    if (
+      !messageResolvesDaypartConstraint(inboundMessage, scheduling) &&
+      messageHasResolvedDayWithoutPartOfDay(inboundMessage, scheduling, input, now)
+    ) {
+      return {
+        action: { type: "ask_preference" },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: input,
       };
     }
 
@@ -977,6 +1036,9 @@ export function resolveAuthoritativeSchedulingReply(args: {
       context.scheduling,
     );
     if (constrained.length === 0) {
+      if (toolState.calendarUnavailable) {
+        return buildProviderFailureReply(context, calendarLinkAllowed);
+      }
       if (
         hasKnownSchedulingDay(context.scheduling) &&
         hasKnownSchedulingPartOfDay(context.scheduling)
@@ -1039,6 +1101,16 @@ function inferAvailabilityInputFromOfferedSlot(
   const parts = parseCentralParts(new Date(startIso), CONSULTATION_TIMEZONE);
   const centralDate = `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
   return { centralDate, partOfDay: "full_day" };
+}
+
+function buildProviderFailureReply(
+  context: AnyConversationContext,
+  calendarLinkAllowed: boolean,
+): string {
+  if (calendarLinkAllowed) {
+    return calendarLinkFallbackMessage(context);
+  }
+  return genericRecoveryMessage(context);
 }
 
 function formatAskPartOfDay(firstName: string): string {
@@ -1129,6 +1201,7 @@ export async function enforceSchedulingGate(args: {
 }): Promise<SchedulingGateResult> {
   const now = args.now ?? new Date();
   let { context, toolState } = args;
+  const schedulingBeforeTurn = context.scheduling;
 
   const constraintPatch = detectSchedulingConstraints(
     args.inboundMessage,
@@ -1143,6 +1216,13 @@ export async function enforceSchedulingGate(args: {
     context,
     mergeSchedulingIntentFromMessage(context.scheduling, args.inboundMessage, now),
   );
+  const normalizedScheduling = normalizeSchedulingStateConstraints(context.scheduling, {
+    prior: schedulingBeforeTurn,
+  });
+  if (JSON.stringify(normalizedScheduling) !== JSON.stringify(context.scheduling)) {
+    context = applySchedulingMeta(context, normalizedScheduling);
+    context = invalidateIncompatibleOfferedSlots(context);
+  }
   let forcedReply: string | null = null;
   let gateApplied = false;
   let availabilityFetched = args.llmCalledGetAvailability;
@@ -1333,7 +1413,9 @@ export async function enforceSchedulingGate(args: {
         });
       }
     } else if (gateApplied && slots.length === 0) {
-      if (hasKnownSchedulingDay(context.scheduling) && hasKnownSchedulingPartOfDay(context.scheduling)) {
+      if (toolState.calendarUnavailable) {
+        forcedReply = buildProviderFailureReply(context, calendarLinkAllowed);
+      } else if (hasKnownSchedulingDay(context.scheduling) && hasKnownSchedulingPartOfDay(context.scheduling)) {
         forcedReply = `I don't have anything open in that window — want to try another time on that day?`;
       } else {
         forcedReply = formatAskPreference(context.firstName, context.scheduling);

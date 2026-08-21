@@ -28,14 +28,26 @@ const WEEKDAY_NAMES = [
   "saturday",
 ] as const;
 
-const REJECT_MORNING_RE =
-  /\b(morning(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no mornings?|not mornings?|can'?t do mornings?|cant do mornings?|mornings?\s+(?:are\s+)?(?:out|off the table))\b/i;
+/** Genuine daypart rejection — excludes bare "no afternoon" correction phrases. */
+const DAYPART_WONT_WORK_RE = "(?:(?:don|doesn)'?t|dont|won'?t|wont|do not|does not)\\s+work(?:\\s+for\\s+me)?";
 
-const REJECT_AFTERNOON_RE =
-  /\b(afternoon(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no afternoons?|not afternoons?|can'?t do afternoons?)\b/i;
+const REJECT_MORNING_RE = new RegExp(
+  `\\b(morning(?:s)?\\s+${DAYPART_WONT_WORK_RE}|(?:no|not)\\s+mornings?\\s+(?:work|for me|available)|can'?t do mornings?|cant do mornings?|mornings?\\s+(?:are\\s+)?(?:out|off the table))\\b`,
+  "i",
+);
 
-const REJECT_EVENING_RE =
-  /\b(evening(?:s)?\s+(?:doesn'?t|dont|won'?t|wont|do not|does not)\s+work|no evenings?|not evenings?)\b/i;
+const REJECT_AFTERNOON_RE = new RegExp(
+  `\\b(afternoon(?:s)?\\s+${DAYPART_WONT_WORK_RE}|(?:no|not)\\s+afternoons?\\s+(?:work|for me|available)|can'?t do afternoons?|cant do afternoons?|afternoons?\\s+(?:are\\s+)?(?:out|off the table))\\b`,
+  "i",
+);
+
+const REJECT_EVENING_RE = new RegExp(
+  `\\b(evening(?:s)?\\s+${DAYPART_WONT_WORK_RE}|(?:no|not)\\s+evenings?\\s+(?:work|for me|available)|can'?t do evenings?|evenings?\\s+(?:are\\s+)?(?:out|off the table))\\b`,
+  "i",
+);
+
+const DAYPART_CORRECTION_RE =
+  /\b(actually|i\s+meant|meant|instead|rather)\b/i;
 
 const REJECT_OFFERED_RE =
   /\b(none of those|not those|any(?:thing)? else|something else|different times?|other options?|doesn'?t work|dont work|won'?t work|wont work|too early|too late)\b/i;
@@ -84,6 +96,136 @@ export type SchedulingConstraintPatch = Partial<
   >
 >;
 
+function dominantPartOfDayFromSlots(slots: string[]): SchedulingPartOfDay | null {
+  if (slots.length === 0) return null;
+  const parts = slots
+    .map((slot) => slotStartMinutes(slot))
+    .filter((value): value is number => value !== null)
+    .map((minutes) => (minutes < 12 * 60 ? "morning" : minutes < 17 * 60 ? "afternoon" : "evening"));
+  if (parts.length === 0) return null;
+  const morning = parts.filter((part) => part === "morning").length;
+  const afternoon = parts.filter((part) => part === "afternoon").length;
+  const evening = parts.filter((part) => part === "evening").length;
+  if (afternoon >= morning && afternoon >= evening) return "afternoon";
+  if (morning >= afternoon && morning >= evening) return "morning";
+  return "evening";
+}
+
+/** Conversational daypart correction/selection — not rejection. */
+export function detectDaypartSelectionCorrection(
+  message: string,
+  scheduling?: SchedulingState,
+): SchedulingPartOfDay | null {
+  const lower = message.toLowerCase().trim();
+  const offered = scheduling?.offeredSlots ?? [];
+
+  const insteadMatch = lower.match(/\b(morning|afternoon|evening)\s+instead\b/);
+  if (insteadMatch?.[1]) {
+    return insteadMatch[1] as SchedulingPartOfDay;
+  }
+
+  const explicitPart = explicitPartOfDayFromMessage(message);
+  if (!explicitPart) {
+    return null;
+  }
+
+  if (DAYPART_CORRECTION_RE.test(lower)) {
+    return explicitPart;
+  }
+
+  if (/^\s*no\b[,\s]+/i.test(lower)) {
+    return explicitPart;
+  }
+
+  if (/\bno\s+(?:,?\s*)?(morning|afternoon|evening)\b/i.test(lower)) {
+    return explicitPart;
+  }
+
+  if (PART_OF_DAY_SWITCH_RE.test(lower)) {
+    return explicitPart;
+  }
+
+  const dominantOffered = dominantPartOfDayFromSlots(offered);
+  if (dominantOffered && dominantOffered !== explicitPart) {
+    return explicitPart;
+  }
+
+  return null;
+}
+
+export function normalizeSchedulingStateConstraints(
+  scheduling: SchedulingState,
+  options: { prior?: SchedulingState } = {},
+): SchedulingState {
+  const prior = options.prior;
+  const normalized: SchedulingState = { ...scheduling };
+
+  if (
+    prior?.centralDate &&
+    normalized.centralDate &&
+    prior.centralDate !== normalized.centralDate
+  ) {
+    normalized.rejectedSlotStarts = undefined;
+    normalized.searchAfterMinutes = undefined;
+    normalized.searchBeforeMinutes = undefined;
+    normalized.lastOfferedSlotKey = undefined;
+    normalized.lastOfferedEarliestMinutes = undefined;
+    normalized.lastOfferedLatestMinutes = undefined;
+    normalized.offeredSlots = undefined;
+    normalized.status = normalized.status === "slots_offered" ? "idle" : normalized.status;
+  }
+
+  if (
+    prior?.partOfDay &&
+    normalized.partOfDay &&
+    prior.partOfDay !== normalized.partOfDay &&
+    normalized.partOfDay !== "full_day"
+  ) {
+    normalized.rejectedSlotStarts = undefined;
+    normalized.searchAfterMinutes = undefined;
+    normalized.searchBeforeMinutes = undefined;
+    normalized.offeredSlots = undefined;
+    normalized.status = normalized.status === "slots_offered" ? "idle" : normalized.status;
+  }
+
+  if (normalized.partOfDay && normalized.partOfDay !== "full_day") {
+    const filtered = (normalized.rejectedPartOfDay ?? []).filter(
+      (part) => part !== normalized.partOfDay,
+    );
+    normalized.rejectedPartOfDay = filtered.length > 0 ? filtered : undefined;
+  }
+
+  if (normalized.rejectedPartOfDay?.length === 0) {
+    normalized.rejectedPartOfDay = undefined;
+  }
+
+  return normalized;
+}
+
+export function messageHasResolvedDayWithoutPartOfDay(
+  message: string,
+  scheduling: SchedulingState | undefined,
+  preferenceInput: AvailabilityRangeInput | null | undefined,
+  now = new Date(),
+): boolean {
+  const merged =
+    buildAvailabilityInputFromSchedulingState(scheduling, message, now) ?? preferenceInput;
+  if (!merged?.centralDate) {
+    return false;
+  }
+  const part = merged.partOfDay;
+  if (part && part !== "full_day") {
+    return false;
+  }
+  if (resolveRequestedMinutesFromMessage(message, scheduling?.offeredSlots ?? []) !== null) {
+    return false;
+  }
+  if (extractAnchorMinutes(message) !== null) {
+    return false;
+  }
+  return true;
+}
+
 export function detectSchedulingConstraints(
   message: string,
   scheduling: SchedulingState | undefined,
@@ -93,36 +235,60 @@ export function detectSchedulingConstraints(
   const lower = message.toLowerCase();
   const rejected = new Set(scheduling?.rejectedPartOfDay ?? []);
 
-  if (REJECT_MORNING_RE.test(lower)) {
+  const daypartCorrection = detectDaypartSelectionCorrection(message, {
+    ...scheduling,
+    offeredSlots: offeredSlots.length > 0 ? offeredSlots : scheduling?.offeredSlots,
+  });
+  if (daypartCorrection) {
+    rejected.delete(daypartCorrection);
+    patch.partOfDay = daypartCorrection;
+    if (daypartCorrection === "afternoon") {
+      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
+    } else if (daypartCorrection === "morning") {
+      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
+    } else if (daypartCorrection === "evening") {
+      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 16 * 60);
+    }
+  }
+
+  if (!daypartCorrection && REJECT_MORNING_RE.test(lower)) {
     rejected.add("morning");
     patch.partOfDay = "afternoon";
     patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
     patch.searchAfterMinutes = Math.max(scheduling?.searchAfterMinutes ?? 0, 12 * 60 - 1);
   }
 
-  if (REJECT_AFTERNOON_RE.test(lower)) {
+  if (!daypartCorrection && REJECT_AFTERNOON_RE.test(lower)) {
     rejected.add("afternoon");
     patch.partOfDay = "evening";
     patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
   }
 
-  if (REJECT_EVENING_RE.test(lower)) {
+  if (!daypartCorrection && REJECT_EVENING_RE.test(lower)) {
     rejected.add("evening");
     patch.partOfDay = "afternoon";
   }
 
-  if (PREFER_AFTERNOON_RE.test(lower) && !rejected.has("afternoon")) {
+  if (
+    !daypartCorrection &&
+    !patch.partOfDay &&
+    PREFER_AFTERNOON_RE.test(lower) &&
+    !rejected.has("afternoon")
+  ) {
     patch.partOfDay = "afternoon";
+    rejected.delete("afternoon");
     patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
   }
 
-  if (PREFER_MORNING_RE.test(lower) && !rejected.has("morning")) {
+  if (!patch.partOfDay && PREFER_MORNING_RE.test(lower) && !rejected.has("morning")) {
     patch.partOfDay = "morning";
+    rejected.delete("morning");
     patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
   }
 
-  if (PREFER_EVENING_RE.test(lower) && !rejected.has("evening")) {
+  if (!patch.partOfDay && PREFER_EVENING_RE.test(lower) && !rejected.has("evening")) {
     patch.partOfDay = "evening";
+    rejected.delete("evening");
     patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 16 * 60);
   }
 
@@ -171,7 +337,29 @@ export function detectSchedulingConstraints(
     patch.rejectedPartOfDay = [...rejected];
   }
 
-  return patch;
+  const merged = normalizeSchedulingStateConstraints(
+    {
+      ...scheduling,
+      ...patch,
+      rejectedPartOfDay: patch.rejectedPartOfDay ?? scheduling?.rejectedPartOfDay,
+      partOfDay: patch.partOfDay ?? scheduling?.partOfDay,
+      centralDate: patch.centralDate ?? scheduling?.centralDate,
+    },
+    { prior: scheduling },
+  );
+
+  return {
+    ...patch,
+    partOfDay: merged.partOfDay !== scheduling?.partOfDay ? merged.partOfDay : patch.partOfDay,
+    rejectedPartOfDay: merged.rejectedPartOfDay,
+    centralDate: merged.centralDate !== scheduling?.centralDate ? merged.centralDate : patch.centralDate,
+    rejectedSlotStarts:
+      merged.centralDate !== scheduling?.centralDate ? undefined : patch.rejectedSlotStarts,
+    searchAfterMinutes:
+      merged.centralDate !== scheduling?.centralDate ? undefined : patch.searchAfterMinutes,
+    searchBeforeMinutes:
+      merged.centralDate !== scheduling?.centralDate ? undefined : patch.searchBeforeMinutes,
+  };
 }
 
 export type SchedulingRefinement = {

@@ -59,15 +59,6 @@ mock.module("~/server/appointmentLifecycle/handleInbound", () => ({
   handleAppointmentLifecycleInbound: async () => ({ handled: false, sessionPersisted: false }),
 }));
 
-mock.module("~/server/speed2Lead/nurtureFollowUp", () => ({
-  removeNurtureFollowUp: async () => {},
-}));
-
-mock.module("~/server/demoSpeed2Lead/processFollowUps", () => ({
-  removeDemoFollowUp: async () => {},
-  registerDemoFollowUp: async () => {},
-}));
-
 mock.module("~/server/speed2Lead/transcript", () => ({
   logSmsTranscriptSafely: () => {},
 }));

@@ -199,7 +199,9 @@ async function handleGetAvailability(
   if (!availability.ok) {
     state = {
       ...state,
-      calendarUnavailable: availability.reason === "not_configured",
+      calendarUnavailable:
+        availability.reason === "not_configured" ||
+        availability.reason === "calendar_api_error",
       availabilityAttempts: state.availabilityAttempts + 1,
     };
     return {

@@ -6,11 +6,14 @@ import type {
 } from "~/server/appointmentLifecycle/types";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { centralDateAt, parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
+import {
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
+
+installSpeed2LeadIntegrationMocks();
 
 const smsLog: Array<{ phone: string; body: string; type?: string }> = [];
-const optOut = new Set<string>();
-const redisStore = new Map<string, unknown>();
-const redisSets = new Map<string, Set<string>>();
 const calendarEvents: Array<{
   id: string;
   status?: string;
@@ -59,39 +62,6 @@ mock.module("~/server/appointmentLifecycle/sms", () => ({
   sendLifecycleSms: async (phoneNumber: string, body: string, meta?: { messageType?: string }) => {
     smsLog.push({ phone: phoneNumber, body, type: meta?.messageType });
   },
-}));
-
-mock.module("~/server/speed2Lead/session", () => ({
-  isOptedOut: async (phoneNumber: string) => optOut.has(phoneNumber),
-  getSession: async () => null,
-  saveSession: async () => {},
-  clearSession: async () => {},
-  setOptedOut: async () => {},
-}));
-
-mock.module("~/server/demoSpeed2Lead/processFollowUps", () => ({
-  removeDemoFollowUp: async () => {},
-}));
-
-mock.module("~/server/speed2Lead/redis", () => ({
-  getRedis: () => ({
-    get: async <T>(key: string) => (redisStore.get(key) as T | undefined) ?? null,
-    set: async (key: string, value: unknown) => {
-      redisStore.set(key, value);
-    },
-    del: async (key: string) => {
-      redisStore.delete(key);
-    },
-    sadd: async (key: string, member: string) => {
-      const set = redisSets.get(key) ?? new Set<string>();
-      set.add(member);
-      redisSets.set(key, set);
-    },
-    srem: async (key: string, member: string) => {
-      redisSets.get(key)?.delete(member);
-    },
-    smembers: async (key: string) => [...(redisSets.get(key) ?? [])],
-  }),
 }));
 
 function installFetchMock() {
@@ -150,6 +120,7 @@ const {
   getLifecycleRecord,
   saveLeadIndex,
 } = await import("~/server/appointmentLifecycle/store");
+const { setOptedOut } = await import("~/server/speed2Lead/session");
 
 function futureWeekdaySlot(hour: number, minute: number): Date {
   let candidate = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000);
@@ -207,10 +178,8 @@ describe("bookConsultation lifecycle integration", () => {
   beforeEach(async () => {
     slotStart = futureWeekdaySlot(10, 0);
     availabilityNow = new Date(slotStart.getTime() - 60 * 60 * 1000);
-    redisStore.clear();
-    redisSets.clear();
+    resetSpeed2LeadIntegrationMocks();
     smsLog.length = 0;
-    optOut.clear();
     calendarEvents.length = 0;
     createAttempts = 0;
     await seedLead();
@@ -310,10 +279,8 @@ describe("bookConsultation lifecycle integration", () => {
 
 describe("processEvent production safety", () => {
   beforeEach(async () => {
-    redisStore.clear();
-    redisSets.clear();
+    resetSpeed2LeadIntegrationMocks();
     smsLog.length = 0;
-    optOut.clear();
     await seedLead();
   });
 
@@ -331,7 +298,7 @@ describe("processEvent production safety", () => {
   });
 
   test("opted-out lead sends no lifecycle SMS", async () => {
-    optOut.add(phone);
+    await setOptedOut(phone);
     const result = await processCalendarEvent(calendarEvent("evt-optout"));
     expect(result.smsSent).toBe(false);
   });
