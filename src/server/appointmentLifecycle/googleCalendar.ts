@@ -14,6 +14,12 @@ import {
   getGoogleCalendarId,
   isGoogleCalendarApiConfigured,
 } from "~/server/appointmentLifecycle/config";
+import {
+  getGoogleServiceAccountCredentialDiagnostics,
+  getGoogleServiceAccountCredentials,
+  logGoogleProviderDiagnostic,
+  sanitizeGoogleApiErrorBody,
+} from "~/server/appointmentLifecycle/googleCredentials";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   parseGoogleCalendarApiEvent,
@@ -36,16 +42,32 @@ function base64url(input: string | Buffer): string {
     .replace(/\//g, "_");
 }
 
-function serviceAccountCredentials(): {
-  clientEmail: string;
-  privateKey: string;
-} {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!email || !key) {
-    throw new Error("Google service account credentials are not configured");
-  }
-  return { clientEmail: email, privateKey: key };
+function logProviderFailure(
+  failureStage: "not_configured" | "invalid_private_key" | "token_exchange" | "calendar_api",
+  extra: {
+    requestEndpoint?: "oauth2.token" | "calendar.events.list";
+    requestStartIso?: string;
+    requestEndIso?: string;
+    httpStatus?: number;
+    googleErrorReason?: string;
+    googleErrorMessage?: string;
+    tokenGenerationSucceeded?: boolean;
+  } = {},
+): void {
+  const diagnostic = {
+    ...getGoogleServiceAccountCredentialDiagnostics(),
+    tokenGenerationSucceeded: extra.tokenGenerationSucceeded ?? false,
+    failureStage,
+    ...extra,
+  };
+  logGoogleProviderDiagnostic(diagnostic);
+  logAppointmentEvent("google_provider_diagnostic", {
+    failureStage,
+    requestEndpoint: extra.requestEndpoint,
+    httpStatus: extra.httpStatus,
+    googleErrorReason: extra.googleErrorReason,
+    tokenGenerationSucceeded: diagnostic.tokenGenerationSucceeded,
+  });
 }
 
 async function getAccessToken(): Promise<string> {
@@ -53,7 +75,18 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.accessToken;
   }
 
-  const { clientEmail, privateKey } = serviceAccountCredentials();
+  let credentials: { clientEmail: string; privateKey: string };
+  try {
+    credentials = getGoogleServiceAccountCredentials();
+  } catch (error) {
+    logProviderFailure("invalid_private_key", {
+      requestEndpoint: "oauth2.token",
+      googleErrorMessage: error instanceof Error ? error.message.slice(0, 240) : String(error),
+    });
+    throw error;
+  }
+
+  const { clientEmail, privateKey } = credentials;
   const now = Math.floor(Date.now() / 1000);
   const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const claim = base64url(
@@ -67,11 +100,19 @@ async function getAccessToken(): Promise<string> {
   );
 
   const unsigned = `${header}.${claim}`;
-  const sign = createSign("RSA-SHA256");
-  sign.update(unsigned);
-  sign.end();
-  const signature = base64url(sign.sign(privateKey));
-  const assertion = `${unsigned}.${signature}`;
+  let assertion = "";
+  try {
+    const sign = createSign("RSA-SHA256");
+    sign.update(unsigned);
+    sign.end();
+    assertion = `${unsigned}.${base64url(sign.sign(privateKey))}`;
+  } catch (error) {
+    logProviderFailure("invalid_private_key", {
+      requestEndpoint: "oauth2.token",
+      googleErrorMessage: error instanceof Error ? error.message.slice(0, 240) : String(error),
+    });
+    throw error;
+  }
 
   const response = await fetch(TOKEN_URL, {
     method: "POST",
@@ -84,6 +125,11 @@ async function getAccessToken(): Promise<string> {
 
   if (!response.ok) {
     const text = await response.text();
+    const apiError = sanitizeGoogleApiErrorBody(text, response.status);
+    logProviderFailure("token_exchange", {
+      requestEndpoint: "oauth2.token",
+      ...apiError,
+    });
     throw new Error(`Google token exchange failed: ${response.status} ${text}`);
   }
 
@@ -285,11 +331,19 @@ export async function fetchCalendarEventsInRange(
   timeMax: string,
 ): Promise<FetchCalendarEventsResult> {
   if (!isGoogleCalendarApiConfigured()) {
+    logProviderFailure("not_configured", {
+      requestStartIso: timeMin,
+      requestEndIso: timeMax,
+    });
     return { ok: false, reason: "not_configured" };
   }
 
   const calendarId = getGoogleCalendarId();
   if (!calendarId) {
+    logProviderFailure("not_configured", {
+      requestStartIso: timeMin,
+      requestEndIso: timeMax,
+    });
     return { ok: false, reason: "not_configured" };
   }
 
@@ -309,6 +363,14 @@ export async function fetchCalendarEventsInRange(
 
     if (!response.ok) {
       const text = await response.text();
+      const apiError = sanitizeGoogleApiErrorBody(text, response.status);
+      logProviderFailure("calendar_api", {
+        requestEndpoint: "calendar.events.list",
+        requestStartIso: timeMin,
+        requestEndIso: timeMax,
+        tokenGenerationSucceeded: true,
+        ...apiError,
+      });
       logAppointmentEvent("calendar_api_error", {
         action: "list_events_range",
         status: response.status,
@@ -334,14 +396,30 @@ export async function fetchCalendarEventsInRange(
 
     return { ok: true, events };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logProviderFailure(
+      message.includes("structurally invalid") || message.includes("credentials are not configured")
+        ? "invalid_private_key"
+        : message.includes("token exchange failed")
+          ? "token_exchange"
+          : "calendar_api",
+      {
+        requestEndpoint: message.includes("token exchange failed")
+          ? "oauth2.token"
+          : "calendar.events.list",
+        requestStartIso: timeMin,
+        requestEndIso: timeMax,
+        googleErrorMessage: message.slice(0, 240),
+      },
+    );
     logAppointmentEvent("calendar_api_error", {
       action: "list_events_range",
-      error: error instanceof Error ? error.message : String(error),
+      error: message,
     });
     return {
       ok: false,
       reason: "calendar_api_error",
-      detail: error instanceof Error ? error.message : String(error),
+      detail: message,
     };
   }
 }

@@ -10,13 +10,7 @@ export function isAppointmentLifecycleEnabled(): boolean {
   return process.env.APPOINTMENT_LIFECYCLE_ENABLED !== "false";
 }
 
-export function isGoogleCalendarApiConfigured(): boolean {
-  return Boolean(
-    process.env.GOOGLE_CALENDAR_ID &&
-      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-      process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-  );
-}
+export { isGoogleCalendarApiConfigured } from "~/server/appointmentLifecycle/googleCredentials";
 
 export function getCalendarSyncSecret(): string | undefined {
   return process.env.CALENDAR_SYNC_SECRET;
