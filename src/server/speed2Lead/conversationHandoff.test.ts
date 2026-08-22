@@ -91,6 +91,12 @@ describe("conversation handoff helpers", () => {
     expect(detectMeetingBridgeAgreement("Sure worth a look")).toBe(true);
   });
 
+  test("uncertainty phrases are not treated as bridge agreement", () => {
+    expect(detectMeetingBridgeAgreement("Not sure")).toBe(false);
+    expect(detectMeetingBridgeAgreement("more than they should but not sure for sure")).toBe(false);
+    expect(detectMeetingBridgeAgreement("Probably not sure honestly")).toBe(false);
+  });
+
   test("semantic afternoon selection is understood", () => {
     expect(detectSemanticDaypartSelection("Let's do afternoon please")).toBe("afternoon");
     expect(detectSemanticDaypartSelection("Afternoon would be best")).toBe("afternoon");

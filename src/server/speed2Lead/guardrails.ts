@@ -299,15 +299,12 @@ export function buildProviderUnavailableRecoveryMessage(
     return calendarLinkFallbackMessage(context);
   }
   if (schedulingFactsComplete(context.scheduling)) {
-    return "My calendar's being slow on my end — I still have your timing noted and I'll get options over shortly.";
-  }
-  if (hasKnownSchedulingPartOfDay(context.scheduling)) {
-    return "My calendar's being slow on my end — what day works best for a quick 25-minute chat?";
+    return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
   }
   if (hasKnownSchedulingDay(context.scheduling)) {
-    return "My calendar's being slow on my end — morning or afternoon?";
+    return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
   }
-  return "My calendar's being slow on my end — what day works best for a quick 25-minute chat?";
+  return "I'm having trouble pulling my calendar up right now — what day works best for a quick 25-minute chat?";
 }
 
 export function buildStageAwareRecoveryMessage(

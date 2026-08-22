@@ -192,9 +192,10 @@ function resolveFinalReply(
   context: AnyConversationContext,
   toolState: ToolExecutionState,
   calendarLinkAllowed = false,
+  suppressCalendarLinkFallback = false,
 ): string {
   const sanitized = stripUnauthorizedCalendarLink(draft, calendarLinkAllowed, context);
-  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
+  if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState) && !suppressCalendarLinkFallback) {
     return calendarLinkFallbackMessage(context);
   }
 
@@ -781,14 +782,28 @@ export async function orchestrateInboundTurn(
     gateResult.activeRequestKey,
   );
 
-  const authoritativeReply = resolveAuthoritativeSchedulingReply({
-    gateResult,
-    llmReply: latestDraft,
-    firstName: workingContext.firstName,
-    context: workingContext,
-    toolState,
-    calendarLinkAllowed: gateResult.calendarLinkAllowed,
-  });
+  const turnTask = resolveLlmTurnTask(workingContext, inboundMessage);
+  const customerQuestionDuringScheduling =
+    turnTask.task === "answer_customer_question" &&
+    Boolean(
+      workingContext.scheduling?.centralDate ||
+        workingContext.scheduling?.partOfDay ||
+        workingContext.scheduling?.calendarUnavailable ||
+        workingContext.scheduling?.status === "slots_offered" ||
+        (workingContext.scheduling?.offeredSlots?.length ?? 0) > 0,
+    ) &&
+    !gatePlan.explicitCalendarLinkRequest;
+
+  const authoritativeReply = customerQuestionDuringScheduling
+    ? null
+    : resolveAuthoritativeSchedulingReply({
+        gateResult,
+        llmReply: latestDraft,
+        firstName: workingContext.firstName,
+        context: workingContext,
+        toolState,
+        calendarLinkAllowed: gateResult.calendarLinkAllowed,
+      });
 
   if (authoritativeReply !== null) {
     logOrchestratorEvent("turn_complete", {
@@ -844,6 +859,7 @@ export async function orchestrateInboundTurn(
     workingContext,
     toolState,
     gateResult.calendarLinkAllowed,
+    customerQuestionDuringScheduling,
   );
 
   let validated: string | null = null;
@@ -856,17 +872,19 @@ export async function orchestrateInboundTurn(
       deps,
       model,
       runModel,
-      gateResult.calendarLinkAllowed,
+      customerQuestionDuringScheduling ? false : gateResult.calendarLinkAllowed,
       inboundMessage,
     );
   }
 
   if (!validated) {
-    validated = buildDeterministicRecoveryReply({
-      context: workingContext,
-      toolState,
-      gateResult,
-    });
+    validated = customerQuestionDuringScheduling
+      ? draft.trim() || null
+      : buildDeterministicRecoveryReply({
+          context: workingContext,
+          toolState,
+          gateResult,
+        });
   }
 
   if (validated?.trim()) {

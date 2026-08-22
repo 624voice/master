@@ -2,6 +2,7 @@ import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import {
   detectExplicitSchedulingRequest,
   detectMeetingBridgeAgreement,
+  meetingBridgeQuestionDelivered,
   shouldRequireMeetingBridge,
 } from "~/server/speed2Lead/conversationHandoff";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
@@ -88,6 +89,9 @@ export function resolveLlmTurnTask(
     return { stage, task: "brief_active_conversation" };
   }
   if (stage === "scheduling") {
+    if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
+      return { stage, task: "answer_customer_question" };
+    }
     return { stage, task: "brief_active_conversation" };
   }
   if (stage === "meeting_bridge") {
@@ -97,6 +101,15 @@ export function resolveLlmTurnTask(
     return { stage, task: "ask_conditional_meeting_bridge" };
   }
   if (stage === "operational_followup") {
+    const facts = context.knownFacts ?? {
+      firstName: context.firstName,
+      phone: context.phone,
+      flow: "roi" as const,
+      questionsAsked: 0,
+    };
+    if (painKnown(context, facts) && (facts.questionsAsked ?? 0) >= 1) {
+      return { stage: "meeting_bridge", task: "ask_conditional_meeting_bridge" };
+    }
     if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
       return { stage, task: "answer_customer_question" };
     }
@@ -116,6 +129,7 @@ export function shouldSendDeterministicSchedulingAsk(
   if (context.scheduling?.status === "slots_offered") return false;
   if ((context.scheduling?.offeredSlots?.length ?? 0) > 0) return false;
   if (!context.knownFacts?.meetingBridgeComplete) return false;
+  if (!meetingBridgeQuestionDelivered(context)) return false;
   if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   if (SCHEDULING_ASK_RE.test(inboundMessage)) return false;
   return detectMeetingBridgeAgreement(inboundMessage);

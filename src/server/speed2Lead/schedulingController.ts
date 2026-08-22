@@ -171,6 +171,10 @@ function detectSchedulingIntent(
   knownFacts: KnownFacts,
   context?: AnyConversationContext,
 ): boolean {
+  const signals = analyzeMessage(message);
+  if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
+    return false;
+  }
   if (context && shouldBlockSchedulingTurn(context, message)) {
     return false;
   }
@@ -1319,13 +1323,10 @@ function buildProviderFailureReply(
   if (schedulingFactsComplete(context.scheduling)) {
     return buildWeekdayAvailabilityFullReply(context.scheduling);
   }
-  if (hasKnownSchedulingPartOfDay(context.scheduling)) {
-    return "What day works best for a quick 25-minute chat?";
-  }
   if (hasKnownSchedulingDay(context.scheduling)) {
-    return formatAskPartOfDay();
+    return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
   }
-  return "What day works best for a quick 25-minute chat?";
+  return "I'm having trouble pulling my calendar up right now — what day works best for a quick 25-minute chat?";
 }
 
 function formatAskPartOfDay(): string {

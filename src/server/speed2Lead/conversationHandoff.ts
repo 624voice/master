@@ -12,6 +12,12 @@ const EXPLICIT_SCHEDULING_RE =
 const MEETING_BRIDGE_AGREEMENT_RE =
   /\b(yes|yeah|yep|sure|ok(?:ay)?|sounds good|makes sense|let'?s do it|lets do it|worth a look|i'?m open to it|im open to it|that works|let'?s look|lets look|happy to|go ahead)\b/i;
 
+const UNCERTAINTY_PHRASE_RE =
+  /\b(not sure|no idea|don't know|dont know|unsure|maybe|i guess|hard to say|can't say|cant say)\b/i;
+
+const BRIDGE_LANGUAGE_RE =
+  /\b(25[\s-]?min(?:ute)?s?|quick (?:look|chat|walkthrough)|worth a (?:look|chat)|open to (?:it|a)|make sense to (?:talk|look|walk)|walk through|walkthrough)\b/i;
+
 export function detectExplicitSchedulingRequest(message: string): boolean {
   if (analyzeMessage(message).explicitMeetingReady) {
     return true;
@@ -23,7 +29,15 @@ export function detectMeetingBridgeAgreement(message: string): boolean {
   const trimmed = message.trim();
   if (!trimmed) return false;
   if (detectExplicitSchedulingRequest(trimmed)) return true;
+  const lower = trimmed.toLowerCase();
+  if (UNCERTAINTY_PHRASE_RE.test(lower)) return false;
   return MEETING_BRIDGE_AGREEMENT_RE.test(trimmed);
+}
+
+export function meetingBridgeQuestionDelivered(context: AnyConversationContext): boolean {
+  return (context.messages ?? []).some(
+    (message) => message.role === "assistant" && BRIDGE_LANGUAGE_RE.test(message.content),
+  );
 }
 
 export function shouldRequireMeetingBridge(
@@ -63,9 +77,21 @@ export function applyMeetingBridgeProgress<T extends AnyConversationContext>(
 
   if (
     detectExplicitSchedulingRequest(inboundMessage) ||
-    detectMeetingBridgeAgreement(inboundMessage) ||
     hasKnownSchedulingDay(context.scheduling) ||
     hasKnownSchedulingPartOfDay(context.scheduling)
+  ) {
+    return {
+      ...context,
+      knownFacts: {
+        ...(context.knownFacts as KnownFacts),
+        meetingBridgeComplete: true,
+      },
+    } as T;
+  }
+
+  if (
+    detectMeetingBridgeAgreement(inboundMessage) &&
+    meetingBridgeQuestionDelivered(context)
   ) {
     return {
       ...context,

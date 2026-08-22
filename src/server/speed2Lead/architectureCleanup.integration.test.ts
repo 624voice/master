@@ -267,12 +267,20 @@ describe("architecture cleanup invariants", () => {
     });
     const first = buildProviderUnavailableRecoveryMessage(session, false);
     expect(first).not.toContain("grab a time here");
+    expect(first.toLowerCase()).not.toMatch(/shortly|within a couple|will send|checking available/);
     const second = buildProviderUnavailableRecoveryMessage(session, true);
     expect(second).toContain("grab a time here");
   });
 
-  test("shouldSendDeterministicSchedulingAsk only on bridge agreement", () => {
+  test("shouldSendDeterministicSchedulingAsk only after bridge delivered and agreement", () => {
     const bridged = roiSession({
+      messages: [
+        {
+          role: "assistant",
+          content: "Worth a quick 25-minute look at how AI could help with that?",
+          at: now.toISOString(),
+        },
+      ],
       knownFacts: {
         ...roiSession().knownFacts!,
         meetingBridgeComplete: true,
@@ -281,6 +289,17 @@ describe("architecture cleanup invariants", () => {
       },
     });
     expect(shouldSendDeterministicSchedulingAsk(bridged, "Sure")).toBe(true);
+    expect(shouldSendDeterministicSchedulingAsk(bridged, "Not sure")).toBe(false);
     expect(shouldSendDeterministicSchedulingAsk(bridged, "Wednesday afternoon")).toBe(false);
+
+    const bridgeNotDelivered = roiSession({
+      knownFacts: {
+        ...roiSession().knownFacts!,
+        meetingBridgeComplete: true,
+        primaryPain: "manual",
+        questionsAsked: 1,
+      },
+    });
+    expect(shouldSendDeterministicSchedulingAsk(bridgeNotDelivered, "Sure")).toBe(false);
   });
 });

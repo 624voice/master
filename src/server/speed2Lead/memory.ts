@@ -460,9 +460,13 @@ export function applySchedulingIntent<T extends AnyConversationContext>(
 ): T {
   const normalized = normalizeSessionMemory(context);
   const scheduling = normalized.scheduling;
+  const resolvedPartOfDay =
+    input.partOfDay && input.partOfDay !== "full_day"
+      ? input.partOfDay
+      : scheduling.partOfDay;
   const patch = {
     centralDate: input.centralDate ?? scheduling.centralDate,
-    partOfDay: input.partOfDay ?? scheduling.partOfDay,
+    partOfDay: resolvedPartOfDay,
     anchorTimeMinutes: extras.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
     searchAfterMinutes: extras.searchAfterMinutes,
     searchBeforeMinutes: extras.searchBeforeMinutes,

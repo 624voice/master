@@ -48,7 +48,10 @@ export function extractNormalizedSchedulingIntent(args: {
     (mergedIntent.partOfDay && mergedIntent.partOfDay !== "full_day"
       ? mergedIntent.partOfDay
       : undefined) ??
-    (semanticPart ?? undefined);
+    semanticPart ??
+    (scheduling?.partOfDay && scheduling.partOfDay !== "full_day"
+      ? scheduling.partOfDay
+      : undefined);
 
   const centralDate = constraintPatch.centralDate ?? mergedIntent.centralDate ?? scheduling?.centralDate;
 
