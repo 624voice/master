@@ -2,8 +2,7 @@ import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle
 import { isSpeed2LeadLlmEnabled } from "~/server/speed2Lead/config";
 import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { orchestrateInboundTurn, type OrchestratorDeps } from "~/server/speed2Lead/orchestrator";
-import { isActiveV2Scheduling } from "~/server/speed2Lead/schedulingController";
-import { genericRecoveryMessage, finalizeCalendarLinkOutbound } from "~/server/speed2Lead/guardrails";
+import { buildStageAwareRecoveryMessage, finalizeCalendarLinkOutbound } from "~/server/speed2Lead/guardrails";
 import {
   logSpeed2LeadTestEvent,
   summarizeSchedulingState,
@@ -197,74 +196,46 @@ export async function handleInboundSms(
     });
 
     const orchestrated = await orchestrateInboundTurn(session, body, testDeps);
-    if (orchestrated.handled) {
-      if (orchestrated.reply.trim()) {
-        const outbound =
-          finalizeCalendarLinkOutbound(
-            orchestrated.reply,
-            orchestrated.context,
-            orchestrated.calendarLinkAllowed ?? false,
-          ) ?? genericRecoveryMessage(orchestrated.context);
-        const updated = await sendConversationSms(
-          phone,
-          outbound,
-          orchestrated.context,
-        );
-        await saveSession(updated ?? orchestrated.context);
-        logSpeed2LeadTestEvent(phone, "outbound_sent", {
-          flow: orchestrated.context.flow ?? "roi",
-          replyLength: outbound.length,
-          handledBy: "llm",
-          durationMs: Date.now() - turnStartedAt,
-          ...summarizeSchedulingState(updated ?? orchestrated.context),
-        });
-      } else {
-        await saveSession(orchestrated.context);
-        logSpeed2LeadTestEvent(phone, "outbound_sent", {
-          flow: orchestrated.context.flow ?? "roi",
-          replyLength: 0,
-          handledBy: "llm_lifecycle_confirmation_only",
-          durationMs: Date.now() - turnStartedAt,
-          ...summarizeSchedulingState(orchestrated.context),
-        });
-      }
-      if (isDemoSession(orchestrated.context) && orchestrated.context.meetingBooked) {
-        await removeDemoFollowUp(phone);
-      }
-      if (orchestrated.context.scheduling?.status === "confirmed") {
-        await removeNurtureFollowUp(phone);
-      }
-      return;
-    }
-
-    const recoveryReply =
+    const outboundBase = orchestrated.reply.trim()
+      ? orchestrated.reply
+      : buildStageAwareRecoveryMessage(orchestrated.context, orchestrated.calendarLinkAllowed ?? false);
+    const outbound =
       finalizeCalendarLinkOutbound(
-        orchestrated.recoveryReply ?? genericRecoveryMessage(orchestrated.context),
+        outboundBase,
         orchestrated.context,
         orchestrated.calendarLinkAllowed ?? false,
-      ) ?? genericRecoveryMessage(orchestrated.context);
-    logSpeed2LeadTestEvent(phone, "rules_fallback", {
-      reason: orchestrated.reason,
-      flow: session.flow ?? "roi",
-      blockedRulesStateMachine: true,
-      v2Recovery: isActiveV2Scheduling(orchestrated.context),
-    });
-    const updated = await sendConversationSms(
-      phone,
-      recoveryReply,
-      orchestrated.context,
-    );
-    await saveSession(updated ?? orchestrated.context);
-    logSpeed2LeadTestEvent(phone, "outbound_sent", {
-      flow: orchestrated.context.flow ?? "roi",
-      replyLength: recoveryReply.length,
-      handledBy: isActiveV2Scheduling(orchestrated.context) ? "v2_recovery" : "llm_recovery",
-      durationMs: Date.now() - turnStartedAt,
-      ...summarizeSchedulingState(updated ?? orchestrated.context),
-    });
+      ) ?? buildStageAwareRecoveryMessage(orchestrated.context, false);
+
+    if (orchestrated.reply.trim()) {
+      const updated = await sendConversationSms(phone, outbound, orchestrated.context);
+      await saveSession(updated ?? orchestrated.context);
+      logSpeed2LeadTestEvent(phone, "outbound_sent", {
+        flow: orchestrated.context.flow ?? "roi",
+        replyLength: outbound.length,
+        handledBy: "llm",
+        durationMs: Date.now() - turnStartedAt,
+        ...summarizeSchedulingState(updated ?? orchestrated.context),
+      });
+    } else {
+      await saveSession(orchestrated.context);
+      logSpeed2LeadTestEvent(phone, "outbound_sent", {
+        flow: orchestrated.context.flow ?? "roi",
+        replyLength: 0,
+        handledBy: "llm_lifecycle_confirmation_only",
+        durationMs: Date.now() - turnStartedAt,
+        ...summarizeSchedulingState(orchestrated.context),
+      });
+    }
+    if (isDemoSession(orchestrated.context) && orchestrated.context.meetingBooked) {
+      await removeDemoFollowUp(phone);
+    }
+    if (orchestrated.context.scheduling?.status === "confirmed") {
+      await removeNurtureFollowUp(phone);
+    }
     return;
   }
 
+  // Non-LLM path only: legacy rules-engine conversation ownership.
   const result = isDemoSession(session)
     ? advanceDemoConversation(session, body)
     : isContactSession(session)
@@ -276,7 +247,7 @@ export async function handleInboundSms(
   logSpeed2LeadTestEvent(phone, "outbound_sent", {
     flow: result.context.flow ?? "roi",
     replyLength: result.reply.length,
-    handledBy: useLlmOrchestrator ? "rules_after_llm_fallback" : "rules",
+    handledBy: "rules",
     ...summarizeSchedulingState(updated ?? result.context),
   });
 

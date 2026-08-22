@@ -121,64 +121,10 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
 
     const result = await orchestrateInboundTurn(context, customerTurn, { now: EVAL_NOW });
 
-    if (!result.handled) {
-      if ("context" in result && result.context) {
-        context = result.context;
-      }
-      const recoveryReply =
-        "recoveryReply" in result && result.recoveryReply ? result.recoveryReply : null;
-      if (recoveryReply) {
-        context = appendAssistantMessage(context, recoveryReply);
-        const observed = observeAuthoritativeSchedulingState(context);
-        toolStatesByTurn.push(observed);
-        diagnostics.push({
-          customer: customerTurn,
-          disposition: context.disposition,
-          gateAction: summarizeGateAction(gatePlan),
-          schedulingIntent: gatePlan.schedulingIntent,
-          authoritativeSlots: observed.offeredSlots.length,
-          bookingConfirmed: observed.bookingConfirmed,
-          schedulingStatus: context.scheduling?.status,
-          availabilityAttempts: context.scheduling?.availabilityAttempts ?? 0,
-          centralDate: context.scheduling?.centralDate,
-          partOfDay: context.scheduling?.partOfDay,
-          anchorTimeMinutes: context.scheduling?.anchorTimeMinutes,
-          applicationLogicFailure: context.scheduling?.applicationLogicFailure,
-          agentPreview: recoveryReply.slice(0, 120),
-        });
-        transcript.push({
-          customer: customerTurn,
-          agent: recoveryReply,
-          handled: true,
-        });
-        continue;
-      }
-      transcript.push({
-        customer: customerTurn,
-        agent: `[FALLBACK:${result.reason}]`,
-        handled: false,
-        fallbackReason: result.reason,
-      });
-      diagnostics.push({
-        customer: customerTurn,
-        disposition: context.disposition,
-        gateAction: summarizeGateAction(gatePlan),
-        schedulingIntent: gatePlan.schedulingIntent,
-        authoritativeSlots: 0,
-        bookingConfirmed: false,
-        schedulingStatus: context.scheduling?.status,
-        availabilityAttempts: context.scheduling?.availabilityAttempts ?? 0,
-        centralDate: context.scheduling?.centralDate,
-        partOfDay: context.scheduling?.partOfDay,
-        anchorTimeMinutes: context.scheduling?.anchorTimeMinutes,
-        applicationLogicFailure: context.scheduling?.applicationLogicFailure,
-        agentPreview: `[FALLBACK:${result.reason}]`,
-      });
-      break;
-    }
-
     context = result.context;
-    context = appendAssistantMessage(context, result.reply);
+    if (result.reply.trim()) {
+      context = appendAssistantMessage(context, result.reply);
+    }
     const observed = observeAuthoritativeSchedulingState(context);
     toolStatesByTurn.push(observed);
     diagnostics.push({

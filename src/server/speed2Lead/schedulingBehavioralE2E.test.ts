@@ -125,10 +125,9 @@ async function runTurn(
   runModel: ModelRunner = silentModel(),
 ): Promise<{ session: ConversationContext; reply: string; handled: boolean }> {
   const result = await orchestrateInboundTurn(session, message, { now, runModel });
-  if (!result.handled) {
-    return { session: result.context, reply: result.recoveryReply ?? "", handled: false };
-  }
-  const next = appendAssistantMessage(result.context, result.reply);
+  const next = result.reply.trim()
+    ? appendAssistantMessage(result.context, result.reply)
+    : result.context;
   return { session: next, reply: result.reply, handled: true };
 }
 
@@ -438,7 +437,7 @@ describe("behavioral E2E A-P through orchestrateInboundTurn", () => {
 
     expect(turn.reply).not.toContain("calendar.app.google");
     expect(turn.reply.toLowerCase()).toMatch(
-      /what day|morning or afternoon|try another time|hit a snag|mind sending/,
+      /what day|morning or afternoon|try another time|calendar|timing noted|slow on my end/,
     );
     expect(turn.session.scheduling?.calendarUnavailable).toBe(true);
   });

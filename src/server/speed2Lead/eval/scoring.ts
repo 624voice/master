@@ -190,9 +190,17 @@ export function scoreScenario(input: {
 
   for (const [index, turn] of transcript.entries()) {
     const turnToolState = toolStatesByTurn?.[index] ?? finalToolState;
+    const explicitCalendarLinkRequest =
+      /\b(calendar link|scheduling link|send (?:me )?(?:the )?link)\b/i.test(turn.customer);
+    const calendarLinkAllowed =
+      explicitCalendarLinkRequest ||
+      (expectations.shouldIncludeCalendarLink === true &&
+        Boolean(finalContext.bookingUrl) &&
+        turn.agent.includes(finalContext.bookingUrl!));
     const guard = validateOutboundSms(turn.agent, {
       session: finalContext,
       toolState: turnToolState,
+      calendarLinkAllowed,
     });
     if (!guard.ok) {
       technicalPass = false;

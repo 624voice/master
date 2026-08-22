@@ -12,22 +12,29 @@ import {
 } from "~/server/speed2Lead/config";
 import {
   buildOrchestratorInstructions,
+  buildBridgeRepairInstructions,
+  buildOneQuestionRepairInstructions,
   buildRepairInstructions,
+  buildTerminologyRepairInstructions,
 } from "~/server/speed2Lead/prompts";
 import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
+  buildStageAwareRecoveryMessage,
   calendarLinkFallbackMessage,
   finalizeCalendarLinkOutbound,
   genericRecoveryMessage,
   validateOutboundSms,
   type GuardrailContext,
 } from "~/server/speed2Lead/guardrails";
+import {
+  resolveLlmTurnTask,
+  shouldSendDeterministicSchedulingAsk,
+} from "~/server/speed2Lead/conversationStage";
 import { applyDisposition, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
 import { applyMeetingBridgeProgress } from "~/server/speed2Lead/conversationHandoff";
 import {
   prepareInboundSchedulingTurn,
-  schedulingFactsComplete,
 } from "~/server/speed2Lead/schedulingIntent";
 import {
   isGenericAcknowledgment,
@@ -63,21 +70,12 @@ import {
 } from "~/server/speed2Lead/tools";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
-export type OrchestratorTurnResult =
-  | {
-      handled: true;
-      reply: string;
-      context: AnyConversationContext;
-      calendarLinkAllowed?: boolean;
-    }
-  | {
-      handled: false;
-      fallbackToRules: true;
-      reason: string;
-      context: AnyConversationContext;
-      recoveryReply?: string;
-      calendarLinkAllowed?: boolean;
-    };
+export type OrchestratorTurnResult = {
+  handled: true;
+  reply: string;
+  context: AnyConversationContext;
+  calendarLinkAllowed?: boolean;
+};
 
 export type ModelRunnerInput = {
   instructions: string;
@@ -167,6 +165,28 @@ function createDefaultModelRunner(client: OpenAI): ModelRunner {
   };
 }
 
+function buildGuardrailContext(
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  calendarLinkAllowed = false,
+  allowProspectName = false,
+): GuardrailContext {
+  return {
+    session: context,
+    toolState,
+    calendarLinkAllowed,
+    allowProspectName,
+  };
+}
+
+function buildStageFallbackReply(context: AnyConversationContext, inboundMessage: string): string {
+  const stagePlan = resolveLlmTurnTask(context, inboundMessage);
+  if (stagePlan.task === "ask_conditional_meeting_bridge") {
+    return genericRecoveryMessage(context);
+  }
+  return buildStageAwareRecoveryMessage(context, false);
+}
+
 function resolveFinalReply(
   draft: string,
   context: AnyConversationContext,
@@ -183,14 +203,14 @@ function resolveFinalReply(
   }
 
   if (toolState.bookingFailed) {
-    return sanitized.trim() || genericRecoveryMessage(context);
+    return sanitized.trim() || buildStageAwareRecoveryMessage(context, calendarLinkAllowed);
   }
 
   if (sanitized.trim()) {
     return sanitized.trim();
   }
 
-  return genericRecoveryMessage(context);
+  return buildStageAwareRecoveryMessage(context, calendarLinkAllowed);
 }
 
 async function validateOrRepair(
@@ -202,8 +222,9 @@ async function validateOrRepair(
   model: string,
   runModel: ModelRunner,
   calendarLinkAllowed = false,
+  inboundMessage = "",
 ): Promise<string | null> {
-  const guardrailContext: GuardrailContext = { session: context, toolState };
+  const guardrailContext = buildGuardrailContext(context, toolState, calendarLinkAllowed, false);
   const firstPass = validateOutboundSms(draft, guardrailContext);
   if (firstPass.ok) {
     return firstPass.text;
@@ -223,7 +244,10 @@ async function validateOrRepair(
       toolState.bookingStart,
       context.firstName,
     );
-    const confirmedPass = validateOutboundSms(confirmation, guardrailContext);
+    const confirmedPass = validateOutboundSms(
+      confirmation,
+      buildGuardrailContext(context, toolState, calendarLinkAllowed, true),
+    );
     if (confirmedPass.ok) {
       return confirmedPass.text;
     }
@@ -261,47 +285,86 @@ async function validateOrRepair(
     return null;
   }
 
-  if (!deps.runModel) {
-    return null;
+  let repairInstructions: string | null = null;
+  if (firstPass.reason.includes("more than one question")) {
+    repairInstructions = buildOneQuestionRepairInstructions();
+  } else if (firstPass.reason.includes("meeting bridge and scheduling")) {
+    repairInstructions = buildBridgeRepairInstructions();
+  } else if (firstPass.reason.includes("bot terminology")) {
+    repairInstructions = buildTerminologyRepairInstructions();
   }
 
-  logOrchestratorEvent("repair_attempt", {
-    flow: context.flow ?? "roi",
-    reason: firstPass.reason,
-  });
-
-  try {
-    const repaired = await runModel({
-      instructions: buildOrchestratorInstructions(context, deps.now),
-      input: conversationInput,
-      tools: [],
-      model,
-      repairInstructions: buildRepairInstructions(firstPass.reason),
-    });
-
-    const repairedDraft = resolveFinalReply(
-      repaired.outputText,
-      context,
-      toolState,
-      calendarLinkAllowed,
-    );
-    const secondPass = validateOutboundSms(repairedDraft, guardrailContext);
-    if (secondPass.ok) {
-      return secondPass.text;
-    }
-  } catch (error) {
-    logOrchestratorEvent("openai_error", {
+  if (repairInstructions && deps.runModel) {
+    logOrchestratorEvent("repair_attempt", {
       flow: context.flow ?? "roi",
-      stage: "repair",
-      error: error instanceof Error ? error.message : String(error),
+      reason: firstPass.reason,
     });
+
+    try {
+      const repaired = await runModel({
+        instructions: buildOrchestratorInstructions(context, deps.now, inboundMessage),
+        input: conversationInput,
+        tools: [],
+        model,
+        repairInstructions,
+      });
+
+      const repairedDraft = resolveFinalReply(
+        repaired.outputText,
+        context,
+        toolState,
+        calendarLinkAllowed,
+      );
+      const secondPass = validateOutboundSms(repairedDraft, guardrailContext);
+      if (secondPass.ok) {
+        return secondPass.text;
+      }
+    } catch (error) {
+      logOrchestratorEvent("openai_error", {
+        flow: context.flow ?? "roi",
+        stage: "repair",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  } else if (!repairInstructions && deps.runModel) {
+    logOrchestratorEvent("repair_attempt", {
+      flow: context.flow ?? "roi",
+      reason: firstPass.reason,
+    });
+
+    try {
+      const repaired = await runModel({
+        instructions: buildOrchestratorInstructions(context, deps.now, inboundMessage),
+        input: conversationInput,
+        tools: [],
+        model,
+        repairInstructions: buildRepairInstructions(firstPass.reason),
+      });
+
+      const repairedDraft = resolveFinalReply(
+        repaired.outputText,
+        context,
+        toolState,
+        calendarLinkAllowed,
+      );
+      const secondPass = validateOutboundSms(repairedDraft, guardrailContext);
+      if (secondPass.ok) {
+        return secondPass.text;
+      }
+    } catch (error) {
+      logOrchestratorEvent("openai_error", {
+        flow: context.flow ?? "roi",
+        stage: "repair",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 
   if (calendarLinkAllowed && shouldSuggestCalendarLink(toolState)) {
     return calendarLinkFallbackMessage(context);
   }
 
-  return null;
+  return buildStageFallbackReply(context, inboundMessage);
 }
 
 function logTestTurnComplete(
@@ -446,11 +509,15 @@ export async function orchestrateInboundTurn(
   }
 
   if (!deps.runModel && !isOpenAiConfigured()) {
-    logOrchestratorEvent("fallback_rules", {
+    logOrchestratorEvent("openai_error", {
       flow: context.flow ?? "roi",
       reason: "openai_not_configured",
     });
-    return { handled: false, fallbackToRules: true, reason: "openai_not_configured", context };
+    return {
+      handled: true,
+      reply: buildStageAwareRecoveryMessage(context, false),
+      context,
+    };
   }
 
   const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -458,7 +525,22 @@ export async function orchestrateInboundTurn(
 
   let workingContext = applyMeetingBridgeProgress(context, inboundMessage);
   workingContext = prepareInboundSchedulingTurn(workingContext, inboundMessage, now);
-  const gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
+  let gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
+  const deterministicSchedulingAsk = shouldSendDeterministicSchedulingAsk(
+    workingContext,
+    inboundMessage,
+  );
+  if (deterministicSchedulingAsk) {
+    gatePlan = {
+      ...gatePlan,
+      action: { type: "ask_preference" },
+      schedulingIntent: true,
+      strongInterest: true,
+      explicitCalendarLinkRequest: gatePlan.explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
   logSpeed2LeadTestEvent(context.phone, "scheduling_gate_action", {
     flow: context.flow ?? "roi",
     gateAction: summarizeGateAction(gatePlan),
@@ -467,8 +549,10 @@ export async function orchestrateInboundTurn(
   let toolState = hydrateToolStateFromContext(workingContext, createInitialToolState());
   let llmCalledGetAvailability = false;
   let llmCalledBookAppointment = false;
-  const skipLlmToolLoop = requiresDeterministicSchedulingCompletion(gatePlan, workingContext);
-  const instructions = buildOrchestratorInstructions(workingContext, now);
+  const skipLlmToolLoop =
+    requiresDeterministicSchedulingCompletion(gatePlan, workingContext) ||
+    deterministicSchedulingAsk;
+  const instructions = buildOrchestratorInstructions(workingContext, now, inboundMessage);
   const conversationInput: ResponseInputItem[] = buildConversationInput(workingContext);
   let latestDraft = "";
 
@@ -773,6 +857,7 @@ export async function orchestrateInboundTurn(
       model,
       runModel,
       gateResult.calendarLinkAllowed,
+      inboundMessage,
     );
   }
 
@@ -796,7 +881,7 @@ export async function orchestrateInboundTurn(
   }
 
   if (!validated?.trim()) {
-    logOrchestratorEvent("fallback_rules", {
+    logOrchestratorEvent("turn_complete", {
       flow: context.flow ?? "roi",
       reason: "safe_turn_recovery",
     });

@@ -337,12 +337,13 @@ describe("scheduling gate persistence", () => {
     expect(resolveOfferedSlotSelection("Yes the 2pm one", slots)).toBe(slots[1]);
   });
 
-  test("active V2 scheduling blocks rules fallback path in handleInbound", () => {
+  test("LLM path keeps orchestrator ownership before legacy rules engine", () => {
     const source = readFileSync(new URL("./handleInbound.ts", import.meta.url), "utf8");
-    expect(source).toContain("isActiveV2Scheduling");
-    expect(source.indexOf("isActiveV2Scheduling")).toBeLessThan(
-      source.indexOf("advanceDemoConversation"),
+    expect(source).toContain("// Non-LLM path only: legacy rules-engine conversation ownership.");
+    expect(source.indexOf("if (useLlmOrchestrator)")).toBeLessThan(
+      source.indexOf("// Non-LLM path only: legacy rules-engine conversation ownership."),
     );
+    expect(source).not.toContain("rules_after_llm_fallback");
   });
 
   test("stale slot times fail guardrail after refresh", () => {

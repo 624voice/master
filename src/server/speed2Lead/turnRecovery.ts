@@ -1,6 +1,7 @@
 import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
+  buildStageAwareRecoveryMessage,
   finalizeCalendarLinkOutbound,
   genericRecoveryMessage,
   validateOutboundSms,
@@ -24,7 +25,12 @@ function validateSafeOutbound(
   if (!finalized) {
     return null;
   }
-  const pass = validateOutboundSms(finalized, { session: context, toolState });
+  const pass = validateOutboundSms(finalized, {
+    session: context,
+    toolState,
+    calendarLinkAllowed,
+    allowProspectName: toolState.bookingConfirmed === true,
+  });
   return pass.ok ? pass.text : null;
 }
 
@@ -148,7 +154,7 @@ export function buildSafeTurnRecovery(args: {
     }
   }
 
-  return genericRecoveryMessage(context);
+  return buildStageAwareRecoveryMessage(context, gateResult.calendarLinkAllowed);
 }
 
 export function finalizeSafeTurnReply(args: {

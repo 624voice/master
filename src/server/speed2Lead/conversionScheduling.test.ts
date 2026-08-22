@@ -123,7 +123,8 @@ describe("conversion + scheduling behavior classes", () => {
     expect(message.toLowerCase()).toContain("friday");
     expect(message).toContain("4pm");
     expect(message).toContain("CT");
-    expect(message).toContain("chris@example.com");
+    expect(message.toLowerCase()).toContain("booked");
+    expect(message).toContain("Chris");
   });
 });
 

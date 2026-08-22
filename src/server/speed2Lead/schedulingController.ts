@@ -5,9 +5,9 @@ import { calendarAttendeeInviteEnabled } from "~/server/appointmentLifecycle/goo
 import {
   buildBookingConfirmationMessage,
   buildContextualSlotOfferMessage,
+  buildProviderUnavailableRecoveryMessage,
   calendarLinkFallbackMessage,
   finalizeCalendarLinkOutbound,
-  genericRecoveryMessage,
   validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
 import type { SlotOfferSituation } from "~/server/speed2Lead/schedulingReply";
@@ -1141,7 +1141,11 @@ export function validateDeterministicSchedulingReply(
   if (!sanitized) {
     return { ok: false, reason: "blocked_self_scheduling_copy" };
   }
-  return validateOutboundSms(sanitized, { session: context, toolState });
+  return validateOutboundSms(sanitized, {
+    session: context,
+    toolState,
+    calendarLinkAllowed,
+  });
 }
 
 export function resolveAuthoritativeSchedulingReply(args: {
@@ -1310,7 +1314,7 @@ function buildProviderFailureReply(
     return calendarLinkFallbackMessage(context);
   }
   if (providerFailure) {
-    return genericRecoveryMessage(context);
+    return buildProviderUnavailableRecoveryMessage(context, false);
   }
   if (schedulingFactsComplete(context.scheduling)) {
     return buildWeekdayAvailabilityFullReply(context.scheduling);
@@ -1722,7 +1726,11 @@ export async function enforceSchedulingGate(args: {
         );
       } else if (bookingAttempted) {
         context = applySchedulingMeta(context, { bookingPending: false });
-        forcedReply = `I hit a snag booking that — mind sending the time once more?`;
+        forcedReply = formatConflictReply(
+          toolState.offeredSlots,
+          args.inboundMessage,
+          context.scheduling,
+        );
       }
     }
   }
@@ -1759,7 +1767,11 @@ export async function enforceSchedulingGate(args: {
     bookingAttempted &&
     !toolState.bookingConfirmed
   ) {
-    forcedReply = `I hit a snag booking that — mind sending the time once more?`;
+    forcedReply = formatConflictReply(
+      toolState.offeredSlots,
+      args.inboundMessage,
+      context.scheduling,
+    );
   }
 
   context = persistSchedulingToolState(context, toolState, activeRequestKey);
@@ -1769,6 +1781,15 @@ export async function enforceSchedulingGate(args: {
     toolState,
     context,
   });
+
+  if (
+    forcedReply &&
+    finalCalendarLinkAllowed &&
+    shouldSuggestCalendarLink(toolState) &&
+    (toolState.calendarUnavailable || context.scheduling?.providerFailureReason)
+  ) {
+    forcedReply = calendarLinkFallbackMessage(context);
+  }
 
   return {
     context,

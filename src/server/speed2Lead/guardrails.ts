@@ -1,6 +1,23 @@
-import { formatNaturalAppointmentParts, formatNaturalTime } from "~/server/appointmentLifecycle/formatTime";
+import { bookingConfirmationMessage } from "~/server/appointmentLifecycle/messages";
+import { formatNaturalTime } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { SPEED2LEAD_LLM_MAX_SMS_LENGTH } from "~/server/speed2Lead/config";
+import {
+  resolveLlmTurnTask,
+  shouldSendDeterministicSchedulingAsk,
+} from "~/server/speed2Lead/conversationStage";
+import {
+  containsDisallowedBotTerminology,
+  containsDisallowedProspectName,
+  containsUnauthorizedCalendarUrl,
+  countGenuineQuestions,
+  violatesBridgeSchedulingSeparation,
+} from "~/server/speed2Lead/outboundPolicy";
+import {
+  hasKnownSchedulingDay,
+  hasKnownSchedulingPartOfDay,
+} from "~/server/speed2Lead/schedulingContext";
+import { schedulingFactsComplete } from "~/server/speed2Lead/schedulingIntent";
 import {
   buildContextualSlotOfferMessage,
   buildSlotOfferMessage,
@@ -20,6 +37,8 @@ import { filterSlotsForSchedulingState } from "~/server/speed2Lead/schedulingCon
 export type GuardrailContext = {
   session: AnyConversationContext;
   toolState: ToolExecutionState;
+  calendarLinkAllowed?: boolean;
+  allowProspectName?: boolean;
 };
 
 export type GuardrailResult =
@@ -180,6 +199,37 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
     return { ok: false, reason: "SMS offers slots outside the active daypart constraint" };
   }
 
+  if (containsUnauthorizedCalendarUrl(trimmed, ctx.calendarLinkAllowed ?? false)) {
+    return { ok: false, reason: "SMS contains an unauthorized calendar link" };
+  }
+
+  if (containsDisallowedBotTerminology(trimmed)) {
+    return { ok: false, reason: "SMS uses disallowed bot terminology" };
+  }
+
+  if (countGenuineQuestions(trimmed) > 1) {
+    return { ok: false, reason: "SMS contains more than one question" };
+  }
+
+  const stagePlan = resolveLlmTurnTask(ctx.session, "");
+  if (
+    violatesBridgeSchedulingSeparation({
+      text: trimmed,
+      stage: stagePlan.stage,
+      task: stagePlan.task,
+    })
+  ) {
+    return { ok: false, reason: "SMS combines meeting bridge and scheduling asks" };
+  }
+
+  const allowName =
+    ctx.allowProspectName ??
+    (ctx.session.scheduling?.status === "confirmed" &&
+      ctx.toolState.bookingConfirmed === true);
+  if (containsDisallowedProspectName(trimmed, ctx.session, allowName)) {
+    return { ok: false, reason: "SMS uses prospect name outside allowed turns" };
+  }
+
   return { ok: true, text: trimmed };
 }
 
@@ -192,26 +242,16 @@ export function buildBookingConfirmationMessage(
     useLifecycleCopy?: boolean;
   } = {},
 ): string {
-  const { weekday, month, day, time, timezoneShort } = formatNaturalAppointmentParts(
-    start,
-    CONSULTATION_TIMEZONE,
-  );
-  const tz = timezoneShort ? ` ${timezoneShort}` : "";
-  const dateLabel = `${weekday}, ${month} ${day}`;
-
   if (options.useLifecycleCopy) {
     return "";
   }
 
-  let message = `Got you booked for ${dateLabel} at ${time}${tz}, ${firstName}.`;
-  if (options.sendsCalendarInvite && options.email) {
-    message += ` I'll send the calendar invite to ${options.email}.`;
-  } else if (options.email) {
-    message += ` I'll send the details to ${options.email}.`;
-  } else {
-    message += ` I'll send a reminder before we meet.`;
-  }
-  return message;
+  return bookingConfirmationMessage({
+    firstName,
+    appointmentStart: start,
+    timezone: CONSULTATION_TIMEZONE,
+    email: options.email,
+  });
 }
 
 const UNAUTHORIZED_SELF_SCHEDULE_COPY_RE =
@@ -240,8 +280,44 @@ export function calendarLinkFallbackMessage(context: AnyConversationContext): st
   return `If it's easier, you can grab a time here: ${context.bookingUrl}`;
 }
 
-export function genericRecoveryMessage(_context: AnyConversationContext): string {
-  return "Chris with 624Voice — I hit a snag on my side. Mind sending that again?";
+export function genericRecoveryMessage(context: AnyConversationContext): string {
+  const stagePlan = resolveLlmTurnTask(context, "");
+  if (stagePlan.stage === "meeting_bridge") {
+    return "Still with you — worth a quick 25-minute look at how AI could help with that?";
+  }
+  if (stagePlan.stage === "operational_followup" || stagePlan.stage === "report_reaction") {
+    return "Still here — what part of the report stood out most for you?";
+  }
+  return "Still here — go ahead when you're ready.";
+}
+
+export function buildProviderUnavailableRecoveryMessage(
+  context: AnyConversationContext,
+  calendarLinkAllowed: boolean,
+): string {
+  if (calendarLinkAllowed) {
+    return calendarLinkFallbackMessage(context);
+  }
+  if (schedulingFactsComplete(context.scheduling)) {
+    return "My calendar's being slow on my end — I still have your timing noted and I'll get options over shortly.";
+  }
+  if (hasKnownSchedulingPartOfDay(context.scheduling)) {
+    return "My calendar's being slow on my end — what day works best for a quick 25-minute chat?";
+  }
+  if (hasKnownSchedulingDay(context.scheduling)) {
+    return "My calendar's being slow on my end — morning or afternoon?";
+  }
+  return "My calendar's being slow on my end — what day works best for a quick 25-minute chat?";
+}
+
+export function buildStageAwareRecoveryMessage(
+  context: AnyConversationContext,
+  calendarLinkAllowed = false,
+): string {
+  if (shouldSendDeterministicSchedulingAsk(context, "")) {
+    return "What day works best for a quick 25-minute chat?";
+  }
+  return genericRecoveryMessage(context);
 }
 
 /**
