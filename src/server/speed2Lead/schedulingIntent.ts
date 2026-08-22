@@ -128,7 +128,10 @@ export function prepareInboundSchedulingTurn<T extends AnyConversationContext>(
 }
 
 export function schedulingFactsComplete(scheduling?: SchedulingState): boolean {
-  return hasKnownSchedulingDay(scheduling) && hasKnownSchedulingPartOfDay(scheduling);
+  if (!hasKnownSchedulingDay(scheduling)) return false;
+  if (hasKnownSchedulingPartOfDay(scheduling)) return true;
+  if (scheduling?.anchorTimeMinutes != null) return true;
+  return false;
 }
 
 export function markApplicationLogicFailure<T extends AnyConversationContext>(context: T): T {

@@ -358,7 +358,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     },
     presetSlots: (now) => [
       ...slotsForWeekday(now, "Tue", [16, 17]),
-      ...slotsForWeekday(now, "Fri", [9, 10, 16, 17]),
+      ...slotsForWeekday(now, "Fri", [9, 10, 16, 17, 19]),
     ],
   },
   {

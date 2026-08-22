@@ -252,6 +252,9 @@ export function detectSemanticDaypartSelection(
   if (/\b(morning|before noon)\b/.test(lower)) return "morning";
   if (/\b(after lunch|afternoon)\b/.test(lower)) return "afternoon";
   if (/\b(evening|after work)\b/.test(lower)) return "evening";
+  if (/\bevenings?\b/.test(lower) && /\b(work|better|prefer|best|only)\b/.test(lower)) {
+    return "evening";
+  }
 
   return null;
 }

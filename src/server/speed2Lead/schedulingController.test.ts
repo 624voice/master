@@ -231,6 +231,18 @@ describe("schedulingController planning", () => {
     expect(plan.action.type === "get_availability" && plan.action.input.partOfDay).toBe("afternoon");
   });
 
+  test("Friday at 3 resolves date and exact-time facts for availability", () => {
+    const context = prepareInboundSchedulingTurn(roiSession(), "Friday at 3", now);
+    const plan = planSchedulingGate({
+      inboundMessage: "Friday at 3",
+      context,
+      now,
+    });
+    expect(context.scheduling?.centralDate).toBeTruthy();
+    expect(context.scheduling?.anchorTimeMinutes).toBe(15 * 60);
+    expect(plan.action.type).toBe("get_availability");
+  });
+
   test("Selecting an offered slot plans booking", () => {
     const slot = centralDateAt(2026, 8, 26, 13, 30, TZ).toISOString();
     const plan = planSchedulingGate({

@@ -215,11 +215,15 @@ export function scoreScenario(input: {
   }
 
   if (expectations.requireNormalizedSchedulingFacts) {
-    if (!hasKnownSchedulingDay(finalContext.scheduling) || !hasKnownSchedulingPartOfDay(finalContext.scheduling)) {
+    const hasFacts =
+      hasKnownSchedulingDay(finalContext.scheduling) &&
+      (hasKnownSchedulingPartOfDay(finalContext.scheduling) ||
+        finalContext.scheduling?.anchorTimeMinutes != null);
+    if (!hasFacts) {
       technicalPass = false;
       failureClass = "deterministic_orchestration";
       notes.push(
-        `Missing normalized scheduling facts: centralDate=${finalContext.scheduling?.centralDate ?? "none"} partOfDay=${finalContext.scheduling?.partOfDay ?? "none"}`,
+        `Missing normalized scheduling facts: centralDate=${finalContext.scheduling?.centralDate ?? "none"} partOfDay=${finalContext.scheduling?.partOfDay ?? "none"} anchor=${finalContext.scheduling?.anchorTimeMinutes ?? "none"}`,
       );
     }
   }

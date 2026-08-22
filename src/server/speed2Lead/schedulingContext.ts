@@ -494,7 +494,10 @@ export function buildAvailabilityInputFromSchedulingState(
 }
 
 function extractAnchorMinutes(message: string): number | null {
-  const anchorMatch = message.match(ANCHOR_TIME_RE) ?? message.match(AFTER_BEFORE_TIME_RE);
+  const anchorMatch =
+    message.match(ANCHOR_TIME_RE) ??
+    message.match(AFTER_BEFORE_TIME_RE) ??
+    message.match(/\bat\s+(\d{1,2}(?::\d{2})?)\b/i);
   if (!anchorMatch) return null;
   return parseFlexibleTimeToken(anchorMatch[1] ?? anchorMatch[2] ?? "");
 }
