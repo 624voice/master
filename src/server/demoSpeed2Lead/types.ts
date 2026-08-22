@@ -1,3 +1,5 @@
+import type { SessionMemoryFields } from "~/server/speed2Lead/sessionMemoryTypes";
+
 export type DemoConversationState =
   | "awaiting_fit"
   | "awaiting_workload"
@@ -20,7 +22,7 @@ export type DemoConversationState =
 
 export type DemoFollowUpStage = 0 | 1 | 2 | 3;
 
-export type DemoConversationContext = {
+export type DemoConversationContext = SessionMemoryFields & {
   flow: "demo";
   phone: string;
   firstName: string;

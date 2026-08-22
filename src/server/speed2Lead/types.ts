@@ -1,6 +1,7 @@
 import type { LeadInfo } from "~/lib/lead/validateLead";
 import type { TradeKey } from "~/lib/roi/roiModel";
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
+import type { SessionMemoryFields } from "~/server/speed2Lead/sessionMemoryTypes";
 
 export type ConversationState =
   | "awaiting_problem"
@@ -12,7 +13,7 @@ export type ConversationState =
   | "awaiting_office_staff_task"
   | "completed";
 
-export type ConversationContext = {
+export type ConversationContext = SessionMemoryFields & {
   flow?: "roi";
   phone: string;
   firstName: string;

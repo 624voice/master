@@ -2,7 +2,7 @@
   command = "npm run build"
   publish = "dist/client"
 
-[functions."demo-followups"]
+[functions."speed2lead-followups"]
   schedule = "*/15 * * * *"
 
 [functions."appointment-reminders"]
@@ -14,3 +14,8 @@
 [dev]
   command = "bun run dev"
   port = 3000
+
+# Controlled real-phone SMS test on PR deploy previews (see PR #61 readiness report)
+[context.deploy-preview.environment]
+  SPEED2LEAD_LLM_ENABLED = "true"
+  TWILIO_WEBHOOK_URL = "https://deploy-preview-61--624voice.netlify.app/api/sms/inbound"

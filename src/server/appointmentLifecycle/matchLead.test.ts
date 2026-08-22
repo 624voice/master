@@ -1,19 +1,31 @@
 import { describe, expect, test, mock, beforeEach } from "bun:test";
 import type { LeadIndexEntry, NormalizedCalendarEvent } from "~/server/appointmentLifecycle/types";
 
-const leadStore = new Map<string, LeadIndexEntry[]>();
-const emailIndex = new Map<string, string>();
+const redisStore = new Map<string, unknown>();
+const redisSets = new Map<string, Set<string>>();
 
-mock.module("~/server/appointmentLifecycle/store", () => ({
-  getLeadsByPhone: async (phone: string) => leadStore.get(phone) ?? [],
-  getLeadByEmail: async (email: string) => {
-    const phone = emailIndex.get(email.toLowerCase());
-    if (!phone) return null;
-    const leads = leadStore.get(phone) ?? [];
-    return leads.find((l) => l.email?.toLowerCase() === email.toLowerCase()) ?? null;
-  },
+mock.module("~/server/speed2Lead/redis", () => ({
+  getRedis: () => ({
+    get: async <T>(key: string) => (redisStore.get(key) as T | undefined) ?? null,
+    set: async (key: string, value: unknown) => {
+      redisStore.set(key, value);
+    },
+    del: async (key: string) => {
+      redisStore.delete(key);
+    },
+    sadd: async (key: string, member: string) => {
+      const set = redisSets.get(key) ?? new Set<string>();
+      set.add(member);
+      redisSets.set(key, set);
+    },
+    srem: async (key: string, member: string) => {
+      redisSets.get(key)?.delete(member);
+    },
+    smembers: async (key: string) => [...(redisSets.get(key) ?? [])],
+  }),
 }));
 
+const { saveLeadIndex } = await import("~/server/appointmentLifecycle/store");
 const { matchCalendarEventToLead } = await import("~/server/appointmentLifecycle/matchLead");
 
 function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
@@ -42,22 +54,18 @@ function event(overrides: Partial<NormalizedCalendarEvent> = {}): NormalizedCale
   };
 }
 
-function seedLead(entry: LeadIndexEntry) {
-  const existing = leadStore.get(entry.phone) ?? [];
-  leadStore.set(entry.phone, [...existing.filter((l) => l.email !== entry.email), entry]);
-  if (entry.email) {
-    emailIndex.set(entry.email.toLowerCase(), entry.phone);
-  }
+async function seedLead(entry: LeadIndexEntry): Promise<void> {
+  await saveLeadIndex(entry);
 }
 
 describe("matchLead production safety", () => {
   beforeEach(() => {
-    leadStore.clear();
-    emailIndex.clear();
+    redisStore.clear();
+    redisSets.clear();
   });
 
   test("phone exact match with consent-eligible lead", async () => {
-    seedLead(lead());
+    await seedLead(lead());
     const result = await matchCalendarEventToLead(
       event({ attendeePhone: "+15551234567", attendeeName: "Jane Doe" }),
     );
@@ -66,7 +74,7 @@ describe("matchLead production safety", () => {
   });
 
   test("unique name alone produces unmatched_booking", async () => {
-    seedLead(lead({ phone: "+15551111111" }));
+    await seedLead(lead({ phone: "+15551111111" }));
     const result = await matchCalendarEventToLead(
       event({
         attendeeName: "Jane Doe",
@@ -79,8 +87,8 @@ describe("matchLead production safety", () => {
   });
 
   test("same first/last name across multiple leads cannot cause SMS without email", async () => {
-    seedLead(lead({ phone: "+15551111111", email: "jane1@example.com" }));
-    seedLead(
+    await seedLead(lead({ phone: "+15551111111", email: "jane1@example.com" }));
+    await seedLead(
       lead({
         phone: "+15552222222",
         email: "jane2@example.com",
@@ -96,8 +104,8 @@ describe("matchLead production safety", () => {
 
   test("shared office phone requires email disambiguation", async () => {
     const sharedPhone = "+15559998888";
-    seedLead(lead({ phone: sharedPhone, email: "alice@example.com", firstName: "Alice" }));
-    seedLead(lead({ phone: sharedPhone, email: "bob@example.com", firstName: "Bob" }));
+    await seedLead(lead({ phone: sharedPhone, email: "alice@example.com", firstName: "Alice" }));
+    await seedLead(lead({ phone: sharedPhone, email: "bob@example.com", firstName: "Bob" }));
 
     const noEmail = await matchCalendarEventToLead(
       event({ attendeePhone: sharedPhone, attendeeEmail: undefined }),
@@ -114,8 +122,8 @@ describe("matchLead production safety", () => {
 
   test("email resolves duplicate phone safely", async () => {
     const sharedPhone = "+15559998888";
-    seedLead(lead({ phone: sharedPhone, email: "jane@example.com" }));
-    seedLead(lead({ phone: sharedPhone, email: "other@example.com", firstName: "Other" }));
+    await seedLead(lead({ phone: sharedPhone, email: "jane@example.com" }));
+    await seedLead(lead({ phone: sharedPhone, email: "other@example.com", firstName: "Other" }));
 
     const result = await matchCalendarEventToLead(
       event({ attendeeEmail: "jane@example.com", attendeeName: "Jane Doe" }),
@@ -125,7 +133,7 @@ describe("matchLead production safety", () => {
   });
 
   test("phone match rejected when attendee name conflicts", async () => {
-    seedLead(lead({ firstName: "Jane", lastName: "Doe" }));
+    await seedLead(lead({ firstName: "Jane", lastName: "Doe" }));
     const result = await matchCalendarEventToLead(
       event({ attendeePhone: "+15551234567", attendeeName: "John Smith" }),
     );
@@ -134,7 +142,7 @@ describe("matchLead production safety", () => {
   });
 
   test("wrong customer cannot receive another person appointment via email", async () => {
-    seedLead(lead({ phone: "+15551111111", email: "jane@example.com" }));
+    await seedLead(lead({ phone: "+15551111111", email: "jane@example.com" }));
     const result = await matchCalendarEventToLead(
       event({
         attendeeEmail: "attacker@example.com",

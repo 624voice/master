@@ -1,5 +1,11 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "serve.ts"],
+  "exclude": [
+    "node_modules",
+    "bisect-*",
+    "**/*.test.ts",
+    "**/*.integration.test.ts"
+  ],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
