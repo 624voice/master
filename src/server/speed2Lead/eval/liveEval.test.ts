@@ -83,6 +83,10 @@ type TurnDiagnostic = {
   bookingConfirmed: boolean;
   schedulingStatus?: string;
   availabilityAttempts: number;
+  centralDate?: string;
+  partOfDay?: string;
+  anchorTimeMinutes?: number;
+  applicationLogicFailure?: boolean;
   agentPreview: string;
 };
 
@@ -136,6 +140,10 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
           bookingConfirmed: observed.bookingConfirmed,
           schedulingStatus: context.scheduling?.status,
           availabilityAttempts: context.scheduling?.availabilityAttempts ?? 0,
+          centralDate: context.scheduling?.centralDate,
+          partOfDay: context.scheduling?.partOfDay,
+          anchorTimeMinutes: context.scheduling?.anchorTimeMinutes,
+          applicationLogicFailure: context.scheduling?.applicationLogicFailure,
           agentPreview: recoveryReply.slice(0, 120),
         });
         transcript.push({
@@ -160,6 +168,10 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
         bookingConfirmed: false,
         schedulingStatus: context.scheduling?.status,
         availabilityAttempts: context.scheduling?.availabilityAttempts ?? 0,
+        centralDate: context.scheduling?.centralDate,
+        partOfDay: context.scheduling?.partOfDay,
+        anchorTimeMinutes: context.scheduling?.anchorTimeMinutes,
+        applicationLogicFailure: context.scheduling?.applicationLogicFailure,
         agentPreview: `[FALLBACK:${result.reason}]`,
       });
       break;
@@ -178,6 +190,10 @@ async function runScenario(scenario: LiveEvalScenario): Promise<{
       bookingConfirmed: observed.bookingConfirmed,
       schedulingStatus: context.scheduling?.status,
       availabilityAttempts: context.scheduling?.availabilityAttempts ?? 0,
+      centralDate: context.scheduling?.centralDate,
+      partOfDay: context.scheduling?.partOfDay,
+      anchorTimeMinutes: context.scheduling?.anchorTimeMinutes,
+      applicationLogicFailure: context.scheduling?.applicationLogicFailure,
       agentPreview: result.reply.slice(0, 120),
     });
     transcript.push({
@@ -328,10 +344,14 @@ describe("Speed2Lead live model eval", () => {
         safety,
       };
 
+      const runLabel = process.env.S2L_LIVE_EVAL_RUN ?? "1";
+      await Bun.write(`/tmp/s2l-live-eval-run-${runLabel}.json`, JSON.stringify(report, null, 2));
       await Bun.write("/tmp/s2l-live-eval-report.json", JSON.stringify(report, null, 2));
       console.log(JSON.stringify(report, null, 2));
 
       expect(results.length).toBe(LIVE_EVAL_SCENARIOS.length);
+      expect(report.customerFacingFailures.length).toBe(0);
+      expect(report.technicalFailures.length).toBe(0);
     },
     900000,
   );

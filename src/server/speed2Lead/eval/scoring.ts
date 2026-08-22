@@ -1,6 +1,10 @@
 import { validateOutboundSms } from "~/server/speed2Lead/guardrails";
 import { isGenericAcknowledgment } from "~/server/speed2Lead/conversationDisposition";
 import {
+  hasKnownSchedulingDay,
+  hasKnownSchedulingPartOfDay,
+} from "~/server/speed2Lead/schedulingContext";
+import {
   collectSchedulingEvidence,
   schedulingOfferEvidenceMet,
   type SchedulingEvidence,
@@ -31,6 +35,8 @@ export type ScenarioExpectations = {
   mustNotBeAggressive?: boolean;
   customerGoalKeywords?: string[];
   forbiddenPatterns?: RegExp[];
+  /** Scheduling scenarios must persist normalized date + daypart in session state. */
+  requireNormalizedSchedulingFacts?: boolean;
 };
 
 export type QualityScores = {
@@ -205,6 +211,16 @@ export function scoreScenario(input: {
     const painQs = (agentTexts.match(/missed calls, slow response|losing the most opportunities/gi) ?? []).length;
     if (painQs > 1) {
       notes.push("Repeated ROI pain discovery question");
+    }
+  }
+
+  if (expectations.requireNormalizedSchedulingFacts) {
+    if (!hasKnownSchedulingDay(finalContext.scheduling) || !hasKnownSchedulingPartOfDay(finalContext.scheduling)) {
+      technicalPass = false;
+      failureClass = "deterministic_orchestration";
+      notes.push(
+        `Missing normalized scheduling facts: centralDate=${finalContext.scheduling?.centralDate ?? "none"} partOfDay=${finalContext.scheduling?.partOfDay ?? "none"}`,
+      );
     }
   }
 

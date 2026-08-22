@@ -978,6 +978,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     expectations: {
       shouldOfferSlots: true,
       forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
     },
     presetSlots: (now) => slotsForWeekday(now, "Tue", [14, 15, 16]),
   },
@@ -1004,6 +1005,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     expectations: {
       shouldOfferSlots: true,
       forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
     },
     presetSlots: (now) => slotsForWeekday(now, "Wed", [13, 14, 15]),
   },
@@ -1031,6 +1033,7 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     expectations: {
       shouldOfferSlots: true,
       forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
     },
     presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
   },
@@ -1053,7 +1056,131 @@ export const LIVE_EVAL_SCENARIOS: LiveEvalScenario[] = [
     expectations: {
       shouldReachScheduling: true,
       forbiddenPatterns: [/morning or afternoon\?/i, /grab a time here/i],
+      requireNormalizedSchedulingFacts: true,
     },
     presetSlots: (now) => slotsForWeekday(now, "Wed", [15, 16, 17]),
+  },
+  {
+    id: "sched-stress-next-friday-afternoon",
+    category: "scheduling",
+    name: "Stress: next Friday afternoon",
+    phone: evalPhone("0074"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0074"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0074"),
+          flow: "roi",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+      }),
+    customerTurns: ["Next Friday afternoon"],
+    expectations: {
+      shouldOfferSlots: true,
+      forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
+  },
+  {
+    id: "sched-stress-afternoon-would-be-best",
+    category: "scheduling",
+    name: "Stress: afternoon would be best with known date",
+    phone: evalPhone("0075"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0075"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0075"),
+          flow: "roi",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+        scheduling: {
+          status: "idle",
+          centralDate: inferAvailabilityInputFromMessage("Friday", now)?.centralDate,
+        },
+      }),
+    customerTurns: ["Afternoon would be best"],
+    expectations: {
+      shouldOfferSlots: true,
+      forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
+  },
+  {
+    id: "sched-stress-later-that-afternoon",
+    category: "scheduling",
+    name: "Stress: later that afternoon",
+    phone: evalPhone("0076"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0076"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0076"),
+          flow: "roi",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+        scheduling: {
+          status: "idle",
+          centralDate: inferAvailabilityInputFromMessage("Tuesday", now)?.centralDate,
+        },
+      }),
+    customerTurns: ["Later that afternoon"],
+    expectations: {
+      shouldOfferSlots: true,
+      forbiddenPatterns: [/morning or afternoon\?/i],
+      requireNormalizedSchedulingFacts: true,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Tue", [14, 15, 16]),
+  },
+  {
+    id: "sched-stress-friday-at-3",
+    category: "scheduling",
+    name: "Stress: Friday at 3",
+    phone: evalPhone("0077"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0077"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0077"),
+          flow: "roi",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+      }),
+    customerTurns: ["Friday at 3"],
+    expectations: {
+      shouldReachScheduling: true,
+      forbiddenPatterns: [/morning or afternoon\?/i, /grab a time here/i],
+      requireNormalizedSchedulingFacts: true,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Fri", [14, 15, 16]),
+  },
+  {
+    id: "sched-stress-tuesday-around-230",
+    category: "scheduling",
+    name: "Stress: Tuesday around 2:30",
+    phone: evalPhone("0078"),
+    buildSession: (now) =>
+      buildRoiSession(now, evalPhone("0078"), {
+        knownFacts: {
+          firstName: "Alex",
+          phone: evalPhone("0078"),
+          flow: "roi",
+          meetingBridgeComplete: true,
+          questionsAsked: 1,
+        },
+      }),
+    customerTurns: ["How about Tuesday around 2:30"],
+    expectations: {
+      shouldReachScheduling: true,
+      forbiddenPatterns: [/morning or afternoon\?/i, /grab a time here/i],
+      requireNormalizedSchedulingFacts: true,
+    },
+    presetSlots: (now) => slotsForWeekday(now, "Tue", [14, 15, 16]),
   },
 ];
