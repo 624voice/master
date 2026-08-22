@@ -26,6 +26,10 @@ import {
 import { applyDisposition, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
 import { applyMeetingBridgeProgress } from "~/server/speed2Lead/conversationHandoff";
 import {
+  prepareInboundSchedulingTurn,
+  schedulingFactsComplete,
+} from "~/server/speed2Lead/schedulingIntent";
+import {
   isGenericAcknowledgment,
   isSubstantiveReengagement,
   resolveDispositionAfterInbound,
@@ -452,7 +456,8 @@ export async function orchestrateInboundTurn(
   const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const runModel = deps.runModel ?? createDefaultModelRunner(client!);
 
-  let workingContext = context;
+  let workingContext = applyMeetingBridgeProgress(context, inboundMessage);
+  workingContext = prepareInboundSchedulingTurn(workingContext, inboundMessage, now);
   const gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
   logSpeed2LeadTestEvent(context.phone, "scheduling_gate_action", {
     flow: context.flow ?? "roi",

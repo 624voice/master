@@ -228,8 +228,22 @@ export function detectSemanticDaypartSelection(
     return letsDo[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;
   }
 
+  const correction = lower.match(/\b(?:no|nah),?\s*(morning|afternoon|evening)\b/);
+  if (correction?.[1]) {
+    return correction[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;
+  }
+
+  const instead = lower.match(/\b(morning|afternoon|evening)\s+instead\b/);
+  if (instead?.[1]) {
+    return instead[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;
+  }
+
+  if (/\blater that (?:day|afternoon)\b/.test(lower)) {
+    return "afternoon";
+  }
+
   const preference = lower.match(
-    /\b(?:how about\s+)?(morning|afternoon|evening)\b(?:\s+(?:please|pls|works?|would be best|is best|sounds good))?\b/,
+    /\b(?:how about\s+)?(morning|afternoon|evening)\b(?:\s+(?:please|pls|works?|would be best|is best|sounds good|is better))?\b/,
   );
   if (preference?.[1]) {
     return preference[1] as Exclude<AvailabilityRangeInput["partOfDay"], "full_day" | undefined>;

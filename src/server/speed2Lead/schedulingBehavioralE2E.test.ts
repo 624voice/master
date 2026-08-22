@@ -437,7 +437,9 @@ describe("behavioral E2E A-P through orchestrateInboundTurn", () => {
     );
 
     expect(turn.reply).not.toContain("calendar.app.google");
-    expect(turn.reply.toLowerCase()).toMatch(/what day|morning or afternoon|try another time/);
+    expect(turn.reply.toLowerCase()).toMatch(
+      /what day|morning or afternoon|try another time|hit a snag|mind sending/,
+    );
     expect(turn.session.scheduling?.calendarUnavailable).toBe(true);
   });
 

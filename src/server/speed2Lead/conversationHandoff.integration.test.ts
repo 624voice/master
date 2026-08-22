@@ -172,10 +172,11 @@ beforeEach(() => {
 });
 
 describe("deployed conversation + scheduling handoff", () => {
-  test("revised ROI opening is low-pressure and single-question", () => {
+  test("revised ROI opening invites report reaction with one question", () => {
     const opening = initialMessage(roiSession());
-    expect(opening).toMatch(/what usually happens first/i);
-    expect(opening).not.toMatch(/missed calls, slow response/i);
+    expect(opening).toMatch(/which part stood out most/i);
+    expect(opening).toMatch(/roi report/i);
+    expect(opening).not.toMatch(/what usually happens first/i);
     expect((opening.match(/\?/g) ?? []).length).toBe(1);
   });
 

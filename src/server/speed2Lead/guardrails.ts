@@ -237,12 +237,11 @@ export function isBrokenSelfSchedulingOutbound(
 }
 
 export function calendarLinkFallbackMessage(context: AnyConversationContext): string {
-  const firstName = context.firstName ?? "there";
-  return `No problem, ${firstName}. If it's easier, you can grab a time here: ${context.bookingUrl}`;
+  return `If it's easier, you can grab a time here: ${context.bookingUrl}`;
 }
 
-export function genericRecoveryMessage(context: AnyConversationContext): string {
-  return `Hey ${context.firstName}, Chris with 624Voice — I hit a snag on my side. Mind sending that again?`;
+export function genericRecoveryMessage(_context: AnyConversationContext): string {
+  return "Chris with 624Voice — I hit a snag on my side. Mind sending that again?";
 }
 
 /**

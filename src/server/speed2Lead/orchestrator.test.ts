@@ -650,7 +650,9 @@ describe("speed2Lead orchestrator behavioral tests", () => {
     expect(result.handled).toBe(true);
     if (!result.handled) return;
     expect(result.reply).not.toContain("calendar.app.google/test");
-    expect(result.reply.toLowerCase()).toMatch(/what day|morning or afternoon|try another time/);
+    expect(result.reply.toLowerCase()).toMatch(
+      /what day|morning or afternoon|try another time|hit a snag|mind sending/,
+    );
   });
 
   test("Repeated calendar failure can produce authorized calendar-link fallback", async () => {

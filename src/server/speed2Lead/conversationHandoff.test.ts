@@ -56,10 +56,10 @@ function roiSession(overrides: Partial<ConversationContext> = {}): ConversationC
 }
 
 describe("conversation handoff helpers", () => {
-  test("opening question is observational and single-question", () => {
+  test("report-based opening is low-pressure and single-question", () => {
     const opening = initialMessage(roiSession());
-    expect(opening).toMatch(/what usually happens first/i);
-    expect(opening).not.toMatch(/missed calls, slow response/i);
+    expect(opening).toMatch(/which part stood out most/i);
+    expect(opening).not.toMatch(/what usually happens first/i);
     expect((opening.match(/\?/g) ?? []).length).toBe(1);
   });
 

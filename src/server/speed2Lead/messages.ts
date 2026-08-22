@@ -12,14 +12,14 @@ function fill(template: string, context: ConversationContext): string {
 
 export function initialMessage(context: ConversationContext): string {
   return fill(
-    `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report over. When a new lead or job comes in, what usually happens first on your end?`,
+    `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report over — missed calls, response speed, follow-up, and the rest. Which part stood out most?`,
     context,
   );
 }
 
 export function identityAnswerMessage(context: ConversationContext): string {
   return fill(
-    "Chris with 624Voice — you just downloaded your ROI report from 624voice.com. Happy to help however is useful.\n\nWhen a new lead or job comes in, what usually happens first on your end?",
+    "Chris with 624Voice — you just downloaded your ROI report from 624voice.com. Happy to help however is useful.\n\nWhich part of the report stood out most — missed calls, slow response, follow-up, or something else?",
     context,
   );
 }

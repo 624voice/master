@@ -417,6 +417,8 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     availabilityAttempts?: number;
     bookingAttempts?: number;
     calendarUnavailable?: boolean;
+    providerFailureReason?: string;
+    applicationLogicFailure?: boolean;
     centralDate?: string;
     partOfDay?: SchedulingPartOfDay;
     anchorTimeMinutes?: number;

@@ -58,10 +58,13 @@ import {
   slotsCompatibleWithSchedulingState,
 } from "~/server/speed2Lead/schedulingContext";
 import { shouldBlockSchedulingTurn, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
+import { shouldBlockSchedulingForMeetingBridge } from "~/server/speed2Lead/conversationHandoff";
 import {
-  detectExplicitSchedulingRequest,
-  shouldBlockSchedulingForMeetingBridge,
-} from "~/server/speed2Lead/conversationHandoff";
+  clearApplicationLogicFailure,
+  markApplicationLogicFailure,
+  prepareInboundSchedulingTurn,
+  schedulingFactsComplete,
+} from "~/server/speed2Lead/schedulingIntent";
 import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import { slotStartMinutes } from "~/server/speed2Lead/slotRanking";
 import { executeOrchestratorTool, shouldSuggestCalendarLink, type ToolExecutionState } from "~/server/speed2Lead/tools";
@@ -800,6 +803,48 @@ export function planSchedulingGate(args: {
     };
   }
 
+  if (schedulingFactsComplete(scheduling) && schedulingIntent) {
+    const factsInput =
+      buildAvailabilityInputFromSchedulingState(scheduling, inboundMessage, now) ??
+      preferenceInput;
+    if (factsInput && availabilityInputHasResolvedDate(factsInput)) {
+      const exactMinutes = resolveRequestedMinutesFromMessage(
+        inboundMessage,
+        scheduling?.offeredSlots ?? [],
+      );
+      if (
+        exactMinutes != null &&
+        hasExplicitExactTimeRequest(inboundMessage, scheduling) &&
+        scheduling?.status !== "slots_offered"
+      ) {
+        return {
+          action: {
+            type: "get_availability_for_request",
+            input: factsInput,
+            reason: "exact_time_request",
+          },
+          schedulingIntent: true,
+          strongInterest,
+          explicitCalendarLinkRequest,
+          selectedSlotStart: null,
+          preferenceInput: factsInput,
+        };
+      }
+      return {
+        action: {
+          type: "get_availability",
+          input: factsInput,
+          reason: "complete_scheduling_facts",
+        },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: factsInput,
+      };
+    }
+  }
+
   if (schedulingIntent) {
     if (
       shouldBlockAvailabilityWithoutDate(inboundMessage, scheduling, preferenceInput) ||
@@ -906,12 +951,29 @@ export function planSchedulingGate(args: {
 export function allowCalendarLinkFallback(args: {
   plan: SchedulingGatePlan;
   toolState: ToolExecutionState;
+  context?: AnyConversationContext;
 }): boolean {
+  if (args.context?.scheduling?.applicationLogicFailure) {
+    return false;
+  }
   if (args.plan.explicitCalendarLinkRequest) return true;
-  if (args.toolState.availabilityAttempts >= 2 && args.toolState.offeredSlots.length === 0) {
+
+  const providerFailure =
+    args.toolState.calendarUnavailable ||
+    Boolean(args.context?.scheduling?.providerFailureReason);
+
+  if (
+    providerFailure &&
+    args.toolState.availabilityAttempts >= 2 &&
+    args.toolState.offeredSlots.length === 0
+  ) {
     return true;
   }
-  if (args.toolState.bookingAttempts >= 2 && !args.toolState.bookingConfirmed) {
+  if (
+    providerFailure &&
+    args.toolState.bookingAttempts >= 2 &&
+    !args.toolState.bookingConfirmed
+  ) {
     return true;
   }
   return false;
@@ -1001,6 +1063,7 @@ export function hydrateToolStateFromContext(
     bookingStart: scheduling.selectedStart,
     bookingEventId: scheduling.calendarEventId,
     calendarUnavailable: scheduling.calendarUnavailable ?? base.calendarUnavailable,
+    providerFailureReason: scheduling.providerFailureReason,
     availabilityAttempts: scheduling.availabilityAttempts ?? 0,
     bookingAttempts: scheduling.bookingAttempts ?? 0,
   };
@@ -1039,6 +1102,7 @@ export function persistSchedulingToolState(
     availabilityAttempts: toolState.availabilityAttempts,
     bookingAttempts: toolState.bookingAttempts,
     calendarUnavailable: toolState.calendarUnavailable,
+    providerFailureReason: toolState.providerFailureReason,
   });
 }
 
@@ -1150,7 +1214,7 @@ export function resolveAuthoritativeSchedulingReply(args: {
     );
     if (constrained.length === 0) {
       if (toolState.calendarUnavailable) {
-        return buildProviderFailureReply(context, calendarLinkAllowed);
+        return buildProviderFailureReply(context, calendarLinkAllowed, toolState.calendarUnavailable);
       }
       if (
         hasKnownSchedulingDay(context.scheduling) &&
@@ -1240,11 +1304,24 @@ function inferAvailabilityInputFromOfferedSlot(
 function buildProviderFailureReply(
   context: AnyConversationContext,
   calendarLinkAllowed: boolean,
+  providerFailure = false,
 ): string {
   if (calendarLinkAllowed) {
     return calendarLinkFallbackMessage(context);
   }
-  return formatAskPreference(context.scheduling);
+  if (providerFailure) {
+    return genericRecoveryMessage(context);
+  }
+  if (schedulingFactsComplete(context.scheduling)) {
+    return buildWeekdayAvailabilityFullReply(context.scheduling);
+  }
+  if (hasKnownSchedulingPartOfDay(context.scheduling)) {
+    return "What day works best for a quick 25-minute chat?";
+  }
+  if (hasKnownSchedulingDay(context.scheduling)) {
+    return formatAskPartOfDay();
+  }
+  return "What day works best for a quick 25-minute chat?";
 }
 
 function formatAskPartOfDay(): string {
@@ -1252,14 +1329,12 @@ function formatAskPartOfDay(): string {
 }
 
 function formatAskPreference(scheduling?: SchedulingState): string {
+  if (hasKnownSchedulingDay(scheduling) && hasKnownSchedulingPartOfDay(scheduling)) {
+    return buildWeekdayAvailabilityFullReply(scheduling);
+  }
   if (shouldAskPartOfDayOnly(scheduling)) {
     return formatAskPartOfDay();
   }
-
-  if (hasKnownSchedulingDay(scheduling)) {
-    return "Morning or afternoon work better that day?";
-  }
-
   return "What day works best for a quick 25-minute chat?";
 }
 
@@ -1374,9 +1449,32 @@ export async function enforceSchedulingGate(args: {
     allowCalendarLinkFallback({
       plan: args.plan,
       toolState,
+      context,
     });
 
-  const action = args.plan.action;
+  let action = args.plan.action;
+
+  if (
+    action.type === "ask_preference" &&
+    schedulingFactsComplete(context.scheduling) &&
+    !needsMeridiemClarification(args.inboundMessage, context.scheduling?.offeredSlots ?? [])
+  ) {
+    const factsInput = buildAvailabilityInputFromSchedulingState(
+      context.scheduling,
+      args.inboundMessage,
+      now,
+    );
+    if (factsInput && availabilityInputHasResolvedDate(factsInput)) {
+      action = {
+        type: "get_availability",
+        input: factsInput,
+        reason: "complete_facts_recovery",
+      };
+      context = clearApplicationLogicFailure(context);
+    } else {
+      context = markApplicationLogicFailure(context);
+    }
+  }
 
   if (action.type === "ask_preference") {
     gateApplied = true;
@@ -1566,7 +1664,11 @@ export async function enforceSchedulingGate(args: {
       }
     } else if (gateApplied && slots.length === 0) {
       if (toolState.calendarUnavailable) {
-        forcedReply = buildProviderFailureReply(context, calendarLinkAllowedNow());
+        forcedReply = buildProviderFailureReply(
+          context,
+          calendarLinkAllowedNow(),
+          toolState.calendarUnavailable,
+        );
       } else if (closedDayRequested && availabilityInput.centralDate) {
         forcedReply = buildClosedDayTransitionReply({
           closedDate: closedDayRequested,
@@ -1665,6 +1767,7 @@ export async function enforceSchedulingGate(args: {
   const finalCalendarLinkAllowed = allowCalendarLinkFallback({
     plan: args.plan,
     toolState,
+    context,
   });
 
   return {

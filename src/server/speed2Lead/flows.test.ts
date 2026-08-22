@@ -82,10 +82,8 @@ describe("ROI natural-language flow", () => {
 });
 
 describe("ROI opening message", () => {
-  test("uses observational process question opening", () => {
-    expect(messages.initialMessage(createContext())).toContain(
-      "what usually happens first on your end",
-    );
+  test("uses report-reaction opening", () => {
+    expect(messages.initialMessage(createContext())).toContain("Which part stood out most");
     expect(messages.initialMessage(createContext({ annualOpportunity: "$1,806,780" }))).not.toContain(
       "calendar.app.google",
     );

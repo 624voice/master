@@ -31,6 +31,7 @@ export type ToolExecutionState = {
   bookingStart?: string;
   bookingEventId?: string;
   calendarUnavailable: boolean;
+  providerFailureReason?: string;
   availabilityAttempts: number;
   bookingAttempts: number;
   lifecycleConfirmationSent?: boolean;
@@ -202,6 +203,7 @@ async function handleGetAvailability(
       calendarUnavailable:
         availability.reason === "not_configured" ||
         availability.reason === "calendar_api_error",
+      providerFailureReason: availability.reason,
       availabilityAttempts: state.availabilityAttempts + 1,
     };
     return {
@@ -284,7 +286,7 @@ async function handleBookAppointment(
 
   if (!booked.ok) {
     if (booked.reason === "not_configured" || booked.reason === "calendar_api_error") {
-      state = { ...state, calendarUnavailable: true };
+      state = { ...state, calendarUnavailable: true, providerFailureReason: booked.reason };
     }
     return {
       result: {

@@ -7,6 +7,7 @@ import {
   planSchedulingGate,
   resolveOfferedSlotSelection,
 } from "~/server/speed2Lead/schedulingController";
+import { prepareInboundSchedulingTurn } from "~/server/speed2Lead/schedulingIntent";
 import {
   inferAvailabilityInputFromMessage,
   resolveLaterThisWeekRange,
@@ -147,18 +148,87 @@ describe("schedulingController planning", () => {
     ).toBe(false);
   });
 
-  test("Calendar link is not allowed on first calendar API failure", () => {
+  test("Calendar link is not allowed without provider failure after empty availability", () => {
     const plan = planSchedulingGate({
-      inboundMessage: "Yeah let's talk",
+      inboundMessage: "Tuesday afternoon",
       context: roiSession(),
       now,
     });
     expect(
       allowCalendarLinkFallback({
         plan,
-        toolState: { ...createInitialToolState(), calendarUnavailable: true },
+        toolState: { ...createInitialToolState(), availabilityAttempts: 2, offeredSlots: [] },
       }),
     ).toBe(false);
+  });
+
+  test("Calendar link is allowed after repeated provider failures", () => {
+    const plan = planSchedulingGate({
+      inboundMessage: "Tuesday afternoon",
+      context: roiSession(),
+      now,
+    });
+    expect(
+      allowCalendarLinkFallback({
+        plan,
+        toolState: {
+          ...createInitialToolState(),
+          calendarUnavailable: true,
+          providerFailureReason: "calendar_api_error",
+          availabilityAttempts: 2,
+          offeredSlots: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
+  test("Calendar link blocked when application logic failure is flagged", () => {
+    const plan = planSchedulingGate({
+      inboundMessage: "Afternoon",
+      context: roiSession({
+        scheduling: {
+          status: "idle",
+          centralDate: "2026-08-26",
+          partOfDay: "afternoon",
+          applicationLogicFailure: true,
+        },
+      }),
+      now,
+    });
+    expect(
+      allowCalendarLinkFallback({
+        plan,
+        toolState: {
+          ...createInitialToolState(),
+          calendarUnavailable: true,
+          availabilityAttempts: 3,
+          offeredSlots: [],
+        },
+        context: roiSession({
+          scheduling: {
+            status: "idle",
+            centralDate: "2026-08-26",
+            partOfDay: "afternoon",
+            applicationLogicFailure: true,
+          },
+        }),
+      }),
+    ).toBe(false);
+  });
+
+  test("known date + afternoon please plans availability without ask", () => {
+    const context = prepareInboundSchedulingTurn(
+      roiSession({ scheduling: { status: "idle", centralDate: "2026-08-29" } }),
+      "Let's do afternoon please",
+      now,
+    );
+    const plan = planSchedulingGate({
+      inboundMessage: "Let's do afternoon please",
+      context,
+      now,
+    });
+    expect(plan.action.type).toBe("get_availability");
+    expect(plan.action.type === "get_availability" && plan.action.input.partOfDay).toBe("afternoon");
   });
 
   test("Selecting an offered slot plans booking", () => {

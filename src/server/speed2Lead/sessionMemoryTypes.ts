@@ -80,6 +80,10 @@ export type SchedulingState = {
   bookingPending?: boolean;
   /** Prior turn emitted a blocked/rejected self-scheduling fallback; recover conversationally. */
   lastBlockedFallback?: boolean;
+  /** Internal planning/parsing failure — never authorize calendar-link fallback. */
+  applicationLogicFailure?: boolean;
+  /** Last provider-side calendar failure reason when known. */
+  providerFailureReason?: string;
 };
 
 export type SessionMemoryFields = {

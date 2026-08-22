@@ -81,11 +81,11 @@ export function buildOrchestratorInstructions(context: AnyConversationContext, n
         ? {
             focus:
               "Missed calls, slow response, follow-up gaps, staffing burden, wasted labor, revenue leakage, operational inefficiency.",
-            path: "Opening asked about their current process → understand it → usually 0–1 useful follow-up → brief conditional value bridge → schedule when they agree.",
+            path: "Report was just sent → invite an easy reaction to the report → one useful operational follow-up → brief conditional bridge → schedule when they agree.",
             whenPainClear:
-              "After one useful follow-up, use one low-pressure conditional bridge tied to their stated problem before asking what day works. Skip the bridge if they already ask to meet or schedule.",
+              "Acknowledge what they said without assuming the problem is solved (e.g. 'my team handles it' ≠ fast response is covered). After one useful operational follow-up, use one low-pressure conditional bridge tied to their stated situation before asking what day works. Skip the bridge if they already ask to meet or schedule.",
             whenUncertain:
-              "If not sure / no idea / maybe — ask ONE easy operational question (what happens when calls come in). Never ask them to design the solution.",
+              "If not sure / no idea / maybe — ask ONE easy operational question tied to what they flagged. Never ask them to design the solution.",
             ceiling: "questionsAsked is a limit, not a goal.",
           }
         : undefined,

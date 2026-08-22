@@ -298,7 +298,27 @@ describe("scheduling gate persistence", () => {
     ).toBe(false);
   });
 
-  test("repeated failure for same request can still allow calendar link", () => {
+  test("repeated provider failure for same request can allow calendar link", () => {
+    const plan = planSchedulingGate({
+      inboundMessage: "Tuesday afternoon",
+      context: roiSession(),
+      now,
+    });
+    expect(
+      allowCalendarLinkFallback({
+        plan,
+        toolState: {
+          ...createInitialToolState(),
+          calendarUnavailable: true,
+          providerFailureReason: "calendar_api_error",
+          availabilityAttempts: 2,
+          offeredSlots: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
+  test("empty availability without provider failure does not allow calendar link", () => {
     const plan = planSchedulingGate({
       inboundMessage: "Tuesday afternoon",
       context: roiSession(),
@@ -309,7 +329,7 @@ describe("scheduling gate persistence", () => {
         plan,
         toolState: { ...createInitialToolState(), availabilityAttempts: 2, offeredSlots: [] },
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test("yes the 2pm one resolves against refreshed offered slots", () => {
