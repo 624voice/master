@@ -16,7 +16,13 @@ import {
   buildOneQuestionRepairInstructions,
   buildRepairInstructions,
   buildTerminologyRepairInstructions,
+  buildUnsupportedProductClaimRepairInstructions,
 } from "~/server/speed2Lead/prompts";
+import { containsUnsupportedProductClaim } from "~/server/speed2Lead/businessContext";
+import {
+  advanceDiscoveryOnInbound,
+  recordDiscoveryAssistantTurn,
+} from "~/server/speed2Lead/discoveryProgress";
 import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
@@ -44,9 +50,9 @@ import {
 import { softCloseAckMessage } from "~/server/speed2Lead/messages";
 import {
   buildDeterministicRecoveryReply,
+  buildSchedulingResumeReply,
   enforceSchedulingGate,
   hydrateToolStateFromContext,
-  isAvailabilityFetchAuthorized,
   persistSchedulingToolState,
   planSchedulingGate,
   requiresDeterministicSchedulingCompletion,
@@ -274,7 +280,7 @@ async function validateOrRepair(
     return calendarLinkFallbackMessage(context);
   }
 
-  if (toolState.bookingFailed) {
+  if (toolState.bookingFailed && toolState.lastBookingFailureReason === "provider_conflict") {
     if (toolState.offeredSlots.length > 0) {
       const retryOffer = buildSlotOfferMessage(toolState.offeredSlots);
       const prefixed = `That time just got taken — ${retryOffer.charAt(0).toLowerCase()}${retryOffer.slice(1)}`;
@@ -293,6 +299,10 @@ async function validateOrRepair(
     repairInstructions = buildBridgeRepairInstructions();
   } else if (firstPass.reason.includes("bot terminology")) {
     repairInstructions = buildTerminologyRepairInstructions();
+  } else if (firstPass.reason.includes("unsupported 624Voice capability")) {
+    repairInstructions = buildUnsupportedProductClaimRepairInstructions();
+  } else if (containsUnsupportedProductClaim(draft)) {
+    repairInstructions = buildUnsupportedProductClaimRepairInstructions();
   }
 
   if (repairInstructions && deps.runModel) {
@@ -524,7 +534,10 @@ export async function orchestrateInboundTurn(
   const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const runModel = deps.runModel ?? createDefaultModelRunner(client!);
 
-  let workingContext = applyMeetingBridgeProgress(context, inboundMessage);
+  let workingContext = advanceDiscoveryOnInbound(
+    applyMeetingBridgeProgress(context, inboundMessage),
+    inboundMessage,
+  );
   workingContext = prepareInboundSchedulingTurn(workingContext, inboundMessage, now);
   let gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
   const deterministicSchedulingAsk = shouldSendDeterministicSchedulingAsk(
@@ -548,8 +561,6 @@ export async function orchestrateInboundTurn(
     schedulingIntent: gatePlan.schedulingIntent,
   });
   let toolState = hydrateToolStateFromContext(workingContext, createInitialToolState());
-  let llmCalledGetAvailability = false;
-  let llmCalledBookAppointment = false;
   const skipLlmToolLoop =
     requiresDeterministicSchedulingCompletion(gatePlan, workingContext) ||
     deterministicSchedulingAsk;
@@ -596,38 +607,17 @@ export async function orchestrateInboundTurn(
           iteration,
         });
 
-        if (call.name === "get_availability") {
-          if (!isAvailabilityFetchAuthorized(gatePlan)) {
-            conversationInput.push({
-              type: "function_call_output",
-              call_id: call.call_id,
-              output: JSON.stringify({
-                ok: false,
-                reason: "not_authorized",
-                detail: "Ask what day or morning/afternoon works before checking availability.",
-              }),
-            });
-            continue;
-          }
-          llmCalledGetAvailability = true;
-        }
-        if (call.name === "book_appointment") {
-          if (gatePlan.action.type !== "book_appointment") {
-            conversationInput.push({
-              type: "function_call_output",
-              call_id: call.call_id,
-              output: JSON.stringify({
-                ok: false,
-                reason: "not_authorized",
-                detail: "Booking requires a confirmed customer slot selection.",
-              }),
-            });
-            continue;
-          }
-          llmCalledBookAppointment = true;
-          logSpeed2LeadTestEvent(workingContext.phone, "booking_attempt", {
-            source: "llm_tool_loop",
+        if (!ORCHESTRATOR_TOOLS.some((tool) => tool.name === call.name)) {
+          conversationInput.push({
+            type: "function_call_output",
+            call_id: call.call_id,
+            output: JSON.stringify({
+              ok: false,
+              reason: "not_authorized",
+              detail: "Scheduling availability and booking are handled by deterministic code.",
+            }),
           });
+          continue;
         }
 
         const executed = await executeOrchestratorTool(
@@ -645,18 +635,6 @@ export async function orchestrateInboundTurn(
           tool: call.name,
           ok: Boolean((executed.result as { ok?: boolean }).ok),
         });
-        if (call.name === "get_availability") {
-          logSpeed2LeadTestEvent(workingContext.phone, "availability_result", {
-            slotCount: toolState.offeredSlots.length,
-            ok: Boolean((executed.result as { ok?: boolean }).ok),
-          });
-        }
-        if (call.name === "book_appointment") {
-          logSpeed2LeadTestEvent(workingContext.phone, "booking_result", {
-            ok: Boolean((executed.result as { ok?: boolean }).ok),
-            bookingConfirmed: toolState.bookingConfirmed,
-          });
-        }
 
         conversationInput.push({
           type: "function_call_output",
@@ -678,8 +656,8 @@ export async function orchestrateInboundTurn(
       context: workingContext,
       toolState,
       llmReply: latestDraft,
-      llmCalledGetAvailability,
-      llmCalledBookAppointment,
+      llmCalledGetAvailability: false,
+      llmCalledBookAppointment: false,
       now,
     });
     workingContext = gateResult.context;
@@ -748,8 +726,8 @@ export async function orchestrateInboundTurn(
     context: workingContext,
     toolState,
     llmReply: latestDraft,
-    llmCalledGetAvailability,
-    llmCalledBookAppointment,
+    llmCalledGetAvailability: false,
+    llmCalledBookAppointment: false,
     now,
   });
   workingContext = gateResult.context;
@@ -783,27 +761,31 @@ export async function orchestrateInboundTurn(
   );
 
   const turnTask = resolveLlmTurnTask(workingContext, inboundMessage);
+  const hasActiveSchedulingState = Boolean(
+    workingContext.scheduling?.centralDate ||
+      workingContext.scheduling?.partOfDay ||
+      workingContext.scheduling?.calendarUnavailable ||
+      workingContext.scheduling?.status === "slots_offered" ||
+      (workingContext.scheduling?.offeredSlots?.length ?? 0) > 0,
+  );
   const customerQuestionDuringScheduling =
     turnTask.task === "answer_customer_question" &&
-    Boolean(
-      workingContext.scheduling?.centralDate ||
-        workingContext.scheduling?.partOfDay ||
-        workingContext.scheduling?.calendarUnavailable ||
-        workingContext.scheduling?.status === "slots_offered" ||
-        (workingContext.scheduling?.offeredSlots?.length ?? 0) > 0,
-    ) &&
-    !gatePlan.explicitCalendarLinkRequest;
+    hasActiveSchedulingState &&
+    !gatePlan.explicitCalendarLinkRequest &&
+    !gateResult.gateApplied &&
+    !gateResult.forcedReply;
 
-  const authoritativeReply = customerQuestionDuringScheduling
-    ? null
-    : resolveAuthoritativeSchedulingReply({
-        gateResult,
-        llmReply: latestDraft,
-        firstName: workingContext.firstName,
-        context: workingContext,
-        toolState,
-        calendarLinkAllowed: gateResult.calendarLinkAllowed,
-      });
+  const authoritativeReply =
+    customerQuestionDuringScheduling
+      ? null
+      : resolveAuthoritativeSchedulingReply({
+          gateResult,
+          llmReply: latestDraft,
+          firstName: workingContext.firstName,
+          context: workingContext,
+          toolState,
+          calendarLinkAllowed: gateResult.calendarLinkAllowed,
+        });
 
   if (authoritativeReply !== null) {
     logOrchestratorEvent("turn_complete", {
@@ -840,6 +822,11 @@ export async function orchestrateInboundTurn(
     );
     workingContext = outbound.context;
     if (outbound.reply) {
+      workingContext = recordDiscoveryAssistantTurn(
+        workingContext,
+        turnTask.task,
+        outbound.reply,
+      );
       return {
         handled: true,
         reply: outbound.reply,
@@ -887,7 +874,15 @@ export async function orchestrateInboundTurn(
         });
   }
 
+  if (validated?.trim() && customerQuestionDuringScheduling) {
+    const resume = buildSchedulingResumeReply(workingContext);
+    if (resume) {
+      validated = `${validated.trim()} ${resume}`;
+    }
+  }
+
   if (validated?.trim()) {
+    workingContext = recordDiscoveryAssistantTurn(workingContext, turnTask.task, validated);
     const finalized = finalizeSafeTurnReply({
       reply: validated,
       context: workingContext,

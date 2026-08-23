@@ -28,6 +28,11 @@ export type ToolExecutionState = {
   offeredSlots: string[];
   bookingConfirmed: boolean;
   bookingFailed: boolean;
+  lastBookingFailureReason?:
+    | "provider_conflict"
+    | "invalid_selection"
+    | "provider_error"
+    | "missing_start";
   bookingStart?: string;
   bookingEventId?: string;
   calendarUnavailable: boolean;
@@ -48,62 +53,13 @@ export function createInitialToolState(): ToolExecutionState {
   };
 }
 
+/** LLM may update optional enrichment facts only — scheduling truth is code-owned. */
 export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
-  {
-    type: "function",
-    name: "get_availability",
-    description:
-      "Fetch real consultation slots from Google Calendar for a normalized Central-time range. Call this whenever the customer mentions scheduling, a day, a time, or availability — before offering any times. Only offer slots returned by this tool.",
-    strict: true,
-    parameters: {
-      type: "object",
-      additionalProperties: false,
-      required: ["rangeStart", "rangeEnd", "centralDate", "partOfDay", "maxSlots"],
-      properties: {
-        rangeStart: {
-          type: ["string", "null"],
-          description: "ISO8601 range start, or null when using centralDate/partOfDay",
-        },
-        rangeEnd: {
-          type: ["string", "null"],
-          description: "ISO8601 range end, or null when using centralDate/partOfDay",
-        },
-        centralDate: {
-          type: ["string", "null"],
-          description: "Central date YYYY-MM-DD when using partOfDay instead of explicit ISO range",
-        },
-        partOfDay: {
-          type: ["string", "null"],
-          enum: ["morning", "afternoon", "evening", "full_day", null],
-        },
-        maxSlots: {
-          type: ["number", "null"],
-          description: "Maximum slots to return, default 3",
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    name: "book_appointment",
-    description:
-      "Book a consultation at a slot previously returned by get_availability. Only call after the customer selects a valid offered slot.",
-    strict: true,
-    parameters: {
-      type: "object",
-      additionalProperties: false,
-      required: ["start", "notes"],
-      properties: {
-        start: { type: "string", description: "ISO8601 start time from offered slots" },
-        notes: { type: ["string", "null"] },
-      },
-    },
-  },
   {
     type: "function",
     name: "update_known_facts",
     description:
-      "Persist structured lead facts discovered in conversation. Do not store arbitrary session fields.",
+      "Persist optional structured lead facts discovered in conversation. Stage progression is code-owned.",
     strict: true,
     parameters: {
       type: "object",
@@ -124,7 +80,7 @@ export const ORCHESTRATOR_TOOLS: FunctionTool[] = [
         customerGoal: { type: ["string", "null"] },
         discoveryQuestionAsked: {
           type: ["boolean", "null"],
-          description: "Set true only when this turn asks one genuine discovery question",
+          description: "Deprecated — discovery count is code-owned",
         },
       },
     },
@@ -258,15 +214,20 @@ async function handleBookAppointment(
     return {
       result: { ok: false, reason: "missing_start" },
       context,
-      state: { ...state, bookingAttempts: state.bookingAttempts + 1 },
+      state: { ...state, bookingAttempts: state.bookingAttempts + 1, lastBookingFailureReason: "missing_start" },
     };
   }
 
   if (state.offeredSlots.length > 0 && !slotIsOffered(start, state.offeredSlots)) {
     return {
-      result: { ok: false, reason: "slot_not_offered" },
+      result: { ok: false, reason: "slot_not_offered", failureType: "invalid_selection" },
       context,
-      state: { ...state, bookingAttempts: state.bookingAttempts + 1 },
+      state: {
+        ...state,
+        bookingAttempts: state.bookingAttempts + 1,
+        lastBookingFailureReason: "invalid_selection",
+        bookingFailed: false,
+      },
     };
   }
 
@@ -288,15 +249,22 @@ async function handleBookAppointment(
     if (booked.reason === "not_configured" || booked.reason === "calendar_api_error") {
       state = { ...state, calendarUnavailable: true, providerFailureReason: booked.reason };
     }
+    const failureType =
+      booked.reason === "slot_unavailable" ? "provider_conflict" : "provider_error";
     return {
       result: {
         ok: false,
         reason: booked.reason,
         detail: booked.detail,
+        failureType,
         fallback: booked.reason === "slot_unavailable" ? "offer_alternatives" : "calendar_link",
       },
       context,
-      state: { ...state, bookingFailed: true },
+      state: {
+        ...state,
+        bookingFailed: booked.reason === "slot_unavailable",
+        lastBookingFailureReason: failureType,
+      },
     };
   }
 

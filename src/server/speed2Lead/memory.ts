@@ -1,5 +1,6 @@
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
-import { primaryPainLabel } from "~/server/speed2Lead/naturalLanguage";
+import { analyzeMessage, primaryPainLabel } from "~/server/speed2Lead/naturalLanguage";
+import { normalizeDiscoveryFacts, simplePainLabel } from "~/server/speed2Lead/discoveryProgress";
 import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
 import {
   earliestOfferedMinutes,
@@ -57,12 +58,13 @@ function resolveFlow(context: AnyConversationContext): KnownFactsFlow {
 
 export function seedKnownFacts(context: AnyConversationContext): KnownFacts {
   const flow = resolveFlow(context);
-  const base: KnownFacts = {
+  const base: KnownFacts = normalizeDiscoveryFacts({
     firstName: context.firstName,
     phone: normalizePhone(context.phone),
     flow,
     questionsAsked: 0,
-  };
+    discoveryPhase: "awaiting_report_reaction",
+  });
 
   if (context.flow === "contact") {
     const contact = context as AnyConversationContext & {
@@ -103,7 +105,17 @@ export function syncKnownFactsFromDetections(
   context: AnyConversationContext,
   knownFacts: KnownFacts,
 ): KnownFacts {
-  let updated = { ...knownFacts };
+  let updated = normalizeDiscoveryFacts(knownFacts);
+
+  if (context.lastCustomerMessage?.trim()) {
+    const signals = analyzeMessage(context.lastCustomerMessage);
+    if (signals.pains.length > 0) {
+      updated = {
+        ...updated,
+        primaryPain: simplePainLabel(signals.pains as PainCategory[]),
+      };
+    }
+  }
 
   if (context.detectedPains && context.detectedPains.length > 0) {
     updated = {
@@ -138,23 +150,7 @@ export function syncKnownFactsFromDetections(
     }
   }
 
-  const messages = context.messages ?? [];
-  updated = {
-    ...updated,
-    questionsAsked:
-      (context as SessionMemoryFields).orchestratorManagedQuestions === true
-        ? knownFacts.questionsAsked
-        : countAssistantQuestions(messages),
-  };
-
   return updated;
-}
-
-function countAssistantQuestions(messages: ConversationMessage[]): number {
-  return messages.filter(
-    (message) =>
-      message.role === "assistant" && message.content.trim().endsWith("?"),
-  ).length;
 }
 
 function capMessages(messages: ConversationMessage[]): ConversationMessage[] {
@@ -297,21 +293,14 @@ export function applyKnownFactsUpdate<T extends AnyConversationContext>(
   update: KnownFactsUpdateInput,
 ): T {
   const normalized = normalizeSessionMemory(context);
-  const { discoveryQuestionAsked, ...factsPatch } = update;
-  let questionsAsked = normalized.knownFacts.questionsAsked;
-
-  if (discoveryQuestionAsked) {
-    questionsAsked += 1;
-  }
+  const { discoveryQuestionAsked: _ignored, ...factsPatch } = update;
 
   return {
     ...normalized,
-    orchestratorManagedQuestions: true,
-    knownFacts: {
+    knownFacts: normalizeDiscoveryFacts({
       ...normalized.knownFacts,
       ...factsPatch,
-      questionsAsked,
-    },
+    }),
     updatedAt: new Date().toISOString(),
   } as T;
 }

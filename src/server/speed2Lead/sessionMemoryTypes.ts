@@ -14,6 +14,14 @@ export type KnownFactsUrgency = "low" | "medium" | "high";
 
 export type KnownFactsFit = "yes" | "maybe" | "no";
 
+export type DiscoveryPhase =
+  | "awaiting_report_reaction"
+  | "diagnostic"
+  | "discovery_complete"
+  | "bridge"
+  | "scheduling"
+  | "booked";
+
 export type KnownFacts = {
   firstName: string;
   phone: string;
@@ -25,6 +33,13 @@ export type KnownFacts = {
   fit?: KnownFactsFit;
   objection?: string;
   customerGoal?: string;
+  /** Monotonic ROI discovery progress — code-owned. */
+  discoveryPhase?: DiscoveryPhase;
+  /** Highest discovery phase reached; never regresses on normalize. */
+  peakDiscoveryPhase?: DiscoveryPhase;
+  /** Diagnostic discovery questions asked after report reaction (max 2). Opening question excluded. */
+  diagnosticQuestionsAsked?: number;
+  /** @deprecated Use diagnosticQuestionsAsked. Kept for backward-compatible session reads. */
   questionsAsked: number;
   /** Customer agreed to a low-pressure meeting bridge or explicitly asked to schedule. */
   meetingBridgeComplete?: boolean;

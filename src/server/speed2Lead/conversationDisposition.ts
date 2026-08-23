@@ -1,4 +1,5 @@
 import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
+import { isDiscoveryComplete } from "~/server/speed2Lead/discoveryProgress";
 import {
   detectExplicitSchedulingRequest,
   shouldBlockSchedulingForMeetingBridge,
@@ -103,13 +104,15 @@ export function shouldDeferSchedulingForDiscovery(
     return false;
   }
 
+  if (isDiscoveryComplete(context)) return false;
+
   const facts = context.knownFacts;
-  const painKnown = Boolean(facts?.primaryPain || (context.detectedPains?.length ?? 0) > 0);
+  const painKnown = Boolean(facts?.primaryPain);
   const vaguePain = signals.vague || !painKnown;
   const uncertain = signals.vague || signals.fitResponse === "maybe" || signals.fitResponse === "unknown";
 
   if (!vaguePain && !uncertain && painKnown) return false;
-  if ((facts?.questionsAsked ?? 0) >= 1 && painKnown) return false;
+  if ((facts?.diagnosticQuestionsAsked ?? facts?.questionsAsked ?? 0) >= 1 && painKnown) return false;
   if (facts?.fit === "yes" || facts?.urgency === "high") return false;
 
   return vaguePain || uncertain;

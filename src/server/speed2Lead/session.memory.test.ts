@@ -143,7 +143,8 @@ describe("session message history", () => {
       "assistant",
     ]);
     expect(session.knownFacts.customerGoal).toBe("Missed calls after hours");
-    expect(session.knownFacts.questionsAsked).toBe(1);
+    expect(session.knownFacts.primaryPain).toBe("missed calls");
+    expect(session.knownFacts.questionsAsked).toBe(0);
   });
 
   test("caps message history at the latest 20 entries", () => {

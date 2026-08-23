@@ -33,7 +33,8 @@ describe("controlled phone test booking safety (code paths unchanged)", () => {
       new URL("./tools.ts", import.meta.url),
       "utf8",
     );
-    expect(toolsSource).toContain("bookingFailed: true");
+    expect(toolsSource).toContain('bookingFailed: booked.reason === "slot_unavailable"');
+    expect(toolsSource).toContain('lastBookingFailureReason: "invalid_selection"');
     expect(toolsSource).toMatch(/if \(!booked\.ok\)/);
   });
 

@@ -3,8 +3,13 @@ import {
   detectExplicitSchedulingRequest,
   detectMeetingBridgeAgreement,
   meetingBridgeQuestionDelivered,
-  shouldRequireMeetingBridge,
 } from "~/server/speed2Lead/conversationHandoff";
+import {
+  isDiscoveryComplete,
+  isReportReactionComplete,
+  normalizeDiscoveryFacts,
+  shouldAskAnotherDiagnosticQuestion,
+} from "~/server/speed2Lead/discoveryProgress";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -33,35 +38,23 @@ export type ConversationStagePlan = {
 const SCHEDULING_ASK_RE =
   /\b(what day|which day|morning or afternoon|when works|what time|what times|schedule a|grab a time|pick a time|find a time|set up a (?:call|time))\b/i;
 
-function painKnown(context: AnyConversationContext, facts: KnownFacts): boolean {
-  return Boolean(facts.primaryPain || (context.detectedPains?.length ?? 0) > 0);
+function factsFor(context: AnyConversationContext): KnownFacts {
+  return normalizeDiscoveryFacts(
+    context.knownFacts ?? {
+      firstName: context.firstName,
+      phone: context.phone,
+      flow: "roi" as const,
+      questionsAsked: 0,
+    },
+  );
+}
+
+function painKnown(facts: KnownFacts): boolean {
+  return Boolean(facts.primaryPain);
 }
 
 function userMessageCount(context: AnyConversationContext): number {
   return (context.messages ?? []).filter((message) => message.role === "user").length;
-}
-
-export function resolveRoiConversationStage(context: AnyConversationContext): RoiConversationStage {
-  const disposition = context.disposition ?? "active";
-  if (disposition === "soft_closed") return "soft_closed";
-  if (disposition === "booked" || context.scheduling?.status === "confirmed") return "booked";
-  if (
-    context.knownFacts?.meetingBridgeComplete ||
-    context.scheduling?.status === "slots_offered" ||
-    hasActiveScheduling(context)
-  ) {
-    return "scheduling";
-  }
-  const facts = context.knownFacts ?? {
-    firstName: context.firstName,
-    phone: context.phone,
-    flow: "roi" as const,
-    questionsAsked: 0,
-  };
-  if (shouldRequireMeetingBridge(context, "")) return "meeting_bridge";
-  if ((facts.questionsAsked ?? 0) >= 1 && painKnown(context, facts)) return "meeting_bridge";
-  if (userMessageCount(context) >= 1) return "operational_followup";
-  return "report_reaction";
 }
 
 function hasActiveScheduling(context: AnyConversationContext): boolean {
@@ -75,12 +68,42 @@ function hasActiveScheduling(context: AnyConversationContext): boolean {
   );
 }
 
+export function resolveRoiConversationStage(context: AnyConversationContext): RoiConversationStage {
+  const disposition = context.disposition ?? "active";
+  if (disposition === "soft_closed") return "soft_closed";
+  if (disposition === "booked" || context.scheduling?.status === "confirmed") return "booked";
+
+  const facts = factsFor(context);
+  const phase = facts.discoveryPhase ?? "awaiting_report_reaction";
+
+  if (
+    facts.meetingBridgeComplete ||
+    phase === "scheduling" ||
+    context.scheduling?.status === "slots_offered" ||
+    hasActiveScheduling(context) ||
+    detectExplicitSchedulingRequest(context.lastCustomerMessage ?? "")
+  ) {
+    return "scheduling";
+  }
+
+  if (phase === "bridge" || phase === "discovery_complete" || (painKnown(facts) && isDiscoveryComplete(context))) {
+    return "meeting_bridge";
+  }
+
+  if (userMessageCount(context) >= 1 || phase !== "awaiting_report_reaction") {
+    return "operational_followup";
+  }
+
+  return "report_reaction";
+}
+
 export function resolveLlmTurnTask(
   context: AnyConversationContext,
   inboundMessage: string,
 ): ConversationStagePlan {
   const stage = resolveRoiConversationStage(context);
   const signals = analyzeMessage(inboundMessage);
+  const facts = factsFor(context);
 
   if (stage === "soft_closed") {
     return { stage, task: "brief_active_conversation" };
@@ -101,19 +124,19 @@ export function resolveLlmTurnTask(
     return { stage, task: "ask_conditional_meeting_bridge" };
   }
   if (stage === "operational_followup") {
-    const facts = context.knownFacts ?? {
-      firstName: context.firstName,
-      phone: context.phone,
-      flow: "roi" as const,
-      questionsAsked: 0,
-    };
-    if (painKnown(context, facts) && (facts.questionsAsked ?? 0) >= 1) {
+    if (isDiscoveryComplete(context)) {
       return { stage: "meeting_bridge", task: "ask_conditional_meeting_bridge" };
     }
     if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
       return { stage, task: "answer_customer_question" };
     }
-    return { stage, task: "ask_one_operational_followup" };
+    if (!shouldAskAnotherDiagnosticQuestion(context)) {
+      return { stage: "meeting_bridge", task: "ask_conditional_meeting_bridge" };
+    }
+    if (isReportReactionComplete(context)) {
+      return { stage, task: "ask_one_operational_followup" };
+    }
+    return { stage, task: "acknowledge_report_reaction_and_ask_one_operational_question" };
   }
   return { stage, task: "acknowledge_report_reaction_and_ask_one_operational_question" };
 }

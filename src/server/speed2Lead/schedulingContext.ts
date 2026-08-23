@@ -608,6 +608,16 @@ function extractTimeToken(message: string): { raw: string; explicitMeridiem: str
     };
   }
 
+  const aboutMatch = lower.match(/\b(?:how|what)\s+about\s+(\d{1,2})(?::(\d{2}))?\b/i);
+  if (aboutMatch?.[1]) {
+    const hour = aboutMatch[1];
+    const minute = aboutMatch[2];
+    return {
+      raw: minute ? `${hour}:${minute}` : hour,
+      explicitMeridiem: null,
+    };
+  }
+
   return null;
 }
 
@@ -819,13 +829,20 @@ export function hasExplicitExactTimeRequest(
   message: string,
   scheduling?: SchedulingState,
 ): boolean {
-  if (isNonSelectionSchedulingRequest(message)) {
+  const lower = message.toLowerCase();
+  const aboutTimeProbe =
+    /\b(?:how|what)\s+about\b/.test(lower) &&
+    /\b(?:if you have|do you have|you have|available|open)\b/.test(lower);
+  if (isNonSelectionSchedulingRequest(message) && !aboutTimeProbe) {
     return false;
   }
   const minutes = resolveRequestedMinutesFromMessage(message, scheduling?.offeredSlots ?? []);
   if (minutes == null) return false;
-  const lower = message.toLowerCase();
+  if (aboutTimeProbe) return true;
   if (/\b(around|about|roughly|maybe|probably|like|closer|near)\b/.test(lower)) {
+    if (/\b(?:how|what)\s+about\b/.test(lower)) {
+      return true;
+    }
     return /\b(at|do|let'?s|take|book|works?|good|perfect|that|need)\b/.test(lower);
   }
   return true;

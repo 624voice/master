@@ -8,7 +8,8 @@ export type SlotOfferSituation =
   | "conflict"
   | "narrowed"
   | "repeat_recovery"
-  | "exact_unavailable";
+  | "exact_unavailable"
+  | "ready_to_book";
 
 export type SlotOfferContext = {
   slots: string[];
@@ -46,21 +47,27 @@ export function buildContextualSlotOfferMessage(context: SlotOfferContext): stri
   const seed = `${context.variationSeed ?? labels.join("|")}|${context.situation ?? "first_offer"}`;
   const list = formatSlotList(labels);
 
-  if (labels.length === 1) {
-    return pickVariant(seed, [
-      `I have ${labels[0]} open. Want me to grab it?`,
-      `${labels[0]} works on my end — should I book it?`,
-    ]);
-  }
-
-  if (labels.length === 2) {
-    return pickVariant(seed, [
-      `${labels[0]} or ${labels[1]} are both open.`,
-      `Either ${labels[0]} or ${labels[1]} works.`,
-    ]);
-  }
-
   switch (context.situation) {
+    case "conflict":
+      return pickVariant(seed, [
+        labels.length === 1
+          ? `That time just got taken — I still have ${labels[0]}.`
+          : `That time just got taken — I still have ${list}.`,
+        labels.length === 1
+          ? `That slot filled up. ${labels[0]} is open if that works.`
+          : `That slot filled up. ${list} are open if either works.`,
+      ]);
+    case "exact_unavailable":
+      if (labels.length === 1) {
+        return pickVariant(seed, [
+          `That exact time isn't open — closest I have is ${labels[0]}.`,
+          `Not open then, but ${labels[0]} could work.`,
+        ]);
+      }
+      return pickVariant(seed, [
+        `That exact time isn't open — closest I have is ${list}.`,
+        `Not open then, but ${list} could work.`,
+      ]);
     case "refinement":
     case "narrowed":
       return pickVariant(seed, [
@@ -72,27 +79,30 @@ export function buildContextualSlotOfferMessage(context: SlotOfferContext): stri
         `Got it — ${list} could work instead.`,
         `How about ${list}?`,
       ]);
-    case "conflict":
-      return pickVariant(seed, [
-        `That time just got taken — I still have ${list}.`,
-        `That slot filled up. ${list} are open if either works.`,
-      ]);
-    case "exact_unavailable":
-      return pickVariant(seed, [
-        `That exact time isn't open — closest I have is ${list}.`,
-        `Not open then, but ${list} could work.`,
-      ]);
     case "repeat_recovery":
       return pickVariant(seed, [
         `Still seeing ${list} open.`,
         `${list} are still available.`,
       ]);
     default:
-      return pickVariant(seed, [
-        `I have ${list}. Any of those work?`,
-        `${list} are open — whichever fits best.`,
-      ]);
+      break;
   }
+
+  if (labels.length === 1) {
+    if (context.situation === "ready_to_book") {
+      return pickVariant(seed, [`Booking ${labels[0]}.`, `${labels[0]} — booking that now.`]);
+    }
+    return pickVariant(seed, [`${labels[0]} is open.`, `${labels[0]} works on my end.`]);
+  }
+
+  if (labels.length === 2) {
+    return pickVariant(seed, [
+      `${labels[0]} or ${labels[1]} are both open.`,
+      `Either ${labels[0]} or ${labels[1]} works.`,
+    ]);
+  }
+
+  return pickVariant(seed, [`I have ${list}.`, `${list} are open.`]);
 }
 
 /** @deprecated Prefer buildContextualSlotOfferMessage — kept for callers without context. */

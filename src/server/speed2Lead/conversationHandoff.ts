@@ -3,6 +3,7 @@ import {
   hasKnownSchedulingDay,
   hasKnownSchedulingPartOfDay,
 } from "~/server/speed2Lead/schedulingContext";
+import { isDiscoveryComplete, normalizeDiscoveryFacts } from "~/server/speed2Lead/discoveryProgress";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -51,12 +52,10 @@ export function shouldRequireMeetingBridge(
   if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   if (hasKnownSchedulingDay(context.scheduling)) return false;
 
-  const facts = context.knownFacts;
-  const painKnown = Boolean(
-    facts?.primaryPain || (context.detectedPains?.length ?? 0) > 0,
-  );
+  const facts = normalizeDiscoveryFacts(context.knownFacts ?? ({} as KnownFacts));
+  const painKnown = Boolean(facts.primaryPain);
   if (!painKnown) return false;
-  if ((facts?.questionsAsked ?? 0) < 1) return false;
+  if (!isDiscoveryComplete(context) && (facts.diagnosticQuestionsAsked ?? 0) < 1) return false;
   return true;
 }
 

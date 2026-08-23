@@ -303,8 +303,8 @@ describe("deployed discovery→scheduling handoff", () => {
       "We just try to get back to them asap",
       discoveryAfterPain("Missed calls"),
     );
-    expect(updated?.knownFacts?.primaryPain).toBe("Missed calls");
-    expect(updated?.knownFacts?.questionsAsked).toBeGreaterThanOrEqual(1);
+    expect(updated?.knownFacts?.primaryPain).toMatch(/missed calls/i);
+    expect(updated?.knownFacts?.discoveryPhase).not.toBe("awaiting_report_reaction");
     expect(updated?.state).toBe("awaiting_problem");
   });
 });

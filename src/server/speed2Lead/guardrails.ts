@@ -6,6 +6,11 @@ import {
   resolveLlmTurnTask,
   shouldSendDeterministicSchedulingAsk,
 } from "~/server/speed2Lead/conversationStage";
+import { containsUnsupportedProductClaim } from "~/server/speed2Lead/businessContext";
+import {
+  isDiscoveryComplete,
+  isReportReactionComplete,
+} from "~/server/speed2Lead/discoveryProgress";
 import {
   containsDisallowedBotTerminology,
   containsDisallowedProspectName,
@@ -138,6 +143,10 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
     if (!hedged) {
       return { ok: false, reason: "SMS claims a CRM integration that is not verified" };
     }
+  }
+
+  if (containsUnsupportedProductClaim(trimmed)) {
+    return { ok: false, reason: "SMS claims an unsupported 624Voice capability" };
   }
 
   if (BOOKED_CLAIM_PATTERN.test(trimmed) && !ctx.toolState.bookingConfirmed) {
@@ -281,11 +290,23 @@ export function calendarLinkFallbackMessage(context: AnyConversationContext): st
 }
 
 export function genericRecoveryMessage(context: AnyConversationContext): string {
+  if (context.scheduling?.status === "confirmed" || context.disposition === "booked") {
+    return "You're all set — reach out anytime if anything comes up before the call.";
+  }
+
+  if (
+    context.scheduling?.centralDate ||
+    context.scheduling?.partOfDay ||
+    (context.scheduling?.offeredSlots?.length ?? 0) > 0
+  ) {
+    return "Still here — go ahead with your timing preference when you're ready.";
+  }
+
   const stagePlan = resolveLlmTurnTask(context, "");
-  if (stagePlan.stage === "meeting_bridge") {
+  if (stagePlan.stage === "meeting_bridge" || isDiscoveryComplete(context)) {
     return "Still with you — worth a quick 25-minute look at how AI could help with that?";
   }
-  if (stagePlan.stage === "operational_followup" || stagePlan.stage === "report_reaction") {
+  if (!isReportReactionComplete(context)) {
     return "Still here — what part of the report stood out most for you?";
   }
   return "Still here — go ahead when you're ready.";

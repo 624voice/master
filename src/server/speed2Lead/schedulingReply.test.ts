@@ -26,9 +26,10 @@ describe("scheduling reply copy", () => {
     }
   });
 
-  test("single-slot offer reads as a direct hold request", () => {
+  test("single-slot offer states availability without reconfirmation loop", () => {
     const slot = centralDateAt(2026, 8, 26, 16, 30, TZ).toISOString();
     const message = buildContextualSlotOfferMessage({ slots: [slot], situation: "first_offer" });
-    expect(message.toLowerCase()).toMatch(/grab|book|open/);
+    expect(message.toLowerCase()).toMatch(/open|works/);
+    expect(message.toLowerCase()).not.toMatch(/grab it|should i book|want me to/);
   });
 });

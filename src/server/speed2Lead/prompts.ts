@@ -1,30 +1,23 @@
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
+import { allowedFactsForPrompt, businessContextForPrompt } from "~/server/speed2Lead/businessContext";
 import {
   resolveLlmTurnTask,
   type LlmTurnTask,
 } from "~/server/speed2Lead/conversationStage";
+import { normalizeDiscoveryFacts } from "~/server/speed2Lead/discoveryProgress";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
-const ALLOWED_624VOICE_FACTS = [
-  "624Voice helps home service businesses use AI to respond faster, capture more leads, and reduce office workload.",
-  "AI can answer calls, qualify opportunities, and help book jobs — customized per business.",
-  "Jessica is a demo, not what a finished production setup looks like.",
-  "Pricing depends on scope; exact pricing is not quoted over SMS.",
-  "Next step for qualified interest: a 25-minute walkthrough with Chris.",
-  "Do not claim CRM integrations unless verified in knownFacts.",
-];
-
 const TASK_GUIDANCE: Record<LlmTurnTask, string> = {
   acknowledge_report_reaction_and_ask_one_operational_question:
-    "Acknowledge their reaction to the ROI report. Ask ONE easy operational question about missed revenue, response speed, follow-up, or workload.",
+    "Acknowledge their reaction to the ROI report. Ask ONE diagnostic question tied to what they flagged and a problem 624Voice can help with.",
   ask_one_operational_followup:
-    "Acknowledge what they said without assuming the problem is solved. Ask ONE useful operational follow-up tied to their situation.",
+    "Acknowledge what they said. Ask ONE diagnostic follow-up only if relevance to 624Voice is still unclear. Do not restart discovery.",
   ask_conditional_meeting_bridge:
     "Acknowledge their situation. Ask ONE low-pressure conditional question about a 25-minute walkthrough — do not ask what day or time works.",
   answer_customer_question:
-    "Answer their question briefly using allowedFacts. You may add ONE short follow-up question only if it helps move the conversation forward.",
+    "Answer their question briefly using allowedFacts and businessContext. Do not mention calendar times, availability, or booking.",
   brief_active_conversation:
     "Reply briefly and naturally. Do not ask scheduling questions or offer times.",
 };
@@ -62,13 +55,15 @@ function flowContextBlock(context: AnyConversationContext): Record<string, unkno
 }
 
 function knownFactsBlock(facts: KnownFacts): Record<string, unknown> {
+  const normalized = normalizeDiscoveryFacts(facts);
   return {
-    businessName: facts.businessName,
-    primaryPain: facts.primaryPain,
-    urgency: facts.urgency,
-    fit: facts.fit,
-    customerGoal: facts.customerGoal,
-    questionsAsked: facts.questionsAsked,
+    businessName: normalized.businessName,
+    primaryPain: normalized.primaryPain,
+    urgency: normalized.urgency,
+    fit: normalized.fit,
+    customerGoal: normalized.customerGoal,
+    discoveryPhase: normalized.discoveryPhase,
+    diagnosticQuestionsAsked: normalized.diagnosticQuestionsAsked,
   };
 }
 
@@ -92,16 +87,9 @@ export function buildOrchestratorInstructions(
     task: stagePlan.task,
     taskGuidance: TASK_GUIDANCE[stagePlan.task],
     stage: stagePlan.stage,
-    roiFocus:
-      context.flow === "roi"
-        ? "Missed calls, slow response, follow-up gaps, staffing burden, wasted labor, revenue leakage."
-        : undefined,
-    uncertainty:
-      context.flow === "roi"
-        ? "If they seem unsure, ask ONE easy operational question tied to what they flagged. Never ask them to design the solution."
-        : undefined,
+    businessContext: businessContextForPrompt(),
     memory: "Do not re-ask knownFacts or repeat prior questions unless new ambiguity.",
-    allowedFacts: ALLOWED_624VOICE_FACTS,
+    allowedFacts: allowedFactsForPrompt(),
     terminology:
       "Say AI or using AI when describing the product. Do not say bots, AI bots, orchestration, or internal jargon.",
     disposition: dispositionLabel(context),
@@ -142,4 +130,10 @@ export function buildBridgeRepairInstructions(): string {
 
 export function buildTerminologyRepairInstructions(): string {
   return buildRepairInstructions('Use "AI" or "using AI" — do not say bots or AI bots.');
+}
+
+export function buildUnsupportedProductClaimRepairInstructions(): string {
+  return buildRepairInstructions(
+    "624Voice prevents opportunities from falling through the cracks by responding and taking action. It is not missed-call analytics, reporting, or a dashboard that merely flags calls.",
+  );
 }
