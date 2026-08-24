@@ -1,6 +1,8 @@
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
 import { analyzeMessage, primaryPainLabel } from "~/server/speed2Lead/naturalLanguage";
 import { normalizeDiscoveryFacts, simplePainLabel } from "~/server/speed2Lead/discoveryProgress";
+import { shouldPreserveCustomerGoal } from "~/server/speed2Lead/turnSemantics";
+import type { TurnSemantics } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
 import {
   earliestOfferedMinutes,
@@ -93,23 +95,36 @@ export function seedKnownFacts(context: AnyConversationContext): KnownFacts {
   const roi = context as AnyConversationContext & {
     businessName: string;
     primaryOpportunity: string;
+    annualOpportunity?: string;
+    trade?: string;
+    truckCount?: number;
+    monthlyCalls?: number;
+    email?: string;
   };
   return {
     ...base,
     businessName: roi.businessName,
     customerGoal: roi.primaryOpportunity,
+    annualOpportunity: roi.annualOpportunity,
+    trade: roi.trade,
+    truckCount: roi.truckCount,
+    monthlyCalls: roi.monthlyCalls,
+    email: roi.email ?? base.email,
   };
 }
 
 export function syncKnownFactsFromDetections(
   context: AnyConversationContext,
   knownFacts: KnownFacts,
+  semantics?: TurnSemantics,
 ): KnownFacts {
   let updated = normalizeDiscoveryFacts(knownFacts);
 
   if (context.lastCustomerMessage?.trim()) {
     const signals = analyzeMessage(context.lastCustomerMessage);
-    if (signals.pains.length > 0) {
+    const mayPersistPain =
+      !semantics || semantics.kind === "substantive_answer" || semantics.kind === "correction";
+    if (signals.pains.length > 0 && mayPersistPain) {
       updated = {
         ...updated,
         primaryPain: simplePainLabel(signals.pains as PainCategory[]),
@@ -124,7 +139,11 @@ export function syncKnownFactsFromDetections(
     };
   }
 
-  if (context.lastCustomerMessage?.trim()) {
+  if (
+    context.lastCustomerMessage?.trim() &&
+    (!semantics || shouldPreserveCustomerGoal(semantics)) &&
+    context.flow !== "roi"
+  ) {
     updated = {
       ...updated,
       customerGoal: context.lastCustomerMessage.trim(),
@@ -198,7 +217,7 @@ export function appendUserMessage<T extends AnyConversationContext>(
 
   return {
     ...withMessages,
-    knownFacts: syncKnownFactsFromDetections(withMessages, withMessages.knownFacts),
+    knownFacts: syncKnownFactsFromDetections(withMessages, withMessages.knownFacts, withMessages.lastTurnSemantics),
   } as T;
 }
 
@@ -230,7 +249,7 @@ export function appendAssistantMessage<T extends AnyConversationContext>(
 
   return {
     ...withMessages,
-    knownFacts: syncKnownFactsFromDetections(withMessages, withMessages.knownFacts),
+    knownFacts: syncKnownFactsFromDetections(withMessages, withMessages.knownFacts, withMessages.lastTurnSemantics),
   } as T;
 }
 
@@ -246,7 +265,7 @@ export function normalizeSessionMemory<T extends AnyConversationContext>(
   const knownFacts = syncKnownFactsFromDetections(context, {
     ...initial.knownFacts,
     ...context.knownFacts,
-  });
+  }, context.lastTurnSemantics);
 
   return {
     ...context,

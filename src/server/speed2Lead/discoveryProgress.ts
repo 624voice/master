@@ -5,7 +5,14 @@ import {
   type PainCategory,
 } from "~/server/speed2Lead/naturalLanguage";
 import { painMapsToCapability } from "~/server/speed2Lead/businessContext";
-import type { DiscoveryPhase, KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
+import { isMeetingInterestConfirmed } from "~/server/speed2Lead/meetingInterest";
+import {
+  allowsDiscoveryAdvancement,
+  allowsPainPersistence,
+  isNonAnswerLike,
+  isMeetingInterestSemantic,
+} from "~/server/speed2Lead/turnSemantics";
+import type { DiscoveryPhase, KnownFacts, TurnSemantics } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { LlmTurnTask } from "~/server/speed2Lead/conversationStage";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -38,7 +45,7 @@ export function defaultDiscoveryPhase(context: AnyConversationContext): Discover
 }
 
 function computeMinimumDiscoveryPhase(facts: KnownFacts): DiscoveryPhase {
-  if (facts.meetingBridgeComplete) return "scheduling";
+  if (isMeetingInterestConfirmed(facts)) return "scheduling";
   if (
     (facts.diagnosticQuestionsAsked ?? 0) >= MAX_DIAGNOSTIC_QUESTIONS ||
     ((facts.diagnosticQuestionsAsked ?? 0) >= 1 && facts.primaryPain)
@@ -139,6 +146,7 @@ export function shouldCompleteDiscovery(facts: KnownFacts, pains: PainCategory[]
 export function advanceDiscoveryOnInbound<T extends AnyConversationContext>(
   context: T,
   inboundMessage: string,
+  semantics?: TurnSemantics,
 ): T {
   const normalized = {
     ...context,
@@ -146,29 +154,37 @@ export function advanceDiscoveryOnInbound<T extends AnyConversationContext>(
   };
   const facts = normalized.knownFacts;
   const signals = analyzeMessage(inboundMessage);
-  let updatedFacts = persistInboundPain(facts, signals.pains, inboundMessage);
+  let updatedFacts =
+    semantics && !allowsPainPersistence(semantics)
+      ? facts
+      : persistInboundPain(facts, signals.pains, inboundMessage);
   let phase = updatedFacts.discoveryPhase ?? defaultDiscoveryPhase(normalized);
 
   if (normalized.scheduling?.status === "confirmed" || normalized.disposition === "booked") {
     phase = "booked";
   } else if (
     detectExplicitSchedulingRequest(inboundMessage) ||
-    updatedFacts.meetingBridgeComplete ||
+    isMeetingInterestConfirmed(updatedFacts) ||
+    isMeetingInterestSemantic(semantics ?? { kind: "non_answer", source: "deterministic", confidence: "low" }) ||
     normalized.scheduling?.centralDate ||
     normalized.scheduling?.status === "slots_offered"
   ) {
     phase = advancePhase(phase, "scheduling");
-  } else if (userMessageCount(normalized) >= 1 && phase === "awaiting_report_reaction") {
+  } else if (
+    userMessageCount(normalized) >= 1 &&
+    phase === "awaiting_report_reaction" &&
+    (!semantics || (allowsDiscoveryAdvancement(semantics) && !isNonAnswerLike(semantics)))
+  ) {
     phase = "diagnostic";
   }
 
-  if (shouldCompleteDiscovery(updatedFacts, signals.pains)) {
+  if (shouldCompleteDiscovery(updatedFacts, signals.pains) && (!semantics || allowsDiscoveryAdvancement(semantics))) {
     phase = advancePhase(phase, "discovery_complete");
   }
 
-  if (updatedFacts.meetingBridgeComplete && phase !== "booked") {
+  if (isMeetingInterestConfirmed(updatedFacts) && phase !== "booked") {
     phase = advancePhase(phase, "scheduling");
-  } else if (phase === "discovery_complete" && !updatedFacts.meetingBridgeComplete) {
+  } else if (phase === "discovery_complete" && !isMeetingInterestConfirmed(updatedFacts)) {
     phase = "bridge";
   }
 
@@ -223,7 +239,7 @@ export function recordDiscoveryAssistantTurn<T extends AnyConversationContext>(
   if (facts.primaryPain && (facts.diagnosticQuestionsAsked ?? 0) >= 1) {
     phase = advancePhase(phase, "discovery_complete");
   }
-  if (facts.meetingBridgeComplete) {
+  if (facts.meetingInterestConfirmed || facts.meetingBridgeComplete) {
     phase = advancePhase(phase, "scheduling");
   } else if (phase === "discovery_complete") {
     phase = "bridge";

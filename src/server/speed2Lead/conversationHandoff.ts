@@ -4,7 +4,11 @@ import {
   hasKnownSchedulingPartOfDay,
 } from "~/server/speed2Lead/schedulingContext";
 import { isDiscoveryComplete, normalizeDiscoveryFacts } from "~/server/speed2Lead/discoveryProgress";
-import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
+import {
+  isMeetingInterestConfirmed,
+  withMeetingInterestConfirmed,
+} from "~/server/speed2Lead/meetingInterest";
+import type { KnownFacts, TurnSemantics } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 const EXPLICIT_SCHEDULING_RE =
@@ -46,7 +50,7 @@ export function shouldRequireMeetingBridge(
   inboundMessage: string,
 ): boolean {
   if (context.flow !== "roi") return false;
-  if (context.knownFacts?.meetingBridgeComplete) return false;
+  if (isMeetingInterestConfirmed(context.knownFacts)) return false;
   if (context.disposition === "soft_closed" || context.disposition === "declined") return false;
   if (context.scheduling?.status === "confirmed") return false;
   if (detectExplicitSchedulingRequest(inboundMessage)) return false;
@@ -69,10 +73,13 @@ export function shouldBlockSchedulingForMeetingBridge(
 export function applyMeetingBridgeProgress<T extends AnyConversationContext>(
   context: T,
   inboundMessage: string,
+  semantics?: TurnSemantics,
 ): T {
-  if (context.knownFacts?.meetingBridgeComplete) {
+  if (isMeetingInterestConfirmed(context.knownFacts)) {
     return context;
   }
+
+  const facts = (context.knownFacts ?? {}) as KnownFacts;
 
   if (
     detectExplicitSchedulingRequest(inboundMessage) ||
@@ -81,23 +88,17 @@ export function applyMeetingBridgeProgress<T extends AnyConversationContext>(
   ) {
     return {
       ...context,
-      knownFacts: {
-        ...(context.knownFacts as KnownFacts),
-        meetingBridgeComplete: true,
-      },
+      knownFacts: withMeetingInterestConfirmed(facts),
     } as T;
   }
 
-  if (
-    detectMeetingBridgeAgreement(inboundMessage) &&
-    meetingBridgeQuestionDelivered(context)
-  ) {
+  const bridgeAgreement =
+    detectMeetingBridgeAgreement(inboundMessage) || semantics?.kind === "meeting_interest_yes";
+
+  if (bridgeAgreement && meetingBridgeQuestionDelivered(context)) {
     return {
       ...context,
-      knownFacts: {
-        ...(context.knownFacts as KnownFacts),
-        meetingBridgeComplete: true,
-      },
+      knownFacts: withMeetingInterestConfirmed(facts),
     } as T;
   }
 

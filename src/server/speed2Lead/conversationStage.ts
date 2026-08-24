@@ -10,6 +10,7 @@ import {
   normalizeDiscoveryFacts,
   shouldAskAnotherDiagnosticQuestion,
 } from "~/server/speed2Lead/discoveryProgress";
+import { isMeetingInterestConfirmed } from "~/server/speed2Lead/meetingInterest";
 import type { KnownFacts } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
@@ -77,7 +78,7 @@ export function resolveRoiConversationStage(context: AnyConversationContext): Ro
   const phase = facts.discoveryPhase ?? "awaiting_report_reaction";
 
   if (
-    facts.meetingBridgeComplete ||
+    isMeetingInterestConfirmed(facts) ||
     phase === "scheduling" ||
     context.scheduling?.status === "slots_offered" ||
     hasActiveScheduling(context) ||
@@ -111,11 +112,11 @@ export function resolveLlmTurnTask(
   if (stage === "booked") {
     return { stage, task: "brief_active_conversation" };
   }
-  if (stage === "scheduling") {
+  if (stage === "scheduling" || isMeetingInterestConfirmed(facts)) {
     if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
-      return { stage, task: "answer_customer_question" };
+      return { stage: "scheduling", task: "answer_customer_question" };
     }
-    return { stage, task: "brief_active_conversation" };
+    return { stage: "scheduling", task: "brief_active_conversation" };
   }
   if (stage === "meeting_bridge") {
     if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
@@ -151,7 +152,7 @@ export function shouldSendDeterministicSchedulingAsk(
   if (context.scheduling?.status === "confirmed") return false;
   if (context.scheduling?.status === "slots_offered") return false;
   if ((context.scheduling?.offeredSlots?.length ?? 0) > 0) return false;
-  if (!context.knownFacts?.meetingBridgeComplete) return false;
+  if (!isMeetingInterestConfirmed(context.knownFacts)) return false;
   if (!meetingBridgeQuestionDelivered(context)) return false;
   if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   if (SCHEDULING_ASK_RE.test(inboundMessage)) return false;

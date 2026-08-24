@@ -23,6 +23,7 @@ import {
   advanceDiscoveryOnInbound,
   recordDiscoveryAssistantTurn,
 } from "~/server/speed2Lead/discoveryProgress";
+import { resolveTurnSemantics } from "~/server/speed2Lead/turnSemantics";
 import {
   buildBookingConfirmationMessage,
   buildSlotOfferMessage,
@@ -488,13 +489,30 @@ export async function orchestrateInboundTurn(
   const now = deps.now ?? new Date();
   const turnStartedAt = Date.now();
   const normalized = normalizeSessionMemory(session);
-  const bridged = applyMeetingBridgeProgress(normalized, inboundMessage);
-  const context = applyDisposition(
-    bridged,
-    resolveDispositionAfterInbound(bridged, inboundMessage),
-  );
   const model = getSpeed2LeadLlmModel();
   const maxIterations = getSpeed2LeadLlmMaxToolIterations();
+
+  if (!deps.runModel && !isOpenAiConfigured()) {
+    logOrchestratorEvent("openai_error", {
+      flow: normalized.flow ?? "roi",
+      reason: "openai_not_configured",
+    });
+    return {
+      handled: true,
+      reply: buildStageAwareRecoveryMessage(normalized, false),
+      context: normalized,
+    };
+  }
+
+  const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const runModel = deps.runModel ?? createDefaultModelRunner(client!);
+
+  const semantics = await resolveTurnSemantics(inboundMessage, normalized);
+  const bridged = applyMeetingBridgeProgress(normalized, inboundMessage, semantics);
+  const context = applyDisposition(
+    { ...bridged, lastTurnSemantics: semantics },
+    resolveDispositionAfterInbound(bridged, inboundMessage),
+  );
 
   logSpeed2LeadTestEvent(context.phone, "scheduling_state_before", {
     flow: context.flow ?? "roi",
@@ -519,24 +537,10 @@ export async function orchestrateInboundTurn(
     return { handled: true, reply: softCloseAckMessage(), context };
   }
 
-  if (!deps.runModel && !isOpenAiConfigured()) {
-    logOrchestratorEvent("openai_error", {
-      flow: context.flow ?? "roi",
-      reason: "openai_not_configured",
-    });
-    return {
-      handled: true,
-      reply: buildStageAwareRecoveryMessage(context, false),
-      context,
-    };
-  }
-
-  const client = deps.runModel ? null : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const runModel = deps.runModel ?? createDefaultModelRunner(client!);
-
   let workingContext = advanceDiscoveryOnInbound(
-    applyMeetingBridgeProgress(context, inboundMessage),
+    applyMeetingBridgeProgress({ ...context, lastTurnSemantics: semantics }, inboundMessage, semantics),
     inboundMessage,
+    semantics,
   );
   workingContext = prepareInboundSchedulingTurn(workingContext, inboundMessage, now);
   let gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });

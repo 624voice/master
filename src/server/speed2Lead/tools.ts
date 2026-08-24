@@ -3,6 +3,7 @@ import { bookConsultation } from "~/server/appointmentLifecycle/bookConsultation
 import { getConsultationSlots } from "~/server/appointmentLifecycle/googleCalendar";
 import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
+import { logBookingTelemetry } from "~/server/speed2Lead/bookingTelemetry";
 import {
   applyConfirmedScheduling,
   applyKnownFactsUpdate,
@@ -210,6 +211,15 @@ async function handleBookAppointment(
   now: Date,
 ): Promise<{ result: unknown; context: AnyConversationContext; state: ToolExecutionState }> {
   const start = typeof args.start === "string" ? args.start : "";
+  const phoneSuffix = context.phone.slice(-4);
+  logBookingTelemetry({
+    stage: "interpretation",
+    outcome: start ? "success" : "failure",
+    reason: start ? undefined : "missing_start",
+    slotStart: start || undefined,
+    phoneSuffix,
+  });
+
   if (!start) {
     return {
       result: { ok: false, reason: "missing_start" },
@@ -219,6 +229,13 @@ async function handleBookAppointment(
   }
 
   if (state.offeredSlots.length > 0 && !slotIsOffered(start, state.offeredSlots)) {
+    logBookingTelemetry({
+      stage: "slot_state",
+      outcome: "failure",
+      reason: "slot_not_offered",
+      slotStart: start,
+      phoneSuffix,
+    });
     return {
       result: { ok: false, reason: "slot_not_offered", failureType: "invalid_selection" },
       context,
@@ -232,6 +249,14 @@ async function handleBookAppointment(
   }
 
   const normalized = normalizeSessionMemory(context);
+  logBookingTelemetry({
+    stage: "recheck",
+    outcome: "started",
+    slotStart: start,
+    requestKey: normalized.scheduling?.activeRequestKey,
+    phoneSuffix,
+  });
+
   const booked = await bookConsultation({
     start,
     attendeeName: attendeeName(normalized),
@@ -251,6 +276,13 @@ async function handleBookAppointment(
     }
     const failureType =
       booked.reason === "slot_unavailable" ? "provider_conflict" : "provider_error";
+    logBookingTelemetry({
+      stage: "create_event",
+      outcome: "failure",
+      reason: booked.reason,
+      slotStart: start,
+      phoneSuffix,
+    });
     return {
       result: {
         ok: false,
@@ -268,6 +300,33 @@ async function handleBookAppointment(
     };
   }
 
+  if (!booked.eventId) {
+    logBookingTelemetry({
+      stage: "create_event",
+      outcome: "failure",
+      reason: "missing_event_id",
+      slotStart: start,
+      phoneSuffix,
+    });
+    return {
+      result: { ok: false, reason: "missing_event_id", failureType: "provider_error" },
+      context,
+      state: {
+        ...state,
+        bookingFailed: false,
+        lastBookingFailureReason: "provider_error",
+      },
+    };
+  }
+
+  logBookingTelemetry({
+    stage: "create_event",
+    outcome: "success",
+    slotStart: booked.selectedStart,
+    eventId: booked.eventId,
+    phoneSuffix,
+  });
+
   state = {
     ...state,
     bookingConfirmed: true,
@@ -279,6 +338,14 @@ async function handleBookAppointment(
   let updated = applyConfirmedScheduling(normalized, {
     selectedStart: booked.selectedStart,
     calendarEventId: booked.eventId,
+  });
+
+  logBookingTelemetry({
+    stage: "persistence",
+    outcome: "success",
+    slotStart: booked.selectedStart,
+    eventId: booked.eventId,
+    phoneSuffix,
   });
 
   if (updated.flow === "demo") {

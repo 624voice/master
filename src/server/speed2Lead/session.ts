@@ -61,6 +61,9 @@ export function createSession(input: {
   email?: string;
   annualOpportunity: string;
   primaryOpportunity: string;
+  trade?: import("~/lib/roi/roiModel").TradeKey;
+  truckCount?: number;
+  monthlyCalls?: number;
   reportUrl: string;
   bookingUrl: string;
 }): ConversationContext {
@@ -71,6 +74,9 @@ export function createSession(input: {
     businessName: input.businessName,
     annualOpportunity: input.annualOpportunity,
     primaryOpportunity: input.primaryOpportunity,
+    trade: input.trade,
+    truckCount: input.truckCount,
+    monthlyCalls: input.monthlyCalls,
     reportUrl: input.reportUrl,
     bookingUrl: input.bookingUrl,
     state: "awaiting_problem",

@@ -39,7 +39,7 @@ describe("session memory normalization", () => {
     expect(normalized.knownFacts.phone).toBe("+15551234567");
     expect(normalized.knownFacts.flow).toBe("roi");
     expect(normalized.knownFacts.businessName).toBe("Test Plumbing");
-    expect(normalized.knownFacts.customerGoal).toBe("We miss calls after hours");
+    expect(normalized.knownFacts.customerGoal).toBe("Missed calls");
     expect(normalized.knownFacts.primaryPain).toBe("after-hours and missed-call coverage");
     expect(normalized.state).toBe("awaiting_problem");
   });
@@ -62,6 +62,26 @@ describe("session memory normalization", () => {
     expect(session.knownFacts.flow).toBe("roi");
     expect(session.knownFacts.email).toBe("alex@example.com");
     expect(session.knownFacts.customerGoal).toBe("Missed calls");
+    expect(session.knownFacts.trade).toBeUndefined();
+  });
+
+  test("ROI sessions seed lead-form facts when provided", () => {
+    const session = createSession({
+      phone: "+15551234567",
+      firstName: "Alex",
+      businessName: "Test Plumbing",
+      annualOpportunity: "$120,000",
+      primaryOpportunity: "Missed calls",
+      trade: "plumbing",
+      truckCount: 3,
+      monthlyCalls: 120,
+      reportUrl: "https://624voice.com/report/test",
+      bookingUrl: "https://calendar.app.google/test",
+    });
+
+    expect(session.knownFacts.monthlyCalls).toBe(120);
+    expect(session.knownFacts.truckCount).toBe(3);
+    expect(session.knownFacts.trade).toBe("plumbing");
   });
 
   test("new Contact sessions seed customerGoal from form summary", () => {
@@ -142,7 +162,7 @@ describe("session message history", () => {
       "user",
       "assistant",
     ]);
-    expect(session.knownFacts.customerGoal).toBe("Missed calls after hours");
+    expect(session.knownFacts.customerGoal).toBe("Missed calls");
     expect(session.knownFacts.primaryPain).toBe("missed calls");
     expect(session.knownFacts.questionsAsked).toBe(0);
   });

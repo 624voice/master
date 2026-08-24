@@ -6,7 +6,8 @@ import {
   resolveLlmTurnTask,
   shouldSendDeterministicSchedulingAsk,
 } from "~/server/speed2Lead/conversationStage";
-import { containsUnsupportedProductClaim } from "~/server/speed2Lead/businessContext";
+import { containsUnsupportedProductClaim, containsAiAsPrimaryBenefit } from "~/server/speed2Lead/businessContext";
+import { isMeetingInterestConfirmed } from "~/server/speed2Lead/meetingInterest";
 import {
   isDiscoveryComplete,
   isReportReactionComplete,
@@ -62,7 +63,7 @@ const PENDING_ACTION_PATTERN =
 const EXACT_PHRASE_CONFIRM_PATTERN =
   /\b(reply with exactly|exactly \"|exact phrase|didn'?t get the exact)\b/i;
 const REDUNDANT_CONFIRM_PATTERN =
-  /\b(confirm you want|before i can book|lock that in|need you to confirm)\b/i;
+  /\b(confirm you want|before i can book|lock that in|need you to confirm|should i book|want me to grab|want me to book|do you want me to (?:book|grab|lock))\b/i;
 const GUARANTEE_PATTERN =
   /\b(guarantee|guaranteed|will (?:make|save|earn)|promise you'll)\b/i;
 const CRM_INTEGRATION_CLAIM_PATTERN =
@@ -147,6 +148,13 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
 
   if (containsUnsupportedProductClaim(trimmed)) {
     return { ok: false, reason: "SMS claims an unsupported 624Voice capability" };
+  }
+
+  if (
+    containsAiAsPrimaryBenefit(trimmed) &&
+    resolveLlmTurnTask(ctx.session, "").task === "ask_conditional_meeting_bridge"
+  ) {
+    return { ok: false, reason: "SMS sells AI as the primary meeting benefit instead of business outcome" };
   }
 
   if (BOOKED_CLAIM_PATTERN.test(trimmed) && !ctx.toolState.bookingConfirmed) {
@@ -304,7 +312,7 @@ export function genericRecoveryMessage(context: AnyConversationContext): string 
 
   const stagePlan = resolveLlmTurnTask(context, "");
   if (stagePlan.stage === "meeting_bridge" || isDiscoveryComplete(context)) {
-    return "Still with you — worth a quick 25-minute look at how AI could help with that?";
+    return "Still with you — worth a quick 25-minute look at how we could help with that?";
   }
   if (!isReportReactionComplete(context)) {
     return "Still here — what part of the report stood out most for you?";

@@ -20,6 +20,9 @@ export type ConversationContext = SessionMemoryFields & {
   businessName: string;
   annualOpportunity: string;
   primaryOpportunity: string;
+  trade?: TradeKey;
+  truckCount?: number;
+  monthlyCalls?: number;
   reportUrl: string;
   bookingUrl: string;
   state: ConversationState;
@@ -53,5 +56,8 @@ export type StartSpeed2LeadInput = {
   email?: string;
   annualOpportunity: string;
   primaryOpportunity: string;
+  trade?: TradeKey;
+  truckCount?: number;
+  monthlyCalls?: number;
   reportUrl: string;
 };

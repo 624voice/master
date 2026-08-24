@@ -97,6 +97,9 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
           email: normalizedLead.email,
           annualOpportunity: moderateRoi,
           primaryOpportunity,
+          trade,
+          truckCount,
+          monthlyCalls,
           reportUrl,
         });
       } catch (error) {

@@ -1,6 +1,6 @@
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
-import { allowedFactsForPrompt, businessContextForPrompt } from "~/server/speed2Lead/businessContext";
+import { allowedFactsForPrompt, businessContextForPrompt, outcomeBridgeContextForPrompt } from "~/server/speed2Lead/businessContext";
 import {
   resolveLlmTurnTask,
   type LlmTurnTask,
@@ -15,7 +15,7 @@ const TASK_GUIDANCE: Record<LlmTurnTask, string> = {
   ask_one_operational_followup:
     "Acknowledge what they said. Ask ONE diagnostic follow-up only if relevance to 624Voice is still unclear. Do not restart discovery.",
   ask_conditional_meeting_bridge:
-    "Acknowledge their situation. Ask ONE low-pressure conditional question about a 25-minute walkthrough — do not ask what day or time works.",
+    "Acknowledge their situation. Ask ONE low-pressure conditional question about a 25-minute walkthrough. Sell the business outcome from outcomeBridgeContext — not AI as the headline benefit. Do not ask what day or time works.",
   answer_customer_question:
     "Answer their question briefly using allowedFacts and businessContext. Do not mention calendar times, availability, or booking.",
   brief_active_conversation:
@@ -58,12 +58,25 @@ function knownFactsBlock(facts: KnownFacts): Record<string, unknown> {
   const normalized = normalizeDiscoveryFacts(facts);
   return {
     businessName: normalized.businessName,
+    trade: normalized.trade,
+    truckCount: normalized.truckCount,
+    monthlyCalls: normalized.monthlyCalls,
+    annualOpportunity: normalized.annualOpportunity,
     primaryPain: normalized.primaryPain,
     urgency: normalized.urgency,
     fit: normalized.fit,
     customerGoal: normalized.customerGoal,
     discoveryPhase: normalized.discoveryPhase,
     diagnosticQuestionsAsked: normalized.diagnosticQuestionsAsked,
+    meetingInterestConfirmed: Boolean(
+      normalized.meetingInterestConfirmed ?? normalized.meetingBridgeComplete,
+    ),
+    doNotReask: [
+      normalized.trade ? "trade/category" : null,
+      normalized.truckCount != null ? "truck count" : null,
+      normalized.monthlyCalls != null ? "monthly inbound call volume" : null,
+      normalized.customerGoal ? "primary report opportunity" : null,
+    ].filter(Boolean),
   };
 }
 
@@ -81,6 +94,7 @@ export function buildOrchestratorInstructions(
   inboundMessage = "",
 ): string {
   const stagePlan = resolveLlmTurnTask(context, inboundMessage);
+  const normalizedFacts = normalizeDiscoveryFacts(context.knownFacts ?? ({} as KnownFacts));
   const payload = {
     persona:
       "Chris with 624Voice. Direct, practical, concise — operator-to-operator SMS for home-services owners. Natural, not corporate. One short message. At most one question.",
@@ -88,7 +102,11 @@ export function buildOrchestratorInstructions(
     taskGuidance: TASK_GUIDANCE[stagePlan.task],
     stage: stagePlan.stage,
     businessContext: businessContextForPrompt(),
-    memory: "Do not re-ask knownFacts or repeat prior questions unless new ambiguity.",
+    outcomeBridgeContext: outcomeBridgeContextForPrompt({
+      primaryPain: normalizedFacts.primaryPain,
+    }),
+    memory:
+      "Do not re-ask knownFacts fields listed in doNotReask or repeat prior questions unless new ambiguity.",
     allowedFacts: allowedFactsForPrompt(),
     terminology:
       "Say AI or using AI when describing the product. Do not say bots, AI bots, orchestration, or internal jargon.",

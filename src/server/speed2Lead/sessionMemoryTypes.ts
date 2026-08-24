@@ -22,16 +22,41 @@ export type DiscoveryPhase =
   | "scheduling"
   | "booked";
 
+export type TurnSemanticKind =
+  | "greeting"
+  | "non_answer"
+  | "substantive_answer"
+  | "clarification"
+  | "objection"
+  | "faq"
+  | "meeting_interest_yes"
+  | "scheduling"
+  | "scheduling_selection"
+  | "correction"
+  | "opt_out";
+
+export type TurnSemantics = {
+  kind: TurnSemanticKind;
+  source: "deterministic" | "llm";
+  confidence: "high" | "medium" | "low";
+};
+
 export type KnownFacts = {
   firstName: string;
   phone: string;
   email?: string;
   businessName?: string;
   flow: KnownFactsFlow;
+  /** ROI form / report fields — canonical; do not re-ask unless prospect says they changed. */
+  trade?: string;
+  truckCount?: number;
+  monthlyCalls?: number;
+  annualOpportunity?: string;
   primaryPain?: string;
   urgency?: KnownFactsUrgency;
   fit?: KnownFactsFit;
   objection?: string;
+  /** Report-derived primary opportunity — do not overwrite from casual inbound text. */
   customerGoal?: string;
   /** Monotonic ROI discovery progress — code-owned. */
   discoveryPhase?: DiscoveryPhase;
@@ -42,6 +67,8 @@ export type KnownFacts = {
   /** @deprecated Use diagnosticQuestionsAsked. Kept for backward-compatible session reads. */
   questionsAsked: number;
   /** Customer agreed to a low-pressure meeting bridge or explicitly asked to schedule. */
+  meetingInterestConfirmed?: boolean;
+  /** @deprecated Use meetingInterestConfirmed. Kept for backward-compatible session reads. */
   meetingBridgeComplete?: boolean;
 };
 
@@ -107,6 +134,8 @@ export type SessionMemoryFields = {
   scheduling?: SchedulingState;
   /** Lightweight conversation posture for re-engagement guardrails. */
   disposition?: ConversationDisposition;
+  /** Latest semantic classification for the inbound turn — code owns progression. */
+  lastTurnSemantics?: TurnSemantics;
   /** When true, knownFacts.questionsAsked is managed by the LLM orchestrator. */
   orchestratorManagedQuestions?: boolean;
 };
