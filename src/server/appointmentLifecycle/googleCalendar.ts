@@ -150,6 +150,11 @@ async function getAccessToken(): Promise<string> {
   return cachedToken.accessToken;
 }
 
+/** Same OAuth token exchange used by booking provider (service-account JWT, no `sub` claim). */
+export async function getGoogleCalendarProviderAccessToken(): Promise<string> {
+  return getAccessToken();
+}
+
 export async function fetchCalendarEventsUpdatedSince(
   updatedMin: string,
 ): Promise<NormalizedCalendarEvent[]> {
