@@ -27,7 +27,7 @@ import {
 
 type Args = {
   start: string;
-  mode: "compare" | "no_attendee" | "with_attendee" | "full" | "handset";
+  mode: "compare" | "no_attendee" | "with_attendee" | "full" | "handset" | "create_only";
   attendeeEmail?: string;
   cleanup: boolean;
   previewUrl?: string;
