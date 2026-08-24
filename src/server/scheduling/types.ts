@@ -90,17 +90,6 @@ export type SchedulingTrace = ProviderDiagnostics & {
   eventIdPresent: boolean;
 };
 
-export type SchedulingTurnResult = {
-  outcome: SchedulingOutcomeType;
-  state: CanonicalSchedulingState;
-  offeredSlots: string[];
-  offerPresentationType: OfferPresentationType;
-  selectedStart?: string;
-  eventId?: string;
-  lifecycleConfirmationSent?: boolean;
-  trace: SchedulingTrace;
-};
-
 export type BookingCustomer = {
   phone: string;
   name: string;
@@ -110,12 +99,30 @@ export type BookingCustomer = {
   notes?: string;
 };
 
+import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
+
 export type ProcessSchedulingTurnInput = {
   inboundMessage: string;
   state: CanonicalSchedulingState;
   now: Date;
   maxOffer?: number;
   bookCustomer?: BookingCustomer;
+  /** When set, book this slot directly (gate-planned selection). */
+  explicitBookStart?: string;
+  /** Gate-planned provider query input (refinement / exact-time / range). */
+  availabilityInput?: AvailabilityRangeInput;
   /** When true, emit structured trace logs (preview allowlist). */
   tracePhoneSuffix?: string;
+};
+
+export type SchedulingTurnResult = {
+  outcome: SchedulingOutcomeType;
+  state: CanonicalSchedulingState;
+  offeredSlots: string[];
+  offerPresentationType: OfferPresentationType;
+  selectedStart?: string;
+  eventId?: string;
+  lifecycleConfirmationSent?: boolean;
+  closedDayDate?: string;
+  trace: SchedulingTrace;
 };

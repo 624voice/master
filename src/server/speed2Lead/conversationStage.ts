@@ -39,6 +39,9 @@ export type ConversationStagePlan = {
 const SCHEDULING_ASK_RE =
   /\b(what day|which day|morning or afternoon|when works|what time|what times|schedule a|grab a time|pick a time|find a time|set up a (?:call|time))\b/i;
 
+const OPERATIONAL_QUESTION_RE =
+  /\b(process now|when a new lead|call them back|get back|respond|handling calls|current process|slip through)\b/i;
+
 function factsFor(context: AnyConversationContext): KnownFacts {
   return normalizeDiscoveryFacts(
     context.knownFacts ?? {
@@ -160,10 +163,36 @@ export function shouldSendDeterministicSchedulingAsk(
   if (context.scheduling?.status === "slots_offered") return false;
   if ((context.scheduling?.offeredSlots?.length ?? 0) > 0) return false;
   if (!isMeetingInterestConfirmed(context.knownFacts)) return false;
-  if (!meetingBridgeQuestionDelivered(context)) return false;
   if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   if (SCHEDULING_ASK_RE.test(inboundMessage)) return false;
-  return detectMeetingBridgeAgreement(inboundMessage);
+  if (hasActiveScheduling(context)) return false;
+
+  if (meetingBridgeQuestionDelivered(context) && detectMeetingBridgeAgreement(inboundMessage)) {
+    return true;
+  }
+
+  if (
+    !meetingBridgeQuestionDelivered(context) &&
+    inboundMessage.trim().length > 0 &&
+    !detectMeetingBridgeAgreement(inboundMessage)
+  ) {
+    const lastAssistant = [...(context.messages ?? [])]
+      .reverse()
+      .find((message) => message.role === "assistant");
+    if (lastAssistant && OPERATIONAL_QUESTION_RE.test(lastAssistant.content)) {
+      return true;
+    }
+  }
+
+  if (
+    context.scheduling?.lastBlockedFallback &&
+    isMeetingInterestConfirmed(context.knownFacts) &&
+    inboundMessage.trim().length > 0
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 export function containsSchedulingAskLanguage(text: string): boolean {

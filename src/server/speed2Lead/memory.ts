@@ -409,7 +409,11 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
       lastOfferedEarliestMinutes: earliestOfferedMinutes(slots) ?? undefined,
       lastOfferedLatestMinutes: latestOfferedMinutes(slots) ?? undefined,
       lastPresentedOfferKey: normalized.scheduling?.lastPresentedOfferKey,
-      lastOfferedSlotKey: normalized.scheduling?.lastPresentedOfferKey,
+      lastOfferedSlotKey: offeredSlotConstraintKey(slots, {
+        ...normalized.scheduling,
+        status: "slots_offered",
+        offeredSlots: slots,
+      }),
       bookingPending: false,
     },
     updatedAt: new Date().toISOString(),

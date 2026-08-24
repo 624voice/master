@@ -1,6 +1,7 @@
 import { CONSULTATION_TIMEZONE, getConsultationBusinessHours, getConsultationDurationMinutes } from "~/server/appointmentLifecycle/consultationConfig";
 import {
   buildBookingConfirmationMessage,
+  calendarLinkFallbackMessage,
   finalizeCalendarLinkOutbound,
   validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
@@ -9,9 +10,20 @@ import { shouldBlockSchedulingForMeetingBridge } from "~/server/speed2Lead/conve
 import { shouldBlockSchedulingTurn } from "~/server/speed2Lead/conversationDisposition";
 import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import {
+  buildAvailabilityInputFromSchedulingState,
+  classifySchedulingTimeIntent,
+  detectRepetitionCorrection,
+  detectSchedulingRefinement,
+  detectSchedulingConstraints,
+  hasExplicitExactTimeRequest,
+  hasKnownSchedulingDay,
+  hasKnownSchedulingPartOfDay,
+  needsMeridiemClarification,
   resolveOfferedSlotSelectionCandidate,
 } from "~/server/speed2Lead/schedulingContext";
 import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
+import { inferAvailabilityInputFromMessage } from "~/server/speed2Lead/schedulingRange";
+import { schedulingFactsComplete } from "~/server/speed2Lead/schedulingIntent";
 import {
   buildReplyFromSchedulingResult,
   markOfferPresented,
@@ -69,7 +81,33 @@ const EXPLICIT_CALENDAR_LINK_RE =
   /\b(calendar\s+link|send\s+(?:me\s+)?(?:the\s+)?link|self[\s-]?service|book\s+online|schedule\s+online|pick\s+from\s+(?:the\s+)?calendar)\b/i;
 
 const SCHEDULING_INTENT_RE =
-  /\b(when\s+(?:are\s+you|can\s+we)|what\s+times?|available|availability|schedule|book|appointment|consultation|set\s+(?:something|it)\s+up|pick\s+a\s+time|find\s+a\s+time|talk\s+(?:tomorrow|today|this\s+week|next\s+week)|meet|call\s+(?:me|tomorrow|today)|first\s+available|anytime|flexible|whenever)\b/i;
+  /\b(when\s+(?:are\s+you|can\s+we)|what\s+times?|what\s+do\s+you\s+have\s+open|available|availability|schedule|book|appointment|consultation|set\s+(?:something|it)\s+up|pick\s+a\s+time|find\s+a\s+time|talk\s+(?:tomorrow|today|this\s+week|next\s+week)|meet|call\s+(?:me|tomorrow|today)|first\s+available|anytime|flexible|whenever|this\s+week|later\s+this\s+week)\b/i;
+
+const DAYPART_ONLY_RE =
+  /^(?:\s*(?:let'?s\s+do\s+)?(?:morning|afternoon|evening)(?:\s+please)?\.?\s*)$/i;
+
+function hasRefinementSignal(
+  message: string,
+  scheduling: SchedulingState | undefined,
+  offeredCount: number,
+): boolean {
+  if (offeredCount > 0) return true;
+  if (
+    /\b(instead|need something later|something later|switch to|no morning|no afternoon|not morning|not afternoon|later time|earlier time|anything around|different time|other time)\b/i.test(
+      message,
+    )
+  ) {
+    return true;
+  }
+  if (
+    /\b(what about|how about)\b/i.test(message) &&
+    hasKnownSchedulingPartOfDay(scheduling)
+  ) {
+    return true;
+  }
+  if (/\b(around|about)\s+\d/i.test(message)) return true;
+  return false;
+}
 
 const STRONG_INTEREST_RE =
   /\b(yes|yeah|yep|sure|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|ready\s+to\s+book|sounds\s+useful)\b/i;
@@ -77,7 +115,7 @@ const STRONG_INTEREST_RE =
 const WEEKDAY_RE =
   /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)\b/i;
 
-function detectSchedulingIntent(message: string, context?: AnyConversationContext): boolean {
+function detectSchedulingIntent(message: string, context?: AnyConversationContext, now = new Date()): boolean {
   const signals = analyzeMessage(message);
   if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) return false;
   if (context && shouldBlockSchedulingTurn(context, message)) return false;
@@ -85,6 +123,36 @@ function detectSchedulingIntent(message: string, context?: AnyConversationContex
   if (STRONG_INTEREST_RE.test(message)) return true;
   if (SCHEDULING_INTENT_RE.test(message)) return true;
   if (WEEKDAY_RE.test(message)) return true;
+  if (DAYPART_ONLY_RE.test(message.trim())) return true;
+
+  if (context) {
+    if (isActiveV2Scheduling(context)) return true;
+    if (schedulingFactsComplete(context.scheduling)) return true;
+    if (hasKnownSchedulingDay(context.scheduling) || hasKnownSchedulingPartOfDay(context.scheduling)) {
+      if (DAYPART_ONLY_RE.test(message.trim()) || detectRepetitionCorrection(message)) {
+        return true;
+      }
+    }
+    const canonical = toCanonicalSchedulingState(context.scheduling);
+    const patch = parseSchedulingIntentUpdate(message, canonical, now);
+    if (patch.requestedDate || patch.availabilityPreference || patch.exactTimeMinutes != null) {
+      return true;
+    }
+    const constraints = detectSchedulingConstraints(
+      message,
+      context.scheduling,
+      context.scheduling?.offeredSlots ?? [],
+    );
+    if (
+      constraints.rejectedPartOfDay?.length ||
+      constraints.rejectedSlotStarts?.length ||
+      constraints.partOfDay ||
+      constraints.centralDate
+    ) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -150,6 +218,7 @@ function syncToolStateFromScheduling(
     bookingEventId: scheduling.calendarEventId,
     calendarUnavailable: scheduling.calendarUnavailable ?? toolState.calendarUnavailable,
     providerFailureReason: scheduling.providerFailureReason,
+    availabilityAttempts: scheduling.availabilityAttempts ?? toolState.availabilityAttempts,
     bookingFailed: outcome === "PROVIDER_CONFLICT",
     lastBookingFailureReason:
       outcome === "PROVIDER_CONFLICT"
@@ -199,7 +268,7 @@ export function planSchedulingGate(args: {
     };
   }
 
-  const schedulingIntent = detectSchedulingIntent(args.inboundMessage, args.context);
+  const schedulingIntent = detectSchedulingIntent(args.inboundMessage, args.context, now);
   const strongInterest = detectStrongInterest(args.inboundMessage);
   let canonical = toCanonicalSchedulingState(args.context.scheduling);
   const patch = parseSchedulingIntentUpdate(args.inboundMessage, canonical, now);
@@ -217,6 +286,104 @@ export function planSchedulingGate(args: {
         explicitCalendarLinkRequest,
         selectedSlotStart: selected,
         preferenceInput,
+      };
+    }
+
+    if (needsMeridiemClarification(args.inboundMessage, offered)) {
+      return {
+        action: { type: "ask_preference" },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput,
+      };
+    }
+  }
+
+  const inferredRange = inferAvailabilityInputFromMessage(args.inboundMessage, now);
+  if (inferredRange?.rangeStart && inferredRange.rangeEnd) {
+    return {
+      action: { type: "get_availability", input: inferredRange, reason: "range_request" },
+      schedulingIntent: true,
+      strongInterest: strongInterest || schedulingIntent,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: inferredRange,
+    };
+  }
+
+  if (
+    hasExplicitExactTimeRequest(args.inboundMessage, args.context.scheduling) &&
+    (hasKnownSchedulingDay(args.context.scheduling) || Boolean(canonical.requestedDate))
+  ) {
+    const input =
+      buildAvailabilityInputFromSchedulingState(args.context.scheduling, args.inboundMessage, now) ??
+      preferenceInput;
+    if (input?.centralDate) {
+      return {
+        action: {
+          type: "get_availability_for_request",
+          input,
+          reason: "exact_time_request",
+        },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: input,
+      };
+    }
+  }
+
+  const canRefine =
+    hasRefinementSignal(args.inboundMessage, args.context.scheduling, offered.length) &&
+    (offered.length > 0 ||
+      hasKnownSchedulingDay(args.context.scheduling) ||
+      hasKnownSchedulingPartOfDay(args.context.scheduling) ||
+      args.context.scheduling?.status === "slots_offered");
+  const refinement = canRefine
+    ? detectSchedulingRefinement(
+        args.inboundMessage,
+        args.context.scheduling,
+        offered,
+        now,
+      )
+    : null;
+  if (refinement) {
+    return {
+      action: {
+        type: "get_availability_for_request",
+        input: refinement.input,
+        reason: refinement.reason,
+      },
+      schedulingIntent: true,
+      strongInterest: strongInterest || schedulingIntent,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: refinement.input,
+    };
+  }
+
+  if (
+    offered.length > 0 &&
+    classifySchedulingTimeIntent(args.inboundMessage, args.context.scheduling) === "request"
+  ) {
+    const input =
+      buildAvailabilityInputFromSchedulingState(args.context.scheduling, args.inboundMessage, now) ??
+      preferenceInput;
+    if (input?.centralDate || (input?.rangeStart && input.rangeEnd)) {
+      return {
+        action: {
+          type: "get_availability_for_request",
+          input,
+          reason: "exact_time_request",
+        },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: input,
       };
     }
   }
@@ -314,6 +481,24 @@ export function persistSchedulingToolState(
   });
 }
 
+function resolveForcedSchedulingReply(
+  result: import("~/server/scheduling/types").SchedulingTurnResult,
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  plan: SchedulingGatePlan,
+): string | null {
+  const linkAllowed = allowCalendarLinkFallback({ plan, toolState, context });
+  if (
+    linkAllowed &&
+    (result.outcome === "PROVIDER_ERROR" || result.outcome === "NO_AVAILABILITY") &&
+    result.offeredSlots.length === 0 &&
+    !result.closedDayDate
+  ) {
+    return calendarLinkFallbackMessage(context);
+  }
+  return buildReplyFromSchedulingResult(result);
+}
+
 export async function enforceSchedulingGate(args: {
   plan: SchedulingGatePlan;
   inboundMessage: string;
@@ -333,8 +518,8 @@ export async function enforceSchedulingGate(args: {
   let outcome: SchedulingOutcomeType | undefined;
 
   const calendarLinkAllowed =
+    allowCalendarLinkFallback({ plan: args.plan, toolState, context }) ||
     args.plan.explicitCalendarLinkRequest ||
-    (toolState.availabilityAttempts >= 2 && toolState.offeredSlots.length === 0) ||
     (toolState.bookingAttempts >= 2 && !toolState.bookingConfirmed);
 
   if (!args.plan.schedulingIntent || args.plan.action.type === "none") {
@@ -372,12 +557,21 @@ export async function enforceSchedulingGate(args: {
 
   gateApplied = true;
   const phoneSuffix = context.phone.slice(-4);
+  const explicitBookStart =
+    args.plan.action.type === "book_appointment" ? args.plan.action.start : undefined;
+  const availabilityInput =
+    args.plan.action.type === "get_availability" ||
+    args.plan.action.type === "get_availability_for_request"
+      ? args.plan.action.input
+      : undefined;
   const result = await processSchedulingTurn({
     inboundMessage: args.inboundMessage,
     state: toCanonicalSchedulingState(context.scheduling),
     now,
     bookCustomer: resolveBookingCustomer(context),
     tracePhoneSuffix: phoneSuffix,
+    explicitBookStart,
+    availabilityInput,
   });
 
   outcome = result.outcome;
@@ -385,8 +579,34 @@ export async function enforceSchedulingGate(args: {
   bookingAttempted = result.trace.bookingAttempted;
 
   let presentedState = markOfferPresented(result.state, result.offeredSlots);
-  context = persistSchedulingToContext(context, presentedState);
-  toolState = syncToolStateFromScheduling(toolState, fromCanonicalSchedulingState(presentedState), outcome);
+  const legacyState = fromCanonicalSchedulingState(presentedState);
+  context = applySchedulingMeta(context, {
+    ...legacyState,
+    rejectedPartOfDay: presentedState.rejectedPartOfDay,
+    rejectedSlotStarts: presentedState.rejectedSlotStarts,
+  });
+  toolState = syncToolStateFromScheduling(
+    toolState,
+    fromCanonicalSchedulingState(presentedState),
+    outcome,
+  );
+
+  if (result.trace.providerInvoked) {
+    toolState = {
+      ...toolState,
+      availabilityAttempts:
+        result.offeredSlots.length > 0 ? 0 : toolState.availabilityAttempts + 1,
+      calendarUnavailable:
+        result.outcome === "PROVIDER_ERROR" ? true : toolState.calendarUnavailable,
+      providerFailureReason:
+        result.state.providerFailureReason ?? toolState.providerFailureReason,
+    };
+    context = applySchedulingMeta(context, {
+      availabilityAttempts: toolState.availabilityAttempts,
+      calendarUnavailable: toolState.calendarUnavailable,
+      providerFailureReason: toolState.providerFailureReason,
+    });
+  }
 
   if (result.outcome === "BOOKED" && result.selectedStart && result.eventId) {
     bookingAttempted = true;
@@ -406,7 +626,7 @@ export async function enforceSchedulingGate(args: {
       useLifecycleCopy: toolState.lifecycleConfirmationSent === true,
     });
   } else {
-    forcedReply = buildReplyFromSchedulingResult(result);
+    forcedReply = resolveForcedSchedulingReply(result, context, toolState, args.plan);
   }
 
   logSpeed2LeadTestEvent(context.phone, "availability_result", {
@@ -417,12 +637,17 @@ export async function enforceSchedulingGate(args: {
     zeroSlotReason: result.trace.zeroSlotReason,
   });
 
+  const resolvedCalendarLinkAllowed =
+    allowCalendarLinkFallback({ plan: args.plan, toolState, context }) ||
+    args.plan.explicitCalendarLinkRequest ||
+    (toolState.bookingAttempts >= 2 && !toolState.bookingConfirmed);
+
   return {
     context,
     toolState,
     forcedReply,
     gateApplied,
-    calendarLinkAllowed,
+    calendarLinkAllowed: resolvedCalendarLinkAllowed,
     availabilityFetched,
     bookingAttempted,
     activeRequestKey: presentedState.activeRequestKey,

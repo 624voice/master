@@ -1,5 +1,6 @@
 import { formatTimeOnly } from "~/server/appointmentLifecycle/formatTime";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
+import { weekdayLabelFromCentralDate } from "~/server/speed2Lead/schedulingRange";
 import type { OfferPresentationType } from "~/server/scheduling/types";
 
 function slotLabels(slots: string[]): string[] {
@@ -41,6 +42,11 @@ export function buildNoAvailabilityCopy(hasDate: boolean): string {
     return "Nothing open in that window — want to try another time that day?";
   }
   return "What day works best for a quick 25-minute chat?";
+}
+
+export function buildClosedDayCopy(centralDate: string): string {
+  const label = weekdayLabelFromCentralDate(centralDate);
+  return `We schedule Monday through Friday, so ${label} isn't open — what weekday works for a quick 25-minute chat?`;
 }
 
 export function buildNeedDateCopy(): string {

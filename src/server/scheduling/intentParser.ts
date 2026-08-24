@@ -93,9 +93,16 @@ export function parseSchedulingIntentUpdate(
     patch.requestedDate = resolvedDate;
   }
 
-  if (/\b(morning|before\s+noon)\b/.test(lower)) {
+  const rejectsAfternoon =
+    /\b(?:no|not)\s+afternoons?\b/i.test(lower) ||
+    /\bafternoons?\s+(?:don|doesn)'?t\b/i.test(lower);
+  const rejectsMorning =
+    /\b(?:no|not)\s+mornings?\b/i.test(lower) ||
+    /\bmornings?\s+(?:don|doesn)'?t\b/i.test(lower);
+
+  if (!rejectsMorning && /\b(morning|before\s+noon)\b/.test(lower)) {
     patch.availabilityPreference = "morning";
-  } else if (/\b(after\s+lunch|afternoon)\b/.test(lower)) {
+  } else if (!rejectsAfternoon && /\b(after\s+lunch|afternoon)\b/.test(lower)) {
     patch.availabilityPreference = "afternoon";
   } else if (/\b(evening)\b/.test(lower)) {
     patch.availabilityPreference = "afternoon";
@@ -170,15 +177,6 @@ export function buildSchedulingRequestFromState(
   meetingDurationMinutes: number,
 ): import("~/server/scheduling/types").SchedulingRequest | null {
   if (!state.availabilityPreference) {
-    if (state.requestedDate) {
-      return {
-        timezone,
-        requestedDate: state.requestedDate,
-        availabilityPreference: "full_day",
-        businessHours,
-        meetingDurationMinutes,
-      };
-    }
     return null;
   }
 

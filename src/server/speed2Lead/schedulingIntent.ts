@@ -47,5 +47,18 @@ export function clearApplicationLogicFailure<T extends AnyConversationContext>(c
   return applySchedulingMeta(context, { applicationLogicFailure: false }) as T;
 }
 
-/** @deprecated Use parseSchedulingIntentUpdate from scheduling/intentParser. */
-export { parseSchedulingIntentUpdate as extractNormalizedSchedulingIntent } from "~/server/scheduling/intentParser";
+/** Merge inbound scheduling language into legacy scheduling state shape. */
+export function extractNormalizedSchedulingIntent(args: {
+  inboundMessage: string;
+  scheduling?: SchedulingState;
+  now?: Date;
+}): Partial<SchedulingState> {
+  const canonical = toCanonicalSchedulingState(args.scheduling);
+  const patch = parseSchedulingIntentUpdate(
+    args.inboundMessage,
+    canonical,
+    args.now ?? new Date(),
+  );
+  const merged = mergeIntentIntoState(canonical, patch);
+  return fromCanonicalSchedulingState(merged);
+}

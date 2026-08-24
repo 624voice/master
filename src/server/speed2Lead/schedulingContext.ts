@@ -782,12 +782,36 @@ function isNonSelectionSchedulingRequest(message: string): boolean {
   );
 }
 
+function resolveOrdinalIndex(token: string, count: number): number | null {
+  const lower = token.toLowerCase();
+  if (lower === "first" || lower === "1st") return 0;
+  if (lower === "second" || lower === "2nd") return 1;
+  if (lower === "third" || lower === "3rd") return 2;
+  if (lower === "last") return count - 1;
+  const numeric = lower.match(/^(\d+)/);
+  if (numeric) {
+    const index = Number.parseInt(numeric[1] ?? "0", 10) - 1;
+    return index >= 0 && index < count ? index : null;
+  }
+  return null;
+}
+
 export function resolveOfferedSlotSelectionCandidate(
   message: string,
   offeredSlots: string[],
 ): string | null {
   if (offeredSlots.length === 0) return null;
   if (isNonSelectionSchedulingRequest(message)) return null;
+
+  const ordinalMatch = message.match(
+    /\b(?:the\s+)?(first|second|third|last|\d+(?:st|nd|rd|th))\s+one\b/i,
+  );
+  if (ordinalMatch) {
+    const index = resolveOrdinalIndex(ordinalMatch[1] ?? "", offeredSlots.length);
+    if (index != null && index >= 0 && index < offeredSlots.length) {
+      return offeredSlots[index] ?? null;
+    }
+  }
 
   const bareMinutes = resolveBareHourSelectionMinutes(message, offeredSlots);
   if (bareMinutes != null) {
@@ -815,9 +839,12 @@ export function resolveOfferedSlotSelectionCandidate(
   }
 
   if (
-    looksLikeSlotSelectionIntent(message) &&
     offeredSlots.length === 1 &&
-    /\b(yes|yeah|yep|sure|ok(?:ay)?|good|works?|perfect|that\s+one|this\s+one|book)\b/i.test(message)
+    (looksLikeSlotSelectionIntent(message) ||
+      /\b(that\s+works|works\s+for\s+me|sounds\s+good)\b/i.test(message)) &&
+    /\b(yes|yeah|yep|sure|ok(?:ay)?|good|works?|perfect|that\s+one|this\s+one|book|that\s+works|works\s+for\s+me|sounds\s+good)\b/i.test(
+      message,
+    )
   ) {
     return offeredSlots[0] ?? null;
   }
