@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildGoogleCalendarConnectUrl,
+  buildGoogleCalendarSetupPageUrl,
   buildGoogleCalendarSetupStatusUrl,
-  hasGoogleCalendarSetupToken,
+  hasGoogleCalendarSetupAuth,
   parseGoogleCalendarSetupSearch,
 } from "~/server/appointmentLifecycle/googleCalendarSetupSearch";
 
@@ -11,13 +12,21 @@ describe("parseGoogleCalendarSetupSearch", () => {
     const parsed = parseGoogleCalendarSetupSearch({}, "?token=test-token&connected=1");
     expect(parsed.token).toBe("test-token");
     expect(parsed.connected).toBe(true);
-    expect(hasGoogleCalendarSetupToken(parsed)).toBe(true);
+    expect(hasGoogleCalendarSetupAuth(parsed)).toBe(true);
   });
 
-  test("missing token stays empty", () => {
+  test("recognizes setup session from callback redirect", () => {
+    const parsed = parseGoogleCalendarSetupSearch({}, "?setup=opaque-setup-session&connected=1");
+    expect(parsed.setupSession).toBe("opaque-setup-session");
+    expect(parsed.token).toBe("");
+    expect(hasGoogleCalendarSetupAuth(parsed)).toBe(true);
+  });
+
+  test("missing auth stays empty", () => {
     const parsed = parseGoogleCalendarSetupSearch({}, "");
     expect(parsed.token).toBe("");
-    expect(hasGoogleCalendarSetupToken(parsed)).toBe(false);
+    expect(parsed.setupSession).toBe("");
+    expect(hasGoogleCalendarSetupAuth(parsed)).toBe(false);
   });
 
   test("coerces JSON-parsed numeric token values from router search", () => {
@@ -33,14 +42,32 @@ describe("parseGoogleCalendarSetupSearch", () => {
 
 describe("Google Calendar setup URLs", () => {
   test("status request preserves query token", () => {
-    expect(buildGoogleCalendarSetupStatusUrl("test-token/with+special")).toBe(
+    expect(buildGoogleCalendarSetupStatusUrl({ token: "test-token/with+special" })).toBe(
       "/api/google/oauth/status?token=test-token%2Fwith%2Bspecial",
     );
   });
 
-  test("connect OAuth URL preserves query token", () => {
-    expect(buildGoogleCalendarConnectUrl("test-token/with+special")).toBe(
-      "/api/google/oauth/start?token=test-token%2Fwith%2Bspecial",
+  test("status request preserves setup session", () => {
+    expect(buildGoogleCalendarSetupStatusUrl({ setupSession: "opaque-session" })).toBe(
+      "/api/google/oauth/status?setup=opaque-session",
+    );
+  });
+
+  test("connect OAuth URL preserves setup session", () => {
+    expect(buildGoogleCalendarConnectUrl({ setupSession: "opaque-session" })).toBe(
+      "/api/google/oauth/start?setup=opaque-session",
+    );
+  });
+
+  test("callback setup page URL preserves setup session and connected flag", () => {
+    expect(
+      buildGoogleCalendarSetupPageUrl({
+        origin: "https://deploy-preview-61--624voice.netlify.app",
+        auth: { setupSession: "opaque-session" },
+        connected: true,
+      }),
+    ).toBe(
+      "https://deploy-preview-61--624voice.netlify.app/setup/google-calendar?setup=opaque-session&connected=1",
     );
   });
 });

@@ -85,6 +85,7 @@ export async function saveOAuthState(args: {
   state: string;
   connectionId: string;
   redirectUri: string;
+  setupSession: string;
   ttlSeconds: number;
 }): Promise<void> {
   const redis = getRedis();
@@ -93,6 +94,7 @@ export async function saveOAuthState(args: {
     {
       connectionId: args.connectionId,
       redirectUri: args.redirectUri,
+      setupSession: args.setupSession,
       createdAt: new Date().toISOString(),
     },
     { ex: args.ttlSeconds },
@@ -101,16 +103,24 @@ export async function saveOAuthState(args: {
 
 export async function consumeOAuthState(
   state: string,
-): Promise<{ connectionId: string; redirectUri: string } | null> {
+): Promise<{ connectionId: string; redirectUri: string; setupSession: string } | null> {
   const redis = getRedis();
   const key = oauthStateKey(state);
-  const value = await redis.get<{ connectionId: string; redirectUri?: string }>(key);
+  const value = await redis.get<{
+    connectionId: string;
+    redirectUri?: string;
+    setupSession?: string;
+  }>(key);
   if (!value) {
     return null;
   }
   await redis.del(key);
-  if (!value.redirectUri) {
+  if (!value.redirectUri || !value.setupSession) {
     return null;
   }
-  return { connectionId: value.connectionId, redirectUri: value.redirectUri };
+  return {
+    connectionId: value.connectionId,
+    redirectUri: value.redirectUri,
+    setupSession: value.setupSession,
+  };
 }

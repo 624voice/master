@@ -17,6 +17,11 @@ import {
   saveOAuthState,
   type GoogleOAuthConnectionRecord,
 } from "~/server/appointmentLifecycle/googleOAuthStore";
+import { extractSetupSessionFromRequest } from "~/server/appointmentLifecycle/googleCalendarSetupAuth";
+import {
+  resolveGoogleOAuthSetupSession,
+  touchGoogleOAuthSetupSession,
+} from "~/server/appointmentLifecycle/googleOAuthSetupSession";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -27,7 +32,7 @@ export type GoogleOAuthStartResult =
   | { ok: false; reason: "not_configured" | "redis_unavailable" };
 
 export type GoogleOAuthCallbackResult =
-  | { ok: true; connection: GoogleOAuthConnectionRecord }
+  | { ok: true; connection: GoogleOAuthConnectionRecord; setupSession: string }
   | {
       ok: false;
       reason:
@@ -38,6 +43,7 @@ export type GoogleOAuthCallbackResult =
         | "userinfo_failed"
         | "email_mismatch";
       detail?: string;
+      setupSession?: string;
     };
 
 export type GoogleOAuthRefreshResult =
@@ -83,12 +89,19 @@ export async function startGoogleOAuthConnection(args?: {
   const state = randomBytes(24).toString("hex");
   const connectionId = getGoogleOAuthConnectionId();
   const redirectUri = resolveGoogleOAuthRedirectUri({ request: args?.request });
+  const existingSetupSession = args?.request
+    ? extractSetupSessionFromRequest(args.request)
+    : null;
+  const setupSession = await resolveGoogleOAuthSetupSession({
+    existingSession: existingSetupSession,
+  });
 
   try {
     await saveOAuthState({
       state,
       connectionId,
       redirectUri,
+      setupSession,
       ttlSeconds: getGoogleOAuthStateTtlSeconds(),
     });
   } catch {
@@ -202,6 +215,8 @@ export async function completeGoogleOAuthCallback(args: {
     return { ok: false, reason: "invalid_state" };
   }
 
+  const setupSession = stateRecord.setupSession;
+
   const exchanged = await exchangeAuthorizationCode(args.code.trim(), stateRecord.redirectUri);
   if (!exchanged.ok) {
     return {
@@ -210,12 +225,13 @@ export async function completeGoogleOAuthCallback(args: {
         ? "missing_refresh_token"
         : "token_exchange_failed",
       detail: exchanged.detail,
+      setupSession,
     };
   }
 
   const userinfo = await fetchGoogleUserEmail(exchanged.accessToken);
   if (!userinfo.ok) {
-    return { ok: false, reason: "userinfo_failed", detail: userinfo.detail };
+    return { ok: false, reason: "userinfo_failed", detail: userinfo.detail, setupSession };
   }
 
   const expectedEmail = getGoogleOAuthExpectedEmail()?.toLowerCase();
@@ -224,6 +240,7 @@ export async function completeGoogleOAuthCallback(args: {
       ok: false,
       reason: "email_mismatch",
       detail: `Connected account must be ${expectedEmail}`,
+      setupSession,
     };
   }
 
@@ -233,6 +250,7 @@ export async function completeGoogleOAuthCallback(args: {
       ok: false,
       reason: "not_configured",
       detail: "GOOGLE_CALENDAR_ID is not configured",
+      setupSession,
     };
   }
 
@@ -251,6 +269,7 @@ export async function completeGoogleOAuthCallback(args: {
   };
 
   await saveOAuthConnection(connection);
+  await touchGoogleOAuthSetupSession(setupSession);
 
   console.log(
     JSON.stringify({
@@ -265,7 +284,7 @@ export async function completeGoogleOAuthCallback(args: {
     }),
   );
 
-  return { ok: true, connection };
+  return { ok: true, connection, setupSession };
 }
 
 export async function refreshGoogleOAuthAccessToken(

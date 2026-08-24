@@ -1,55 +1,59 @@
-import { getGoogleOAuthConfigurationDiagnostics } from "~/server/appointmentLifecycle/googleOAuthConfig";
+import { getGoogleOAuthConfigurationDiagnostics, getGoogleOAuthExpectedEmail } from "~/server/appointmentLifecycle/googleOAuthConfig";
 import {
   getGoogleCalendarAuthContext,
   getSanitizedOAuthConnectionStatus,
 } from "~/server/appointmentLifecycle/googleCalendarAuth";
 import {
-  isCalendarBookingSmokeAuthorized,
-  isPreviewDiagnosticContext,
-} from "~/server/appointmentLifecycle/calendarBookingSmoke";
+  buildGoogleCalendarConnectUrl,
+  buildGoogleCalendarSetupPageUrl,
+} from "~/server/appointmentLifecycle/googleCalendarSetupSearch";
+import {
+  extractSetupSessionFromRequest,
+  isGoogleCalendarSetupAuthorized,
+} from "~/server/appointmentLifecycle/googleCalendarSetupAuth";
+import { isPreviewDiagnosticContext } from "~/server/appointmentLifecycle/previewDiagnostics";
 
 export type GoogleOAuthStatusResponse = {
   ok: boolean;
   previewOnly: true;
   oauthClientConfigured: boolean;
   redirectUri: string;
+  expectedEmail: string | null;
+  expectedEmailMatch: boolean | null;
   connection: Awaited<ReturnType<typeof getSanitizedOAuthConnectionStatus>>;
   auth: Awaited<ReturnType<typeof getGoogleCalendarAuthContext>>;
   setupPath: string;
   connectPath: string;
 };
 
-export function buildGoogleOAuthSetupPaths(origin: string, setupToken?: string): {
-  setupPath: string;
-  connectPath: string;
-} {
-  const tokenQuery = setupToken ? `?token=${encodeURIComponent(setupToken)}` : "";
-  const base = origin.replace(/\/$/, "");
-  return {
-    setupPath: `${base}/setup/google-calendar${tokenQuery}`,
-    connectPath: `${base}/api/google/oauth/start${tokenQuery}`,
-  };
-}
-
 export async function getGoogleOAuthStatusResponse(args: {
   origin: string;
   setupToken?: string;
+  setupSession?: string;
   request?: Request;
 }): Promise<GoogleOAuthStatusResponse> {
   const diagnostics = getGoogleOAuthConfigurationDiagnostics({ request: args.request });
-  const paths = buildGoogleOAuthSetupPaths(args.origin, args.setupToken);
+  const authRef = {
+    token: args.setupToken,
+    setupSession: args.setupSession,
+  };
   const connection = await getSanitizedOAuthConnectionStatus();
   const auth = await getGoogleCalendarAuthContext();
+  const expectedEmail = getGoogleOAuthExpectedEmail() ?? null;
 
   return {
     ok: diagnostics.clientConfigured,
     previewOnly: true,
     oauthClientConfigured: diagnostics.clientConfigured,
     redirectUri: diagnostics.redirectUri,
+    expectedEmail,
+    expectedEmailMatch: expectedEmail
+      ? connection.connectedEmail?.toLowerCase() === expectedEmail.toLowerCase()
+      : null,
     connection,
     auth,
-    setupPath: paths.setupPath,
-    connectPath: paths.connectPath,
+    setupPath: buildGoogleCalendarSetupPageUrl({ origin: args.origin, auth: authRef }),
+    connectPath: buildGoogleCalendarConnectUrl(authRef),
   };
 }
 
@@ -61,7 +65,7 @@ export async function handleGoogleOAuthStatusRequest(request: Request): Promise<
     });
   }
 
-  if (!isCalendarBookingSmokeAuthorized(request)) {
+  if (!(await isGoogleCalendarSetupAuthorized(request))) {
     return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -70,9 +74,11 @@ export async function handleGoogleOAuthStatusRequest(request: Request): Promise<
 
   const url = new URL(request.url);
   const setupToken = url.searchParams.get("token") ?? undefined;
+  const setupSession = extractSetupSessionFromRequest(request) ?? undefined;
   const payload = await getGoogleOAuthStatusResponse({
     origin: url.origin,
     setupToken: setupToken ?? undefined,
+    setupSession,
     request,
   });
 
@@ -90,7 +96,7 @@ export async function handleGoogleOAuthStartRequest(request: Request): Promise<R
     });
   }
 
-  if (!isCalendarBookingSmokeAuthorized(request)) {
+  if (!(await isGoogleCalendarSetupAuthorized(request))) {
     return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -122,13 +128,22 @@ export async function handleGoogleOAuthCallbackRequest(request: Request): Promis
     request,
   });
 
-  const setupBase = `${url.origin}/setup/google-calendar`;
+  const authRef = result.setupSession ? { setupSession: result.setupSession } : undefined;
   if (!result.ok) {
-    const redirect = `${setupBase}?error=${encodeURIComponent(result.reason)}`;
+    const redirect = buildGoogleCalendarSetupPageUrl({
+      origin: url.origin,
+      auth: authRef,
+      error: result.reason,
+    });
     return Response.redirect(redirect, 302);
   }
 
-  return Response.redirect(`${setupBase}?connected=1`, 302);
+  const redirect = buildGoogleCalendarSetupPageUrl({
+    origin: url.origin,
+    auth: { setupSession: result.setupSession },
+    connected: true,
+  });
+  return Response.redirect(redirect, 302);
 }
 
 export async function handleCalendarOAuthSmokeRequest(request: Request): Promise<Response> {
@@ -139,6 +154,9 @@ export async function handleCalendarOAuthSmokeRequest(request: Request): Promise
     });
   }
 
+  const { isCalendarBookingSmokeAuthorized } = await import(
+    "~/server/appointmentLifecycle/calendarBookingSmoke"
+  );
   if (!isCalendarBookingSmokeAuthorized(request)) {
     return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
       status: 401,

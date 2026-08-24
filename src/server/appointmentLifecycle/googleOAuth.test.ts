@@ -22,6 +22,7 @@ import {
 } from "~/server/appointmentLifecycle/googleOAuthStore";
 import {
   handleCalendarOAuthSmokeRequest,
+  handleGoogleOAuthCallbackRequest,
   handleGoogleOAuthStartRequest,
   handleGoogleOAuthStatusRequest,
 } from "~/server/appointmentLifecycle/googleOAuthHandlers";
@@ -177,6 +178,8 @@ describe("Google OAuth callback and token storage", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
+
+    expect(result.setupSession.length).toBeGreaterThan(0);
 
     const stored = await getOAuthConnection();
     expect(stored?.refreshToken).toBe("oauth-refresh-token");
@@ -369,5 +372,108 @@ describe("OAuth setup and smoke handlers", () => {
     expect(response.status).toBe(503);
     const body = (await response.json()) as { configurationError?: string };
     expect(body.configurationError).toBe("oauth_not_connected");
+  });
+});
+
+describe("OAuth callback setup continuation", () => {
+  const originalCronSecret = process.env.CRON_SECRET;
+  const originalContext = process.env.CONTEXT;
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+    globalThis.fetch = originalFetch;
+    process.env.CRON_SECRET = "test-cron-secret";
+    process.env.CONTEXT = "deploy-preview";
+    process.env.NODE_ENV = "production";
+    process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
+    process.env.GOOGLE_OAUTH_EXPECTED_EMAIL = "info@624voice.com";
+    process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    process.env.CRON_SECRET = originalCronSecret;
+    process.env.CONTEXT = originalContext;
+    process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.GOOGLE_OAUTH_CLIENT_ID;
+    delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    delete process.env.GOOGLE_OAUTH_EXPECTED_EMAIL;
+    delete process.env.GOOGLE_CALENDAR_ID;
+    delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+  });
+
+  function installOAuthExchangeMocks() {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({
+            access_token: "oauth-access-token",
+            refresh_token: "oauth-refresh-token",
+            expires_in: 3600,
+            scope: GOOGLE_OAUTH_SCOPES.join(" "),
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("googleapis.com/oauth2/v2/userinfo")) {
+        return new Response(JSON.stringify({ email: "info@624voice.com" }), { status: 200 });
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+  }
+
+  test("successful callback redirects to authorized setup continuation", async () => {
+    const started = await startGoogleOAuthConnection({
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
+    });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    installOAuthExchangeMocks();
+
+    const callbackResponse = await handleGoogleOAuthCallbackRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback?code=auth-code&state=${started.state}`),
+    );
+    expect(callbackResponse.status).toBe(302);
+    const location = callbackResponse.headers.get("Location");
+    expect(location).toContain("/setup/google-calendar?");
+    expect(location).toContain("setup=");
+    expect(location).toContain("connected=1");
+    expect(location).not.toContain("test-cron-secret");
+
+    const setupSession = new URL(location!).searchParams.get("setup");
+    expect(setupSession).toBeTruthy();
+
+    const statusResponse = await handleGoogleOAuthStatusRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?setup=${setupSession}`),
+    );
+    expect(statusResponse.status).toBe(200);
+    const body = (await statusResponse.json()) as {
+      connection: { connectedEmail: string | null; connected: boolean; hasRefreshToken: boolean };
+      expectedEmailMatch: boolean | null;
+      auth: { oauthConnected: boolean; actingAs: string };
+    };
+    expect(body.connection.connected).toBe(true);
+    expect(body.connection.connectedEmail).toBe("info@624voice.com");
+    expect(body.connection.hasRefreshToken).toBe(true);
+    expect(body.expectedEmailMatch).toBe(true);
+    expect(body.auth.oauthConnected).toBe(true);
+    expect(body.auth.actingAs).toBe("info@624voice.com");
+  });
+
+  test("invalid OAuth state is rejected without setup continuation", async () => {
+    const callbackResponse = await handleGoogleOAuthCallbackRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback?code=auth-code&state=bad-state`),
+    );
+    expect(callbackResponse.status).toBe(302);
+    const location = callbackResponse.headers.get("Location");
+    expect(location).toContain("error=invalid_state");
+    expect(location).not.toContain("setup=");
   });
 });
