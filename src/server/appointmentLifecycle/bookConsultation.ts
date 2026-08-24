@@ -5,6 +5,7 @@ import {
 } from "~/server/appointmentLifecycle/googleCalendar";
 import { processCalendarEvent } from "~/server/appointmentLifecycle/processEvent";
 import type { ProcessEventResult } from "~/server/appointmentLifecycle/types";
+import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
 
 export type BookConsultationInput = CreateConsultationEventInput;
 
@@ -25,12 +26,44 @@ export type BookConsultationResult = BookConsultationSuccess | CreateConsultatio
 export async function bookConsultation(
   input: BookConsultationInput,
 ): Promise<BookConsultationResult> {
+  const collector = getActiveBookingStageCollector();
+  if (collector) {
+    collector.bookConsultationEntered = true;
+  }
+
   const created = await createConsultationEvent(input);
   if (!created.ok) {
+    if (collector && !collector.finalBookingReason) {
+      collector.finalBookingReason = created.reason;
+    }
     return created;
   }
 
-  const lifecycle = await processCalendarEvent(created.normalizedEvent);
+  if (collector) {
+    collector.lifecycleEntered = true;
+    collector.lifecycleResult = "started";
+  }
+  let lifecycle: ProcessEventResult;
+  try {
+    lifecycle = await processCalendarEvent(created.normalizedEvent);
+    if (collector) {
+      collector.lifecycleResult = "succeeded";
+    }
+  } catch (error) {
+    if (collector) {
+      collector.lifecycleResult = "failed";
+      collector.failureStage = "lifecycle_error";
+      collector.failureReason =
+        error instanceof Error ? error.message.slice(0, 120) : "lifecycle_failed";
+      collector.finalBookingReason = "lifecycle_error";
+    }
+    throw error;
+  }
+
+  if (collector) {
+    collector.eventIdPresent = true;
+    collector.finalBookingReason = "booked";
+  }
 
   return {
     ok: true,

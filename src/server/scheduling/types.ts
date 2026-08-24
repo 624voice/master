@@ -83,6 +83,27 @@ export type BookingFailureStage =
   | "lifecycle_failed"
   | "unknown";
 
+export type DetailedBookingFailureStage =
+  | "not_configured"
+  | "idempotency_error"
+  | "recheck_error"
+  | "calendar_insert_error"
+  | "parse_failed"
+  | "persistence_error"
+  | "lifecycle_error"
+  | "invalid_booking_input"
+  | "missing_event_id"
+  | "unknown_provider_error";
+
+export type IdempotencyLookupResult =
+  | "not_attempted"
+  | "miss"
+  | "hit_replayed"
+  | "stale_miss"
+  | "error";
+
+export type StageResult = "not_attempted" | "started" | "succeeded" | "failed" | "skipped";
+
 export type ProviderRecheckResult = "succeeded" | "failed" | "not_attempted" | "unknown";
 
 export type CreateEventResult = "succeeded" | "failed" | "not_attempted";
@@ -100,18 +121,35 @@ export type SchedulingTrace = ProviderDiagnostics & {
   selectionResolved?: boolean;
   bookingAttempted: boolean;
   selectedStart?: string;
+  bookProviderSlotEntered?: boolean;
+  bookConsultationEntered?: boolean;
+  idempotencyLookupStarted?: boolean;
+  idempotencyLookupResult?: IdempotencyLookupResult;
+  recheckStarted?: boolean;
+  recheckStageResult?: StageResult;
   providerRecheckAttempted?: boolean;
   providerRecheckResult?: ProviderRecheckResult;
+  createConsultationEventEntered?: boolean;
+  insertCalendarEventAttempted?: boolean;
+  insertCalendarEventHttpStatus?: number;
   createEventAttempted?: boolean;
   createEventResult?: CreateEventResult;
+  persistenceAttempted?: boolean;
+  persistenceResult?: StageResult;
+  lifecycleEntered?: boolean;
+  lifecycleResult?: StageResult;
   bookingResultType?: SchedulingOutcomeType;
+  finalBookingReason?: string;
   eventIdPresent: boolean;
   failureStage?: BookingFailureStage;
+  detailedFailureStage?: DetailedBookingFailureStage;
+  failureReason?: string;
   providerHttpStatus?: number;
   providerErrorReason?: string;
   providerErrorMessage?: string;
   sendUpdatesUsed?: string;
   bookingAttendeeCount?: number;
+  attendeeIncluded?: boolean;
 };
 
 export type BookingCustomer = {

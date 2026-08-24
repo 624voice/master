@@ -325,3 +325,97 @@ export async function describeConsultationInsertPayload(args: {
 }
 
 export { insertCalendarEventWithDiagnostic };
+
+/** Handset session 8991 equivalent inputs for bookProviderSlot diagnostics. */
+export const HANDSET_REPRO_PHONE = "+12148438991";
+export const HANDSET_REPRO_START = "2026-08-26T14:00:00.000Z";
+export const HANDSET_REPRO_FIRST_NAME = "13";
+export const HANDSET_REPRO_BUSINESS_NAME = "13";
+
+export type HandsetBookProviderProbeResult = {
+  ok: boolean;
+  mode: "handset_book_provider_slot";
+  entrypoint: "bookProviderSlot";
+  startIso: string;
+  phoneSuffix: string;
+  attendeeIncluded: boolean;
+  attendeeCount: number;
+  bookingResult: Awaited<ReturnType<typeof import("~/server/scheduling/provider").bookProviderSlot>>;
+  stageSnapshot?: import("~/server/scheduling/bookingStageTrace").BookingStageSnapshot;
+  smokePathComparison: {
+    smokeUses: "createConsultationEvent";
+    handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent";
+    inputDiff: Array<{ field: string; smoke: string; handset: string }>;
+  };
+  cleanupAttempted?: boolean;
+  cleanupSucceeded?: boolean;
+};
+
+export async function probeHandsetEquivalentBookProviderSlot(args: {
+  start?: string;
+  phone?: string;
+  firstName?: string;
+  businessName?: string;
+  email?: string;
+  cleanup?: boolean;
+  now?: Date;
+}): Promise<HandsetBookProviderProbeResult> {
+  const { bookProviderSlot } = await import("~/server/scheduling/provider");
+  const start = args.start ?? HANDSET_REPRO_START;
+  const phone = args.phone ?? HANDSET_REPRO_PHONE;
+  const firstName = args.firstName ?? HANDSET_REPRO_FIRST_NAME;
+  const businessName = args.businessName ?? HANDSET_REPRO_BUSINESS_NAME;
+  const email = args.email ?? "handset-repro@624voice.com";
+  const attendeeIncluded = Boolean(email.trim());
+
+  const bookingResult = await bookProviderSlot({
+    start,
+    customer: {
+      phone,
+      name: firstName,
+      email,
+      businessName,
+      source: "roi",
+    },
+    now: args.now,
+    phoneSuffix: phone.slice(-4),
+    selectionResolved: true,
+  });
+
+  let cleanup = { cleanupAttempted: false, cleanupSucceeded: false };
+  if (args.cleanup !== false && bookingResult.ok) {
+    cleanup = await cleanupDiagnosticEvent(bookingResult.eventId);
+  }
+
+  const smokeInput = buildProbeInput({
+    start,
+    includeAttendee: true,
+    attendeeEmail: DIAGNOSTIC_BOOKING_EMAIL,
+  });
+
+  return {
+    ok: bookingResult.ok,
+    mode: "handset_book_provider_slot",
+    entrypoint: "bookProviderSlot",
+    startIso: start,
+    phoneSuffix: phone.slice(-4),
+    attendeeIncluded,
+    attendeeCount: attendeeIncluded ? 1 : 0,
+    bookingResult,
+    stageSnapshot: !bookingResult.ok ? bookingResult.diagnostics?.stageSnapshot : undefined,
+    smokePathComparison: {
+      smokeUses: "createConsultationEvent",
+      handsetUses:
+        "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent",
+      inputDiff: [
+        { field: "entry", smoke: "createConsultationEvent", handset: "bookProviderSlot" },
+        { field: "phone", smoke: DIAGNOSTIC_BOOKING_PHONE, handset: phone },
+        { field: "attendeeName", smoke: smokeInput.attendeeName, handset: firstName },
+        { field: "businessName", smoke: smokeInput.businessName ?? "", handset: businessName },
+        { field: "email", smoke: DIAGNOSTIC_BOOKING_EMAIL, handset: "[provided]" },
+        { field: "lifecycle", smoke: "skipped (create_only)", handset: "processCalendarEvent runs" },
+      ],
+    },
+    ...cleanup,
+  };
+}

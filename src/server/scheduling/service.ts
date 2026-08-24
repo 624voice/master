@@ -279,6 +279,8 @@ export async function processSchedulingTurn(
       start: input.explicitBookStart,
       customer: input.bookCustomer,
       now,
+      phoneSuffix: input.tracePhoneSuffix,
+      selectionResolved: true,
     });
     applyBookingTraceFields(trace, {
       selectedStart: input.explicitBookStart,
@@ -401,6 +403,8 @@ export async function processSchedulingTurn(
         start: selected,
         customer: input.bookCustomer,
         now,
+        phoneSuffix: input.tracePhoneSuffix,
+        selectionResolved: true,
       });
       applyBookingTraceFields(trace, {
         selectedStart: selected,
@@ -601,6 +605,8 @@ export async function processSchedulingTurn(
         start: exactMatch[0]!,
         customer: input.bookCustomer,
         now,
+        phoneSuffix: input.tracePhoneSuffix,
+        selectionResolved: true,
       });
       applyBookingTraceFields(trace, {
         selectedStart: exactMatch[0],

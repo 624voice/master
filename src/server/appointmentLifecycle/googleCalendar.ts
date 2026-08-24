@@ -26,6 +26,7 @@ import {
   type GoogleCalendarApiEvent,
 } from "~/server/appointmentLifecycle/parseCalendarEvent";
 import type { NormalizedCalendarEvent, S2LSource } from "~/server/appointmentLifecycle/types";
+import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
 import { getRedis } from "~/server/speed2Lead/redis";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -686,23 +687,63 @@ async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarAp
 export async function createConsultationEvent(
   input: CreateConsultationEventInput,
 ): Promise<CreateConsultationEventResult> {
+  const collector = getActiveBookingStageCollector();
   const calendarId = getGoogleCalendarId();
   const startDate = new Date(input.start);
   const durationMinutes = getConsultationDurationMinutes();
   const eventEndIso = new Date(startDate.getTime() + durationMinutes * 60_000).toISOString();
   const body = buildConsultationEventBody(input);
   const attendeeCount = body.attendees?.length ?? 0;
+  const bookingKey = buildConsultationBookingKey(input.phone, input.start);
+
+  if (collector) {
+    collector.createConsultationEventEntered = true;
+    collector.selectedStart = input.start;
+    collector.attendeeCount = attendeeCount;
+    collector.attendeeIncluded = attendeeCount > 0;
+    collector.calendarId = calendarId ?? undefined;
+    collector.bookingKeySuffix = bookingKey.slice(-24);
+  }
 
   if (!isGoogleCalendarApiConfigured()) {
+    if (collector) {
+      collector.failureStage = "not_configured";
+      collector.failureReason = "not_configured";
+      collector.finalBookingReason = "not_configured";
+    }
     return { ok: false, reason: "not_configured" };
   }
 
-  const bookingKey = buildConsultationBookingKey(input.phone, input.start);
-  const existing = await getBookingIdempotencyRecord(bookingKey);
+  if (collector) {
+    collector.idempotencyLookupStarted = true;
+  }
+  let existing: BookingIdempotencyRecord | null = null;
+  try {
+    existing = await getBookingIdempotencyRecord(bookingKey);
+    if (collector) {
+      collector.idempotencyLookupResult = existing ? "hit_replayed" : "miss";
+    }
+  } catch (error) {
+    if (collector) {
+      collector.idempotencyLookupResult = "error";
+      collector.failureStage = "idempotency_error";
+      collector.failureReason =
+        error instanceof Error ? error.message.slice(0, 120) : "idempotency_lookup_failed";
+      collector.finalBookingReason = "idempotency_error";
+    }
+    throw error;
+  }
+
   if (existing) {
     const apiEvent = await fetchCalendarEventById(existing.eventId);
     const normalized = apiEvent ? parseGoogleCalendarApiEvent(apiEvent) : null;
     if (normalized) {
+      if (collector) {
+        collector.idempotencyLookupResult = "hit_replayed";
+        collector.eventIdPresent = true;
+        collector.createEventResult = "skipped";
+        collector.finalBookingReason = "idempotency_replayed";
+      }
       return {
         ok: true,
         eventId: existing.eventId,
@@ -710,10 +751,25 @@ export async function createConsultationEvent(
         replayed: true,
       };
     }
+    if (collector) {
+      collector.idempotencyLookupResult = "stale_miss";
+    }
   }
 
+  if (collector) {
+    collector.recheckStarted = true;
+    collector.recheckResult = "started";
+  }
   const recheckSucceeded = await isConsultationStartAvailable(input.start, input.now);
+  if (collector) {
+    collector.recheckResult = recheckSucceeded ? "succeeded" : "failed";
+  }
   if (!recheckSucceeded) {
+    if (collector) {
+      collector.failureStage = "recheck_error";
+      collector.failureReason = "slot_unavailable";
+      collector.finalBookingReason = "slot_unavailable";
+    }
     return {
       ok: false,
       reason: "slot_unavailable",
@@ -730,7 +786,22 @@ export async function createConsultationEvent(
     };
   }
 
+  if (collector) {
+    collector.insertCalendarEventAttempted = true;
+  }
   const insertResult = await insertCalendarEventWithDiagnostic(body);
+  if (collector) {
+    collector.insertCalendarEventHttpStatus = insertResult.httpStatus;
+    collector.sendUpdatesUsed = insertResult.sendUpdatesUsed;
+    collector.createEventResult = insertResult.ok ? "succeeded" : "failed";
+    if (!insertResult.ok) {
+      collector.failureStage = "calendar_insert_error";
+      collector.failureReason = insertResult.googleErrorReason ?? "calendar_api_error";
+      collector.providerErrorReason = insertResult.googleErrorReason;
+      collector.providerErrorMessage = insertResult.googleErrorMessage;
+      collector.finalBookingReason = "calendar_api_error";
+    }
+  }
   if (!insertResult.ok || !insertResult.event) {
     return {
       ok: false,
@@ -756,6 +827,12 @@ export async function createConsultationEvent(
   const created = insertResult.event;
   const normalizedEvent = parseGoogleCalendarApiEvent(created);
   if (!normalizedEvent) {
+    if (collector) {
+      collector.failureStage = "parse_failed";
+      collector.failureReason = "created_event_parse_failed";
+      collector.finalBookingReason = "calendar_api_error";
+      collector.createEventResult = "failed";
+    }
     return {
       ok: false,
       reason: "calendar_api_error",
@@ -775,12 +852,31 @@ export async function createConsultationEvent(
     };
   }
 
-  await saveBookingIdempotencyRecord(bookingKey, {
-    eventId: created.id!,
-    start: normalizedEvent.appointmentStart,
-    phone: normalizePhone(input.phone),
-    createdAt: new Date().toISOString(),
-  });
+  if (collector) {
+    collector.persistenceAttempted = true;
+  }
+  try {
+    await saveBookingIdempotencyRecord(bookingKey, {
+      eventId: created.id!,
+      start: normalizedEvent.appointmentStart,
+      phone: normalizePhone(input.phone),
+      createdAt: new Date().toISOString(),
+    });
+    if (collector) {
+      collector.persistenceResult = "succeeded";
+      collector.eventIdPresent = true;
+      collector.finalBookingReason = "booked";
+    }
+  } catch (error) {
+    if (collector) {
+      collector.persistenceResult = "failed";
+      collector.failureStage = "persistence_error";
+      collector.failureReason =
+        error instanceof Error ? error.message.slice(0, 120) : "persistence_failed";
+      collector.finalBookingReason = "persistence_error";
+    }
+    throw error;
+  }
 
   return {
     ok: true,

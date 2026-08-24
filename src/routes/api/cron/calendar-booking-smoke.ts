@@ -4,6 +4,7 @@ import {
   describeConsultationInsertPayload,
   probeConsultationBookingCreatePath,
   probeConsultationBookingFullPath,
+  probeHandsetEquivalentBookProviderSlot,
   type BookingProviderProbeResult,
 } from "~/server/appointmentLifecycle/googleBookingProviderProbe";
 
@@ -30,14 +31,20 @@ function isPreviewDiagnosticContext(): boolean {
   return true;
 }
 
-type BookingSmokeMode = "compare" | "no_attendee" | "with_attendee" | "full";
+type BookingSmokeMode =
+  | "compare"
+  | "no_attendee"
+  | "with_attendee"
+  | "full"
+  | "handset";
 
 function parseMode(value: string | null): BookingSmokeMode {
   if (
     value === "compare" ||
     value === "no_attendee" ||
     value === "with_attendee" ||
-    value === "full"
+    value === "full" ||
+    value === "handset"
   ) {
     return value;
   }
@@ -72,6 +79,17 @@ export const Route = createFileRoute("/api/cron/calendar-booking-smoke")({
         if (Number.isNaN(new Date(start).getTime())) {
           return new Response(JSON.stringify({ ok: false, error: "Invalid start ISO" }), {
             status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        if (mode === "handset") {
+          const handset = await probeHandsetEquivalentBookProviderSlot({
+            start,
+            cleanup,
+          });
+          return new Response(JSON.stringify(handset), {
+            status: handset.ok ? 200 : 502,
             headers: { "Content-Type": "application/json" },
           });
         }

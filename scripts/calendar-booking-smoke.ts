@@ -22,11 +22,12 @@ import {
   describeConsultationInsertPayload,
   probeConsultationBookingCreatePath,
   probeConsultationBookingFullPath,
+  probeHandsetEquivalentBookProviderSlot,
 } from "~/server/appointmentLifecycle/googleBookingProviderProbe";
 
 type Args = {
   start: string;
-  mode: "compare" | "no_attendee" | "with_attendee" | "full";
+  mode: "compare" | "no_attendee" | "with_attendee" | "full" | "handset";
   attendeeEmail?: string;
   cleanup: boolean;
   previewUrl?: string;
@@ -91,6 +92,13 @@ async function runPreviewEndpoint(args: Args): Promise<unknown> {
 }
 
 async function runLocal(args: Args): Promise<unknown> {
+  if (args.mode === "handset") {
+    return probeHandsetEquivalentBookProviderSlot({
+      start: args.start,
+      cleanup: args.cleanup,
+    });
+  }
+
   if (args.mode === "compare") {
     const comparison = await compareConsultationBookingVariants({
       start: args.start,
