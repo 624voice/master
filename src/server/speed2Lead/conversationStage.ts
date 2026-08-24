@@ -106,13 +106,20 @@ export function resolveLlmTurnTask(
   const signals = analyzeMessage(inboundMessage);
   const facts = factsFor(context);
 
+  if (isMeetingInterestConfirmed(facts)) {
+    if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
+      return { stage: "scheduling", task: "answer_customer_question" };
+    }
+    return { stage: "scheduling", task: "brief_active_conversation" };
+  }
+
   if (stage === "soft_closed") {
     return { stage, task: "brief_active_conversation" };
   }
   if (stage === "booked") {
     return { stage, task: "brief_active_conversation" };
   }
-  if (stage === "scheduling" || isMeetingInterestConfirmed(facts)) {
+  if (stage === "scheduling") {
     if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) {
       return { stage: "scheduling", task: "answer_customer_question" };
     }

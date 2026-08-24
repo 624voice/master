@@ -15,7 +15,7 @@ const EXPLICIT_SCHEDULING_RE =
   /\b(let'?s talk|let'?s meet|schedule|book(?:ing)?|appointment|set up a call|grab a time|find a time|when works|what day|what time|what times|tomorrow|monday|tuesday|wednesday|thursday|friday|next week|this week|when are you available|any openings?)\b/i;
 
 const MEETING_BRIDGE_AGREEMENT_RE =
-  /\b(yes|yeah|yep|sure|ok(?:ay)?|sounds good|makes sense|let'?s do it|lets do it|worth a look|i'?m open to it|im open to it|that works|let'?s look|lets look|happy to|go ahead)\b/i;
+  /\b(yes|yeah|yep|sure|ok(?:ay)?|sounds good|makes sense|let'?s do it|lets do it|worth a look|i'?m open to it|im open to it|that works|let'?s look|lets look|happy to|go ahead|absolutely|definitely|of course|for sure|fine)\b/i;
 
 const UNCERTAINTY_PHRASE_RE =
   /\b(not sure|no idea|don't know|dont know|unsure|maybe|i guess|hard to say|can't say|cant say)\b/i;

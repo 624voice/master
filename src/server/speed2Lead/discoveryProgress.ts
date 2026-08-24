@@ -276,6 +276,7 @@ export function diagnosticQuestionsRemaining(context: AnyConversationContext): n
 }
 
 export function shouldAskAnotherDiagnosticQuestion(context: AnyConversationContext): boolean {
+  if (isMeetingInterestConfirmed(context.knownFacts)) return false;
   if (isDiscoveryComplete(context)) return false;
   return diagnosticQuestionsRemaining(context) > 0;
 }

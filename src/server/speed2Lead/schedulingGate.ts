@@ -1,0 +1,614 @@
+import { CONSULTATION_TIMEZONE, getConsultationBusinessHours, getConsultationDurationMinutes } from "~/server/appointmentLifecycle/consultationConfig";
+import {
+  buildBookingConfirmationMessage,
+  finalizeCalendarLinkOutbound,
+  validateOutboundSms,
+} from "~/server/speed2Lead/guardrails";
+import { applyConfirmedScheduling, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import { shouldBlockSchedulingForMeetingBridge } from "~/server/speed2Lead/conversationHandoff";
+import { shouldBlockSchedulingTurn } from "~/server/speed2Lead/conversationDisposition";
+import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
+import {
+  resolveOfferedSlotSelectionCandidate,
+} from "~/server/speed2Lead/schedulingContext";
+import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
+import {
+  buildReplyFromSchedulingResult,
+  markOfferPresented,
+  processSchedulingTurn,
+} from "~/server/scheduling/service";
+import {
+  fromCanonicalSchedulingState,
+  toCanonicalSchedulingState,
+} from "~/server/scheduling/state";
+import type { SchedulingOutcomeType } from "~/server/scheduling/types";
+import {
+  buildSchedulingRequestFromState,
+  mergeIntentIntoState,
+  parseSchedulingIntentUpdate,
+} from "~/server/scheduling/intentParser";
+import type { SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
+import type { AnyConversationContext } from "~/server/speed2Lead/types";
+import type { ToolExecutionState } from "~/server/speed2Lead/tools";
+import { createInitialToolState } from "~/server/speed2Lead/tools";
+import { logSpeed2LeadTestEvent } from "~/server/speed2Lead/testObservability";
+import { buildNeedDateCopy, buildSlotOfferCopy } from "~/server/scheduling/copy";
+import { calendarAttendeeInviteEnabled } from "~/server/appointmentLifecycle/googleCalendar";
+import { preferenceToLegacyPartOfDay } from "~/server/scheduling/requestKey";
+
+export type SchedulingGateAction =
+  | { type: "none" }
+  | { type: "ask_preference" }
+  | { type: "get_availability"; input: AvailabilityRangeInput; reason: string }
+  | { type: "get_availability_for_request"; input: AvailabilityRangeInput; reason: string }
+  | { type: "book_appointment"; start: string; reason: string };
+
+export type SchedulingGatePlan = {
+  action: SchedulingGateAction;
+  schedulingIntent: boolean;
+  strongInterest: boolean;
+  explicitCalendarLinkRequest: boolean;
+  selectedSlotStart: string | null;
+  preferenceInput: AvailabilityRangeInput | null;
+};
+
+export type SchedulingGateResult = {
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  forcedReply: string | null;
+  gateApplied: boolean;
+  calendarLinkAllowed: boolean;
+  availabilityFetched: boolean;
+  bookingAttempted: boolean;
+  activeRequestKey?: string;
+  schedulingIntent: boolean;
+  outcome?: SchedulingOutcomeType;
+};
+
+const EXPLICIT_CALENDAR_LINK_RE =
+  /\b(calendar\s+link|send\s+(?:me\s+)?(?:the\s+)?link|self[\s-]?service|book\s+online|schedule\s+online|pick\s+from\s+(?:the\s+)?calendar)\b/i;
+
+const SCHEDULING_INTENT_RE =
+  /\b(when\s+(?:are\s+you|can\s+we)|what\s+times?|available|availability|schedule|book|appointment|consultation|set\s+(?:something|it)\s+up|pick\s+a\s+time|find\s+a\s+time|talk\s+(?:tomorrow|today|this\s+week|next\s+week)|meet|call\s+(?:me|tomorrow|today)|first\s+available|anytime|flexible|whenever)\b/i;
+
+const STRONG_INTEREST_RE =
+  /\b(yes|yeah|yep|sure|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|ready\s+to\s+book|sounds\s+useful)\b/i;
+
+const WEEKDAY_RE =
+  /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)\b/i;
+
+function detectSchedulingIntent(message: string, context?: AnyConversationContext): boolean {
+  const signals = analyzeMessage(message);
+  if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) return false;
+  if (context && shouldBlockSchedulingTurn(context, message)) return false;
+  if (context && shouldBlockSchedulingForMeetingBridge(context, message)) return false;
+  if (STRONG_INTEREST_RE.test(message)) return true;
+  if (SCHEDULING_INTENT_RE.test(message)) return true;
+  if (WEEKDAY_RE.test(message)) return true;
+  return false;
+}
+
+function detectStrongInterest(message: string): boolean {
+  return STRONG_INTEREST_RE.test(message);
+}
+
+function detectExplicitCalendarLinkRequest(message: string): boolean {
+  return EXPLICIT_CALENDAR_LINK_RE.test(message);
+}
+
+function toAvailabilityInput(
+  canonical: ReturnType<typeof toCanonicalSchedulingState>,
+): AvailabilityRangeInput | null {
+  if (!canonical.requestedDate && canonical.availabilityPreference !== "earliest") {
+    return null;
+  }
+  return {
+    centralDate: canonical.requestedDate,
+    partOfDay: preferenceToLegacyPartOfDay(canonical.availabilityPreference),
+  };
+}
+
+function needsDaypartQuestion(canonical: ReturnType<typeof toCanonicalSchedulingState>): boolean {
+  if (!canonical.requestedDate) return false;
+  if (canonical.availabilityPreference === "earliest") return false;
+  if (
+    canonical.availabilityPreference === "full_day" ||
+    canonical.availabilityPreference === "morning" ||
+    canonical.availabilityPreference === "afternoon" ||
+    canonical.availabilityPreference === "exact_time"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function resolveBookingCustomer(context: AnyConversationContext) {
+  const normalized = normalizeSessionMemory(context);
+  return {
+    phone: normalized.phone,
+    name:
+      normalized.flow === "demo"
+        ? `${normalized.firstName} ${(normalized as AnyConversationContext & { lastName?: string }).lastName ?? ""}`.trim()
+        : normalized.firstName,
+    email: normalized.knownFacts?.email ?? ("email" in normalized ? normalized.email : undefined),
+    businessName: normalized.knownFacts?.businessName,
+    source: (normalized.flow ?? "roi") as "roi" | "contact" | "demo",
+  };
+}
+
+function syncToolStateFromScheduling(
+  toolState: ToolExecutionState,
+  scheduling: SchedulingState,
+  outcome?: SchedulingOutcomeType,
+): ToolExecutionState {
+  const offered = scheduling.offeredSlots ?? [];
+  return {
+    ...toolState,
+    offeredSlots: offered,
+    bookingConfirmed: scheduling.status === "confirmed",
+    bookingStart: scheduling.selectedStart,
+    bookingEventId: scheduling.calendarEventId,
+    calendarUnavailable: scheduling.calendarUnavailable ?? toolState.calendarUnavailable,
+    providerFailureReason: scheduling.providerFailureReason,
+    bookingFailed: outcome === "PROVIDER_CONFLICT",
+    lastBookingFailureReason:
+      outcome === "PROVIDER_CONFLICT"
+        ? "provider_conflict"
+        : outcome === "INVALID_SELECTION"
+          ? "invalid_selection"
+          : outcome === "PROVIDER_ERROR"
+            ? "provider_error"
+            : toolState.lastBookingFailureReason,
+  };
+}
+
+function persistSchedulingToContext(
+  context: AnyConversationContext,
+  canonical: ReturnType<typeof toCanonicalSchedulingState>,
+): AnyConversationContext {
+  return applySchedulingMeta(context, fromCanonicalSchedulingState(canonical));
+}
+
+export function planSchedulingGate(args: {
+  inboundMessage: string;
+  context: AnyConversationContext;
+  now?: Date;
+}): SchedulingGatePlan {
+  const now = args.now ?? new Date();
+  const explicitCalendarLinkRequest = detectExplicitCalendarLinkRequest(args.inboundMessage);
+
+  if (shouldBlockSchedulingTurn(args.context, args.inboundMessage)) {
+    return {
+      action: { type: "none" },
+      schedulingIntent: false,
+      strongInterest: false,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
+
+  if (args.context.scheduling?.status === "confirmed") {
+    return {
+      action: { type: "none" },
+      schedulingIntent: false,
+      strongInterest: false,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
+
+  const schedulingIntent = detectSchedulingIntent(args.inboundMessage, args.context);
+  const strongInterest = detectStrongInterest(args.inboundMessage);
+  let canonical = toCanonicalSchedulingState(args.context.scheduling);
+  const patch = parseSchedulingIntentUpdate(args.inboundMessage, canonical, now);
+  canonical = mergeIntentIntoState(canonical, patch);
+  const preferenceInput = toAvailabilityInput(canonical);
+
+  const offered = args.context.scheduling?.offeredSlots ?? [];
+  if (offered.length > 0) {
+    const selected = resolveOfferedSlotSelectionCandidate(args.inboundMessage, offered);
+    if (selected) {
+      return {
+        action: { type: "book_appointment", start: selected, reason: "offered_slot_selected" },
+        schedulingIntent: true,
+        strongInterest,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: selected,
+        preferenceInput,
+      };
+    }
+  }
+
+  if (!schedulingIntent) {
+    return {
+      action: { type: "none" },
+      schedulingIntent: false,
+      strongInterest,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput,
+    };
+  }
+
+  if (needsDaypartQuestion(canonical)) {
+    return {
+      action: { type: "ask_preference" },
+      schedulingIntent: true,
+      strongInterest: strongInterest || schedulingIntent,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput,
+    };
+  }
+
+  const request = buildSchedulingRequestFromState(
+    canonical,
+    CONSULTATION_TIMEZONE,
+    getConsultationBusinessHours(),
+    getConsultationDurationMinutes(),
+  );
+
+  if (!request) {
+    return {
+      action: { type: "ask_preference" },
+      schedulingIntent: true,
+      strongInterest: strongInterest || schedulingIntent,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: null,
+    };
+  }
+
+  const input = preferenceInput ?? {
+    centralDate: request.requestedDate,
+    partOfDay: preferenceToLegacyPartOfDay(request.availabilityPreference),
+  };
+
+  return {
+    action: { type: "get_availability", input, reason: "scheduling_intent" },
+    schedulingIntent: true,
+    strongInterest: strongInterest || schedulingIntent,
+    explicitCalendarLinkRequest,
+    selectedSlotStart: null,
+    preferenceInput: input,
+  };
+}
+
+export function requiresDeterministicSchedulingCompletion(
+  plan: SchedulingGatePlan,
+  _context: AnyConversationContext,
+): boolean {
+  if (plan.action.type === "book_appointment") return true;
+  if (plan.action.type === "get_availability" || plan.action.type === "get_availability_for_request") {
+    return Boolean(plan.action.input.centralDate || (plan.action.input.rangeStart && plan.action.input.rangeEnd));
+  }
+  return false;
+}
+
+export function hydrateToolStateFromContext(
+  context: AnyConversationContext,
+  base: ToolExecutionState,
+): ToolExecutionState {
+  return syncToolStateFromScheduling(base, context.scheduling ?? { status: "idle" });
+}
+
+export function persistSchedulingToolState(
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  activeRequestKey?: string,
+): AnyConversationContext {
+  return applySchedulingMeta(context, {
+    activeRequestKey: activeRequestKey ?? context.scheduling?.activeRequestKey,
+    offeredSlots: toolState.offeredSlots.length > 0 ? toolState.offeredSlots : undefined,
+    status: toolState.bookingConfirmed
+      ? "confirmed"
+      : toolState.offeredSlots.length > 0
+        ? "slots_offered"
+        : context.scheduling?.status ?? "idle",
+    selectedStart: toolState.bookingStart,
+    calendarEventId: toolState.bookingEventId,
+    calendarUnavailable: toolState.calendarUnavailable,
+    providerFailureReason: toolState.providerFailureReason,
+  });
+}
+
+export async function enforceSchedulingGate(args: {
+  plan: SchedulingGatePlan;
+  inboundMessage: string;
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  llmReply: string;
+  llmCalledGetAvailability: boolean;
+  llmCalledBookAppointment: boolean;
+  now?: Date;
+}): Promise<SchedulingGateResult> {
+  const now = args.now ?? new Date();
+  let { context, toolState } = args;
+  let forcedReply: string | null = null;
+  let gateApplied = false;
+  let availabilityFetched = false;
+  let bookingAttempted = false;
+  let outcome: SchedulingOutcomeType | undefined;
+
+  const calendarLinkAllowed =
+    args.plan.explicitCalendarLinkRequest ||
+    (toolState.availabilityAttempts >= 2 && toolState.offeredSlots.length === 0) ||
+    (toolState.bookingAttempts >= 2 && !toolState.bookingConfirmed);
+
+  if (!args.plan.schedulingIntent || args.plan.action.type === "none") {
+    return {
+      context,
+      toolState,
+      forcedReply: null,
+      gateApplied: false,
+      calendarLinkAllowed,
+      availabilityFetched,
+      bookingAttempted,
+      activeRequestKey: context.scheduling?.activeRequestKey,
+      schedulingIntent: args.plan.schedulingIntent,
+    };
+  }
+
+  if (args.plan.action.type === "ask_preference") {
+    gateApplied = true;
+    forcedReply = needsDaypartQuestion(toCanonicalSchedulingState(context.scheduling))
+      ? "Morning or afternoon?"
+      : buildNeedDateCopy();
+    return {
+      context,
+      toolState,
+      forcedReply,
+      gateApplied,
+      calendarLinkAllowed,
+      availabilityFetched,
+      bookingAttempted,
+      activeRequestKey: context.scheduling?.activeRequestKey,
+      schedulingIntent: args.plan.schedulingIntent,
+      outcome: "NEED_DATE",
+    };
+  }
+
+  gateApplied = true;
+  const phoneSuffix = context.phone.slice(-4);
+  const result = await processSchedulingTurn({
+    inboundMessage: args.inboundMessage,
+    state: toCanonicalSchedulingState(context.scheduling),
+    now,
+    bookCustomer: resolveBookingCustomer(context),
+    tracePhoneSuffix: phoneSuffix,
+  });
+
+  outcome = result.outcome;
+  availabilityFetched = result.trace.providerInvoked;
+  bookingAttempted = result.trace.bookingAttempted;
+
+  let presentedState = markOfferPresented(result.state, result.offeredSlots);
+  context = persistSchedulingToContext(context, presentedState);
+  toolState = syncToolStateFromScheduling(toolState, fromCanonicalSchedulingState(presentedState), outcome);
+
+  if (result.outcome === "BOOKED" && result.selectedStart && result.eventId) {
+    bookingAttempted = true;
+    context = applyConfirmedScheduling(context, {
+      selectedStart: result.selectedStart,
+      calendarEventId: result.eventId,
+    });
+    toolState = {
+      ...syncToolStateFromScheduling(toolState, context.scheduling!, outcome),
+      lifecycleConfirmationSent: result.lifecycleConfirmationSent === true,
+    };
+    const email =
+      context.knownFacts?.email ?? ("email" in context ? context.email : undefined);
+    forcedReply = buildBookingConfirmationMessage(result.selectedStart, context.firstName, {
+      email,
+      sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
+      useLifecycleCopy: toolState.lifecycleConfirmationSent === true,
+    });
+  } else {
+    forcedReply = buildReplyFromSchedulingResult(result);
+  }
+
+  logSpeed2LeadTestEvent(context.phone, "availability_result", {
+    slotCount: result.offeredSlots.length,
+    source: "scheduling_service",
+    outcome: result.outcome,
+    providerInvoked: result.trace.providerInvoked ? 1 : 0,
+    zeroSlotReason: result.trace.zeroSlotReason,
+  });
+
+  return {
+    context,
+    toolState,
+    forcedReply,
+    gateApplied,
+    calendarLinkAllowed,
+    availabilityFetched,
+    bookingAttempted,
+    activeRequestKey: presentedState.activeRequestKey,
+    schedulingIntent: args.plan.schedulingIntent,
+    outcome,
+  };
+}
+
+export function validateDeterministicSchedulingReply(
+  text: string,
+  context: AnyConversationContext,
+  toolState: ToolExecutionState,
+  calendarLinkAllowed: boolean,
+): { ok: true; text: string } | { ok: false; reason: string } {
+  const sanitized = finalizeCalendarLinkOutbound(text, context, calendarLinkAllowed);
+  if (!sanitized) {
+    return { ok: false, reason: "blocked_self_scheduling_copy" };
+  }
+  return validateOutboundSms(sanitized, {
+    session: context,
+    toolState,
+    calendarLinkAllowed,
+  });
+}
+
+export function resolveAuthoritativeSchedulingReply(args: {
+  gateResult: SchedulingGateResult;
+  llmReply: string;
+  firstName: string;
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  calendarLinkAllowed: boolean;
+}): string | null {
+  const { gateResult, context, toolState, calendarLinkAllowed } = args;
+  const schedulingTurn =
+    gateResult.gateApplied ||
+    gateResult.availabilityFetched ||
+    gateResult.bookingAttempted ||
+    gateResult.schedulingIntent;
+
+  if (!schedulingTurn) return null;
+
+  if (toolState.bookingConfirmed && toolState.lifecycleConfirmationSent) {
+    return "";
+  }
+
+  if (gateResult.gateApplied && gateResult.forcedReply) {
+    const forcedPass = validateDeterministicSchedulingReply(
+      gateResult.forcedReply,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (forcedPass.ok) return forcedPass.text;
+  }
+
+  if (toolState.bookingConfirmed && toolState.bookingStart) {
+    if (toolState.lifecycleConfirmationSent) return "";
+    const email =
+      context.knownFacts?.email ?? ("email" in context ? context.email : undefined);
+    const confirmation = buildBookingConfirmationMessage(toolState.bookingStart, context.firstName, {
+      email,
+      sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
+      useLifecycleCopy: false,
+    });
+    const confirmPass = validateDeterministicSchedulingReply(
+      confirmation,
+      context,
+      toolState,
+      calendarLinkAllowed,
+    );
+    if (confirmPass.ok) return confirmPass.text;
+  }
+
+  return null;
+}
+
+export function buildDeterministicRecoveryReply(args: {
+  context: AnyConversationContext;
+  toolState: ToolExecutionState;
+  gateResult: SchedulingGateResult;
+}): string | null {
+  return resolveAuthoritativeSchedulingReply({
+    gateResult: args.gateResult,
+    llmReply: "",
+    firstName: args.context.firstName,
+    context: args.context,
+    toolState: args.toolState,
+    calendarLinkAllowed: args.gateResult.calendarLinkAllowed,
+  });
+}
+
+export function buildSchedulingPreferenceAsk(
+  _firstName: string,
+  scheduling?: SchedulingState,
+): string {
+  if (scheduling?.requestedDate || scheduling?.centralDate) {
+    return "Morning or afternoon?";
+  }
+  return buildNeedDateCopy();
+}
+
+export function buildSchedulingResumeReply(context: AnyConversationContext): string | null {
+  const slots = context.scheduling?.offeredSlots ?? [];
+  if (slots.length === 0) return null;
+  const presentation =
+    context.scheduling?.lastPresentedOfferKey === [...slots].sort().join("|")
+      ? "repeat_offer"
+      : "first_offer";
+  return buildSlotOfferCopy(slots, presentation);
+}
+
+export function selectOutboundSchedulingReply(args: {
+  llmReply: string;
+  gateResult: SchedulingGateResult;
+  firstName: string;
+}): string {
+  if (args.gateResult.forcedReply) return args.gateResult.forcedReply;
+  return args.llmReply;
+}
+
+export function stripUnauthorizedCalendarLink(
+  reply: string,
+  allowed: boolean,
+  context?: AnyConversationContext,
+): string {
+  if (!context) {
+    if (allowed) return reply;
+    return reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
+  }
+  return finalizeCalendarLinkOutbound(reply, context, allowed) ?? "";
+}
+
+export function allowCalendarLinkFallback(args: {
+  plan: SchedulingGatePlan;
+  toolState: ToolExecutionState;
+  context?: AnyConversationContext;
+}): boolean {
+  if (args.context?.scheduling?.applicationLogicFailure) return false;
+  if (args.plan.explicitCalendarLinkRequest) return true;
+  if (
+    args.toolState.calendarUnavailable &&
+    args.toolState.availabilityAttempts >= 2 &&
+    args.toolState.offeredSlots.length === 0
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function isAvailabilityFetchAuthorized(plan: SchedulingGatePlan): boolean {
+  return (
+    plan.action.type === "get_availability" ||
+    plan.action.type === "get_availability_for_request" ||
+    plan.action.type === "book_appointment"
+  );
+}
+
+export function isActiveV2Scheduling(context: AnyConversationContext): boolean {
+  const scheduling = context.scheduling;
+  if (!scheduling) return false;
+  if (scheduling.status === "slots_offered" && (scheduling.offeredSlots?.length ?? 0) > 0) return true;
+  if (scheduling.status === "confirmed") return true;
+  return Boolean(scheduling.activeRequestKey);
+}
+
+export function schedulingRequestKey(input: {
+  centralDate?: string;
+  requestedDate?: string;
+  partOfDay?: string;
+  availabilityPreference?: string;
+  exactTimeMinutes?: number;
+}): string {
+  const date = input.requestedDate ?? input.centralDate ?? "unknown";
+  const pref = input.availabilityPreference ?? input.partOfDay ?? "full_day";
+  if (pref === "exact_time" && input.exactTimeMinutes != null) {
+    return `date:${date}|exact:${input.exactTimeMinutes}`;
+  }
+  return `date:${date}|${pref}`;
+}
+
+export function resolveOfferedSlotSelection(
+  message: string,
+  offeredSlots: string[],
+): string | null {
+  return resolveOfferedSlotSelectionCandidate(message, offeredSlots);
+}
+
+export { createInitialToolState };

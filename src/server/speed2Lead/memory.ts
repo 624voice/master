@@ -397,8 +397,7 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
   offeredSlots: string[],
 ): T {
   const normalized = normalizeSessionMemory(context);
-  const compatible = filterSlotsForSchedulingState(offeredSlots, normalized.scheduling);
-  const slots = compatible.length > 0 ? compatible : offeredSlots;
+  const slots = offeredSlots;
   return {
     ...normalized,
     scheduling: {
@@ -409,10 +408,9 @@ export function applyOfferedSlots<T extends AnyConversationContext>(
       calendarEventId: undefined,
       lastOfferedEarliestMinutes: earliestOfferedMinutes(slots) ?? undefined,
       lastOfferedLatestMinutes: latestOfferedMinutes(slots) ?? undefined,
-      lastOfferedSlotKey: offeredSlotConstraintKey(slots, normalized.scheduling),
+      lastPresentedOfferKey: normalized.scheduling?.lastPresentedOfferKey,
+      lastOfferedSlotKey: normalized.scheduling?.lastPresentedOfferKey,
       bookingPending: false,
-      searchAfterMinutes: undefined,
-      searchBeforeMinutes: undefined,
     },
     updatedAt: new Date().toISOString(),
   } as T;
@@ -427,6 +425,10 @@ export function applySchedulingMeta<T extends AnyConversationContext>(
     calendarUnavailable?: boolean;
     providerFailureReason?: string;
     applicationLogicFailure?: boolean;
+    requestedDate?: string;
+    availabilityPreference?: import("~/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference;
+    exactTimeMinutes?: number;
+    lastPresentedOfferKey?: string;
     centralDate?: string;
     partOfDay?: SchedulingPartOfDay;
     anchorTimeMinutes?: number;

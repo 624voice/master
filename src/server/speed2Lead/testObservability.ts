@@ -69,8 +69,7 @@ export function summarizeGateAction(plan: SchedulingGatePlan): string {
   if (action.type === "none") return "none";
   if (action.type === "ask_preference") return "ask_preference";
   if (action.type === "book_appointment") return `book_appointment:${action.reason}`;
-  if (action.type === "get_availability") return `get_availability:${action.reason}`;
-  return `get_availability_for_request:${action.reason}`;
+  return `get_availability:${action.reason}`;
 }
 
 export function logSpeed2LeadTestEvent(

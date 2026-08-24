@@ -76,6 +76,13 @@ export type SchedulingStatus = "idle" | "slots_offered" | "confirmed";
 
 export type SchedulingPartOfDay = "morning" | "afternoon" | "evening" | "full_day";
 
+export type AvailabilityPreference =
+  | "earliest"
+  | "full_day"
+  | "morning"
+  | "afternoon"
+  | "exact_time";
+
 export type ConversationDisposition =
   | "active"
   | "soft_closed"
@@ -88,6 +95,14 @@ export type SchedulingState = {
   offeredSlots?: string[];
   selectedStart?: string;
   calendarEventId?: string;
+  /** Canonical requested date (Central YYYY-MM-DD). */
+  requestedDate?: string;
+  /** Canonical availability preference — single source of truth. */
+  availabilityPreference?: AvailabilityPreference;
+  /** Exact requested time in minutes from midnight when preference is exact_time. */
+  exactTimeMinutes?: number;
+  /** Fingerprint of the last slot set actually presented to the prospect. */
+  lastPresentedOfferKey?: string;
   /** Stable key for the current scheduling preference/range request. */
   activeRequestKey?: string;
   /** Failed availability lookups scoped to activeRequestKey. */
@@ -95,11 +110,11 @@ export type SchedulingState = {
   /** Booking attempts scoped to activeRequestKey. */
   bookingAttempts?: number;
   calendarUnavailable?: boolean;
-  /** Normalized day preference retained across turns. */
+  /** @deprecated Use requestedDate. Kept for backward-compatible session reads. */
   centralDate?: string;
-  /** Normalized part-of-day preference retained across turns. */
+  /** @deprecated Use availabilityPreference. Kept for backward-compatible session reads. */
   partOfDay?: SchedulingPartOfDay;
-  /** Anchor time in minutes from midnight when customer names a target time. */
+  /** @deprecated Use exactTimeMinutes. Kept for backward-compatible session reads. */
   anchorTimeMinutes?: number;
   /** Search only for slots after this minute on the active day. */
   searchAfterMinutes?: number;

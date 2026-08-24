@@ -224,6 +224,15 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
     return { ok: false, reason: "SMS uses disallowed bot terminology" };
   }
 
+  if (
+    isMeetingInterestConfirmed(ctx.session.knownFacts) &&
+    /\b(before we lock in|diagnostic|which part stood out|during your busiest hours|specific moment)\b/i.test(
+      trimmed,
+    )
+  ) {
+    return { ok: false, reason: "SMS asks discovery after meeting interest confirmed" };
+  }
+
   if (countGenuineQuestions(trimmed) > 1) {
     return { ok: false, reason: "SMS contains more than one question" };
   }
