@@ -6,6 +6,9 @@ import {
   probeHandsetEquivalentBookProviderSlot,
   type BookingProviderProbeResult,
 } from "~/server/appointmentLifecycle/googleBookingProviderProbe";
+import { isPreviewDiagnosticContext } from "~/server/appointmentLifecycle/previewDiagnostics";
+
+export { isPreviewDiagnosticContext };
 
 export type BookingSmokeMode =
   | "compare"
@@ -47,15 +50,13 @@ export function isCalendarBookingSmokeAuthorized(request: Request): boolean {
     return true;
   }
 
-  return request.headers.get("X-Cron-Secret") === secret;
-}
-
-export function isPreviewDiagnosticContext(): boolean {
-  const context = process.env.CONTEXT?.trim();
-  if (context === "production") {
-    return false;
+  if (request.headers.get("X-Cron-Secret") === secret) {
+    return true;
   }
-  return true;
+
+  const url = new URL(request.url);
+  const queryToken = url.searchParams.get("token");
+  return queryToken === secret;
 }
 
 function createOnlyMode(mode: BookingSmokeMode): "no_attendee" | "with_attendee" | "full" | "handset" | "compare" {

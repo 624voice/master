@@ -5,6 +5,12 @@ import {
 } from "~/server/appointmentLifecycle/calendarCapabilityProbe";
 import { handleCalendarCapabilitySmokeRequest } from "~/server/appointmentLifecycle/calendarCapabilitySmoke";
 import { resetGoogleTokenCacheForTests } from "~/server/appointmentLifecycle/googleCalendar";
+import {
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
+
+installSpeed2LeadIntegrationMocks();
 
 describe("classifyCalendarCapability", () => {
   test("CASE_A when hangoutsMeet is explicitly allowed", () => {

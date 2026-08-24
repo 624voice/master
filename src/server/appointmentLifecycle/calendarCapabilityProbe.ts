@@ -1,10 +1,13 @@
 import { getGoogleCalendarId } from "~/server/appointmentLifecycle/config";
 import {
   getGoogleServiceAccountCredentialDiagnostics,
-  isGoogleCalendarApiConfigured,
+  isGoogleServiceAccountCalendarConfigured,
   sanitizeGoogleApiErrorBody,
 } from "~/server/appointmentLifecycle/googleCredentials";
-import { getGoogleCalendarProviderAccessToken } from "~/server/appointmentLifecycle/googleCalendar";
+import {
+  getGoogleCalendarAuthContext,
+  getGoogleCalendarProviderAccessToken,
+} from "~/server/appointmentLifecycle/googleCalendarAuth";
 
 /** JWT claim keys used by the booking provider token exchange (no user impersonation). */
 export const GOOGLE_CALENDAR_PROVIDER_JWT_CLAIM_KEYS = [
@@ -47,7 +50,7 @@ export type CalendarCapabilityProbeResult = {
   ok: boolean;
   authContext: {
     serviceAccountEmail: string | null;
-    actingAs: "service_account_itself";
+    actingAs: string;
     impersonatingUser: false;
     calendarId: string | null;
     oauthScope: string;
@@ -205,7 +208,7 @@ export async function probeGoogleCalendarCapability(): Promise<CalendarCapabilit
     jwtHasSubClaim: false,
   };
 
-  if (!isGoogleCalendarApiConfigured() || !calendarId) {
+  if (!isGoogleServiceAccountCalendarConfigured() || !calendarId) {
     return {
       ok: false,
       authContext,
@@ -216,7 +219,10 @@ export async function probeGoogleCalendarCapability(): Promise<CalendarCapabilit
     };
   }
 
-  const accessToken = await getGoogleCalendarProviderAccessToken();
+  const providerAuth = await getGoogleCalendarAuthContext({ allowServiceAccount: true });
+  authContext.actingAs = providerAuth.actingAs;
+
+  const accessToken = await getGoogleCalendarProviderAccessToken({ allowServiceAccount: true });
 
   const calendarsGetUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}`;
   const calendarListUrl = `https://www.googleapis.com/calendar/v3/users/me/calendarList/${encodeURIComponent(calendarId)}`;

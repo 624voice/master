@@ -105,7 +105,7 @@ export async function handleAppointmentLifecycleInbound(
     }
 
     const cancelled =
-      isGoogleCalendarApiConfigured() && (await cancelCalendarEvent(active.calendarEventId));
+      (await isGoogleCalendarApiConfigured()) && (await cancelCalendarEvent(active.calendarEventId));
     if (cancelled) {
       const updated = {
         ...active,

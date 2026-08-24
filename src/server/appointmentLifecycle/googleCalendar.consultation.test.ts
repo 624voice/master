@@ -8,6 +8,7 @@ import {
   resetSpeed2LeadIntegrationMocks,
 } from "~/server/speed2Lead/testSupport/integrationMocks";
 import { GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE } from "~/server/appointmentLifecycle/googleMeetConference";
+import { seedTestGoogleOAuthConnection } from "~/server/appointmentLifecycle/testSupport/googleOAuthTestHelpers";
 
 installSpeed2LeadIntegrationMocks();
 
@@ -157,7 +158,7 @@ describe("googleCalendar consultation booking", () => {
   let availabilityNow: Date;
   const phone = "+15551234567";
 
-  beforeEach(() => {
+  beforeEach(async () => {
     slotStart = futureWeekdaySlot(10, 0);
     slotEnd = new Date(slotStart.getTime() + 25 * 60_000);
     availabilityNow = new Date(slotStart.getTime() - 60 * 60 * 1000);
@@ -169,6 +170,7 @@ describe("googleCalendar consultation booking", () => {
     lastCreateBody = null;
     resetGoogleTokenCacheForTests();
     installFetchMock();
+    await seedTestGoogleOAuthConnection();
 
     process.env.GOOGLE_CALENDAR_ID = "test-calendar";
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = "agent@test.iam.gserviceaccount.com";

@@ -21,13 +21,19 @@ import {
 import {
   getGoogleCalendarId,
   isGoogleCalendarApiConfigured,
+  isGoogleCalendarBookingConfigured,
+  resolveGoogleCalendarId,
 } from "~/server/appointmentLifecycle/config";
 import {
   getGoogleServiceAccountCredentialDiagnostics,
-  getGoogleServiceAccountCredentials,
   logGoogleProviderDiagnostic,
   sanitizeGoogleApiErrorBody,
 } from "~/server/appointmentLifecycle/googleCredentials";
+import {
+  getGoogleCalendarProviderAccessToken,
+  GoogleCalendarAuthError,
+  resetGoogleCalendarAuthCacheForTests,
+} from "~/server/appointmentLifecycle/googleCalendarAuth";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   parseGoogleCalendarApiEvent,
@@ -37,19 +43,6 @@ import type { NormalizedCalendarEvent, S2LSource } from "~/server/appointmentLif
 import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
 import { getRedis } from "~/server/speed2Lead/redis";
 import { normalizePhone } from "~/server/sms/phone";
-
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
-const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar";
-
-let cachedToken: { accessToken: string; expiresAt: number } | null = null;
-
-function base64url(input: string | Buffer): string {
-  return Buffer.from(input)
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-}
 
 function logProviderFailure(
   failureStage: "not_configured" | "invalid_private_key" | "token_exchange" | "calendar_api",
@@ -79,96 +72,37 @@ function logProviderFailure(
   });
 }
 
-async function getAccessToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
-    return cachedToken.accessToken;
-  }
-
-  let credentials: { clientEmail: string; privateKey: string };
+async function getProviderAccessToken(): Promise<string> {
   try {
-    credentials = getGoogleServiceAccountCredentials();
+    return await getGoogleCalendarProviderAccessToken();
   } catch (error) {
-    logProviderFailure("invalid_private_key", {
-      requestEndpoint: "oauth2.token",
-      googleErrorMessage: error instanceof Error ? error.message.slice(0, 240) : String(error),
-    });
+    if (error instanceof GoogleCalendarAuthError) {
+      logProviderFailure("token_exchange", {
+        requestEndpoint: "oauth2.token",
+        googleErrorMessage: error.detail ?? error.message,
+        tokenGenerationSucceeded: false,
+      });
+    }
     throw error;
   }
-
-  const { clientEmail, privateKey } = credentials;
-  const now = Math.floor(Date.now() / 1000);
-  const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = base64url(
-    JSON.stringify({
-      iss: clientEmail,
-      scope: CALENDAR_SCOPE,
-      aud: TOKEN_URL,
-      iat: now,
-      exp: now + 3600,
-    }),
-  );
-
-  const unsigned = `${header}.${claim}`;
-  let assertion = "";
-  try {
-    const sign = createSign("RSA-SHA256");
-    sign.update(unsigned);
-    sign.end();
-    assertion = `${unsigned}.${base64url(sign.sign(privateKey))}`;
-  } catch (error) {
-    logProviderFailure("invalid_private_key", {
-      requestEndpoint: "oauth2.token",
-      googleErrorMessage: error instanceof Error ? error.message.slice(0, 240) : String(error),
-    });
-    throw error;
-  }
-
-  const response = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion,
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    const apiError = sanitizeGoogleApiErrorBody(text, response.status);
-    logProviderFailure("token_exchange", {
-      requestEndpoint: "oauth2.token",
-      ...apiError,
-    });
-    throw new Error(`Google token exchange failed: ${response.status} ${text}`);
-  }
-
-  const data = (await response.json()) as { access_token: string; expires_in: number };
-  cachedToken = {
-    accessToken: data.access_token,
-    expiresAt: Date.now() + data.expires_in * 1000,
-  };
-  return cachedToken.accessToken;
 }
 
-/** Same OAuth token exchange used by booking provider (service-account JWT, no `sub` claim). */
-export async function getGoogleCalendarProviderAccessToken(): Promise<string> {
-  return getAccessToken();
-}
+export { getGoogleCalendarProviderAccessToken } from "~/server/appointmentLifecycle/googleCalendarAuth";
 
 export async function fetchCalendarEventsUpdatedSince(
   updatedMin: string,
 ): Promise<NormalizedCalendarEvent[]> {
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     return [];
   }
 
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   if (!calendarId) {
     return [];
   }
 
   try {
-    const token = await getAccessToken();
+    const token = await getProviderAccessToken();
     const params = new URLSearchParams({
       singleEvents: "true",
       orderBy: "updated",
@@ -212,17 +146,17 @@ export async function fetchCalendarEventsUpdatedSince(
 }
 
 export async function cancelCalendarEvent(eventId: string): Promise<boolean> {
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     return false;
   }
 
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   if (!calendarId) {
     return false;
   }
 
   try {
-    const token = await getAccessToken();
+    const token = await getProviderAccessToken();
     const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
     const response = await fetch(url, {
       method: "PATCH",
@@ -254,7 +188,7 @@ export async function cancelCalendarEvent(eventId: string): Promise<boolean> {
 }
 
 export function resetGoogleTokenCacheForTests(): void {
-  cachedToken = null;
+  resetGoogleCalendarAuthCacheForTests();
 }
 
 const BOOKING_IDEMPOTENCY_PREFIX = "appointment:booking:idempotency:";
@@ -373,7 +307,7 @@ export async function fetchCalendarEventsInRange(
   timeMin: string,
   timeMax: string,
 ): Promise<FetchCalendarEventsResult> {
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     logProviderFailure("not_configured", {
       requestStartIso: timeMin,
       requestEndIso: timeMax,
@@ -381,7 +315,7 @@ export async function fetchCalendarEventsInRange(
     return { ok: false, reason: "not_configured" };
   }
 
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   if (!calendarId) {
     logProviderFailure("not_configured", {
       requestStartIso: timeMin,
@@ -391,7 +325,7 @@ export async function fetchCalendarEventsInRange(
   }
 
   try {
-    const token = await getAccessToken();
+    const token = await getProviderAccessToken();
     const params = new URLSearchParams({
       singleEvents: "true",
       orderBy: "startTime",
@@ -470,7 +404,7 @@ export async function fetchCalendarEventsInRange(
 export async function getConsultationSlots(
   input: GetConsultationSlotsInput,
 ): Promise<GetConsultationSlotsResult> {
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     return { ok: false, reason: "not_configured" };
   }
 
@@ -595,7 +529,7 @@ export function supportsAttendeeInvites(): boolean {
 
 /** True when attendee email invites are enabled for the active calendar provider. */
 export function calendarAttendeeInviteEnabled(attendeeEmail?: string): boolean {
-  return supportsAttendeeInvites() && Boolean(attendeeEmail?.trim()) && isGoogleCalendarApiConfigured();
+  return supportsAttendeeInvites() && Boolean(attendeeEmail?.trim()) && Boolean(getGoogleCalendarId());
 }
 
 export type CalendarInsertDiagnostic = {
@@ -621,7 +555,7 @@ export type CalendarInsertDiagnostic = {
 export async function insertCalendarEventWithDiagnostic(
   body: ReturnType<typeof buildConsultationEventBody>,
 ): Promise<CalendarInsertDiagnostic> {
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   const attendeeCount = body.attendees?.length ?? 0;
   const attendeeIncluded = attendeeCount > 0;
   const conferenceRequested = Boolean(body.conferenceData?.createRequest);
@@ -645,7 +579,7 @@ export async function insertCalendarEventWithDiagnostic(
     return base;
   }
 
-  const token = await getAccessToken();
+  const token = await getProviderAccessToken();
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
   );
@@ -730,12 +664,12 @@ export async function recheckConsultationStartAvailable(
 }
 
 async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarApiEvent | null> {
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   if (!calendarId) {
     return null;
   }
 
-  const token = await getAccessToken();
+  const token = await getProviderAccessToken();
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -796,7 +730,7 @@ export async function createConsultationEvent(
   input: CreateConsultationEventInput,
 ): Promise<CreateConsultationEventResult> {
   const collector = getActiveBookingStageCollector();
-  const calendarId = getGoogleCalendarId();
+  const calendarId = await resolveGoogleCalendarId();
   const startDate = new Date(input.start);
   const durationMinutes = getConsultationDurationMinutes();
   const eventEndIso = new Date(startDate.getTime() + durationMinutes * 60_000).toISOString();
@@ -816,13 +750,13 @@ export async function createConsultationEvent(
     collector.bookingKeySuffix = bookingKey.slice(-24);
   }
 
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarBookingConfigured())) {
     if (collector) {
       collector.failureStage = "not_configured";
-      collector.failureReason = "not_configured";
+      collector.failureReason = "oauth_not_connected";
       collector.finalBookingReason = "not_configured";
     }
-    return { ok: false, reason: "not_configured" };
+    return { ok: false, reason: "not_configured", detail: "Google OAuth connection is required" };
   }
 
   if (collector) {

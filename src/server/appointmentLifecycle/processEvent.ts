@@ -91,7 +91,7 @@ function isReplacementBooking(
 }
 
 async function tryCancelOldEvent(eventId: string): Promise<boolean> {
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     return false;
   }
   return cancelCalendarEvent(eventId);

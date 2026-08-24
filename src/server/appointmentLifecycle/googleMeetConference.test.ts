@@ -13,7 +13,15 @@ import {
   buildConsultationBookingKey,
   insertCalendarEventWithDiagnostic,
   resolveCreatedEventMeetUrl,
+  resetGoogleTokenCacheForTests,
 } from "~/server/appointmentLifecycle/googleCalendar";
+import {
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
+import { seedTestGoogleOAuthConnection } from "~/server/appointmentLifecycle/testSupport/googleOAuthTestHelpers";
+
+installSpeed2LeadIntegrationMocks();
 
 describe("googleMeetConference payload", () => {
   test("conference solution type is exactly hangoutsMeet", () => {
@@ -131,9 +139,10 @@ X/nyTQPJ4bTW1iF409XT1KO/
   });
 
   test("events.insert includes conferenceDataVersion=1 and hangoutsMeet type", async () => {
+    resetSpeed2LeadIntegrationMocks();
+    await seedTestGoogleOAuthConnection();
+    resetGoogleTokenCacheForTests();
     process.env.GOOGLE_CALENDAR_ID = "test-calendar";
-    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = "agent@test.iam.gserviceaccount.com";
-    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY = TEST_PRIVATE_KEY;
 
     let capturedUrl = "";
     let capturedBody: Record<string, unknown> | null = null;
@@ -190,11 +199,13 @@ describe("resolveCreatedEventMeetUrl pending conference", () => {
   const originalFetch = globalThis.fetch;
   let fetchCalls = 0;
 
-  beforeEach(() => {
-    fetchCalls = 0;
+  beforeEach(async () => {
+    resetSpeed2LeadIntegrationMocks();
     process.env.GOOGLE_CALENDAR_ID = "test-calendar";
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = "agent@test.iam.gserviceaccount.com";
     process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY = "unused-for-mock";
+    resetGoogleTokenCacheForTests();
+    await seedTestGoogleOAuthConnection();
   });
 
   afterEach(() => {

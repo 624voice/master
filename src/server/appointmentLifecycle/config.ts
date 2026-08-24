@@ -10,7 +10,14 @@ export function isAppointmentLifecycleEnabled(): boolean {
   return process.env.APPOINTMENT_LIFECYCLE_ENABLED !== "false";
 }
 
-export { isGoogleCalendarApiConfigured } from "~/server/appointmentLifecycle/googleCredentials";
+export { isGoogleServiceAccountCalendarConfigured } from "~/server/appointmentLifecycle/googleCredentials";
+export {
+  getGoogleCalendarAuthContext,
+  isGoogleCalendarApiConfigured,
+  isGoogleCalendarBookingConfigured,
+  isGoogleOAuthConnectionActive,
+  resolveGoogleCalendarId,
+} from "~/server/appointmentLifecycle/googleCalendarAuth";
 
 export function getCalendarSyncSecret(): string | undefined {
   return process.env.CALENDAR_SYNC_SECRET;

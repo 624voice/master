@@ -184,13 +184,18 @@ export function getGoogleServiceAccountCredentials(): {
   return { clientEmail, privateKey };
 }
 
-export function isGoogleCalendarApiConfigured(): boolean {
+export function isGoogleServiceAccountCalendarConfigured(): boolean {
   try {
     getGoogleServiceAccountCredentials();
     return Boolean(trimOptional(process.env.GOOGLE_CALENDAR_ID));
   } catch {
     return false;
   }
+}
+
+/** @deprecated Use async isGoogleCalendarApiConfigured from googleCalendarAuth. */
+export function isGoogleCalendarApiConfigured(): boolean {
+  return isGoogleServiceAccountCalendarConfigured();
 }
 
 export function sanitizeGoogleApiErrorBody(

@@ -197,7 +197,7 @@ export async function probeConsultationBookingCreatePath(args: {
     credentialDiagnostics,
   };
 
-  if (!isGoogleCalendarApiConfigured()) {
+  if (!(await isGoogleCalendarApiConfigured())) {
     return { ...base, failureStage: "not_configured" };
   }
 

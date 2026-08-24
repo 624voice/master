@@ -10,6 +10,7 @@ import {
   installSpeed2LeadIntegrationMocks,
   resetSpeed2LeadIntegrationMocks,
 } from "~/server/speed2Lead/testSupport/integrationMocks";
+import { seedTestGoogleOAuthConnection } from "~/server/appointmentLifecycle/testSupport/googleOAuthTestHelpers";
 
 installSpeed2LeadIntegrationMocks();
 
@@ -195,6 +196,7 @@ describe("bookConsultation lifecycle integration", () => {
     await seedLead();
     resetGoogleTokenCacheForTests();
     installFetchMock();
+    await seedTestGoogleOAuthConnection();
 
     process.env.GOOGLE_CALENDAR_ID = "test-calendar";
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = "agent@test.iam.gserviceaccount.com";
