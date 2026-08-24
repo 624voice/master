@@ -80,6 +80,7 @@ function installFetchMock() {
         start: { dateTime: string };
         end: { dateTime: string };
         description?: string;
+        conferenceData?: { createRequest?: { requestId?: string } };
       };
       const created = {
         id: `agent-evt-${createAttempts}`,
@@ -89,6 +90,15 @@ function installFetchMock() {
         start: { dateTime: body.start.dateTime, timeZone: TZ },
         end: { dateTime: body.end.dateTime, timeZone: TZ },
         updated: new Date().toISOString(),
+        hangoutLink: `https://meet.google.com/agent-${createAttempts}-abc-defg-hij`,
+        conferenceData: {
+          entryPoints: [
+            {
+              entryPointType: "video",
+              uri: `https://meet.google.com/agent-${createAttempts}-abc-defg-hij`,
+            },
+          ],
+        },
       };
       calendarEvents.push(created);
       return new Response(JSON.stringify(created), { status: 200 });

@@ -19,6 +19,11 @@ type GoogleCalendarApiEvent = {
   attendees?: Array<{ email?: string; displayName?: string; responseStatus?: string }>;
   hangoutLink?: string;
   conferenceData?: {
+    createRequest?: {
+      requestId?: string;
+      status?: { statusCode?: string };
+    };
+    conferenceStatus?: { statusCode?: string };
     entryPoints?: Array<{ entryPointType?: string; uri?: string }>;
   };
   location?: string;
@@ -50,7 +55,7 @@ function mapStatus(status?: string): CalendarEventStatus {
   return "confirmed";
 }
 
-function extractMeetingLink(event: GoogleCalendarApiEvent): string | undefined {
+export function extractGoogleMeetUrl(event: GoogleCalendarApiEvent): string | undefined {
   if (event.hangoutLink) {
     return event.hangoutLink;
   }
@@ -97,7 +102,7 @@ export function parseGoogleCalendarApiEvent(event: GoogleCalendarApiEvent): Norm
     appointmentStart: new Date(startRaw).toISOString(),
     appointmentEnd: new Date(endRaw).toISOString(),
     timezone: event.start?.timeZone ?? DEFAULT_TIMEZONE,
-    meetingLink: extractMeetingLink(event),
+    meetingLink: extractGoogleMeetUrl(event),
     updatedAt: event.updated ? new Date(event.updated).toISOString() : new Date().toISOString(),
   };
 }

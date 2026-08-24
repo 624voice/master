@@ -31,12 +31,13 @@ export function bookingConfirmationMessage(ctx: MessageContext): string {
     ctx.timezone,
   );
   const name = ctx.firstName || "there";
-  let message = `Perfect, ${name} - you're booked. We're set for ${weekday}, ${month} ${day} at ${time}${tzSuffix(timezoneShort)}. I'll send you a reminder before we meet.`;
+  let message = `Booked for ${weekday}, ${month} ${day} at ${time}${tzSuffix(timezoneShort)}.`;
 
   if (ctx.meetingLink) {
-    message += ` Meeting link: ${ctx.meetingLink}`;
+    message += ` Here's the Google Meet link: ${ctx.meetingLink}.`;
   }
 
+  message += " I'll send you reminders before we meet.";
   message += changeInstructions();
   return message;
 }
@@ -46,23 +47,23 @@ export function rescheduleConfirmationMessage(ctx: MessageContext): string {
     ctx.appointmentStart,
     ctx.timezone,
   );
-  const name = ctx.firstName || "there";
-  let message = `Got it - you're moved to ${weekday}, ${month} ${day} at ${time}${tzSuffix(timezoneShort)}. I'll send you a reminder before we meet.`;
+  let message = `You're moved to ${weekday}, ${month} ${day} at ${time}${tzSuffix(timezoneShort)}.`;
 
   if (ctx.meetingLink) {
-    message += ` Meeting link: ${ctx.meetingLink}`;
+    message += ` Google Meet: ${ctx.meetingLink}.`;
   }
 
+  message += " I'll send you reminders before we meet.";
   return message;
 }
 
 export function reminder24hMessage(ctx: MessageContext): string {
   const name = ctx.firstName || "there";
   const when = formatTomorrowReference(ctx.appointmentStart, ctx.timezone);
-  let message = `Hey ${name}, Chris with 624Voice. Quick reminder that we're set for ${when}.`;
+  let message = `Reminder: we're set for ${when}.`;
 
   if (ctx.meetingLink) {
-    message += ` Here's the link: ${ctx.meetingLink}`;
+    message += ` Google Meet: ${ctx.meetingLink}`;
   }
 
   message += " If anything changed, reply RESCHEDULE or CANCEL.";
@@ -74,7 +75,7 @@ export function reminder2hMessage(ctx: MessageContext): string {
   const { time, timezoneShort } = formatTimeOnly(ctx.appointmentStart, ctx.timezone);
 
   if (ctx.meetingLink) {
-    return `Hey ${name} - looking forward to talking at ${time}${tzSuffix(timezoneShort)}. Here's the meeting link: ${ctx.meetingLink} If you need to change it, just reply RESCHEDULE.`;
+    return `Reminder: we're on in about 2 hours at ${time}${tzSuffix(timezoneShort)}. Google Meet: ${ctx.meetingLink} If you need to change it, just reply RESCHEDULE.`;
   }
 
   return `Hey ${name} - looking forward to talking at ${time}${tzSuffix(timezoneShort)}. Talk soon.`;

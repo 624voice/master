@@ -1,4 +1,4 @@
-import { createSign } from "node:crypto";
+import { createSign, randomUUID } from "node:crypto";
 import {
   CONSULTATION_TIMEZONE,
   getConsultationDurationMinutes,
@@ -23,6 +23,7 @@ import {
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   parseGoogleCalendarApiEvent,
+  extractGoogleMeetUrl,
   type GoogleCalendarApiEvent,
 } from "~/server/appointmentLifecycle/parseCalendarEvent";
 import type { NormalizedCalendarEvent, S2LSource } from "~/server/appointmentLifecycle/types";
@@ -251,6 +252,7 @@ type BookingIdempotencyRecord = {
   eventId: string;
   start: string;
   phone: string;
+  googleMeetUrl: string;
   createdAt: string;
 };
 
@@ -281,6 +283,7 @@ export type CreateConsultationEventSuccess = {
   ok: true;
   eventId: string;
   normalizedEvent: NormalizedCalendarEvent;
+  googleMeetUrl: string;
   replayed: boolean;
 };
 
@@ -291,6 +294,10 @@ export type ConsultationBookingFailureDiagnostics = {
   createSucceeded: boolean;
   sendUpdatesUsed?: string;
   attendeeCount: number;
+  attendeeIncluded?: boolean;
+  conferenceRequested?: boolean;
+  conferenceStatus?: string;
+  googleMeetUrlPresent?: boolean;
   calendarId?: string;
   eventStartIso?: string;
   eventEndIso?: string;
@@ -301,7 +308,7 @@ export type ConsultationBookingFailureDiagnostics = {
 
 export type CreateConsultationEventFailure = {
   ok: false;
-  reason: "not_configured" | "slot_unavailable" | "calendar_api_error";
+  reason: "not_configured" | "slot_unavailable" | "calendar_api_error" | "conference_error";
   detail?: string;
   diagnostics?: ConsultationBookingFailureDiagnostics;
 };
@@ -513,6 +520,12 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
   start: { dateTime: string; timeZone: string };
   end: { dateTime: string; timeZone: string };
   attendees?: Array<{ email: string }>;
+  conferenceData: {
+    createRequest: {
+      requestId: string;
+      conferenceSolutionKey: { type: "hangoutsMeet" };
+    };
+  };
   extendedProperties: { private: Record<string, string> };
 } {
   const startDate = new Date(input.start);
@@ -524,9 +537,13 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
   const descriptionLines = [
     `Phone: ${phone}`,
     `Source: ${input.source}`,
+    input.attendeeEmail?.trim() ? `Email: ${input.attendeeEmail.trim()}` : undefined,
     input.businessName ? `Business: ${input.businessName}` : undefined,
     input.notes ? `Notes: ${input.notes}` : undefined,
   ].filter(Boolean);
+
+  const includeAttendees =
+    supportsAttendeeInvites() && Boolean(input.attendeeEmail?.trim());
 
   return {
     summary: `624Voice AI Consultation - ${input.businessName ?? input.attendeeName}`,
@@ -539,21 +556,33 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
       dateTime: endDate.toISOString(),
       timeZone: CONSULTATION_TIMEZONE,
     },
-    attendees: input.attendeeEmail ? [{ email: input.attendeeEmail }] : undefined,
+    attendees: includeAttendees ? [{ email: input.attendeeEmail!.trim() }] : undefined,
+    conferenceData: {
+      createRequest: {
+        requestId: randomUUID(),
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    },
     extendedProperties: {
       private: {
         s2lSource: input.source,
         s2lPhone: phone,
         s2lBookingKey: bookingKey,
         s2lCreatedBy: "agent",
+        ...(input.attendeeEmail?.trim() ? { s2lEmail: input.attendeeEmail.trim() } : {}),
       },
     },
   };
 }
 
-/** True when attendee email invites are requested on calendar event creation. */
+/** Service-account provider cannot invite external attendees without domain-wide delegation. */
+export function supportsAttendeeInvites(): boolean {
+  return false;
+}
+
+/** True when attendee email invites are enabled for the active calendar provider. */
 export function calendarAttendeeInviteEnabled(attendeeEmail?: string): boolean {
-  return Boolean(attendeeEmail?.trim()) && isGoogleCalendarApiConfigured();
+  return supportsAttendeeInvites() && Boolean(attendeeEmail?.trim()) && isGoogleCalendarApiConfigured();
 }
 
 export type CalendarInsertDiagnostic = {
@@ -565,9 +594,13 @@ export type CalendarInsertDiagnostic = {
   calendarId?: string;
   sendUpdatesUsed?: string;
   attendeeCount: number;
+  attendeeIncluded: boolean;
+  conferenceRequested: boolean;
+  conferenceStatus?: string;
   eventStartIso?: string;
   eventEndIso?: string;
   eventId?: string;
+  googleMeetUrl?: string;
   event?: GoogleCalendarApiEvent;
 };
 
@@ -576,6 +609,8 @@ export async function insertCalendarEventWithDiagnostic(
 ): Promise<CalendarInsertDiagnostic> {
   const calendarId = getGoogleCalendarId();
   const attendeeCount = body.attendees?.length ?? 0;
+  const attendeeIncluded = attendeeCount > 0;
+  const conferenceRequested = Boolean(body.conferenceData?.createRequest);
   const eventStartIso = body.start.dateTime;
   const eventEndIso = body.end.dateTime;
   const base: CalendarInsertDiagnostic = {
@@ -583,6 +618,8 @@ export async function insertCalendarEventWithDiagnostic(
     requestEndpoint: "calendar.events.insert",
     calendarId: calendarId ?? undefined,
     attendeeCount,
+    attendeeIncluded,
+    conferenceRequested,
     eventStartIso,
     eventEndIso,
   };
@@ -595,9 +632,13 @@ export async function insertCalendarEventWithDiagnostic(
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
   );
-  const sendUpdatesUsed = body.attendees?.length ? "all" : undefined;
+  const sendUpdatesUsed =
+    supportsAttendeeInvites() && attendeeIncluded ? "all" : undefined;
   if (sendUpdatesUsed) {
     url.searchParams.set("sendUpdates", sendUpdatesUsed);
+  }
+  if (conferenceRequested) {
+    url.searchParams.set("conferenceDataVersion", "1");
   }
 
   const response = await fetch(url.toString(), {
@@ -630,6 +671,7 @@ export async function insertCalendarEventWithDiagnostic(
       {
         sendUpdatesUsed,
         attendeeCount,
+        conferenceRequested,
         calendarId,
       },
     );
@@ -641,6 +683,10 @@ export async function insertCalendarEventWithDiagnostic(
   }
 
   const created = (await response.json()) as GoogleCalendarApiEvent;
+  const conferenceStatus =
+    created.conferenceData?.conferenceStatus?.statusCode ??
+    created.conferenceData?.createRequest?.status?.statusCode;
+  const googleMeetUrl = extractGoogleMeetUrl(created);
   return {
     ...base,
     ok: true,
@@ -648,6 +694,8 @@ export async function insertCalendarEventWithDiagnostic(
     eventId: created.id,
     event: created,
     sendUpdatesUsed,
+    conferenceStatus,
+    googleMeetUrl,
   };
 }
 
@@ -684,6 +732,53 @@ async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarAp
   return (await response.json()) as GoogleCalendarApiEvent;
 }
 
+function readConferenceStatus(event: GoogleCalendarApiEvent): string | undefined {
+  return (
+    event.conferenceData?.conferenceStatus?.statusCode ??
+    event.conferenceData?.createRequest?.status?.statusCode
+  );
+}
+
+async function sleepMs(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Resolve the canonical Google Meet URL after event insert, with bounded re-read for pending conferences. */
+export async function resolveCreatedEventMeetUrl(args: {
+  eventId: string;
+  initialEvent?: GoogleCalendarApiEvent;
+}): Promise<{ meetUrl?: string; conferenceStatus?: string }> {
+  let event = args.initialEvent;
+  const maxAttempts = 3;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    if (!event || attempt > 0) {
+      event = (await fetchCalendarEventById(args.eventId)) ?? undefined;
+    }
+    if (!event) {
+      return {};
+    }
+
+    const meetUrl = extractGoogleMeetUrl(event);
+    const conferenceStatus = readConferenceStatus(event);
+    if (meetUrl) {
+      return { meetUrl, conferenceStatus: conferenceStatus ?? "success" };
+    }
+
+    if (conferenceStatus === "pending" || conferenceStatus === "pendingCreate") {
+      if (attempt < maxAttempts - 1) {
+        await sleepMs(250 * (attempt + 1));
+        continue;
+      }
+      return { conferenceStatus };
+    }
+
+    return { conferenceStatus };
+  }
+
+  return {};
+}
+
 export async function createConsultationEvent(
   input: CreateConsultationEventInput,
 ): Promise<CreateConsultationEventResult> {
@@ -694,13 +789,16 @@ export async function createConsultationEvent(
   const eventEndIso = new Date(startDate.getTime() + durationMinutes * 60_000).toISOString();
   const body = buildConsultationEventBody(input);
   const attendeeCount = body.attendees?.length ?? 0;
+  const attendeeIncluded = attendeeCount > 0;
+  const conferenceRequested = Boolean(body.conferenceData?.createRequest);
   const bookingKey = buildConsultationBookingKey(input.phone, input.start);
 
   if (collector) {
     collector.createConsultationEventEntered = true;
     collector.selectedStart = input.start;
     collector.attendeeCount = attendeeCount;
-    collector.attendeeIncluded = attendeeCount > 0;
+    collector.attendeeIncluded = attendeeIncluded;
+    collector.conferenceRequested = conferenceRequested;
     collector.calendarId = calendarId ?? undefined;
     collector.bookingKeySuffix = bookingKey.slice(-24);
   }
@@ -736,11 +834,21 @@ export async function createConsultationEvent(
 
   if (existing) {
     const apiEvent = await fetchCalendarEventById(existing.eventId);
-    const normalized = apiEvent ? parseGoogleCalendarApiEvent(apiEvent) : null;
-    if (normalized) {
+    const normalizedBase = apiEvent ? parseGoogleCalendarApiEvent(apiEvent) : null;
+    const meetUrl =
+      normalizedBase?.meetingLink ??
+      existing.googleMeetUrl ??
+      (apiEvent ? extractGoogleMeetUrl(apiEvent) : undefined);
+    const normalized =
+      normalizedBase && meetUrl
+        ? { ...normalizedBase, meetingLink: meetUrl }
+        : normalizedBase;
+    if (normalized && meetUrl) {
       if (collector) {
         collector.idempotencyLookupResult = "hit_replayed";
         collector.eventIdPresent = true;
+        collector.googleMeetUrlPresent = true;
+        collector.conferenceRequested = conferenceRequested;
         collector.createEventResult = "skipped";
         collector.finalBookingReason = "idempotency_replayed";
       }
@@ -748,6 +856,7 @@ export async function createConsultationEvent(
         ok: true,
         eventId: existing.eventId,
         normalizedEvent: normalized,
+        googleMeetUrl: meetUrl,
         replayed: true,
       };
     }
@@ -793,6 +902,8 @@ export async function createConsultationEvent(
   if (collector) {
     collector.insertCalendarEventHttpStatus = insertResult.httpStatus;
     collector.sendUpdatesUsed = insertResult.sendUpdatesUsed;
+    collector.conferenceRequested = insertResult.conferenceRequested;
+    collector.conferenceStatus = insertResult.conferenceStatus;
     collector.createEventResult = insertResult.ok ? "succeeded" : "failed";
     if (!insertResult.ok) {
       collector.failureStage = "calendar_insert_error";
@@ -814,6 +925,10 @@ export async function createConsultationEvent(
         createSucceeded: false,
         sendUpdatesUsed: insertResult.sendUpdatesUsed,
         attendeeCount: insertResult.attendeeCount,
+        attendeeIncluded: insertResult.attendeeIncluded,
+        conferenceRequested: insertResult.conferenceRequested,
+        conferenceStatus: insertResult.conferenceStatus,
+        googleMeetUrlPresent: false,
         calendarId: insertResult.calendarId,
         eventStartIso: insertResult.eventStartIso,
         eventEndIso: insertResult.eventEndIso,
@@ -825,6 +940,45 @@ export async function createConsultationEvent(
   }
 
   const created = insertResult.event;
+  const meetResolution = await resolveCreatedEventMeetUrl({
+    eventId: created.id!,
+    initialEvent: created,
+  });
+  const googleMeetUrl = meetResolution.meetUrl ?? insertResult.googleMeetUrl;
+  if (collector) {
+    collector.conferenceStatus = meetResolution.conferenceStatus ?? insertResult.conferenceStatus;
+    collector.googleMeetUrlPresent = Boolean(googleMeetUrl);
+  }
+  if (!googleMeetUrl) {
+    if (collector) {
+      collector.failureStage = "conference_creation_error";
+      collector.failureReason = meetResolution.conferenceStatus ?? "meet_url_missing";
+      collector.finalBookingReason = "conference_error";
+      collector.createEventResult = "failed";
+    }
+    return {
+      ok: false,
+      reason: "conference_error",
+      detail: "Google Meet link was not returned for the created event",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: true,
+        createAttempted: true,
+        createSucceeded: true,
+        sendUpdatesUsed: insertResult.sendUpdatesUsed,
+        attendeeCount: insertResult.attendeeCount,
+        attendeeIncluded: insertResult.attendeeIncluded,
+        conferenceRequested: insertResult.conferenceRequested,
+        conferenceStatus: meetResolution.conferenceStatus ?? insertResult.conferenceStatus,
+        googleMeetUrlPresent: false,
+        calendarId: insertResult.calendarId,
+        eventStartIso: insertResult.eventStartIso,
+        eventEndIso: insertResult.eventEndIso,
+        insertHttpStatus: insertResult.httpStatus,
+      },
+    };
+  }
+
   const normalizedEvent = parseGoogleCalendarApiEvent(created);
   if (!normalizedEvent) {
     if (collector) {
@@ -841,9 +995,13 @@ export async function createConsultationEvent(
         recheckAttempted: true,
         recheckSucceeded: true,
         createAttempted: true,
-        createSucceeded: false,
+        createSucceeded: true,
         sendUpdatesUsed: insertResult.sendUpdatesUsed,
         attendeeCount: insertResult.attendeeCount,
+        attendeeIncluded: insertResult.attendeeIncluded,
+        conferenceRequested: insertResult.conferenceRequested,
+        conferenceStatus: meetResolution.conferenceStatus ?? insertResult.conferenceStatus,
+        googleMeetUrlPresent: true,
         calendarId: insertResult.calendarId,
         eventStartIso: insertResult.eventStartIso,
         eventEndIso: insertResult.eventEndIso,
@@ -852,14 +1010,20 @@ export async function createConsultationEvent(
     };
   }
 
+  const normalizedWithMeet: NormalizedCalendarEvent = {
+    ...normalizedEvent,
+    meetingLink: googleMeetUrl,
+  };
+
   if (collector) {
     collector.persistenceAttempted = true;
   }
   try {
     await saveBookingIdempotencyRecord(bookingKey, {
       eventId: created.id!,
-      start: normalizedEvent.appointmentStart,
+      start: normalizedWithMeet.appointmentStart,
       phone: normalizePhone(input.phone),
+      googleMeetUrl,
       createdAt: new Date().toISOString(),
     });
     if (collector) {
@@ -881,7 +1045,8 @@ export async function createConsultationEvent(
   return {
     ok: true,
     eventId: created.id!,
-    normalizedEvent,
+    normalizedEvent: normalizedWithMeet,
+    googleMeetUrl,
     replayed: false,
   };
 }

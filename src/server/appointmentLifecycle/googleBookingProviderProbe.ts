@@ -17,6 +17,7 @@ import {
   logGoogleProviderDiagnostic,
 } from "~/server/appointmentLifecycle/googleCredentials";
 import { resolveDiagnosticTestPhone } from "~/server/speed2Lead/testPhoneAllowlist";
+import { supportsAttendeeInvites } from "~/server/appointmentLifecycle/googleCalendar";
 
 export const DIAGNOSTIC_BOOKING_EMAIL = "diag-preview@624voice.com";
 export const HANDSET_REPRO_START = "2026-08-26T14:00:00.000Z";
@@ -399,6 +400,13 @@ export type HandsetBookProviderProbeResult = {
   };
   cleanupAttempted?: boolean;
   cleanupSucceeded?: boolean;
+  recheckSucceeded?: boolean;
+  eventCreated?: boolean;
+  eventIdPresent?: boolean;
+  conferenceRequested?: boolean;
+  googleMeetUrlPresent?: boolean;
+  persistenceResult?: string;
+  insertCalendarEventHttpStatus?: number;
 };
 
 export async function probeHandsetEquivalentBookProviderSlot(args: {
@@ -449,7 +457,8 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
   }
 
   const { bookProviderSlot } = await import("~/server/scheduling/provider");
-  const attendeeIncluded = Boolean(email.trim());
+  const attendeeIncluded =
+    supportsAttendeeInvites() && Boolean(email.trim());
 
   const bookingResult = await bookProviderSlot({
     start,
@@ -470,6 +479,10 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
     cleanup = await cleanupDiagnosticEvent(bookingResult.eventId);
   }
 
+  const stageSnapshot = bookingResult.ok
+    ? bookingResult.stageSnapshot
+    : bookingResult.diagnostics?.stageSnapshot;
+
   return {
     ok: bookingResult.ok,
     mode: "handset_book_provider_slot",
@@ -479,7 +492,14 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
     attendeeIncluded,
     attendeeCount: attendeeIncluded ? 1 : 0,
     bookingResult,
-    stageSnapshot: !bookingResult.ok ? bookingResult.diagnostics?.stageSnapshot : undefined,
+    stageSnapshot,
+    recheckSucceeded: stageSnapshot?.recheckResult === "succeeded",
+    eventCreated: stageSnapshot?.createEventResult === "succeeded",
+    eventIdPresent: stageSnapshot?.eventIdPresent === true,
+    conferenceRequested: stageSnapshot?.conferenceRequested === true,
+    googleMeetUrlPresent: stageSnapshot?.googleMeetUrlPresent === true,
+    persistenceResult: stageSnapshot?.persistenceResult,
+    insertCalendarEventHttpStatus: stageSnapshot?.insertCalendarEventHttpStatus,
     smokePathComparison,
     ...cleanup,
   };

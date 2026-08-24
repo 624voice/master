@@ -613,6 +613,7 @@ export async function enforceSchedulingGate(args: {
     context = applyConfirmedScheduling(context, {
       selectedStart: result.selectedStart,
       calendarEventId: result.eventId,
+      googleMeetUrl: result.googleMeetUrl,
     });
     toolState = {
       ...syncToolStateFromScheduling(toolState, context.scheduling!, outcome),
@@ -624,6 +625,7 @@ export async function enforceSchedulingGate(args: {
       email,
       sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
       useLifecycleCopy: toolState.lifecycleConfirmationSent === true,
+      meetingLink: result.googleMeetUrl ?? context.scheduling?.googleMeetUrl,
     });
   } else {
     forcedReply = resolveForcedSchedulingReply(result, context, toolState, args.plan);
@@ -712,6 +714,7 @@ export function resolveAuthoritativeSchedulingReply(args: {
       email,
       sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
       useLifecycleCopy: false,
+      meetingLink: context.scheduling?.googleMeetUrl,
     });
     const confirmPass = validateDeterministicSchedulingReply(
       confirmation,

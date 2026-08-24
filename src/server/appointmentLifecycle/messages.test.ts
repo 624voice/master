@@ -20,23 +20,30 @@ const ctx = {
 };
 
 describe("appointment messages GSM-7", () => {
-  test("confirmation uses SMS-safe punctuation", () => {
+  test("confirmation uses SMS-safe punctuation and Google Meet link", () => {
     const msg = bookingConfirmationMessage(ctx);
     expect(isGsm7Safe(msg)).toBe(true);
-    expect(msg).toContain("Perfect, Jane - you're booked");
+    expect(msg).toContain("Booked for");
+    expect(msg).toContain("Google Meet link:");
+    expect(msg).toContain(ctx.meetingLink!);
+    expect(msg).not.toMatch(/email(ed)? you a calendar invite/i);
     expect(msg).toContain("Reply RESCHEDULE or CANCEL");
     assertLifecycleMessageEncoding("confirmation", msg);
   });
 
-  test("24h reminder is GSM-7 safe", () => {
+  test("24h reminder uses persisted Google Meet URL", () => {
     const msg = reminder24hMessage(ctx);
     expect(isGsm7Safe(msg)).toBe(true);
+    expect(msg).toContain("Google Meet:");
+    expect(msg).toContain(ctx.meetingLink!);
     assertLifecycleMessageEncoding("24h", msg);
   });
 
-  test("2h reminder is GSM-7 safe", () => {
+  test("2h reminder uses the same Google Meet URL", () => {
     const msg = reminder2hMessage(ctx);
     expect(isGsm7Safe(msg)).toBe(true);
+    expect(msg).toContain("Google Meet:");
+    expect(msg).toContain(ctx.meetingLink!);
     assertLifecycleMessageEncoding("2h", msg);
   });
 

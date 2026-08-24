@@ -78,6 +78,7 @@ function installFetchMock() {
         end: { dateTime: string };
         description?: string;
         attendees?: Array<{ email: string }>;
+        conferenceData?: { createRequest?: { requestId?: string } };
       };
       lastCreateBody = body;
       const phoneMatch = body.description?.match(/Phone:\s(\S+)/);
@@ -88,6 +89,12 @@ function installFetchMock() {
         new Date(body.end.dateTime),
         phone,
       );
+      if (body.conferenceData?.createRequest) {
+        created.hangoutLink = `https://meet.google.com/test-${createAttempts}-abc-defg-hij`;
+        created.conferenceData = {
+          entryPoints: [{ entryPointType: "video", uri: created.hangoutLink }],
+        };
+      }
       calendarEvents.push(created);
       return new Response(JSON.stringify(created), {
         status: 200,
@@ -123,6 +130,7 @@ const {
   resetGoogleTokenCacheForTests,
   buildConsultationBookingKey,
   isStartAvailableAgainstBusy,
+  supportsAttendeeInvites,
 } = googleCalendar;
 
 function futureWeekdaySlot(hour: number, minute: number): Date {
@@ -266,7 +274,7 @@ describe("googleCalendar consultation booking", () => {
     expect(result.normalizedEvent.calendarEventId).toBe("evt-created-1");
   });
 
-  test("attendee email triggers sendUpdates=all on calendar insert", async () => {
+  test("external lead email does not add Google attendees on service-account path", async () => {
     const result = await createConsultationEvent({
       start: slotStart.toISOString(),
       attendeeName: "Jane Doe",
@@ -277,11 +285,20 @@ describe("googleCalendar consultation booking", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(lastCreateUrl).toContain("sendUpdates=all");
-    expect(lastCreateBody?.attendees).toEqual([{ email: "jane@example.com" }]);
+    if (!result.ok) return;
+    expect(lastCreateUrl).not.toContain("sendUpdates=");
+    expect(lastCreateBody?.attendees).toBeUndefined();
+    expect(String(lastCreateBody?.description)).toContain("Email: jane@example.com");
+    expect(lastCreateUrl).toContain("conferenceDataVersion=1");
+    expect(result.googleMeetUrl).toMatch(/^https:\/\/meet\.google\.com\//);
+    expect(result.normalizedEvent.meetingLink).toBe(result.googleMeetUrl);
   });
 
-  test("missing attendee email still books without sendUpdates", async () => {
+  test("supportsAttendeeInvites is false for service-account provider", () => {
+    expect(googleCalendar.supportsAttendeeInvites()).toBe(false);
+  });
+
+  test("missing attendee email still books with Google Meet and without sendUpdates", async () => {
     const result = await createConsultationEvent({
       start: slotStart.toISOString(),
       attendeeName: "Jane Doe",
@@ -293,6 +310,7 @@ describe("googleCalendar consultation booking", () => {
     expect(result.ok).toBe(true);
     expect(lastCreateUrl).not.toContain("sendUpdates=");
     expect(lastCreateBody?.attendees).toBeUndefined();
+    expect(result.googleMeetUrl).toMatch(/^https:\/\/meet\.google\.com\//);
   });
 
   test("failed calendar creation never reports success", async () => {
@@ -303,11 +321,11 @@ describe("googleCalendar consultation booking", () => {
           status: 200,
         });
       }
+      if (init?.method === "POST" && url.includes("/events")) {
+        return new Response("error", { status: 500 });
+      }
       if (url.includes("/events?")) {
         return new Response(JSON.stringify({ items: [] }), { status: 200 });
-      }
-      if (init?.method === "POST") {
-        return new Response("error", { status: 500 });
       }
       return originalFetch(input, init);
     }) as typeof fetch;

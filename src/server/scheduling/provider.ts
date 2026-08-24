@@ -1,6 +1,9 @@
 import { getConsultationSlots } from "~/server/appointmentLifecycle/googleCalendar";
 import { bookConsultation } from "~/server/appointmentLifecycle/bookConsultation";
-import type { ConsultationBookingFailureDiagnostics } from "~/server/appointmentLifecycle/googleCalendar";
+import {
+  supportsAttendeeInvites,
+  type ConsultationBookingFailureDiagnostics,
+} from "~/server/appointmentLifecycle/googleCalendar";
 import {
   createBookingStageCollector,
   logBookingStageTrace,
@@ -82,6 +85,8 @@ function detailedStageFromReason(reason: string): DetailedBookingFailureStage {
       return "recheck_error";
     case "calendar_api_error":
       return "calendar_insert_error";
+    case "conference_error":
+      return "conference_creation_error";
     case "missing_event_id":
       return "missing_event_id";
     default:
@@ -90,7 +95,14 @@ function detailedStageFromReason(reason: string): DetailedBookingFailureStage {
 }
 
 export type ProviderBookingResult =
-  | { ok: true; eventId: string; selectedStart: string; lifecycleConfirmationSent?: boolean }
+  | {
+      ok: true;
+      eventId: string;
+      selectedStart: string;
+      googleMeetUrl: string;
+      lifecycleConfirmationSent?: boolean;
+      stageSnapshot: BookingStageSnapshot;
+    }
   | {
       ok: false;
       reason: string;
@@ -112,8 +124,9 @@ export async function bookProviderSlot(args: {
     phoneSuffix,
   });
   collector.bookProviderSlotEntered = true;
-  collector.attendeeIncluded = Boolean(args.customer.email?.trim());
-  collector.attendeeCount = args.customer.email ? 1 : 0;
+  collector.attendeeIncluded =
+    supportsAttendeeInvites() && Boolean(args.customer.email?.trim());
+  collector.attendeeCount = collector.attendeeIncluded ? 1 : 0;
 
   return withBookingStageCollector(collector, async () => {
     const booked = await bookConsultation({
@@ -143,9 +156,11 @@ export async function bookProviderSlot(args: {
         : {
             recheckAttempted: booked.reason === "slot_unavailable",
             recheckSucceeded: booked.reason !== "slot_unavailable",
-            createAttempted: booked.reason === "calendar_api_error",
+            createAttempted:
+              booked.reason === "calendar_api_error" || booked.reason === "conference_error",
             createSucceeded: false,
-            attendeeCount: args.customer.email ? 1 : 0,
+            attendeeCount: collector.attendeeCount ?? 0,
+            attendeeIncluded: collector.attendeeIncluded,
             failureStage: bookingFailureStage(booked.reason, undefined, detailedFailureStage),
             detailedFailureStage,
             stageSnapshot,
@@ -160,7 +175,7 @@ export async function bookProviderSlot(args: {
       };
     }
 
-    if (!booked.eventId) {
+    if (!booked.eventId || !booked.googleMeetUrl) {
       const detailedFailureStage: DetailedBookingFailureStage = "missing_event_id";
       return {
         ok: false,
@@ -187,7 +202,9 @@ export async function bookProviderSlot(args: {
       ok: true,
       eventId: booked.eventId,
       selectedStart: booked.selectedStart,
+      googleMeetUrl: booked.googleMeetUrl,
       lifecycleConfirmationSent: booked.lifecycle.smsSent === true,
+      stageSnapshot,
     };
   });
 }

@@ -295,12 +295,14 @@ export async function processSchedulingTurn(
           status: "confirmed",
           selectedStart: booked.selectedStart,
           calendarEventId: booked.eventId,
+          googleMeetUrl: booked.googleMeetUrl,
           offeredSlots: undefined,
         },
         offeredSlots: [],
         offerPresentationType: "booked",
         selectedStart: booked.selectedStart,
         eventId: booked.eventId,
+        googleMeetUrl: booked.googleMeetUrl,
         lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
         trace,
       };
@@ -417,6 +419,7 @@ export async function processSchedulingTurn(
           status: "confirmed",
           selectedStart: booked.selectedStart,
           calendarEventId: booked.eventId,
+          googleMeetUrl: booked.googleMeetUrl,
           offeredSlots: undefined,
           bookingPending: false,
         };
@@ -427,6 +430,7 @@ export async function processSchedulingTurn(
           offerPresentationType: "booked",
           selectedStart: booked.selectedStart,
           eventId: booked.eventId,
+          googleMeetUrl: booked.googleMeetUrl,
           lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
           trace,
         };
@@ -621,11 +625,13 @@ export async function processSchedulingTurn(
             status: "confirmed",
             selectedStart: booked.selectedStart,
             calendarEventId: booked.eventId,
+            googleMeetUrl: booked.googleMeetUrl,
           },
           offeredSlots: [],
           offerPresentationType: "booked",
           selectedStart: booked.selectedStart,
           eventId: booked.eventId,
+          googleMeetUrl: booked.googleMeetUrl,
           lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
           trace,
         };
@@ -723,6 +729,23 @@ export async function processSchedulingTurn(
   return result;
 }
 
+export function buildBookingProviderFailureCopy(result: SchedulingTurnResult): string {
+  const selectedStart = result.trace.selectedStart ?? result.selectedStart;
+  if (result.outcome === "PROVIDER_CONFLICT") {
+    return buildProviderConflictCopy(result.offeredSlots);
+  }
+
+  if (selectedStart && result.offeredSlots.length > 0) {
+    return "I couldn't finish booking that time just now. Those same options still work - reply with the time you want, or say a different time.";
+  }
+
+  if (selectedStart) {
+    return "I couldn't finish booking that time just now - I still have your timing noted. Reply once more with the time you want and I'll try again.";
+  }
+
+  return "I couldn't finish booking that appointment just now. Reply with the time you want and I'll try again.";
+}
+
 export function buildReplyFromSchedulingResult(result: SchedulingTurnResult): string | null {
   if (result.closedDayDate) {
     return buildClosedDayCopy(result.closedDayDate);
@@ -747,6 +770,9 @@ export function buildReplyFromSchedulingResult(result: SchedulingTurnResult): st
     case "BOOKED":
       return null;
     case "PROVIDER_ERROR":
+      if (result.trace.bookingAttempted && result.trace.selectionResolved) {
+        return buildBookingProviderFailureCopy(result);
+      }
       return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
     default:
       return null;

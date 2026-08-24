@@ -36,6 +36,13 @@ export type BookingStageSnapshot = {
   attendeeIncluded?: boolean;
   calendarId?: string;
   bookingKeySuffix?: string;
+  conferenceRequested?: boolean;
+  conferenceStatus?: string;
+  googleMeetUrlPresent?: boolean;
+  confirmationSmsAttempted?: boolean;
+  confirmationSmsResult?: StageResult;
+  reminder24Scheduled?: boolean;
+  reminder2Scheduled?: boolean;
 };
 
 export type BookingStageCollector = BookingStageSnapshot & {
@@ -109,6 +116,8 @@ export function mapDetailedFailureStage(
       return "recheck_failed";
     case "calendar_insert_error":
       return "insert_failed";
+    case "conference_creation_error":
+      return "insert_failed";
     case "parse_failed":
     case "missing_event_id":
       return "parse_failed";
@@ -159,6 +168,13 @@ export function applyBookingStageSnapshotToSchedulingTrace(
   trace.sendUpdatesUsed = snapshot.sendUpdatesUsed;
   trace.bookingAttendeeCount = snapshot.attendeeCount;
   trace.attendeeIncluded = snapshot.attendeeIncluded;
+  trace.conferenceRequested = snapshot.conferenceRequested;
+  trace.conferenceStatus = snapshot.conferenceStatus;
+  trace.googleMeetUrlPresent = snapshot.googleMeetUrlPresent;
+  trace.confirmationSmsAttempted = snapshot.confirmationSmsAttempted;
+  trace.confirmationSmsResult = snapshot.confirmationSmsResult;
+  trace.reminder24Scheduled = snapshot.reminder24Scheduled;
+  trace.reminder2Scheduled = snapshot.reminder2Scheduled;
   trace.providerRecheckAttempted = snapshot.recheckStarted;
   trace.providerRecheckResult =
     snapshot.recheckResult === "succeeded"

@@ -266,6 +266,7 @@ export function buildBookingConfirmationMessage(
     email?: string;
     sendsCalendarInvite?: boolean;
     useLifecycleCopy?: boolean;
+    meetingLink?: string;
   } = {},
 ): string {
   if (options.useLifecycleCopy) {
@@ -276,7 +277,7 @@ export function buildBookingConfirmationMessage(
     firstName,
     appointmentStart: start,
     timezone: CONSULTATION_TIMEZONE,
-    email: options.email,
+    meetingLink: options.meetingLink,
   });
 }
 

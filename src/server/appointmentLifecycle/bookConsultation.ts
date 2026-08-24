@@ -13,6 +13,7 @@ export type BookConsultationSuccess = {
   ok: true;
   eventId: string;
   selectedStart: string;
+  googleMeetUrl: string;
   replayed: boolean;
   lifecycle: ProcessEventResult;
 };
@@ -62,6 +63,9 @@ export async function bookConsultation(
 
   if (collector) {
     collector.eventIdPresent = true;
+    collector.googleMeetUrlPresent = Boolean(created.googleMeetUrl);
+    collector.confirmationSmsAttempted = true;
+    collector.confirmationSmsResult = lifecycle.smsSent ? "succeeded" : "skipped";
     collector.finalBookingReason = "booked";
   }
 
@@ -69,6 +73,7 @@ export async function bookConsultation(
     ok: true,
     eventId: created.eventId,
     selectedStart: created.normalizedEvent.appointmentStart,
+    googleMeetUrl: created.googleMeetUrl,
     replayed: created.replayed,
     lifecycle,
   };

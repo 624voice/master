@@ -283,7 +283,7 @@ export function prepareSessionForSave<T extends AnyConversationContext>(
 
 export function applyConfirmedScheduling<T extends AnyConversationContext>(
   context: T,
-  booking: { selectedStart: string; calendarEventId: string },
+  booking: { selectedStart: string; calendarEventId: string; googleMeetUrl?: string },
 ): T {
   const normalized = normalizeSessionMemory(context);
   return {
@@ -294,6 +294,7 @@ export function applyConfirmedScheduling<T extends AnyConversationContext>(
       status: "confirmed",
       selectedStart: booking.selectedStart,
       calendarEventId: booking.calendarEventId,
+      googleMeetUrl: booking.googleMeetUrl,
       bookingPending: false,
       offeredSlots: undefined,
     },

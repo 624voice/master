@@ -20,6 +20,7 @@ import {
   saveLifecycleRecord,
   supersedeActiveLifecycle,
 } from "~/server/appointmentLifecycle/store";
+import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
 import type {
   AppointmentLifecycleRecord,
   LeadIndexEntry,
@@ -261,6 +262,11 @@ export async function processCalendarEvent(
   let finalRecord = record;
   if (smsSent) {
     finalRecord = applyConfirmationState(record, confirmedAt);
+    const collector = getActiveBookingStageCollector();
+    if (collector) {
+      collector.reminder24Scheduled = !shouldSkip24hForLeadTime(finalRecord, confirmedAt);
+      collector.reminder2Scheduled = !shouldSkip2hForLeadTime(finalRecord, confirmedAt);
+    }
   } else {
     finalRecord = {
       ...record,

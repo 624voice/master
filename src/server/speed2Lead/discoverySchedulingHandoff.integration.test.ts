@@ -53,6 +53,7 @@ mock.module("~/server/appointmentLifecycle/bookConsultation", () => ({
     ok: true,
     eventId: "evt-1",
     selectedStart: "",
+    googleMeetUrl: "https://meet.google.com/test-abc-defg-hij",
     replayed: false,
     lifecycle: { action: "created", smsSent: true },
   }),

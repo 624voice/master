@@ -95,6 +95,7 @@ export type SchedulingState = {
   offeredSlots?: string[];
   selectedStart?: string;
   calendarEventId?: string;
+  googleMeetUrl?: string;
   /** Canonical requested date (Central YYYY-MM-DD). */
   requestedDate?: string;
   /** Canonical availability preference — single source of truth. */

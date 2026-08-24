@@ -114,17 +114,21 @@ describe("conversion + scheduling behavior classes", () => {
     expect(isPostBookingAcknowledgment("Can we move it?")).toBe(false);
   });
 
-  test("booking confirmation mentions date, time, timezone, and email when available", () => {
+  test("booking confirmation mentions date, time, timezone, and Meet link when available", () => {
     const start = centralDateAt(2026, 8, 28, 16, 0, TZ).toISOString();
     const message = buildBookingConfirmationMessage(start, "Chris", {
       email: "chris@example.com",
-      sendsCalendarInvite: true,
+      sendsCalendarInvite: false,
+      useLifecycleCopy: false,
+      meetingLink: "https://meet.google.com/test-abc-defg-hij",
     });
     expect(message.toLowerCase()).toContain("friday");
     expect(message).toContain("4pm");
     expect(message).toContain("CT");
     expect(message.toLowerCase()).toContain("booked");
-    expect(message).toContain("Chris");
+    expect(message).toContain("Google Meet link:");
+    expect(message).toContain("https://meet.google.com/test-abc-defg-hij");
+    expect(message).not.toMatch(/email(ed)? you a calendar invite/i);
   });
 });
 

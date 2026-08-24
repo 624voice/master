@@ -59,6 +59,7 @@ export type CanonicalSchedulingState = {
   lastPresentedOfferKey?: string;
   selectedStart?: string;
   calendarEventId?: string;
+  googleMeetUrl?: string;
   calendarUnavailable?: boolean;
   providerFailureReason?: string;
   bookingPending?: boolean;
@@ -88,6 +89,7 @@ export type DetailedBookingFailureStage =
   | "idempotency_error"
   | "recheck_error"
   | "calendar_insert_error"
+  | "conference_creation_error"
   | "parse_failed"
   | "persistence_error"
   | "lifecycle_error"
@@ -150,6 +152,13 @@ export type SchedulingTrace = ProviderDiagnostics & {
   sendUpdatesUsed?: string;
   bookingAttendeeCount?: number;
   attendeeIncluded?: boolean;
+  conferenceRequested?: boolean;
+  conferenceStatus?: string;
+  googleMeetUrlPresent?: boolean;
+  confirmationSmsAttempted?: boolean;
+  confirmationSmsResult?: StageResult;
+  reminder24Scheduled?: boolean;
+  reminder2Scheduled?: boolean;
 };
 
 export type BookingCustomer = {
@@ -184,6 +193,7 @@ export type SchedulingTurnResult = {
   offerPresentationType: OfferPresentationType;
   selectedStart?: string;
   eventId?: string;
+  googleMeetUrl?: string;
   lifecycleConfirmationSent?: boolean;
   closedDayDate?: string;
   trace: SchedulingTrace;
