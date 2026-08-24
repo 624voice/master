@@ -41,6 +41,7 @@ import {
 import { fromCanonicalSchedulingState, invalidateOffersForRequestChange } from "~/server/scheduling/state";
 import type { LegacyConstraintFields } from "~/server/scheduling/state";
 import {
+  applyBookingTraceFields,
   createEmptyTrace,
   inferOfferPresentationType,
   inferResponseSource,
@@ -274,16 +275,18 @@ export async function processSchedulingTurn(
 
   let legacyScheduling = fromCanonicalSchedulingState(state);
   if (input.explicitBookStart && input.bookCustomer) {
-    trace.bookingAttempted = true;
     const booked = await bookProviderSlot({
       start: input.explicitBookStart,
       customer: input.bookCustomer,
       now,
     });
+    applyBookingTraceFields(trace, {
+      selectedStart: input.explicitBookStart,
+      selectionResolved: true,
+      booked,
+    });
     if (booked.ok) {
-      trace.eventIdPresent = true;
-      trace.bookingResultType = "BOOKED";
-      return {
+      const result: SchedulingTurnResult = {
         outcome: "BOOKED",
         state: {
           ...state,
@@ -299,10 +302,10 @@ export async function processSchedulingTurn(
         lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
         trace,
       };
+      logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+      return result;
     }
-    trace.bookingResultType =
-      booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR";
-    return {
+    const result: SchedulingTurnResult = {
       outcome:
         booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR",
       state,
@@ -310,6 +313,8 @@ export async function processSchedulingTurn(
       offerPresentationType: "none",
       trace,
     };
+    logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+    return result;
   }
 
   const intentPatch = parseSchedulingIntentUpdate(input.inboundMessage, state, now);
@@ -392,15 +397,17 @@ export async function processSchedulingTurn(
   if (offered.length > 0 && resolveOfferedSlotSelectionCandidate(input.inboundMessage, offered)) {
     const selected = resolveOfferedSlotSelectionCandidate(input.inboundMessage, offered);
     if (selected && input.bookCustomer) {
-      trace.bookingAttempted = true;
       const booked = await bookProviderSlot({
         start: selected,
         customer: input.bookCustomer,
         now,
       });
+      applyBookingTraceFields(trace, {
+        selectedStart: selected,
+        selectionResolved: true,
+        booked,
+      });
       if (booked.ok) {
-        trace.eventIdPresent = true;
-        trace.bookingResultType = "BOOKED";
         const bookedState: CanonicalSchedulingState = {
           ...state,
           status: "confirmed",
@@ -409,7 +416,7 @@ export async function processSchedulingTurn(
           offeredSlots: undefined,
           bookingPending: false,
         };
-        return {
+        const result: SchedulingTurnResult = {
           outcome: "BOOKED",
           state: bookedState,
           offeredSlots: [],
@@ -419,10 +426,10 @@ export async function processSchedulingTurn(
           lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
           trace,
         };
+        logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+        return result;
       }
-      trace.bookingResultType =
-        booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR";
-      return {
+      const result: SchedulingTurnResult = {
         outcome:
           booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR",
         state: { ...state, bookingPending: false },
@@ -430,6 +437,8 @@ export async function processSchedulingTurn(
         offerPresentationType: "none",
         trace,
       };
+      logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+      return result;
     }
   }
 
@@ -593,9 +602,13 @@ export async function processSchedulingTurn(
         customer: input.bookCustomer,
         now,
       });
+      applyBookingTraceFields(trace, {
+        selectedStart: exactMatch[0],
+        selectionResolved: true,
+        booked,
+      });
       if (booked.ok) {
-        trace.eventIdPresent = true;
-        return {
+        const result: SchedulingTurnResult = {
           outcome: "BOOKED",
           state: {
             ...state,
@@ -610,8 +623,10 @@ export async function processSchedulingTurn(
           lifecycleConfirmationSent: booked.lifecycleConfirmationSent,
           trace,
         };
+        logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+        return result;
       }
-      return {
+      const result: SchedulingTurnResult = {
         outcome:
           booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR",
         state,
@@ -619,6 +634,8 @@ export async function processSchedulingTurn(
         offerPresentationType: "none",
         trace,
       };
+      logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+      return result;
     }
     if (exactMatch.length === 0) {
       const altRequest: SchedulingRequest = {

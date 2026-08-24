@@ -75,6 +75,18 @@ export type ProviderDiagnostics = {
   zeroSlotReason?: ZeroSlotReason;
 };
 
+export type BookingFailureStage =
+  | "not_configured"
+  | "recheck_failed"
+  | "insert_failed"
+  | "parse_failed"
+  | "lifecycle_failed"
+  | "unknown";
+
+export type ProviderRecheckResult = "succeeded" | "failed" | "not_attempted" | "unknown";
+
+export type CreateEventResult = "succeeded" | "failed" | "not_attempted";
+
 export type SchedulingTrace = ProviderDiagnostics & {
   centralNow: { date: string; time: string; timezone: string };
   requestKeyBefore?: string;
@@ -85,9 +97,21 @@ export type SchedulingTrace = ProviderDiagnostics & {
   finalOfferedSlots: string[];
   responseSource: ResponseSource;
   offerPresentationType: OfferPresentationType;
+  selectionResolved?: boolean;
   bookingAttempted: boolean;
+  selectedStart?: string;
+  providerRecheckAttempted?: boolean;
+  providerRecheckResult?: ProviderRecheckResult;
+  createEventAttempted?: boolean;
+  createEventResult?: CreateEventResult;
   bookingResultType?: SchedulingOutcomeType;
   eventIdPresent: boolean;
+  failureStage?: BookingFailureStage;
+  providerHttpStatus?: number;
+  providerErrorReason?: string;
+  providerErrorMessage?: string;
+  sendUpdatesUsed?: string;
+  bookingAttendeeCount?: number;
 };
 
 export type BookingCustomer = {

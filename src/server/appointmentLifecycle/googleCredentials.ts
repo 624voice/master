@@ -32,7 +32,7 @@ export type GoogleProviderDiagnostic = GoogleServiceAccountCredentialDiagnostics
   GoogleApiErrorDetails & {
     tokenGenerationSucceeded: boolean;
     failureStage?: GoogleProviderFailureStage;
-    requestEndpoint?: "oauth2.token" | "calendar.events.list";
+    requestEndpoint?: "oauth2.token" | "calendar.events.list" | "calendar.events.insert";
     requestStartIso?: string;
     requestEndIso?: string;
   };

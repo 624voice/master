@@ -283,10 +283,26 @@ export type CreateConsultationEventSuccess = {
   replayed: boolean;
 };
 
+export type ConsultationBookingFailureDiagnostics = {
+  recheckSucceeded: boolean;
+  recheckAttempted: boolean;
+  createAttempted: boolean;
+  createSucceeded: boolean;
+  sendUpdatesUsed?: string;
+  attendeeCount: number;
+  calendarId?: string;
+  eventStartIso?: string;
+  eventEndIso?: string;
+  insertHttpStatus?: number;
+  googleErrorReason?: string;
+  googleErrorMessage?: string;
+};
+
 export type CreateConsultationEventFailure = {
   ok: false;
   reason: "not_configured" | "slot_unavailable" | "calendar_api_error";
   detail?: string;
+  diagnostics?: ConsultationBookingFailureDiagnostics;
 };
 
 export type CreateConsultationEventResult =
@@ -539,21 +555,50 @@ export function calendarAttendeeInviteEnabled(attendeeEmail?: string): boolean {
   return Boolean(attendeeEmail?.trim()) && isGoogleCalendarApiConfigured();
 }
 
-async function insertCalendarEvent(
+export type CalendarInsertDiagnostic = {
+  ok: boolean;
+  httpStatus?: number;
+  googleErrorReason?: string;
+  googleErrorMessage?: string;
+  requestEndpoint: "calendar.events.insert";
+  calendarId?: string;
+  sendUpdatesUsed?: string;
+  attendeeCount: number;
+  eventStartIso?: string;
+  eventEndIso?: string;
+  eventId?: string;
+  event?: GoogleCalendarApiEvent;
+};
+
+export async function insertCalendarEventWithDiagnostic(
   body: ReturnType<typeof buildConsultationEventBody>,
-): Promise<GoogleCalendarApiEvent | null> {
+): Promise<CalendarInsertDiagnostic> {
   const calendarId = getGoogleCalendarId();
+  const attendeeCount = body.attendees?.length ?? 0;
+  const eventStartIso = body.start.dateTime;
+  const eventEndIso = body.end.dateTime;
+  const base: CalendarInsertDiagnostic = {
+    ok: false,
+    requestEndpoint: "calendar.events.insert",
+    calendarId: calendarId ?? undefined,
+    attendeeCount,
+    eventStartIso,
+    eventEndIso,
+  };
+
   if (!calendarId) {
-    return null;
+    return base;
   }
 
   const token = await getAccessToken();
   const url = new URL(
     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
   );
-  if (body.attendees?.length) {
-    url.searchParams.set("sendUpdates", "all");
+  const sendUpdatesUsed = body.attendees?.length ? "all" : undefined;
+  if (sendUpdatesUsed) {
+    url.searchParams.set("sendUpdates", sendUpdatesUsed);
   }
+
   const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
@@ -565,15 +610,58 @@ async function insertCalendarEvent(
 
   if (!response.ok) {
     const text = await response.text();
+    const apiError = sanitizeGoogleApiErrorBody(text, response.status);
     logAppointmentEvent("calendar_api_error", {
       action: "create_event",
       status: response.status,
       body: text.slice(0, 200),
     });
-    return null;
+    logGoogleProviderDiagnostic(
+      {
+        ...getGoogleServiceAccountCredentialDiagnostics(),
+        tokenGenerationSucceeded: true,
+        failureStage: "calendar_api",
+        requestEndpoint: "calendar.events.insert",
+        requestStartIso: eventStartIso,
+        requestEndIso: eventEndIso,
+        ...apiError,
+      },
+      {
+        sendUpdatesUsed,
+        attendeeCount,
+        calendarId,
+      },
+    );
+    return {
+      ...base,
+      ...apiError,
+      sendUpdatesUsed,
+    };
   }
 
-  return (await response.json()) as GoogleCalendarApiEvent;
+  const created = (await response.json()) as GoogleCalendarApiEvent;
+  return {
+    ...base,
+    ok: true,
+    httpStatus: response.status,
+    eventId: created.id,
+    event: created,
+    sendUpdatesUsed,
+  };
+}
+
+async function insertCalendarEvent(
+  body: ReturnType<typeof buildConsultationEventBody>,
+): Promise<GoogleCalendarApiEvent | null> {
+  const result = await insertCalendarEventWithDiagnostic(body);
+  return result.ok ? (result.event ?? null) : null;
+}
+
+export async function recheckConsultationStartAvailable(
+  start: string,
+  now = new Date(),
+): Promise<boolean> {
+  return isConsultationStartAvailable(start, now);
 }
 
 async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarApiEvent | null> {
@@ -598,6 +686,13 @@ async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarAp
 export async function createConsultationEvent(
   input: CreateConsultationEventInput,
 ): Promise<CreateConsultationEventResult> {
+  const calendarId = getGoogleCalendarId();
+  const startDate = new Date(input.start);
+  const durationMinutes = getConsultationDurationMinutes();
+  const eventEndIso = new Date(startDate.getTime() + durationMinutes * 60_000).toISOString();
+  const body = buildConsultationEventBody(input);
+  const attendeeCount = body.attendees?.length ?? 0;
+
   if (!isGoogleCalendarApiConfigured()) {
     return { ok: false, reason: "not_configured" };
   }
@@ -617,23 +712,71 @@ export async function createConsultationEvent(
     }
   }
 
-  const available = await isConsultationStartAvailable(input.start, input.now);
-  if (!available) {
-    return { ok: false, reason: "slot_unavailable" };
+  const recheckSucceeded = await isConsultationStartAvailable(input.start, input.now);
+  if (!recheckSucceeded) {
+    return {
+      ok: false,
+      reason: "slot_unavailable",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: false,
+        createAttempted: false,
+        createSucceeded: false,
+        attendeeCount,
+        calendarId: calendarId ?? undefined,
+        eventStartIso: input.start,
+        eventEndIso,
+      },
+    };
   }
 
-  const created = await insertCalendarEvent(buildConsultationEventBody(input));
-  if (!created?.id) {
-    return { ok: false, reason: "calendar_api_error", detail: "Event creation failed" };
+  const insertResult = await insertCalendarEventWithDiagnostic(body);
+  if (!insertResult.ok || !insertResult.event) {
+    return {
+      ok: false,
+      reason: "calendar_api_error",
+      detail: insertResult.googleErrorMessage ?? "Event creation failed",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: true,
+        createAttempted: true,
+        createSucceeded: false,
+        sendUpdatesUsed: insertResult.sendUpdatesUsed,
+        attendeeCount: insertResult.attendeeCount,
+        calendarId: insertResult.calendarId,
+        eventStartIso: insertResult.eventStartIso,
+        eventEndIso: insertResult.eventEndIso,
+        insertHttpStatus: insertResult.httpStatus,
+        googleErrorReason: insertResult.googleErrorReason,
+        googleErrorMessage: insertResult.googleErrorMessage,
+      },
+    };
   }
 
+  const created = insertResult.event;
   const normalizedEvent = parseGoogleCalendarApiEvent(created);
   if (!normalizedEvent) {
-    return { ok: false, reason: "calendar_api_error", detail: "Created event could not be parsed" };
+    return {
+      ok: false,
+      reason: "calendar_api_error",
+      detail: "Created event could not be parsed",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: true,
+        createAttempted: true,
+        createSucceeded: false,
+        sendUpdatesUsed: insertResult.sendUpdatesUsed,
+        attendeeCount: insertResult.attendeeCount,
+        calendarId: insertResult.calendarId,
+        eventStartIso: insertResult.eventStartIso,
+        eventEndIso: insertResult.eventEndIso,
+        insertHttpStatus: insertResult.httpStatus,
+      },
+    };
   }
 
   await saveBookingIdempotencyRecord(bookingKey, {
-    eventId: created.id,
+    eventId: created.id!,
     start: normalizedEvent.appointmentStart,
     phone: normalizePhone(input.phone),
     createdAt: new Date().toISOString(),
@@ -641,7 +784,7 @@ export async function createConsultationEvent(
 
   return {
     ok: true,
-    eventId: created.id,
+    eventId: created.id!,
     normalizedEvent,
     replayed: false,
   };

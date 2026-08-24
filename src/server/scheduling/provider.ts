@@ -1,6 +1,8 @@
 import { getConsultationSlots } from "~/server/appointmentLifecycle/googleCalendar";
 import { bookConsultation } from "~/server/appointmentLifecycle/bookConsultation";
+import type { ConsultationBookingFailureDiagnostics } from "~/server/appointmentLifecycle/googleCalendar";
 import type { BookingCustomer } from "~/server/scheduling/types";
+import type { BookingFailureStage } from "~/server/scheduling/types";
 
 export type ProviderAvailabilityResult =
   | {
@@ -44,9 +46,28 @@ export async function queryProviderAvailability(args: {
   };
 }
 
+export type ProviderBookingDiagnostics = ConsultationBookingFailureDiagnostics & {
+  failureStage?: BookingFailureStage;
+};
+
+function bookingFailureStage(
+  reason: string,
+  diagnostics?: ConsultationBookingFailureDiagnostics,
+): BookingFailureStage {
+  if (reason === "slot_unavailable") return "recheck_failed";
+  if (reason === "not_configured") return "not_configured";
+  if (diagnostics?.createAttempted && !diagnostics.createSucceeded) return "insert_failed";
+  return "unknown";
+}
+
 export type ProviderBookingResult =
   | { ok: true; eventId: string; selectedStart: string; lifecycleConfirmationSent?: boolean }
-  | { ok: false; reason: string; failureType: "provider_conflict" | "provider_error" | "invalid_selection" };
+  | {
+      ok: false;
+      reason: string;
+      failureType: "provider_conflict" | "provider_error" | "invalid_selection";
+      diagnostics?: ProviderBookingDiagnostics;
+    };
 
 export async function bookProviderSlot(args: {
   start: string;
@@ -65,16 +86,43 @@ export async function bookProviderSlot(args: {
   });
 
   if (!booked.ok) {
+    const diagnostics: ProviderBookingDiagnostics | undefined = booked.diagnostics
+      ? {
+          ...booked.diagnostics,
+          failureStage: bookingFailureStage(booked.reason, booked.diagnostics),
+        }
+      : {
+          recheckAttempted: booked.reason === "slot_unavailable",
+          recheckSucceeded: booked.reason !== "slot_unavailable",
+          createAttempted: booked.reason === "calendar_api_error",
+          createSucceeded: false,
+          attendeeCount: args.customer.email ? 1 : 0,
+          failureStage: bookingFailureStage(booked.reason),
+        };
+
     return {
       ok: false,
       reason: booked.reason,
       failureType:
         booked.reason === "slot_unavailable" ? "provider_conflict" : "provider_error",
+      diagnostics,
     };
   }
 
   if (!booked.eventId) {
-    return { ok: false, reason: "missing_event_id", failureType: "provider_error" };
+    return {
+      ok: false,
+      reason: "missing_event_id",
+      failureType: "provider_error",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: true,
+        createAttempted: true,
+        createSucceeded: false,
+        attendeeCount: args.customer.email ? 1 : 0,
+        failureStage: "parse_failed",
+      },
+    };
   }
 
   return {

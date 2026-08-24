@@ -1,11 +1,13 @@
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import { parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
 import type {
+  BookingFailureStage,
   OfferPresentationType,
   ResponseSource,
   SchedulingTrace,
   ZeroSlotReason,
 } from "~/server/scheduling/types";
+import type { ProviderBookingResult } from "~/server/scheduling/provider";
 
 export function createEmptyTrace(now: Date): SchedulingTrace {
   const parts = parseCentralParts(now, CONSULTATION_TIMEZONE);
@@ -38,6 +40,68 @@ export function logSchedulingTrace(trace: SchedulingTrace, phoneSuffix?: string)
       ...trace,
     }),
   );
+}
+
+function inferBookingFailureStage(booked: Extract<ProviderBookingResult, { ok: false }>): BookingFailureStage {
+  if (booked.diagnostics?.failureStage) {
+    return booked.diagnostics.failureStage;
+  }
+  if (booked.failureType === "provider_conflict") {
+    return "recheck_failed";
+  }
+  if (booked.diagnostics?.createAttempted) {
+    return "insert_failed";
+  }
+  return "unknown";
+}
+
+/** Populate booking-specific trace fields from a provider booking attempt. */
+export function applyBookingTraceFields(
+  trace: SchedulingTrace,
+  args: {
+    selectedStart?: string;
+    selectionResolved?: boolean;
+    booked: ProviderBookingResult;
+  },
+): void {
+  trace.bookingAttempted = true;
+  trace.selectedStart = args.selectedStart;
+  trace.selectionResolved = args.selectionResolved;
+
+  if (args.booked.ok) {
+    trace.eventIdPresent = true;
+    trace.bookingResultType = "BOOKED";
+    trace.providerRecheckAttempted = true;
+    trace.providerRecheckResult = "succeeded";
+    trace.createEventAttempted = true;
+    trace.createEventResult = "succeeded";
+    return;
+  }
+
+  const diagnostics = args.booked.diagnostics;
+  trace.bookingResultType =
+    args.booked.failureType === "provider_conflict" ? "PROVIDER_CONFLICT" : "PROVIDER_ERROR";
+  trace.providerRecheckAttempted = diagnostics?.recheckAttempted ?? true;
+  trace.providerRecheckResult =
+    diagnostics?.recheckSucceeded === true
+      ? "succeeded"
+      : diagnostics?.recheckSucceeded === false
+        ? "failed"
+        : args.booked.failureType === "provider_conflict"
+          ? "failed"
+          : "unknown";
+  trace.createEventAttempted = diagnostics?.createAttempted ?? false;
+  trace.createEventResult = diagnostics?.createSucceeded
+    ? "succeeded"
+    : diagnostics?.createAttempted
+      ? "failed"
+      : "not_attempted";
+  trace.failureStage = inferBookingFailureStage(args.booked);
+  trace.providerHttpStatus = diagnostics?.insertHttpStatus;
+  trace.providerErrorReason = diagnostics?.googleErrorReason;
+  trace.providerErrorMessage = diagnostics?.googleErrorMessage;
+  trace.sendUpdatesUsed = diagnostics?.sendUpdatesUsed;
+  trace.bookingAttendeeCount = diagnostics?.attendeeCount;
 }
 
 export function inferZeroSlotReason(args: {
