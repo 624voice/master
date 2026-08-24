@@ -1,4 +1,12 @@
-import { createSign, randomUUID } from "node:crypto";
+import { createSign } from "node:crypto";
+import {
+  buildGoogleMeetConferenceCreateRequest,
+  extractGoogleMeetUrl,
+  isConferenceFailureStatus,
+  isConferencePendingStatus,
+  readConferenceStatus,
+  GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE,
+} from "~/server/appointmentLifecycle/googleMeetConference";
 import {
   CONSULTATION_TIMEZONE,
   getConsultationDurationMinutes,
@@ -23,7 +31,6 @@ import {
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import {
   parseGoogleCalendarApiEvent,
-  extractGoogleMeetUrl,
   type GoogleCalendarApiEvent,
 } from "~/server/appointmentLifecycle/parseCalendarEvent";
 import type { NormalizedCalendarEvent, S2LSource } from "~/server/appointmentLifecycle/types";
@@ -317,6 +324,13 @@ export type CreateConsultationEventResult =
   | CreateConsultationEventSuccess
   | CreateConsultationEventFailure;
 
+export {
+  GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE,
+  buildGoogleMeetConferenceCreateRequest,
+  createGoogleMeetConferenceRequestId,
+  extractGoogleMeetUrl,
+} from "~/server/appointmentLifecycle/googleMeetConference";
+
 export function buildConsultationBookingKey(phone: string, start: string): string {
   return `${normalizePhone(phone)}:${new Date(start).toISOString()}`;
 }
@@ -521,10 +535,7 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
   end: { dateTime: string; timeZone: string };
   attendees?: Array<{ email: string }>;
   conferenceData: {
-    createRequest: {
-      requestId: string;
-      conferenceSolutionKey: { type: "hangoutsMeet" };
-    };
+    createRequest: ReturnType<typeof buildGoogleMeetConferenceCreateRequest>;
   };
   extendedProperties: { private: Record<string, string> };
 } {
@@ -558,10 +569,7 @@ function buildConsultationEventBody(input: CreateConsultationEventInput): {
     },
     attendees: includeAttendees ? [{ email: input.attendeeEmail!.trim() }] : undefined,
     conferenceData: {
-      createRequest: {
-        requestId: randomUUID(),
-        conferenceSolutionKey: { type: "hangoutsMeet" },
-      },
+      createRequest: buildGoogleMeetConferenceCreateRequest(bookingKey),
     },
     extendedProperties: {
       private: {
@@ -601,6 +609,7 @@ export type CalendarInsertDiagnostic = {
   eventEndIso?: string;
   eventId?: string;
   googleMeetUrl?: string;
+  conferenceSolutionType?: string;
   event?: GoogleCalendarApiEvent;
 };
 
@@ -611,6 +620,8 @@ export async function insertCalendarEventWithDiagnostic(
   const attendeeCount = body.attendees?.length ?? 0;
   const attendeeIncluded = attendeeCount > 0;
   const conferenceRequested = Boolean(body.conferenceData?.createRequest);
+  const conferenceSolutionType =
+    body.conferenceData?.createRequest?.conferenceSolutionKey?.type;
   const eventStartIso = body.start.dateTime;
   const eventEndIso = body.end.dateTime;
   const base: CalendarInsertDiagnostic = {
@@ -620,6 +631,7 @@ export async function insertCalendarEventWithDiagnostic(
     attendeeCount,
     attendeeIncluded,
     conferenceRequested,
+    conferenceSolutionType,
     eventStartIso,
     eventEndIso,
   };
@@ -683,9 +695,7 @@ export async function insertCalendarEventWithDiagnostic(
   }
 
   const created = (await response.json()) as GoogleCalendarApiEvent;
-  const conferenceStatus =
-    created.conferenceData?.conferenceStatus?.statusCode ??
-    created.conferenceData?.createRequest?.status?.statusCode;
+  const conferenceStatus = readConferenceStatus(created);
   const googleMeetUrl = extractGoogleMeetUrl(created);
   return {
     ...base,
@@ -695,6 +705,7 @@ export async function insertCalendarEventWithDiagnostic(
     event: created,
     sendUpdatesUsed,
     conferenceStatus,
+    conferenceSolutionType,
     googleMeetUrl,
   };
 }
@@ -732,13 +743,6 @@ async function fetchCalendarEventById(eventId: string): Promise<GoogleCalendarAp
   return (await response.json()) as GoogleCalendarApiEvent;
 }
 
-function readConferenceStatus(event: GoogleCalendarApiEvent): string | undefined {
-  return (
-    event.conferenceData?.conferenceStatus?.statusCode ??
-    event.conferenceData?.createRequest?.status?.statusCode
-  );
-}
-
 async function sleepMs(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -759,13 +763,17 @@ export async function resolveCreatedEventMeetUrl(args: {
       return {};
     }
 
-    const meetUrl = extractGoogleMeetUrl(event);
     const conferenceStatus = readConferenceStatus(event);
+    if (isConferenceFailureStatus(conferenceStatus)) {
+      return { conferenceStatus: "failure" };
+    }
+
+    const meetUrl = extractGoogleMeetUrl(event);
     if (meetUrl) {
       return { meetUrl, conferenceStatus: conferenceStatus ?? "success" };
     }
 
-    if (conferenceStatus === "pending" || conferenceStatus === "pendingCreate") {
+    if (isConferencePendingStatus(conferenceStatus)) {
       if (attempt < maxAttempts - 1) {
         await sleepMs(250 * (attempt + 1));
         continue;
@@ -940,6 +948,38 @@ export async function createConsultationEvent(
   }
 
   const created = insertResult.event;
+  const immediateConferenceStatus = readConferenceStatus(created);
+  if (isConferenceFailureStatus(immediateConferenceStatus)) {
+    if (collector) {
+      collector.failureStage = "conference_creation_error";
+      collector.failureReason = "conference_create_failed";
+      collector.finalBookingReason = "conference_error";
+      collector.createEventResult = "failed";
+      collector.conferenceStatus = immediateConferenceStatus;
+    }
+    return {
+      ok: false,
+      reason: "conference_error",
+      detail: "Google Meet conference creation failed",
+      diagnostics: {
+        recheckAttempted: true,
+        recheckSucceeded: true,
+        createAttempted: true,
+        createSucceeded: true,
+        sendUpdatesUsed: insertResult.sendUpdatesUsed,
+        attendeeCount: insertResult.attendeeCount,
+        attendeeIncluded: insertResult.attendeeIncluded,
+        conferenceRequested: insertResult.conferenceRequested,
+        conferenceStatus: immediateConferenceStatus,
+        googleMeetUrlPresent: false,
+        calendarId: insertResult.calendarId,
+        eventStartIso: insertResult.eventStartIso,
+        eventEndIso: insertResult.eventEndIso,
+        insertHttpStatus: insertResult.httpStatus,
+      },
+    };
+  }
+
   const meetResolution = await resolveCreatedEventMeetUrl({
     eventId: created.id!,
     initialEvent: created,
@@ -952,7 +992,10 @@ export async function createConsultationEvent(
   if (!googleMeetUrl) {
     if (collector) {
       collector.failureStage = "conference_creation_error";
-      collector.failureReason = meetResolution.conferenceStatus ?? "meet_url_missing";
+      collector.failureReason =
+        meetResolution.conferenceStatus === "failure"
+          ? "conference_create_failed"
+          : meetResolution.conferenceStatus ?? "meet_url_missing";
       collector.finalBookingReason = "conference_error";
       collector.createEventResult = "failed";
     }

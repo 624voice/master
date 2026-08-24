@@ -7,6 +7,7 @@ import type {
   NormalizedCalendarEvent,
 } from "~/server/appointmentLifecycle/types";
 import { DEFAULT_TIMEZONE } from "~/server/appointmentLifecycle/config";
+import { extractGoogleMeetUrl } from "~/server/appointmentLifecycle/googleMeetConference";
 
 type GoogleCalendarApiEvent = {
   id: string;
@@ -55,15 +56,7 @@ function mapStatus(status?: string): CalendarEventStatus {
   return "confirmed";
 }
 
-export function extractGoogleMeetUrl(event: GoogleCalendarApiEvent): string | undefined {
-  if (event.hangoutLink) {
-    return event.hangoutLink;
-  }
-  const videoEntry = event.conferenceData?.entryPoints?.find(
-    (entry) => entry.entryPointType === "video" && entry.uri,
-  );
-  return videoEntry?.uri;
-}
+export { extractGoogleMeetUrl } from "~/server/appointmentLifecycle/googleMeetConference";
 
 function primaryAttendee(event: GoogleCalendarApiEvent): {
   email?: string;

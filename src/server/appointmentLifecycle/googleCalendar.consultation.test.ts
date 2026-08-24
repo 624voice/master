@@ -7,6 +7,7 @@ import {
   installSpeed2LeadIntegrationMocks,
   resetSpeed2LeadIntegrationMocks,
 } from "~/server/speed2Lead/testSupport/integrationMocks";
+import { GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE } from "~/server/appointmentLifecycle/googleMeetConference";
 
 installSpeed2LeadIntegrationMocks();
 
@@ -78,7 +79,12 @@ function installFetchMock() {
         end: { dateTime: string };
         description?: string;
         attendees?: Array<{ email: string }>;
-        conferenceData?: { createRequest?: { requestId?: string } };
+        conferenceData?: {
+          createRequest?: {
+            requestId?: string;
+            conferenceSolutionKey?: { type?: string };
+          };
+        };
       };
       lastCreateBody = body;
       const phoneMatch = body.description?.match(/Phone:\s(\S+)/);
@@ -290,6 +296,10 @@ describe("googleCalendar consultation booking", () => {
     expect(lastCreateBody?.attendees).toBeUndefined();
     expect(String(lastCreateBody?.description)).toContain("Email: jane@example.com");
     expect(lastCreateUrl).toContain("conferenceDataVersion=1");
+    expect(
+      lastCreateBody?.conferenceData?.createRequest?.conferenceSolutionKey?.type,
+    ).toBe(GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE);
+    expect(lastCreateBody?.conferenceData?.createRequest?.requestId?.length).toBeGreaterThan(0);
     expect(result.googleMeetUrl).toMatch(/^https:\/\/meet\.google\.com\//);
     expect(result.normalizedEvent.meetingLink).toBe(result.googleMeetUrl);
   });
@@ -341,6 +351,77 @@ describe("googleCalendar consultation booking", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe("calendar_api_error");
+  });
+
+  test("conference failure after insert returns conference_error without Meet URL", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token")) {
+        return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), {
+          status: 200,
+        });
+      }
+      if (init?.method === "POST" && url.includes("/events") && !url.includes("/events?")) {
+        return new Response(
+          JSON.stringify({
+            id: "evt-failed-conference",
+            conferenceData: { conferenceStatus: { statusCode: "failure" } },
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/events?")) {
+        return new Response(JSON.stringify({ items: calendarEvents }), { status: 200 });
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+
+    const result = await createConsultationEvent({
+      start: slotStart.toISOString(),
+      attendeeName: "Jane Doe",
+      phone,
+      source: "roi",
+      now: availabilityNow,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe("conference_error");
+    expect(result.diagnostics?.googleMeetUrlPresent).toBe(false);
+  });
+
+  test("missing Meet URL after insert returns conference_error", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token")) {
+        return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), {
+          status: 200,
+        });
+      }
+      if (init?.method === "POST" && url.includes("/events") && !url.includes("/events?")) {
+        return new Response(JSON.stringify({ id: "evt-no-meet" }), { status: 200 });
+      }
+      if (url.includes("/events/evt-no-meet")) {
+        return new Response(JSON.stringify({ id: "evt-no-meet" }), { status: 200 });
+      }
+      if (url.includes("/events?")) {
+        return new Response(JSON.stringify({ items: calendarEvents }), { status: 200 });
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+
+    const result = await createConsultationEvent({
+      start: slotStart.toISOString(),
+      attendeeName: "Jane Doe",
+      phone,
+      source: "roi",
+      now: availabilityNow,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe("conference_error");
+    expect(result.diagnostics?.googleMeetUrlPresent).toBe(false);
   });
 
   test("isStartAvailableAgainstBusy respects duration and buffer", () => {
