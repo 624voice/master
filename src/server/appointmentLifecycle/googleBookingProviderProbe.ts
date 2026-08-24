@@ -16,9 +16,12 @@ import {
   getGoogleServiceAccountCredentialDiagnostics,
   logGoogleProviderDiagnostic,
 } from "~/server/appointmentLifecycle/googleCredentials";
+import { resolveDiagnosticTestPhone } from "~/server/speed2Lead/testPhoneAllowlist";
 
-export const DIAGNOSTIC_BOOKING_PHONE = "+15559999041";
 export const DIAGNOSTIC_BOOKING_EMAIL = "diag-preview@624voice.com";
+export const HANDSET_REPRO_START = "2026-08-26T14:00:00.000Z";
+export const HANDSET_REPRO_FIRST_NAME = "13";
+export const HANDSET_REPRO_BUSINESS_NAME = "13";
 
 export type BookingProviderProbeResult = {
   ok: boolean;
@@ -58,6 +61,7 @@ export type BookingProviderProbeResult = {
 
 function buildProbeInput(args: {
   start: string;
+  phone: string;
   includeAttendee: boolean;
   attendeeEmail?: string;
   now?: Date;
@@ -68,11 +72,41 @@ function buildProbeInput(args: {
     attendeeEmail: args.includeAttendee
       ? (args.attendeeEmail?.trim() || DIAGNOSTIC_BOOKING_EMAIL)
       : undefined,
-    phone: DIAGNOSTIC_BOOKING_PHONE,
+    phone: args.phone,
     businessName: "624Voice Diagnostic Event",
     source: "roi" as const,
     notes: "[DIAGNOSTIC] Preview booking-provider smoke — safe to delete",
     now: args.now,
+  };
+}
+
+function configurationFailureBase(args: {
+  startIso: string;
+  calendarId: string | null;
+  durationMinutes: number;
+  variant: "no_attendee" | "with_attendee";
+  attendeeIncluded: boolean;
+  attendeeCount: number;
+  credentialDiagnostics: ReturnType<typeof getGoogleServiceAccountCredentialDiagnostics>;
+}): BookingProviderProbeResult {
+  return {
+    ok: false,
+    mode: "create_only",
+    variant: args.variant,
+    startIso: args.startIso,
+    durationMinutes: args.durationMinutes,
+    calendarId: args.calendarId,
+    recheckAttempted: false,
+    recheckSucceeded: false,
+    createAttempted: false,
+    eventCreated: false,
+    eventIdPresent: false,
+    attendeeIncluded: args.attendeeIncluded,
+    attendeeCount: args.attendeeCount,
+    failureStage: "not_configured",
+    bookConsultationReason: "test_phones_not_configured",
+    diagnosticEventLabel: "[DIAGNOSTIC] Preview booking-provider smoke — safe to delete",
+    credentialDiagnostics: args.credentialDiagnostics,
   };
 }
 
@@ -128,8 +162,21 @@ export async function probeConsultationBookingCreatePath(args: {
   const calendarId = getGoogleCalendarId();
   const durationMinutes = getConsultationDurationMinutes();
   const variant = args.includeAttendee ? "with_attendee" : "no_attendee";
-  const input = buildProbeInput(args);
   const attendeeCount = args.includeAttendee ? 1 : 0;
+  const phoneResult = resolveDiagnosticTestPhone();
+  if (!phoneResult.ok) {
+    return configurationFailureBase({
+      startIso: args.start,
+      calendarId,
+      durationMinutes,
+      variant,
+      attendeeIncluded: args.includeAttendee,
+      attendeeCount,
+      credentialDiagnostics,
+    });
+  }
+
+  const input = buildProbeInput({ ...args, phone: phoneResult.phone });
 
   const base: BookingProviderProbeResult = {
     ok: false,
@@ -309,29 +356,30 @@ export async function describeConsultationInsertPayload(args: {
   sendUpdatesUsed?: string;
   summaryPrefix: string;
   hasAttendeesField: boolean;
+  phoneSource: string;
 }> {
-  const input = buildProbeInput(args);
+  const phoneResult = resolveDiagnosticTestPhone();
+  const phoneLabel = phoneResult.ok ? `***${phoneResult.phoneSuffix}` : "not_configured";
+  const input = phoneResult.ok
+    ? buildProbeInput({ ...args, phone: phoneResult.phone })
+    : null;
   const body = {
-    summary: `624Voice AI Consultation - ${input.businessName ?? input.attendeeName}`,
-    attendees: input.attendeeEmail ? [{ email: input.attendeeEmail }] : undefined,
+    summary: `624Voice AI Consultation - ${input?.businessName ?? input?.attendeeName ?? "Diagnostic"}`,
+    attendees: input?.attendeeEmail ? [{ email: input.attendeeEmail }] : undefined,
   };
   return {
-    attendeeIncluded: Boolean(input.attendeeEmail),
-    attendeeCount: input.attendeeEmail ? 1 : 0,
-    sendUpdatesUsed: input.attendeeEmail ? "all" : undefined,
+    attendeeIncluded: Boolean(input?.attendeeEmail),
+    attendeeCount: input?.attendeeEmail ? 1 : 0,
+    sendUpdatesUsed: input?.attendeeEmail ? "all" : undefined,
     summaryPrefix: body.summary,
     hasAttendeesField: Boolean(body.attendees),
+    phoneSource: phoneLabel,
   };
 }
 
 export { insertCalendarEventWithDiagnostic };
 
-/** Handset session 8991 equivalent inputs for bookProviderSlot diagnostics. */
-export const HANDSET_REPRO_PHONE = "+12148438991";
-export const HANDSET_REPRO_START = "2026-08-26T14:00:00.000Z";
-export const HANDSET_REPRO_FIRST_NAME = "13";
-export const HANDSET_REPRO_BUSINESS_NAME = "13";
-
+/** Handset-equivalent inputs for bookProviderSlot diagnostics (phone from SPEED2LEAD_TEST_PHONES). */
 export type HandsetBookProviderProbeResult = {
   ok: boolean;
   mode: "handset_book_provider_slot";
@@ -340,7 +388,9 @@ export type HandsetBookProviderProbeResult = {
   phoneSuffix: string;
   attendeeIncluded: boolean;
   attendeeCount: number;
-  bookingResult: Awaited<ReturnType<typeof import("~/server/scheduling/provider").bookProviderSlot>>;
+  configurationError?: "test_phones_not_configured";
+  error?: string;
+  bookingResult?: Awaited<ReturnType<typeof import("~/server/scheduling/provider").bookProviderSlot>>;
   stageSnapshot?: import("~/server/scheduling/bookingStageTrace").BookingStageSnapshot;
   smokePathComparison: {
     smokeUses: "createConsultationEvent";
@@ -360,25 +410,58 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
   cleanup?: boolean;
   now?: Date;
 }): Promise<HandsetBookProviderProbeResult> {
-  const { bookProviderSlot } = await import("~/server/scheduling/provider");
   const start = args.start ?? HANDSET_REPRO_START;
-  const phone = args.phone ?? HANDSET_REPRO_PHONE;
   const firstName = args.firstName ?? HANDSET_REPRO_FIRST_NAME;
   const businessName = args.businessName ?? HANDSET_REPRO_BUSINESS_NAME;
   const email = args.email ?? "handset-repro@624voice.com";
+  const phoneResult = resolveDiagnosticTestPhone(args.phone);
+  const smokePathComparison = {
+    smokeUses: "createConsultationEvent" as const,
+    handsetUses:
+      "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent",
+    inputDiff: [
+      { field: "entry", smoke: "createConsultationEvent", handset: "bookProviderSlot" },
+      {
+        field: "phone",
+        smoke: "from SPEED2LEAD_TEST_PHONES",
+        handset: phoneResult.ok ? `from SPEED2LEAD_TEST_PHONES (***${phoneResult.phoneSuffix})` : "not_configured",
+      },
+      { field: "attendeeName", smoke: "624Voice Diagnostic", handset: firstName },
+      { field: "businessName", smoke: "624Voice Diagnostic Event", handset: businessName },
+      { field: "email", smoke: DIAGNOSTIC_BOOKING_EMAIL, handset: "[provided]" },
+      { field: "lifecycle", smoke: "skipped (create_only)", handset: "processCalendarEvent runs" },
+    ],
+  };
+
+  if (!phoneResult.ok) {
+    return {
+      ok: false,
+      mode: "handset_book_provider_slot",
+      entrypoint: "bookProviderSlot",
+      startIso: start,
+      phoneSuffix: "****",
+      attendeeIncluded: false,
+      attendeeCount: 0,
+      configurationError: "test_phones_not_configured",
+      error: "SPEED2LEAD_TEST_PHONES is not configured",
+      smokePathComparison,
+    };
+  }
+
+  const { bookProviderSlot } = await import("~/server/scheduling/provider");
   const attendeeIncluded = Boolean(email.trim());
 
   const bookingResult = await bookProviderSlot({
     start,
     customer: {
-      phone,
+      phone: phoneResult.phone,
       name: firstName,
       email,
       businessName,
       source: "roi",
     },
     now: args.now,
-    phoneSuffix: phone.slice(-4),
+    phoneSuffix: phoneResult.phoneSuffix,
     selectionResolved: true,
   });
 
@@ -387,35 +470,17 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
     cleanup = await cleanupDiagnosticEvent(bookingResult.eventId);
   }
 
-  const smokeInput = buildProbeInput({
-    start,
-    includeAttendee: true,
-    attendeeEmail: DIAGNOSTIC_BOOKING_EMAIL,
-  });
-
   return {
     ok: bookingResult.ok,
     mode: "handset_book_provider_slot",
     entrypoint: "bookProviderSlot",
     startIso: start,
-    phoneSuffix: phone.slice(-4),
+    phoneSuffix: phoneResult.phoneSuffix,
     attendeeIncluded,
     attendeeCount: attendeeIncluded ? 1 : 0,
     bookingResult,
     stageSnapshot: !bookingResult.ok ? bookingResult.diagnostics?.stageSnapshot : undefined,
-    smokePathComparison: {
-      smokeUses: "createConsultationEvent",
-      handsetUses:
-        "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent",
-      inputDiff: [
-        { field: "entry", smoke: "createConsultationEvent", handset: "bookProviderSlot" },
-        { field: "phone", smoke: DIAGNOSTIC_BOOKING_PHONE, handset: phone },
-        { field: "attendeeName", smoke: smokeInput.attendeeName, handset: firstName },
-        { field: "businessName", smoke: smokeInput.businessName ?? "", handset: businessName },
-        { field: "email", smoke: DIAGNOSTIC_BOOKING_EMAIL, handset: "[provided]" },
-        { field: "lifecycle", smoke: "skipped (create_only)", handset: "processCalendarEvent runs" },
-      ],
-    },
+    smokePathComparison,
     ...cleanup,
   };
 }

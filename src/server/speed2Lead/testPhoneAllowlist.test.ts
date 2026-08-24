@@ -17,6 +17,7 @@ installSpeed2LeadIntegrationMocks();
 const {
   parseSpeed2LeadTestPhones,
   resetSpeed2LeadTestPhonesCacheForTests,
+  resolveDiagnosticTestPhone,
   shouldUseSpeed2LeadLlmForPhone,
   isSpeed2LeadTestPhoneAllowlistActive,
 } = await import("~/server/speed2Lead/testPhoneAllowlist");
@@ -87,6 +88,33 @@ describe("SPEED2LEAD_TEST_PHONES allowlist", () => {
     resetSpeed2LeadTestPhonesCacheForTests();
     expect(shouldUseSpeed2LeadLlmForPhone("+15551234567")).toBe(false);
     expect(isSpeed2LeadTestPhoneAllowlistActive()).toBe(false);
+  });
+
+  test("resolveDiagnosticTestPhone fails clearly when allowlist is unset", () => {
+    resetSpeed2LeadTestPhonesCacheForTests();
+    expect(resolveDiagnosticTestPhone()).toEqual({
+      ok: false,
+      reason: "test_phones_not_configured",
+    });
+  });
+
+  test("resolveDiagnosticTestPhone selects first allowlisted phone with suffix only metadata", () => {
+    process.env.SPEED2LEAD_TEST_PHONES = "+15551234567,+15559876543";
+    resetSpeed2LeadTestPhonesCacheForTests();
+    expect(resolveDiagnosticTestPhone()).toEqual({
+      ok: true,
+      phone: "+15551234567",
+      phoneSuffix: "4567",
+    });
+  });
+
+  test("resolveDiagnosticTestPhone honors explicit override without reading env first", () => {
+    resetSpeed2LeadTestPhonesCacheForTests();
+    expect(resolveDiagnosticTestPhone("(555) 987-6543")).toEqual({
+      ok: true,
+      phone: "+15559876543",
+      phoneSuffix: "6543",
+    });
   });
 
   test("handleInbound gates orchestrator with shouldUseSpeed2LeadLlmForPhone", () => {
