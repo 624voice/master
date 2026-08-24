@@ -29,13 +29,45 @@ export function isGoogleOAuthClientConfigured(): boolean {
   return Boolean(getGoogleOAuthClientId() && getGoogleOAuthClientSecret());
 }
 
-export function getGoogleOAuthRedirectUri(): string {
+export const GOOGLE_OAUTH_CALLBACK_PATH = "/api/google/oauth/callback";
+
+export function buildGoogleOAuthRedirectUri(origin: string): string {
+  return `${origin.replace(/\/$/, "")}${GOOGLE_OAUTH_CALLBACK_PATH}`;
+}
+
+function resolveProductionOAuthOrigin(): string {
+  return (
+    process.env.GOOGLE_OAUTH_BASE_URL?.trim() ||
+    process.env.URL?.trim() ||
+    getSiteOrigin()
+  );
+}
+
+/** Resolve OAuth callback URI for the active deployment context. */
+export function resolveGoogleOAuthRedirectUri(args?: { request?: Request }): string {
   const configured = process.env.GOOGLE_OAUTH_REDIRECT_URI?.trim();
   if (configured) {
     return configured;
   }
-  const origin = process.env.URL?.trim() || getSiteOrigin();
-  return `${origin.replace(/\/$/, "")}/api/google/oauth/callback`;
+
+  // Request origin is authoritative for preview OAuth start/callback handlers.
+  if (args?.request) {
+    return buildGoogleOAuthRedirectUri(new URL(args.request.url).origin);
+  }
+
+  const context = process.env.CONTEXT?.trim();
+  if (context && context !== "production") {
+    const deployUrl = process.env.DEPLOY_PRIME_URL?.trim() || process.env.DEPLOY_URL?.trim();
+    if (deployUrl) {
+      return buildGoogleOAuthRedirectUri(deployUrl);
+    }
+  }
+
+  return buildGoogleOAuthRedirectUri(resolveProductionOAuthOrigin());
+}
+
+export function getGoogleOAuthRedirectUri(request?: Request): string {
+  return resolveGoogleOAuthRedirectUri({ request });
 }
 
 /** Optional expected connected account for this deployment (e.g. info@624voice.com). */
@@ -59,10 +91,12 @@ export type GoogleOAuthConfigurationDiagnostics = {
   calendarId: string | null;
 };
 
-export function getGoogleOAuthConfigurationDiagnostics(): GoogleOAuthConfigurationDiagnostics {
+export function getGoogleOAuthConfigurationDiagnostics(args?: {
+  request?: Request;
+}): GoogleOAuthConfigurationDiagnostics {
   return {
     clientConfigured: isGoogleOAuthClientConfigured(),
-    redirectUri: getGoogleOAuthRedirectUri(),
+    redirectUri: resolveGoogleOAuthRedirectUri(args),
     connectionId: getGoogleOAuthConnectionId(),
     expectedEmail: getGoogleOAuthExpectedEmail() ?? null,
     calendarId: getGoogleCalendarId() ?? null,

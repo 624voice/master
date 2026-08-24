@@ -34,8 +34,9 @@ export function buildGoogleOAuthSetupPaths(origin: string, setupToken?: string):
 export async function getGoogleOAuthStatusResponse(args: {
   origin: string;
   setupToken?: string;
+  request?: Request;
 }): Promise<GoogleOAuthStatusResponse> {
-  const diagnostics = getGoogleOAuthConfigurationDiagnostics();
+  const diagnostics = getGoogleOAuthConfigurationDiagnostics({ request: args.request });
   const paths = buildGoogleOAuthSetupPaths(args.origin, args.setupToken);
   const connection = await getSanitizedOAuthConnectionStatus();
   const auth = await getGoogleCalendarAuthContext();
@@ -72,6 +73,7 @@ export async function handleGoogleOAuthStatusRequest(request: Request): Promise<
   const payload = await getGoogleOAuthStatusResponse({
     origin: url.origin,
     setupToken: setupToken ?? undefined,
+    request,
   });
 
   return new Response(JSON.stringify(payload), {
@@ -96,7 +98,7 @@ export async function handleGoogleOAuthStartRequest(request: Request): Promise<R
   }
 
   const { startGoogleOAuthConnection } = await import("~/server/appointmentLifecycle/googleOAuthFlow");
-  const started = await startGoogleOAuthConnection();
+  const started = await startGoogleOAuthConnection({ request });
   if (!started.ok) {
     return new Response(JSON.stringify({ ok: false, error: started.reason }), {
       status: started.reason === "not_configured" ? 503 : 500,
@@ -117,6 +119,7 @@ export async function handleGoogleOAuthCallbackRequest(request: Request): Promis
   const result = await completeGoogleOAuthCallback({
     code: url.searchParams.get("code"),
     state: url.searchParams.get("state"),
+    request,
   });
 
   const setupBase = `${url.origin}/setup/google-calendar`;

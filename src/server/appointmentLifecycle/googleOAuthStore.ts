@@ -84,25 +84,33 @@ export async function deleteOAuthConnection(
 export async function saveOAuthState(args: {
   state: string;
   connectionId: string;
+  redirectUri: string;
   ttlSeconds: number;
 }): Promise<void> {
   const redis = getRedis();
   await redis.set(
     oauthStateKey(args.state),
-    { connectionId: args.connectionId, createdAt: new Date().toISOString() },
+    {
+      connectionId: args.connectionId,
+      redirectUri: args.redirectUri,
+      createdAt: new Date().toISOString(),
+    },
     { ex: args.ttlSeconds },
   );
 }
 
 export async function consumeOAuthState(
   state: string,
-): Promise<{ connectionId: string } | null> {
+): Promise<{ connectionId: string; redirectUri: string } | null> {
   const redis = getRedis();
   const key = oauthStateKey(state);
-  const value = await redis.get<{ connectionId: string }>(key);
+  const value = await redis.get<{ connectionId: string; redirectUri?: string }>(key);
   if (!value) {
     return null;
   }
   await redis.del(key);
-  return value;
+  if (!value.redirectUri) {
+    return null;
+  }
+  return { connectionId: value.connectionId, redirectUri: value.redirectUri };
 }

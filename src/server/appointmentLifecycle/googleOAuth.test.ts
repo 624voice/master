@@ -7,7 +7,7 @@ import {
 } from "~/server/appointmentLifecycle/googleOAuthFlow";
 import {
   GOOGLE_OAUTH_SCOPES,
-  getGoogleOAuthRedirectUri,
+  resolveGoogleOAuthRedirectUri,
 } from "~/server/appointmentLifecycle/googleOAuthConfig";
 import {
   getGoogleCalendarAuthContext,
@@ -37,26 +37,80 @@ installSpeed2LeadIntegrationMocks();
 
 const originalFetch = globalThis.fetch;
 
+const PREVIEW_ORIGIN = "https://deploy-preview-61--624voice.netlify.app";
+const PREVIEW_REDIRECT_URI = `${PREVIEW_ORIGIN}/api/google/oauth/callback`;
+const PRODUCTION_ORIGIN = "https://www.624voice.com";
+const PRODUCTION_REDIRECT_URI = `${PRODUCTION_ORIGIN}/api/google/oauth/callback`;
+
+describe("Google OAuth redirect URI resolution", () => {
+  const originalContext = process.env.CONTEXT;
+  const originalUrl = process.env.URL;
+  const originalSiteOrigin = process.env.SITE_ORIGIN;
+  const originalDeployPrimeUrl = process.env.DEPLOY_PRIME_URL;
+  const originalRedirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
+
+  afterEach(() => {
+    process.env.CONTEXT = originalContext;
+    process.env.URL = originalUrl;
+    process.env.SITE_ORIGIN = originalSiteOrigin;
+    process.env.DEPLOY_PRIME_URL = originalDeployPrimeUrl;
+    process.env.GOOGLE_OAUTH_REDIRECT_URI = originalRedirectUri;
+  });
+
+  test("preview OAuth start uses request origin even when production URL env is set", () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
+
+    const request = new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`);
+    expect(resolveGoogleOAuthRedirectUri({ request })).toBe(PREVIEW_REDIRECT_URI);
+  });
+
+  test("production config resolves www.624voice.com callback when production context is active", () => {
+    process.env.CONTEXT = "production";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    delete process.env.DEPLOY_PRIME_URL;
+
+    expect(resolveGoogleOAuthRedirectUri()).toBe(PRODUCTION_REDIRECT_URI);
+  });
+
+  test("preview without request falls back to Netlify deploy URL env", () => {
+    process.env.CONTEXT = "deploy-preview";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.DEPLOY_PRIME_URL = PREVIEW_ORIGIN;
+
+    expect(resolveGoogleOAuthRedirectUri()).toBe(PREVIEW_REDIRECT_URI);
+  });
+});
+
 describe("Google OAuth authorization URL", () => {
   beforeEach(() => {
     process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
     process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
-    process.env.URL = "https://deploy-preview-61--624voice.netlify.app";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
   });
 
   afterEach(() => {
     delete process.env.GOOGLE_OAUTH_CLIENT_ID;
     delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
     delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+    delete process.env.CONTEXT;
   });
 
   test("uses required minimum scopes with offline access", () => {
-    const url = new URL(buildGoogleOAuthAuthorizationUrl({ state: "test-state" }));
+    const redirectUri = resolveGoogleOAuthRedirectUri({
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start`),
+    });
+    const url = new URL(buildGoogleOAuthAuthorizationUrl({ state: "test-state", redirectUri }));
     expect(url.searchParams.get("access_type")).toBe("offline");
     expect(url.searchParams.get("prompt")).toBe("consent");
     expect(url.searchParams.get("response_type")).toBe("code");
     expect(url.searchParams.get("scope")).toBe(GOOGLE_OAUTH_SCOPES.join(" "));
-    expect(url.searchParams.get("redirect_uri")).toBe(getGoogleOAuthRedirectUri());
+    expect(url.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
   });
 });
 
@@ -67,7 +121,9 @@ describe("Google OAuth callback and token storage", () => {
     process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
     process.env.GOOGLE_OAUTH_EXPECTED_EMAIL = "info@624voice.com";
     process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
-    process.env.URL = "https://deploy-preview-61--624voice.netlify.app";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
   });
 
   afterEach(() => {
@@ -77,16 +133,23 @@ describe("Google OAuth callback and token storage", () => {
     delete process.env.GOOGLE_OAUTH_EXPECTED_EMAIL;
     delete process.env.GOOGLE_CALENDAR_ID;
     delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+    delete process.env.CONTEXT;
   });
 
   test("validates OAuth state and stores refresh token securely", async () => {
-    const started = await startGoogleOAuthConnection();
+    const previewRequest = new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start`);
+    const started = await startGoogleOAuthConnection({ request: previewRequest });
     expect(started.ok).toBe(true);
     if (!started.ok) return;
 
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input.toString();
-      if (url.includes("oauth2.googleapis.com/token")) {
+      if (url.includes("oauth2.googleapis.com/token") && init?.method === "POST") {
+        const body = String(init.body);
+        expect(body).toContain(
+          `redirect_uri=${encodeURIComponent(PREVIEW_REDIRECT_URI)}`,
+        );
         return new Response(
           JSON.stringify({
             access_token: "oauth-access-token",
@@ -100,12 +163,16 @@ describe("Google OAuth callback and token storage", () => {
       if (url.includes("googleapis.com/oauth2/v2/userinfo")) {
         return new Response(JSON.stringify({ email: "info@624voice.com" }), { status: 200 });
       }
-      return originalFetch(input);
+      return originalFetch(input, init);
     }) as typeof fetch;
+
+    const authUrl = new URL(started.authorizationUrl);
+    expect(authUrl.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
 
     const result = await completeGoogleOAuthCallback({
       code: "auth-code",
       state: started.state,
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback`),
     });
 
     expect(result.ok).toBe(true);
@@ -259,12 +326,19 @@ describe("OAuth setup and smoke handlers", () => {
     expect(JSON.stringify(body)).not.toContain("access_token");
   });
 
-  test("start handler redirects to Google OAuth", async () => {
+  test("start handler redirects to Google OAuth with preview callback URI", async () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+
     const response = await handleGoogleOAuthStartRequest(
-      new Request("https://deploy-preview-61--624voice.netlify.app/api/google/oauth/start?token=test-cron-secret"),
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
     );
     expect(response.status).toBe(302);
-    expect(response.headers.get("Location")).toContain("accounts.google.com/o/oauth2/v2/auth");
+    const location = response.headers.get("Location");
+    expect(location).toContain("accounts.google.com/o/oauth2/v2/auth");
+    expect(location).not.toContain("client_secret");
+    const authUrl = new URL(location!);
+    expect(authUrl.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
   });
 
   test("oauth smoke handler reports not connected before authorization", async () => {

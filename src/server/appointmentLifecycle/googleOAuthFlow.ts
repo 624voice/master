@@ -4,11 +4,11 @@ import {
   getGoogleOAuthClientSecret,
   getGoogleOAuthConnectionId,
   getGoogleOAuthExpectedEmail,
-  getGoogleOAuthRedirectUri,
   getGoogleOAuthStateTtlSeconds,
   GOOGLE_OAUTH_SCOPES,
   isGoogleOAuthClientConfigured,
   resolveGoogleOAuthCalendarId,
+  resolveGoogleOAuthRedirectUri,
 } from "~/server/appointmentLifecycle/googleOAuthConfig";
 import {
   consumeOAuthState,
@@ -54,6 +54,7 @@ function hashForLog(value: string): string {
 
 export function buildGoogleOAuthAuthorizationUrl(args: {
   state: string;
+  redirectUri: string;
 }): string {
   const clientId = getGoogleOAuthClientId();
   if (!clientId) {
@@ -62,7 +63,7 @@ export function buildGoogleOAuthAuthorizationUrl(args: {
 
   const url = new URL(GOOGLE_AUTH_URL);
   url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", getGoogleOAuthRedirectUri());
+  url.searchParams.set("redirect_uri", args.redirectUri);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", GOOGLE_OAUTH_SCOPES.join(" "));
   url.searchParams.set("access_type", "offline");
@@ -72,18 +73,22 @@ export function buildGoogleOAuthAuthorizationUrl(args: {
   return url.toString();
 }
 
-export async function startGoogleOAuthConnection(): Promise<GoogleOAuthStartResult> {
+export async function startGoogleOAuthConnection(args?: {
+  request?: Request;
+}): Promise<GoogleOAuthStartResult> {
   if (!isGoogleOAuthClientConfigured()) {
     return { ok: false, reason: "not_configured" };
   }
 
   const state = randomBytes(24).toString("hex");
   const connectionId = getGoogleOAuthConnectionId();
+  const redirectUri = resolveGoogleOAuthRedirectUri({ request: args?.request });
 
   try {
     await saveOAuthState({
       state,
       connectionId,
+      redirectUri,
       ttlSeconds: getGoogleOAuthStateTtlSeconds(),
     });
   } catch {
@@ -93,11 +98,14 @@ export async function startGoogleOAuthConnection(): Promise<GoogleOAuthStartResu
   return {
     ok: true,
     state,
-    authorizationUrl: buildGoogleOAuthAuthorizationUrl({ state }),
+    authorizationUrl: buildGoogleOAuthAuthorizationUrl({ state, redirectUri }),
   };
 }
 
-async function exchangeAuthorizationCode(code: string): Promise<
+async function exchangeAuthorizationCode(
+  code: string,
+  redirectUri: string,
+): Promise<
   | {
       ok: true;
       refreshToken: string;
@@ -120,7 +128,7 @@ async function exchangeAuthorizationCode(code: string): Promise<
       code,
       client_id: clientId,
       client_secret: clientSecret,
-      redirect_uri: getGoogleOAuthRedirectUri(),
+      redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
   });
@@ -180,6 +188,7 @@ async function fetchGoogleUserEmail(accessToken: string): Promise<
 export async function completeGoogleOAuthCallback(args: {
   code?: string | null;
   state?: string | null;
+  request?: Request;
 }): Promise<GoogleOAuthCallbackResult> {
   if (!isGoogleOAuthClientConfigured()) {
     return { ok: false, reason: "not_configured" };
@@ -193,7 +202,7 @@ export async function completeGoogleOAuthCallback(args: {
     return { ok: false, reason: "invalid_state" };
   }
 
-  const exchanged = await exchangeAuthorizationCode(args.code.trim());
+  const exchanged = await exchangeAuthorizationCode(args.code.trim(), stateRecord.redirectUri);
   if (!exchanged.ok) {
     return {
       ok: false,
