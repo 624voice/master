@@ -10,6 +10,10 @@ export function buildSchedulingRequestKey(request: SchedulingRequest): string {
   return `date:${request.requestedDate ?? "unknown"}|${request.availabilityPreference}`;
 }
 
+export function buildRangeRequestKey(rangeStart: string, rangeEnd: string): string {
+  return `range:${rangeStart}|${rangeEnd}`;
+}
+
 export function offerSetKey(slots: string[]): string {
   return [...slots].sort().join("|");
 }

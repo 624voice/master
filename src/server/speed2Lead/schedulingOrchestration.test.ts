@@ -1,5 +1,5 @@
 import { describe, expect, test, mock, beforeEach } from "bun:test";
-import { centralDateAt } from "~/server/appointmentLifecycle/consultationSlots";
+import { centralDateAt, parseCentralParts } from "~/server/appointmentLifecycle/consultationSlots";
 import { CONSULTATION_TIMEZONE } from "~/server/appointmentLifecycle/consultationConfig";
 import type { ModelRunner } from "~/server/speed2Lead/orchestrator";
 import { appendUserMessage } from "~/server/speed2Lead/memory";
@@ -13,6 +13,7 @@ import {
   requiresDeterministicSchedulingCompletion,
   resolveOfferedSlotSelection,
 } from "~/server/speed2Lead/schedulingController";
+import { resolveLaterThisWeekRange } from "~/server/speed2Lead/schedulingRange";
 import { validateOutboundSms } from "~/server/speed2Lead/guardrails";
 import { rankSlotsForOffer } from "~/server/speed2Lead/slotRanking";
 import { shouldSuggestCalendarLink, createInitialToolState } from "~/server/speed2Lead/tools";
@@ -260,6 +261,56 @@ describe("live phone regression: test 2 day-before-slots", () => {
     });
     expect(plan.action.type).toBe("ask_preference");
     expect(plan.action.type === "get_availability").toBe(false);
+  });
+});
+
+describe("later this week range scheduling", () => {
+  test("later this week range offers earliest slots across the week", async () => {
+    const range = resolveLaterThisWeekRange(now);
+    const slots: string[] = [];
+    let cursor = new Date(range.rangeStart.getTime());
+    while (cursor.getTime() <= range.rangeEnd.getTime()) {
+      const parts = parseCentralParts(cursor, TZ);
+      if (parts.weekday !== "Sat" && parts.weekday !== "Sun") {
+        slots.push(centralDateAt(parts.year, parts.month, parts.day, 10, 0, TZ).toISOString());
+        slots.push(centralDateAt(parts.year, parts.month, parts.day, 13, 0, TZ).toISOString());
+      }
+      cursor = new Date(cursor.getTime() + 24 * 60 * 60 * 1000);
+    }
+    consultationSlots = slots;
+
+    let session = roiSession({
+      knownFacts: {
+        firstName: "Alex",
+        phone: "+15551234567",
+        flow: "roi",
+        questionsAsked: 2,
+        meetingInterestConfirmed: true,
+      },
+    });
+    session = appendUserMessage(session, "Later this week is best");
+
+    const plan = planSchedulingGate({
+      inboundMessage: "Later this week is best",
+      context: session,
+      now,
+    });
+    expect(plan.action.type).toBe("get_availability");
+    if (plan.action.type === "get_availability") {
+      expect(plan.action.input.rangeStart).toBeTruthy();
+      expect(plan.action.input.rangeEnd).toBeTruthy();
+    }
+
+    const result = await orchestrateInboundTurn(session, "Later this week is best", {
+      now,
+      runModel: silentModel(),
+    });
+
+    expect(result.handled).toBe(true);
+    if (result.handled) {
+      expect(result.context.scheduling?.offeredSlots?.length ?? 0).toBeGreaterThan(0);
+      expect(result.context.scheduling?.activeRequestKey).toMatch(/^range:/);
+    }
   });
 });
 

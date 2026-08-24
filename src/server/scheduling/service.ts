@@ -23,7 +23,11 @@ import {
   resolveRangeForRequest,
   tomorrowOrTodayCentral,
 } from "~/server/scheduling/rangeResolver";
-import { buildSchedulingRequestKey, offerSetKey } from "~/server/scheduling/requestKey";
+import {
+  buildRangeRequestKey,
+  buildSchedulingRequestKey,
+  offerSetKey,
+} from "~/server/scheduling/requestKey";
 import {
   detectSchedulingConstraints,
   filterSlotsForSchedulingState,
@@ -50,7 +54,11 @@ import type {
   SchedulingRequest,
   SchedulingTurnResult,
 } from "~/server/scheduling/types";
-import { isConfiguredBusinessDay, tomorrowCentralDate } from "~/server/speed2Lead/schedulingRange";
+import {
+  isConfiguredBusinessDay,
+  resolveAvailabilityRange,
+  tomorrowCentralDate,
+} from "~/server/speed2Lead/schedulingRange";
 
 const FORWARD_SEARCH_DAYS = 14;
 
@@ -446,6 +454,81 @@ export async function processSchedulingTurn(
     }
   }
 
+  const maxOffer = input.maxOffer ?? 3;
+
+  if (input.availabilityInput?.rangeStart && input.availabilityInput.rangeEnd) {
+    const resolved = resolveAvailabilityRange(input.availabilityInput, now);
+    if ("error" in resolved) {
+      trace.zeroSlotReason = "wrong_date";
+      trace.responseSource = "no_provider";
+      return {
+        outcome: "NEED_DATE",
+        state,
+        offeredSlots: [],
+        offerPresentationType: "none",
+        trace,
+      };
+    }
+
+    const requestKey = buildRangeRequestKey(
+      input.availabilityInput.rangeStart,
+      input.availabilityInput.rangeEnd,
+    );
+    state = {
+      ...invalidateOffersForRequestChange(state, requestKey),
+      availabilityPreference: "earliest",
+    };
+    legacyScheduling = fromCanonicalSchedulingState(state);
+
+    const provider = await queryProviderAvailability({
+      rangeStart: resolved.rangeStart,
+      rangeEnd: resolved.rangeEnd,
+      now,
+    });
+    trace.providerInvoked = true;
+
+    if (!provider.ok) {
+      trace.zeroSlotReason = "provider_error";
+      trace.responseSource = "fresh_fetch";
+      return {
+        outcome: "PROVIDER_ERROR",
+        state: { ...state, calendarUnavailable: true, providerFailureReason: provider.reason },
+        offeredSlots: [],
+        offerPresentationType: "none",
+        trace,
+      };
+    }
+
+    const rangeRequest: SchedulingRequest = {
+      timezone,
+      availabilityPreference: "earliest",
+      businessHours,
+      meetingDurationMinutes,
+    };
+    const filtered = applyConstraintFilter(
+      filterAndRankSlots({
+        rawSlots: provider.slots,
+        request: rangeRequest,
+        maxOffer,
+      }),
+      legacyScheduling,
+    );
+
+    const result = finalizeOfferResult({
+      state,
+      requestKey,
+      requestKeyBefore: trace.requestKeyBefore,
+      filteredSlots: filtered,
+      rawProviderSlotCount: provider.slots.length,
+      providerInvoked: true,
+      queryStartIso: provider.queryStartIso,
+      queryEndIso: provider.queryEndIso,
+      trace,
+    });
+    logSchedulingTrace(result.trace, input.tracePhoneSuffix);
+    return result;
+  }
+
   const request = buildSchedulingRequestFromState(state, timezone, businessHours, meetingDurationMinutes);
   if (!request) {
     if (!detectSchedulingIntent(input.inboundMessage)) {
@@ -482,8 +565,6 @@ export async function processSchedulingTurn(
       trace,
     };
   }
-
-  const maxOffer = input.maxOffer ?? 3;
 
   if (request.availabilityPreference === "exact_time" && request.exactTimeMinutes != null) {
     trace.bookingAttempted = Boolean(input.bookCustomer);
