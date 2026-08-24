@@ -1,13 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import {
+  buildGoogleCalendarConnectUrl,
+  buildGoogleCalendarSetupStatusUrl,
+  hasGoogleCalendarSetupToken,
+  parseGoogleCalendarSetupSearch,
+} from "~/server/appointmentLifecycle/googleCalendarSetupSearch";
 import { isPreviewDiagnosticContext } from "~/server/appointmentLifecycle/previewDiagnostics";
 
 export const Route = createFileRoute("/setup/google-calendar")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    token: typeof search.token === "string" ? search.token : "",
-    connected: search.connected === "1" || search.connected === 1,
-    error: typeof search.error === "string" ? search.error : "",
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    parseGoogleCalendarSetupSearch(search),
   component: GoogleCalendarSetupPage,
 });
 
@@ -31,14 +34,34 @@ type StatusPayload = {
 };
 
 function GoogleCalendarSetupPage() {
-  const search = Route.useSearch();
-  const statusUrl = useMemo(() => {
-    const params = new URLSearchParams();
+  const routerSearch = Route.useSearch();
+  const searchStr = useRouterState({ select: (state) => state.location.searchStr });
+  const search = useMemo(
+    () => parseGoogleCalendarSetupSearch(routerSearch, searchStr),
+    [routerSearch, searchStr],
+  );
+  const [resolvedToken, setResolvedToken] = useState(search.token);
+
+  useEffect(() => {
     if (search.token) {
-      params.set("token", search.token);
+      setResolvedToken(search.token);
+      return;
     }
-    return `/api/google/oauth/status?${params.toString()}`;
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const fromLocation = new URLSearchParams(window.location.search).get("token")?.trim() ?? "";
+    if (fromLocation) {
+      setResolvedToken(fromLocation);
+    }
   }, [search.token]);
+
+  const statusUrl = useMemo(
+    () => (resolvedToken ? buildGoogleCalendarSetupStatusUrl(resolvedToken) : ""),
+    [resolvedToken],
+  );
 
   if (!isPreviewDiagnosticContext()) {
     return (
@@ -49,6 +72,8 @@ function GoogleCalendarSetupPage() {
     );
   }
 
+  const hasToken = hasGoogleCalendarSetupToken({ ...search, token: resolvedToken });
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-semibold text-gray-900">Connect Google Calendar</h1>
@@ -57,7 +82,7 @@ function GoogleCalendarSetupPage() {
         create Google Meet links.
       </p>
 
-      {!search.token ? (
+      {!hasToken ? (
         <p className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Open this page with your operator setup token, for example{" "}
           <code>/setup/google-calendar?token=$CRON_SECRET</code>.
@@ -76,7 +101,7 @@ function GoogleCalendarSetupPage() {
         </p>
       ) : null}
 
-      <SetupStatusPanel token={search.token} statusUrl={statusUrl} />
+      <SetupStatusPanel token={resolvedToken} statusUrl={statusUrl} />
     </main>
   );
 }
@@ -115,9 +140,7 @@ function SetupStatusPanel({ token, statusUrl }: { token: string; statusUrl: stri
     void loadStatus();
   }, [statusUrl, token]);
 
-  const connectHref = token
-    ? `/api/google/oauth/start?token=${encodeURIComponent(token)}`
-    : undefined;
+  const connectHref = token ? buildGoogleCalendarConnectUrl(token) : undefined;
 
   return (
     <section className="mt-8 space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">

@@ -315,8 +315,15 @@ describe("OAuth setup and smoke handlers", () => {
     );
     expect(unauthorized.status).toBe(401);
 
+    const invalidToken = await handleGoogleOAuthStatusRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?token=wrong-token`, {
+        headers: { Authorization: "Bearer wrong-token" },
+      }),
+    );
+    expect(invalidToken.status).toBe(401);
+
     const response = await handleGoogleOAuthStatusRequest(
-      new Request("https://deploy-preview-61--624voice.netlify.app/api/google/oauth/status?token=test-cron-secret", {
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?token=test-cron-secret`, {
         headers: { Authorization: "Bearer test-cron-secret" },
       }),
     );
@@ -324,6 +331,18 @@ describe("OAuth setup and smoke handlers", () => {
     const body = await response.json();
     expect(JSON.stringify(body)).not.toContain("refreshToken");
     expect(JSON.stringify(body)).not.toContain("access_token");
+  });
+
+  test("valid setup token reaches OAuth start redirect", async () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+
+    const response = await handleGoogleOAuthStartRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toContain("accounts.google.com/o/oauth2/v2/auth");
+    expect(response.headers.get("Location")).not.toContain("test-cron-secret");
   });
 
   test("start handler redirects to Google OAuth with preview callback URI", async () => {
