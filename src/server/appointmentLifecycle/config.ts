@@ -2,8 +2,10 @@ import { SPEED2LEAD_BOOKING_URL } from "~/config/features";
 
 export const APPOINTMENT_LIFECYCLE_TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
 export const REMINDER_MIN_SPACING_MS = 30 * 60 * 1000; // 30 minutes after confirmation
-export const REMINDER_24H_WINDOW_MS = 60 * 60 * 1000; // ±1 hour around 24h before
-export const REMINDER_2H_WINDOW_MS = 30 * 60 * 1000; // ±30 min around 2h before
+/** Late catch-up only: eligible from T−24h through T−23h (never before T−24h). */
+export const REMINDER_24H_LATE_CATCHUP_MS = 60 * 60 * 1000;
+/** Late catch-up only: eligible from T−2h through T−1h30m (never before T−2h). */
+export const REMINDER_2H_LATE_CATCHUP_MS = 30 * 60 * 1000;
 export const DEFAULT_TIMEZONE = "America/Chicago";
 
 export function isAppointmentLifecycleEnabled(): boolean {
