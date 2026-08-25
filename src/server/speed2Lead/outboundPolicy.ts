@@ -6,7 +6,9 @@ import {
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 const BOT_TERMINOLOGY_RE = /\b(ai\s+bots?|chatbots?)\b/i;
-const UNAUTHORIZED_URL_RE = /https?:\/\//;
+const URL_RE = /https?:\/\/[^\s]+/g;
+
+export type OutboundLinkKind = "BOOKED_MEETING_LINK" | "BOOKING_FALLBACK_LINK" | "UNAUTHORIZED_URL";
 
 /** Count customer-facing questions, ignoring URLs and quoted spans. */
 export function countGenuineQuestions(text: string): number {
@@ -19,12 +21,51 @@ export function containsDisallowedBotTerminology(text: string): boolean {
   return BOT_TERMINOLOGY_RE.test(text);
 }
 
+export function extractUrls(text: string): string[] {
+  return text.match(URL_RE) ?? [];
+}
+
+/** Persisted provider-generated Google Meet URL from a confirmed booking. */
+export function isBookedMeetingLink(url: string, context?: AnyConversationContext): boolean {
+  const persisted = context?.scheduling?.googleMeetUrl?.trim();
+  if (persisted && url.startsWith(persisted)) {
+    return true;
+  }
+  if (context?.scheduling?.status === "confirmed" && /^https:\/\/meet\.google\.com\//i.test(url)) {
+    return true;
+  }
+  return false;
+}
+
+/** Generic self-schedule / calendar fallback URL — not an authorized booked Meet link. */
+export function isBookingFallbackLink(url: string, context?: AnyConversationContext): boolean {
+  const bookingUrl = context?.bookingUrl?.trim();
+  if (bookingUrl && url.startsWith(bookingUrl)) {
+    return true;
+  }
+  return /calendar\.app\.google/i.test(url);
+}
+
+export function classifyOutboundUrl(
+  url: string,
+  context?: AnyConversationContext,
+): OutboundLinkKind {
+  if (isBookedMeetingLink(url, context)) {
+    return "BOOKED_MEETING_LINK";
+  }
+  if (isBookingFallbackLink(url, context)) {
+    return "BOOKING_FALLBACK_LINK";
+  }
+  return "UNAUTHORIZED_URL";
+}
+
 export function containsUnauthorizedCalendarUrl(
   text: string,
   calendarLinkAllowed: boolean,
+  context?: AnyConversationContext,
 ): boolean {
   if (calendarLinkAllowed) return false;
-  return UNAUTHORIZED_URL_RE.test(text);
+  return extractUrls(text).some((url) => classifyOutboundUrl(url, context) !== "BOOKED_MEETING_LINK");
 }
 
 export function containsDisallowedProspectName(

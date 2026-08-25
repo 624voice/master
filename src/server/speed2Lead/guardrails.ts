@@ -17,6 +17,8 @@ import {
   containsDisallowedProspectName,
   containsUnauthorizedCalendarUrl,
   countGenuineQuestions,
+  extractUrls,
+  isBookedMeetingLink,
   violatesBridgeSchedulingSeparation,
 } from "~/server/speed2Lead/outboundPolicy";
 import {
@@ -57,7 +59,7 @@ const EXACT_PRICE_PATTERN =
 const BOOKED_CLAIM_PATTERN =
   /\b(you(?:'re| are)? (?:all )?set|booked|confirmed|see you then|you're on the calendar|appointment is set)\b/i;
 const VAGUE_BOOKING_PATTERN =
-  /\b(i'?m holding|holding it|confirm(?:ation)? shortly|send (?:the )?(?:link|confirmation) (?:shortly|later|soon)|link later|noon-?ish it is|around noon works|i'?ll be ready then|let you know(?: soon)?)\b/i;
+  /\b(i'?m holding|holding it|confirm(?:ation)? shortly|send (?:the )?(?:link|confirmation|details) (?:shortly|later|soon)|link later|noon-?ish it is|around noon works|i'?ll be ready then|let you know(?: soon)?|reach out(?: soon)?|send details shortly|get (?:this )?on the calendar|get back to you(?: soon)?)\b/i;
 const IMPLIED_AVAILABILITY_PATTERN =
   /\b(i have (?:some )?openings?|here are (?:some )?(?:times|slots|options)|let me find a time|let's find a time|find a time that works|let me check (?:my )?availability)\b/i;
 const PENDING_ACTION_PATTERN =
@@ -222,7 +224,7 @@ export function validateOutboundSms(text: string, ctx: GuardrailContext): Guardr
     return { ok: false, reason: "SMS offers slots outside the active daypart constraint" };
   }
 
-  if (containsUnauthorizedCalendarUrl(trimmed, ctx.calendarLinkAllowed ?? false)) {
+  if (containsUnauthorizedCalendarUrl(trimmed, ctx.calendarLinkAllowed ?? false, ctx.session)) {
     return { ok: false, reason: "SMS contains an unauthorized calendar link" };
   }
 
@@ -273,18 +275,27 @@ export function buildBookingConfirmationMessage(
     sendsCalendarInvite?: boolean;
     useLifecycleCopy?: boolean;
     meetingLink?: string;
+    context?: AnyConversationContext;
   } = {},
 ): string {
   if (options.useLifecycleCopy) {
     return "";
   }
 
+  const meetingLink =
+    options.meetingLink?.trim() ||
+    options.context?.scheduling?.googleMeetUrl?.trim();
+
   return bookingConfirmationMessage({
     firstName,
     appointmentStart: start,
     timezone: CONSULTATION_TIMEZONE,
-    meetingLink: options.meetingLink,
+    meetingLink,
   });
+}
+
+export function persistedBookedMeetingLink(context?: AnyConversationContext): string | undefined {
+  return context?.scheduling?.googleMeetUrl?.trim() || undefined;
 }
 
 const UNAUTHORIZED_SELF_SCHEDULE_COPY_RE =
@@ -378,7 +389,13 @@ export function finalizeCalendarLinkOutbound(
     return reply.trim();
   }
 
-  let sanitized = reply.replace(/https?:\/\/[^\s]+/g, "").replace(/\s{2,}/g, " ").trim();
+  let sanitized = reply;
+  for (const url of extractUrls(reply)) {
+    if (isBookedMeetingLink(url, context)) {
+      continue;
+    }
+    sanitized = sanitized.replace(url, "").replace(/\s{2,}/g, " ").trim();
+  }
   if (context.bookingUrl && sanitized.includes(context.bookingUrl)) {
     sanitized = sanitized.replace(context.bookingUrl, "").replace(/\s{2,}/g, " ").trim();
   }

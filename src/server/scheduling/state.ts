@@ -22,8 +22,9 @@ function legacyPartToPreference(part?: SchedulingPartOfDay): AvailabilityPrefere
     case "morning":
       return "morning";
     case "afternoon":
-    case "evening":
       return "afternoon";
+    case "evening":
+      return "evening";
     case "full_day":
       return "full_day";
     default:
@@ -39,13 +40,13 @@ export function toCanonicalSchedulingState(
   const availabilityPreference =
     legacy.availabilityPreference ??
     legacyPartToPreference(legacy.partOfDay) ??
-    (legacy.anchorTimeMinutes != null ? "exact_time" : undefined);
+    (legacy.exactTimeMinutes != null ? "exact_time" : undefined);
 
   return {
     status: legacy.status,
     requestedDate: legacy.requestedDate ?? legacy.centralDate,
     availabilityPreference,
-    exactTimeMinutes: legacy.exactTimeMinutes ?? legacy.anchorTimeMinutes,
+    exactTimeMinutes: legacy.exactTimeMinutes,
     activeRequestKey: legacy.activeRequestKey,
     offeredSlots: legacy.offeredSlots,
     lastPresentedOfferKey: legacy.lastPresentedOfferKey ?? legacy.lastOfferedSlotKey,
@@ -76,10 +77,12 @@ export function fromCanonicalSchedulingState(
       ? "morning"
       : canonical.availabilityPreference === "afternoon"
         ? "afternoon"
-        : canonical.availabilityPreference === "full_day" ||
-            canonical.availabilityPreference === "earliest"
-          ? "full_day"
-          : undefined);
+        : canonical.availabilityPreference === "evening"
+          ? "evening"
+          : canonical.availabilityPreference === "full_day" ||
+              canonical.availabilityPreference === "earliest"
+            ? "full_day"
+            : undefined);
 
   return {
     status: canonical.status,
@@ -88,7 +91,7 @@ export function fromCanonicalSchedulingState(
     exactTimeMinutes: canonical.exactTimeMinutes,
     centralDate: canonical.requestedDate,
     partOfDay,
-    anchorTimeMinutes: canonical.anchorTimeMinutes ?? canonical.exactTimeMinutes,
+    anchorTimeMinutes: canonical.anchorTimeMinutes,
     activeRequestKey: canonical.activeRequestKey,
     offeredSlots: canonical.offeredSlots,
     lastPresentedOfferKey: canonical.lastPresentedOfferKey,
@@ -126,11 +129,6 @@ export function invalidateOffersForRequestChange(
     lastPresentedOfferKey: undefined,
     rejectedPartOfDay: dateChanged ? [] : state.rejectedPartOfDay,
     rejectedSlotStarts: dateChanged ? undefined : state.rejectedSlotStarts,
-    searchAfterMinutes: dateChanged ? undefined : state.searchAfterMinutes,
-    searchBeforeMinutes: dateChanged ? undefined : state.searchBeforeMinutes,
-    earliestAllowedMinutes: dateChanged ? undefined : state.earliestAllowedMinutes,
-    latestAllowedMinutes: dateChanged ? undefined : state.latestAllowedMinutes,
-    anchorTimeMinutes: dateChanged ? undefined : state.anchorTimeMinutes,
     status: state.status === "slots_offered" ? "idle" : state.status,
   };
 }

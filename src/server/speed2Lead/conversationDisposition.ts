@@ -2,6 +2,7 @@ import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import { isDiscoveryComplete } from "~/server/speed2Lead/discoveryProgress";
 import {
   detectExplicitSchedulingRequest,
+  hasOngoingSchedulingState,
   shouldBlockSchedulingForMeetingBridge,
 } from "~/server/speed2Lead/conversationHandoff";
 import type { ConversationDisposition } from "~/server/speed2Lead/sessionMemoryTypes";
@@ -96,6 +97,7 @@ export function shouldDeferSchedulingForDiscovery(
   if (context.flow !== "roi") return false;
   if (context.scheduling?.status === "confirmed") return true;
   if (context.disposition === "soft_closed" || context.disposition === "declined") return true;
+  if (hasOngoingSchedulingState(context)) return false;
 
   const signals = analyzeMessage(inboundMessage);
   if (signals.explicitMeetingReady) return false;
@@ -111,11 +113,10 @@ export function shouldDeferSchedulingForDiscovery(
   const vaguePain = signals.vague || !painKnown;
   const uncertain = signals.vague || signals.fitResponse === "maybe" || signals.fitResponse === "unknown";
 
-  if (!vaguePain && !uncertain && painKnown) return false;
-  if ((facts?.diagnosticQuestionsAsked ?? facts?.questionsAsked ?? 0) >= 1 && painKnown) return false;
-  if (facts?.fit === "yes" || facts?.urgency === "high") return false;
+  if (uncertain || vaguePain) return true;
+  if ((facts?.diagnosticQuestionsAsked ?? facts?.questionsAsked ?? 0) < 1 && !painKnown) return true;
 
-  return vaguePain || uncertain;
+  return false;
 }
 
 export function shouldTreatAsStrongInterest(

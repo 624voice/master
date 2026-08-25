@@ -76,7 +76,10 @@ function bookingConfirmationRecovery(
     return null;
   }
   return validateSafeOutbound(
-    buildBookingConfirmationMessage(toolState.bookingStart, context.firstName),
+    buildBookingConfirmationMessage(toolState.bookingStart, context.firstName, {
+      context,
+      meetingLink: context.scheduling?.googleMeetUrl,
+    }),
     context,
     toolState,
     false,

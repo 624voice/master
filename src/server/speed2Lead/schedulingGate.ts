@@ -6,8 +6,8 @@ import {
   validateOutboundSms,
 } from "~/server/speed2Lead/guardrails";
 import { applyConfirmedScheduling, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
-import { shouldBlockSchedulingForMeetingBridge } from "~/server/speed2Lead/conversationHandoff";
-import { shouldBlockSchedulingTurn } from "~/server/speed2Lead/conversationDisposition";
+import { shouldBlockSchedulingForMeetingBridge, canEnterScheduling, UNCERTAINTY_PHRASE_RE, hasOngoingSchedulingState } from "~/server/speed2Lead/conversationHandoff";
+import { shouldBlockSchedulingTurn, shouldDeferSchedulingForDiscovery, shouldTreatAsStrongInterest } from "~/server/speed2Lead/conversationDisposition";
 import { analyzeMessage } from "~/server/speed2Lead/naturalLanguage";
 import {
   buildAvailabilityInputFromSchedulingState,
@@ -32,10 +32,10 @@ import {
 import {
   fromCanonicalSchedulingState,
   toCanonicalSchedulingState,
+  buildRequestFromCanonicalState,
 } from "~/server/scheduling/state";
 import type { SchedulingOutcomeType } from "~/server/scheduling/types";
 import {
-  buildSchedulingRequestFromState,
   mergeIntentIntoState,
   parseSchedulingIntentUpdate,
 } from "~/server/scheduling/intentParser";
@@ -118,17 +118,32 @@ function hasRefinementSignal(
 }
 
 const STRONG_INTEREST_RE =
-  /\b(yes|yeah|yep|sure|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|ready\s+to\s+book|sounds\s+useful)\b/i;
+  /\b(yes|yeah|yep|let'?s\s+(?:talk|chat|connect|do\s+it)|i'?m\s+interested|ready\s+to\s+book|sounds\s+useful)\b/i;
 
 const WEEKDAY_RE =
   /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)\b/i;
+
+function detectStrongInterest(message: string, context?: AnyConversationContext): boolean {
+  if (UNCERTAINTY_PHRASE_RE.test(message.toLowerCase())) return false;
+  if (context && !shouldTreatAsStrongInterest(message, context)) return false;
+  return STRONG_INTEREST_RE.test(message);
+}
 
 function detectSchedulingIntent(message: string, context?: AnyConversationContext, now = new Date()): boolean {
   const signals = analyzeMessage(message);
   if (signals.priceQuestion || signals.tellMeMore || signals.faqQuestion) return false;
   if (context && shouldBlockSchedulingTurn(context, message)) return false;
   if (context && shouldBlockSchedulingForMeetingBridge(context, message)) return false;
-  if (STRONG_INTEREST_RE.test(message)) return true;
+  if (context && shouldDeferSchedulingForDiscovery(context, message)) return false;
+
+  const ongoingScheduling = context ? hasOngoingSchedulingState(context) : false;
+  if (context && !canEnterScheduling(context, message) && !ongoingScheduling) {
+    return false;
+  }
+
+  if (context && shouldTreatAsStrongInterest(message, context) && detectStrongInterest(message, context)) {
+    return true;
+  }
   if (SCHEDULING_INTENT_RE.test(message)) return true;
   if (WEEKDAY_RE.test(message)) return true;
   if (DAYPART_ONLY_RE.test(message.trim())) return true;
@@ -143,7 +158,7 @@ function detectSchedulingIntent(message: string, context?: AnyConversationContex
     }
     const canonical = toCanonicalSchedulingState(context.scheduling);
     const patch = parseSchedulingIntentUpdate(message, canonical, now);
-    if (patch.requestedDate || patch.availabilityPreference || patch.exactTimeMinutes != null) {
+    if (patch.requestedDate || patch.availabilityPreference || patch.exactTimeMinutes != null || patch.anchorTime != null) {
       return true;
     }
     const constraints = detectSchedulingConstraints(
@@ -162,10 +177,6 @@ function detectSchedulingIntent(message: string, context?: AnyConversationContex
   }
 
   return false;
-}
-
-function detectStrongInterest(message: string): boolean {
-  return STRONG_INTEREST_RE.test(message);
 }
 
 function detectExplicitCalendarLinkRequest(message: string): boolean {
@@ -187,10 +198,12 @@ function toAvailabilityInput(
 function needsDaypartQuestion(canonical: ReturnType<typeof toCanonicalSchedulingState>): boolean {
   if (!canonical.requestedDate) return false;
   if (canonical.availabilityPreference === "earliest") return false;
+  if (canonical.anchorTimeMinutes != null) return false;
   if (
     canonical.availabilityPreference === "full_day" ||
     canonical.availabilityPreference === "morning" ||
     canonical.availabilityPreference === "afternoon" ||
+    canonical.availabilityPreference === "evening" ||
     canonical.availabilityPreference === "exact_time"
   ) {
     return false;
@@ -303,7 +316,7 @@ export function planSchedulingGate(args: {
   }
 
   const schedulingIntent = detectSchedulingIntent(args.inboundMessage, args.context, now);
-  const strongInterest = detectStrongInterest(args.inboundMessage);
+  const strongInterest = detectStrongInterest(args.inboundMessage, args.context);
   let canonical = toCanonicalSchedulingState(args.context.scheduling);
   const patch = parseSchedulingIntentUpdate(args.inboundMessage, canonical, now);
   canonical = mergeIntentIntoState(canonical, patch);
@@ -444,7 +457,7 @@ export function planSchedulingGate(args: {
     };
   }
 
-  const request = buildSchedulingRequestFromState(
+  const request = buildRequestFromCanonicalState(
     canonical,
     CONSULTATION_TIMEZONE,
     getConsultationBusinessHours(),
@@ -889,7 +902,7 @@ export function schedulingRequestKey(input: {
   return buildSchedulingRequestKey({
     timezone: CONSULTATION_TIMEZONE,
     requestedDate: date === "unknown" ? undefined : date,
-    availabilityPreference: pref === "evening" ? "afternoon" : pref,
+    availabilityPreference: pref,
     exactTimeMinutes: input.exactTimeMinutes,
     lowerTimeBound: input.lowerTimeBound,
     upperTimeBound: input.upperTimeBound,

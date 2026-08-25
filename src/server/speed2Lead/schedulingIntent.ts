@@ -30,11 +30,12 @@ export function schedulingFactsComplete(scheduling?: SchedulingState): boolean {
   if (
     scheduling.availabilityPreference === "morning" ||
     scheduling.availabilityPreference === "afternoon" ||
+    scheduling.availabilityPreference === "evening" ||
     scheduling.availabilityPreference === "exact_time"
   ) {
     return true;
   }
-  if (scheduling.exactTimeMinutes != null || scheduling.anchorTimeMinutes != null) return true;
+  if (scheduling.exactTimeMinutes != null) return true;
   if (scheduling.partOfDay && scheduling.partOfDay !== "full_day") return true;
   return false;
 }

@@ -6,6 +6,7 @@ export type AvailabilityPreference =
   | "full_day"
   | "morning"
   | "afternoon"
+  | "evening"
   | "exact_time";
 
 export type SchedulingRequest = {

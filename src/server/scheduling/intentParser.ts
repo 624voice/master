@@ -23,13 +23,16 @@ const FLEXIBLE_RE =
   /\b(any\s*time|anytime|whenever|i'?m\s+flexible|im\s+flexible|flexible|any\s+time\s+works|whatever\s+you\s+have)\b/i;
 
 const EXPLICIT_DAYPART_RE =
-  /\b(morning|before\s+noon|afternoon|after\s+lunch|evening)\b/i;
+  /\b(morning|before\s+noon|afternoon|after\s+lunch|evenings?)\b/i;
 
 const DATE_ONLY_RE =
   /\b(tomorrow|today|monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)\b/i;
 
 const TIME_TOKEN_RE =
   /\b(?:around|at|about|how\s+about|let'?s\s+do|lets?\s+do|take|book|do)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\b|\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i;
+
+const EVENING_PREFERENCE_RE =
+  /\bevenings?\b(?:\s+(?:work|works|better|best|prefer|preferred|only|is\s+best))|\b(?:prefer|better|best|only)\s+(?:in\s+)?(?:the\s+)?evenings?\b/i;
 
 export type IntentPatch = {
   requestedDate?: string;
@@ -55,7 +58,7 @@ function resolveDateFromMessage(message: string, now: Date): string | undefined 
     return tomorrowCentralDate(now);
   }
   for (const weekday of WEEKDAY_NAMES) {
-    if (new RegExp(`\\b(?:next\\s+)?${weekday}\\b`).test(lower)) {
+    if (new RegExp(`\\b(?:what about|how about|instead|switch to|actually)?\\s*(?:next\\s+)?${weekday}\\b`).test(lower)) {
       return nextWeekdayCentral(weekday, now);
     }
   }
@@ -66,16 +69,16 @@ function hasExplicitDaypart(message: string): boolean {
   return EXPLICIT_DAYPART_RE.test(message.toLowerCase());
 }
 
-function isDateBroadeningMessage(message: string): boolean {
-  const lower = message.toLowerCase().trim();
-  if (FLEXIBLE_RE.test(lower) || EARLIEST_RE.test(lower)) return false;
-  if (!DATE_ONLY_RE.test(lower)) return false;
-  if (hasExplicitDaypart(message)) return false;
-  if (TIME_TOKEN_RE.test(lower)) return false;
-  return true;
+function inferDaypartFromAnchorMinutes(minutes: number): AvailabilityPreference {
+  if (minutes < 12 * 60) return "morning";
+  if (minutes < 17 * 60) return "afternoon";
+  return "evening";
 }
 
 function extractExactTimeMinutes(message: string): number | null {
+  if (/\blet'?s\s+do\b/i.test(message) && !/\b(at|around|about)\b/i.test(message)) {
+    return null;
+  }
   const match = message.match(TIME_TOKEN_RE);
   if (!match) return null;
   const raw = (match[1] ?? match[2] ?? "").trim();
@@ -104,6 +107,25 @@ export function parseSchedulingIntentUpdate(
   const resolvedDate = resolveDateFromMessage(message, now);
   if (resolvedDate) {
     patch.requestedDate = resolvedDate;
+    if (
+      prior?.requestedDate === resolvedDate &&
+      !hasExplicitDaypart(message) &&
+      !FLEXIBLE_RE.test(lower) &&
+      !TIME_TOKEN_RE.test(lower)
+    ) {
+      const priorPref =
+        prior?.availabilityPreference ??
+        (prior?.partOfDay === "morning"
+          ? "morning"
+          : prior?.partOfDay === "afternoon"
+            ? "afternoon"
+            : prior?.partOfDay === "evening"
+              ? "evening"
+              : undefined);
+      if (priorPref && priorPref !== "full_day" && priorPref !== "earliest") {
+        patch.availabilityPreference = "full_day";
+      }
+    }
   }
 
   const rejectsAfternoon =
@@ -115,10 +137,10 @@ export function parseSchedulingIntentUpdate(
 
   if (!rejectsMorning && /\b(morning|before\s+noon)\b/.test(lower)) {
     patch.availabilityPreference = "morning";
-  } else if (!rejectsAfternoon && /\b(after\s+lunch|afternoon)\b/.test(lower)) {
+  } else if (!rejectsAfternoon && /\b(after\s+lunch|afternoon)\b/.test(lower) && !EVENING_PREFERENCE_RE.test(lower)) {
     patch.availabilityPreference = "afternoon";
-  } else if (/\b(evening)\b/.test(lower)) {
-    patch.availabilityPreference = "afternoon";
+  } else if (EVENING_PREFERENCE_RE.test(lower) || /\bevenings?\b/.test(lower)) {
+    patch.availabilityPreference = "evening";
   }
 
   if (LATE_MORNING_RE.test(lower)) {
@@ -164,6 +186,9 @@ export function parseSchedulingIntentUpdate(
     const minutes = raw === "noon" ? 12 * 60 : parseFlexibleTimeToken(raw);
     if (minutes != null) {
       patch.anchorTime = minutes;
+      if (!patch.availabilityPreference || patch.availabilityPreference === "full_day") {
+        patch.availabilityPreference = inferDaypartFromAnchorMinutes(minutes);
+      }
       if (NOONISH_RE.test(lower)) {
         patch.availabilityPreference = patch.availabilityPreference ?? "full_day";
       }
@@ -174,45 +199,26 @@ export function parseSchedulingIntentUpdate(
 
   const exactMinutes = extractExactTimeMinutes(message);
   const dateForExact = patch.requestedDate ?? prior?.requestedDate;
-  if (exactMinutes != null && dateForExact && !patch.anchorTime) {
+  const isAroundIntent = Boolean(aroundMatch) || /\b(around|about)\b/i.test(lower);
+  if (exactMinutes != null && dateForExact && !patch.anchorTime && !isAroundIntent) {
     patch.availabilityPreference = "exact_time";
     patch.exactTimeMinutes = exactMinutes;
     patch.requestedDate = dateForExact;
   }
 
-  if (isDateBroadeningMessage(message)) {
-    const priorPref = prior?.availabilityPreference ?? legacyPartToPreference(prior?.partOfDay as never);
-    if (
-      priorPref &&
-      priorPref !== "full_day" &&
-      priorPref !== "earliest"
-    ) {
-      patch.availabilityPreference = "full_day";
-    }
-  }
-
-  if (
-    patch.requestedDate &&
-    !patch.availabilityPreference &&
-    prior?.availabilityPreference &&
-    prior.availabilityPreference !== "full_day" &&
-    prior.availabilityPreference !== "earliest" &&
-    isDateBroadeningMessage(message)
-  ) {
-    patch.availabilityPreference = "full_day";
-  }
-
   return patch;
 }
 
-function legacyPartToPreference(part?: string): AvailabilityPreference | undefined {
+function preferenceToLegacyPart(part?: AvailabilityPreference): LegacyConstraintFields["partOfDay"] {
   switch (part) {
     case "morning":
       return "morning";
     case "afternoon":
-    case "evening":
       return "afternoon";
+    case "evening":
+      return "evening";
     case "full_day":
+    case "earliest":
       return "full_day";
     default:
       return undefined;
@@ -223,14 +229,21 @@ export function mergeIntentIntoState(
   prior: CanonicalSchedulingState & LegacyConstraintFields,
   patch: IntentPatch,
 ): CanonicalSchedulingState & LegacyConstraintFields {
+  const availabilityPreference = patch.availabilityPreference ?? prior.availabilityPreference;
+  const partOfDay =
+    patch.availabilityPreference != null
+      ? preferenceToLegacyPart(patch.availabilityPreference)
+      : prior.partOfDay;
+
   return {
     ...prior,
     requestedDate: patch.requestedDate ?? prior.requestedDate,
-    availabilityPreference: patch.availabilityPreference ?? prior.availabilityPreference,
+    availabilityPreference,
     exactTimeMinutes:
       patch.availabilityPreference === "exact_time"
         ? patch.exactTimeMinutes ?? prior.exactTimeMinutes
         : patch.exactTimeMinutes ?? prior.exactTimeMinutes,
+    partOfDay,
     searchAfterMinutes: patch.lowerTimeBound ?? prior.searchAfterMinutes,
     searchBeforeMinutes: patch.upperTimeBound ?? prior.searchBeforeMinutes,
     earliestAllowedMinutes: patch.lowerTimeBound ?? prior.earliestAllowedMinutes,
@@ -240,7 +253,7 @@ export function mergeIntentIntoState(
 }
 
 export function buildSchedulingRequestFromState(
-  state: CanonicalSchedulingState,
+  state: CanonicalSchedulingState & LegacyConstraintFields,
   timezone: string,
   businessHours: import("~/server/appointmentLifecycle/consultationConfig").ConsultationBusinessHours,
   meetingDurationMinutes: number,
@@ -249,10 +262,7 @@ export function buildSchedulingRequestFromState(
     return null;
   }
 
-  if (
-    state.availabilityPreference !== "earliest" &&
-    !state.requestedDate
-  ) {
+  if (state.availabilityPreference !== "earliest" && !state.requestedDate) {
     return null;
   }
 
@@ -261,6 +271,9 @@ export function buildSchedulingRequestFromState(
     requestedDate: state.requestedDate,
     availabilityPreference: state.availabilityPreference,
     exactTimeMinutes: state.exactTimeMinutes,
+    lowerTimeBound: state.searchAfterMinutes ?? state.earliestAllowedMinutes,
+    upperTimeBound: state.searchBeforeMinutes ?? state.latestAllowedMinutes,
+    anchorTime: state.anchorTimeMinutes,
     businessHours,
     meetingDurationMinutes,
   };

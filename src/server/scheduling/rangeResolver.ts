@@ -12,7 +12,30 @@ export type ResolvedProviderRange = {
   centralDate?: string;
 };
 
-function partOfDayHours(preference: AvailabilityPreference): {
+const ANCHOR_QUERY_PADDING_MINUTES = 90;
+
+function parseCentralDate(date: string) {
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  return {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+  };
+}
+
+function businessStartMinutes(request: SchedulingRequest): number {
+  return request.businessHours.weekdayStartHour * 60 + request.businessHours.weekdayStartMinute;
+}
+
+function businessEndMinutes(request: SchedulingRequest): number {
+  return request.businessHours.weekdayEndHour * 60 + request.businessHours.weekdayEndMinute;
+}
+
+function partOfDayHours(
+  preference: AvailabilityPreference,
+  request: SchedulingRequest,
+): {
   startHour: number;
   startMinute: number;
   endHour: number;
@@ -23,21 +46,59 @@ function partOfDayHours(preference: AvailabilityPreference): {
       return { startHour: 9, startMinute: 0, endHour: 12, endMinute: 0 };
     case "afternoon":
       return { startHour: 12, startMinute: 0, endHour: 17, endMinute: 0 };
+    case "evening": {
+      const endMinutes = Math.max(17 * 60, businessEndMinutes(request));
+      return {
+        startHour: 16,
+        startMinute: 0,
+        endHour: Math.floor(endMinutes / 60),
+        endMinute: endMinutes % 60,
+      };
+    }
     case "exact_time":
     case "earliest":
     case "full_day":
     default:
-      return { startHour: 9, startMinute: 0, endHour: 17, endMinute: 0 };
+      return {
+        startHour: request.businessHours.weekdayStartHour,
+        startMinute: request.businessHours.weekdayStartMinute,
+        endHour: request.businessHours.weekdayEndHour,
+        endMinute: request.businessHours.weekdayEndMinute,
+      };
   }
 }
 
-function parseCentralDate(date: string) {
-  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
+function resolveAnchorQueryRange(
+  request: SchedulingRequest,
+  parts: { year: number; month: number; day: number },
+): ResolvedProviderRange {
+  const anchor = request.anchorTime!;
+  const startMinutes = Math.max(
+    businessStartMinutes(request),
+    anchor - ANCHOR_QUERY_PADDING_MINUTES,
+  );
+  const endMinutes = Math.max(
+    businessEndMinutes(request),
+    anchor + ANCHOR_QUERY_PADDING_MINUTES,
+  );
   return {
-    year: Number(match[1]),
-    month: Number(match[2]),
-    day: Number(match[3]),
+    rangeStart: centralDateAt(
+      parts.year,
+      parts.month,
+      parts.day,
+      Math.floor(startMinutes / 60),
+      startMinutes % 60,
+      request.timezone,
+    ),
+    rangeEnd: centralDateAt(
+      parts.year,
+      parts.month,
+      parts.day,
+      Math.floor(endMinutes / 60),
+      endMinutes % 60,
+      request.timezone,
+    ),
+    centralDate: request.requestedDate,
   };
 }
 
@@ -68,7 +129,15 @@ export function resolveRangeForRequest(
     return { error: "invalid_date" };
   }
 
-  const hours = partOfDayHours(queryPreference);
+  if (request.anchorTime != null) {
+    const anchorRange = resolveAnchorQueryRange(request, parts);
+    if (anchorRange.rangeEnd.getTime() <= now.getTime()) {
+      return { error: "past_range" };
+    }
+    return { ...anchorRange, centralDate };
+  }
+
+  const hours = partOfDayHours(queryPreference, request);
   const rangeStart = centralDateAt(
     parts.year,
     parts.month,

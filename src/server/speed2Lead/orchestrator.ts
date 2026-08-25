@@ -259,6 +259,10 @@ async function validateOrRepair(
     const confirmation = buildBookingConfirmationMessage(
       toolState.bookingStart,
       context.firstName,
+      {
+        context,
+        meetingLink: context.scheduling?.googleMeetUrl,
+      },
     );
     const confirmedPass = validateOutboundSms(
       confirmation,

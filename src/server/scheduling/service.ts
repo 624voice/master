@@ -335,12 +335,13 @@ export async function processSchedulingTurn(
       availabilityPreference:
         input.availabilityInput.partOfDay === "morning"
           ? "morning"
-          : input.availabilityInput.partOfDay === "afternoon" ||
-              input.availabilityInput.partOfDay === "evening"
+          : input.availabilityInput.partOfDay === "afternoon"
             ? "afternoon"
-            : input.availabilityInput.partOfDay === "full_day"
-              ? "full_day"
-              : state.availabilityPreference,
+            : input.availabilityInput.partOfDay === "evening"
+              ? "evening"
+              : input.availabilityInput.partOfDay === "full_day"
+                ? "full_day"
+                : state.availabilityPreference,
       partOfDay: input.availabilityInput.partOfDay ?? state.partOfDay,
       rejectedPartOfDay: schedulingDateChanged ? [] : state.rejectedPartOfDay,
       rejectedSlotStarts: schedulingDateChanged ? undefined : state.rejectedSlotStarts,

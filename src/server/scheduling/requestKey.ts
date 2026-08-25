@@ -44,6 +44,8 @@ export function preferenceToLegacyPartOfDay(
       return "morning";
     case "afternoon":
       return "afternoon";
+    case "evening":
+      return "evening";
     case "full_day":
     case "earliest":
       return "full_day";

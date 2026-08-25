@@ -1046,7 +1046,15 @@ export function detectSchedulingRefinement(
       return {
         input: {
           centralDate: nextWeekdayCentral(weekday, now),
-          partOfDay: scheduling?.partOfDay ?? inferPartOfDay(lower),
+          partOfDay:
+            scheduling?.partOfDay ??
+            (scheduling?.availabilityPreference === "evening"
+              ? "evening"
+              : scheduling?.availabilityPreference === "morning"
+                ? "morning"
+                : scheduling?.availabilityPreference === "afternoon"
+                  ? "afternoon"
+                  : inferPartOfDay(lower)),
         },
         rankPreferences: {
           anchorMinutes: scheduling?.anchorTimeMinutes,

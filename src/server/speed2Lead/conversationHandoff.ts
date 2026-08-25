@@ -17,7 +17,7 @@ const EXPLICIT_SCHEDULING_RE =
 const MEETING_BRIDGE_AGREEMENT_RE =
   /\b(yes|yeah|yep|sure|ok(?:ay)?|sounds good|makes sense|let'?s do it|lets do it|worth a look|i'?m open to it|im open to it|that works|let'?s look|lets look|happy to|go ahead|absolutely|definitely|of course|for sure|fine)\b/i;
 
-const UNCERTAINTY_PHRASE_RE =
+export const UNCERTAINTY_PHRASE_RE =
   /\b(not sure|no idea|don't know|dont know|unsure|maybe|i guess|hard to say|can't say|cant say)\b/i;
 
 const BRIDGE_LANGUAGE_RE =
@@ -45,11 +45,49 @@ export function meetingBridgeQuestionDelivered(context: AnyConversationContext):
   );
 }
 
+export function hasOngoingSchedulingState(context: AnyConversationContext): boolean {
+  const scheduling = context.scheduling;
+  if (!scheduling) return false;
+  if (scheduling.status === "slots_offered" || scheduling.status === "confirmed") {
+    return true;
+  }
+  if ((scheduling.offeredSlots?.length ?? 0) > 0) {
+    return true;
+  }
+  return Boolean(
+    scheduling.requestedDate ??
+      scheduling.centralDate ??
+      scheduling.availabilityPreference ??
+      (scheduling.partOfDay && scheduling.partOfDay !== "full_day") ??
+      scheduling.anchorTimeMinutes,
+  );
+}
+
+/** Single gate for legal scheduling entry — one behavior, one owner. */
+export function canEnterScheduling(
+  context: AnyConversationContext,
+  inboundMessage: string,
+): boolean {
+  if (context.scheduling?.status === "confirmed") {
+    return true;
+  }
+  if (detectExplicitSchedulingRequest(inboundMessage)) {
+    return true;
+  }
+  if (isMeetingInterestConfirmed(context.knownFacts)) {
+    return true;
+  }
+  if (hasOngoingSchedulingState(context)) {
+    return true;
+  }
+  return false;
+}
+
 export function shouldRequireMeetingBridge(
   context: AnyConversationContext,
   inboundMessage: string,
 ): boolean {
-  if (context.flow !== "roi") return false;
+  if (context.flow !== "roi" && context.flow !== "contact") return false;
   if (isMeetingInterestConfirmed(context.knownFacts)) return false;
   if (context.disposition === "soft_closed" || context.disposition === "declined") return false;
   if (context.scheduling?.status === "confirmed") return false;
@@ -58,8 +96,7 @@ export function shouldRequireMeetingBridge(
 
   const facts = normalizeDiscoveryFacts(context.knownFacts ?? ({} as KnownFacts));
   const painKnown = Boolean(facts.primaryPain);
-  if (!painKnown) return false;
-  if (!isDiscoveryComplete(context) && (facts.diagnosticQuestionsAsked ?? 0) < 1) return false;
+  if (!painKnown && context.flow !== "contact") return false;
   return true;
 }
 
@@ -67,6 +104,8 @@ export function shouldBlockSchedulingForMeetingBridge(
   context: AnyConversationContext,
   inboundMessage: string,
 ): boolean {
+  if (isMeetingInterestConfirmed(context.knownFacts)) return false;
+  if (detectExplicitSchedulingRequest(inboundMessage)) return false;
   return shouldRequireMeetingBridge(context, inboundMessage);
 }
 

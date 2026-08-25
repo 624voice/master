@@ -39,6 +39,7 @@ mock.module("~/server/appointmentLifecycle/googleCalendar", () => ({
   cancelCalendarEvent: async () => false,
   resetGoogleTokenCacheForTests: () => {},
   calendarAttendeeInviteEnabled: (email?: string) => Boolean(email),
+  supportsAttendeeInvites: () => false,
 }));
 
 mock.module("~/server/appointmentLifecycle/bookConsultation", () => ({

@@ -239,7 +239,7 @@ describe("schedulingController planning", () => {
       now,
     });
     expect(context.scheduling?.centralDate).toBeTruthy();
-    expect(context.scheduling?.anchorTimeMinutes).toBe(15 * 60);
+    expect(context.scheduling?.exactTimeMinutes ?? context.scheduling?.anchorTimeMinutes).toBe(15 * 60);
     expect(plan.action.type).toBe("get_availability");
   });
 
