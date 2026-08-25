@@ -7,13 +7,19 @@ const ANCHOR_RANK_TOLERANCE_MINUTES = 90;
 
 function partOfDayForMinutes(minutes: number): "morning" | "afternoon" | "evening" {
   if (minutes < 12 * 60) return "morning";
-  if (minutes < 17 * 60) return "afternoon";
+  if (minutes < 15 * 60) return "afternoon";
   return "evening";
 }
 
 function slotMatchesPreference(minutes: number, preference: AvailabilityPreference): boolean {
   if (preference === "full_day" || preference === "earliest" || preference === "exact_time") {
     return true;
+  }
+  if (preference === "evening") {
+    return minutes >= 15 * 60;
+  }
+  if (preference === "afternoon") {
+    return minutes >= 12 * 60 && minutes < 17 * 60;
   }
   return partOfDayForMinutes(minutes) === preference;
 }

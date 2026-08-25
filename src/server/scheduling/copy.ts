@@ -53,6 +53,13 @@ export function buildNeedDateCopy(): string {
   return "What day works best for a quick 25-minute chat?";
 }
 
+export function buildInternalConstraintCopy(hasDate: boolean): string {
+  if (hasDate) {
+    return "Let me reset that — what time of day works on that date? Morning or afternoon?";
+  }
+  return buildNeedDateCopy();
+}
+
 export function buildExactUnavailableCopy(slots: string[]): string {
   if (slots.length === 0) {
     return "That exact time isn't open — want to try another time that day?";

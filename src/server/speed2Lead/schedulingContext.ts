@@ -18,6 +18,8 @@ import type {
   SchedulingPartOfDay,
   SchedulingState,
 } from "~/server/speed2Lead/sessionMemoryTypes";
+import { applyInboundSchedulingUpdate } from "~/server/scheduling/intentParser";
+import { fromCanonicalSchedulingState, toCanonicalSchedulingState } from "~/server/scheduling/state";
 
 const WEEKDAY_NAMES = [
   "sunday",
@@ -244,135 +246,45 @@ export function detectSchedulingConstraints(
   scheduling: SchedulingState | undefined,
   offeredSlots: string[] = [],
 ): SchedulingConstraintPatch {
-  const patch: SchedulingConstraintPatch = {};
-  const lower = message.toLowerCase();
-  const rejected = new Set(scheduling?.rejectedPartOfDay ?? []);
-
-  const daypartCorrection = detectDaypartSelectionCorrection(message, {
-    ...scheduling,
-    offeredSlots: offeredSlots.length > 0 ? offeredSlots : scheduling?.offeredSlots,
-  });
-  if (daypartCorrection) {
-    rejected.delete(daypartCorrection);
-    patch.partOfDay = daypartCorrection;
-    if (daypartCorrection === "afternoon") {
-      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
-    } else if (daypartCorrection === "morning") {
-      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
-    } else if (daypartCorrection === "evening") {
-      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 16 * 60);
-    }
-  }
-
-  if (!daypartCorrection && REJECT_MORNING_RE.test(lower)) {
-    rejected.add("morning");
-    patch.partOfDay = "afternoon";
-    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
-    patch.searchAfterMinutes = Math.max(scheduling?.searchAfterMinutes ?? 0, 12 * 60 - 1);
-  }
-
-  if (!daypartCorrection && REJECT_AFTERNOON_RE.test(lower)) {
-    rejected.add("afternoon");
-    patch.partOfDay = "evening";
-    patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
-  }
-
-  if (!daypartCorrection && REJECT_EVENING_RE.test(lower)) {
-    rejected.add("evening");
-    patch.partOfDay = "afternoon";
-  }
-
-  if (
-    !daypartCorrection &&
-    !patch.partOfDay &&
-    PREFER_AFTERNOON_RE.test(lower) &&
-    !rejected.has("afternoon")
-  ) {
-    patch.partOfDay = "afternoon";
-    rejected.delete("afternoon");
-    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 12 * 60);
-  }
-
-  if (!patch.partOfDay && PREFER_MORNING_RE.test(lower) && !rejected.has("morning")) {
-    patch.partOfDay = "morning";
-    rejected.delete("morning");
-    patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, 12 * 60);
-  }
-
-  if (!patch.partOfDay && PREFER_EVENING_RE.test(lower) && !rejected.has("evening")) {
-    patch.partOfDay = "evening";
-    rejected.delete("evening");
-    patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, 16 * 60);
-  }
-
-  if (REFINEMENT_LATER_RE.test(lower)) {
-    const latest = latestOfferedMinutes(offeredSlots) ?? scheduling?.lastOfferedLatestMinutes;
-    if (latest != null) {
-      patch.searchAfterMinutes = latest;
-      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, latest + 1);
-    }
-  }
-
-  if (REFINEMENT_EARLIER_RE.test(lower)) {
-    const earliest = earliestOfferedMinutes(offeredSlots) ?? scheduling?.lastOfferedEarliestMinutes;
-    if (earliest != null) {
-      patch.searchBeforeMinutes = earliest;
-      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, earliest - 1);
-    }
-  }
-
-  const anchor = extractAnchorMinutes(message) ?? extractRequestedTimeMinutes(message, offeredSlots);
-  if (anchor != null) {
-    patch.anchorTimeMinutes = anchor;
-    if (/\bafter\b/i.test(lower)) {
-      patch.searchAfterMinutes = Math.max(scheduling?.searchAfterMinutes ?? 0, anchor);
-      patch.earliestAllowedMinutes = Math.max(scheduling?.earliestAllowedMinutes ?? 0, anchor);
-    } else if (/\bbefore\b/i.test(lower)) {
-      patch.searchBeforeMinutes = anchor;
-      patch.latestAllowedMinutes = Math.min(scheduling?.latestAllowedMinutes ?? 24 * 60, anchor);
-    } else if (/\b(around|about|like|at|closer|near|roughly|probably)\b/i.test(lower) || BARE_TIME_PREFERENCE_RE.test(lower)) {
-      const part =
-        anchor < 12 * 60 ? "morning" : anchor < 17 * 60 ? "afternoon" : "evening";
-      if (!rejected.has(part)) {
-        patch.partOfDay = part;
-      }
-    }
-  }
-
-  if (REJECT_OFFERED_RE.test(lower) && offeredSlots.length > 0) {
-    patch.rejectedSlotStarts = [
-      ...(scheduling?.rejectedSlotStarts ?? []),
-      ...offeredSlots,
-    ];
-  }
-
-  if (rejected.size > 0) {
-    patch.rejectedPartOfDay = [...rejected];
-  }
-
-  const merged = normalizeSchedulingStateConstraints(
-    {
-      ...scheduling,
-      ...patch,
-      rejectedPartOfDay: patch.rejectedPartOfDay ?? scheduling?.rejectedPartOfDay,
-      partOfDay: patch.partOfDay ?? scheduling?.partOfDay,
-      centralDate: patch.centralDate ?? scheduling?.centralDate,
-    },
-    { prior: scheduling },
+  const canonicalPrior = toCanonicalSchedulingState(scheduling);
+  const next = applyInboundSchedulingUpdate(
+    canonicalPrior,
+    message,
+    new Date(),
+    offeredSlots.length > 0 ? offeredSlots : scheduling?.offeredSlots ?? [],
   );
+  const legacyNext = fromCanonicalSchedulingState(next);
 
-  return {
-    ...patch,
-    partOfDay: merged.partOfDay !== scheduling?.partOfDay ? merged.partOfDay : patch.partOfDay,
-    rejectedPartOfDay: merged.rejectedPartOfDay,
-    centralDate: merged.centralDate !== scheduling?.centralDate ? merged.centralDate : patch.centralDate,
-    rejectedSlotStarts:
-      merged.centralDate !== scheduling?.centralDate ? undefined : patch.rejectedSlotStarts,
-    searchAfterMinutes:
-      merged.centralDate !== scheduling?.centralDate ? undefined : patch.searchAfterMinutes,
-    searchBeforeMinutes:
-      merged.centralDate !== scheduling?.centralDate ? undefined : patch.searchBeforeMinutes,
-  };
+  const patch: SchedulingConstraintPatch = {};
+  if (legacyNext.centralDate !== scheduling?.centralDate) {
+    patch.centralDate = legacyNext.centralDate;
+  }
+  if (legacyNext.partOfDay !== scheduling?.partOfDay) {
+    patch.partOfDay = legacyNext.partOfDay;
+  }
+  if (legacyNext.anchorTimeMinutes !== scheduling?.anchorTimeMinutes) {
+    patch.anchorTimeMinutes = legacyNext.anchorTimeMinutes;
+  }
+  if (legacyNext.searchAfterMinutes !== scheduling?.searchAfterMinutes) {
+    patch.searchAfterMinutes = legacyNext.searchAfterMinutes;
+  }
+  if (legacyNext.searchBeforeMinutes !== scheduling?.searchBeforeMinutes) {
+    patch.searchBeforeMinutes = legacyNext.searchBeforeMinutes;
+  }
+  if (legacyNext.earliestAllowedMinutes !== scheduling?.earliestAllowedMinutes) {
+    patch.earliestAllowedMinutes = legacyNext.earliestAllowedMinutes;
+  }
+  if (legacyNext.latestAllowedMinutes !== scheduling?.latestAllowedMinutes) {
+    patch.latestAllowedMinutes = legacyNext.latestAllowedMinutes;
+  }
+  if (legacyNext.rejectedPartOfDay !== scheduling?.rejectedPartOfDay) {
+    patch.rejectedPartOfDay = legacyNext.rejectedPartOfDay;
+  }
+  if (legacyNext.rejectedSlotStarts !== scheduling?.rejectedSlotStarts) {
+    patch.rejectedSlotStarts = legacyNext.rejectedSlotStarts;
+  }
+
+  return patch;
 }
 
 export type SchedulingRefinement = {

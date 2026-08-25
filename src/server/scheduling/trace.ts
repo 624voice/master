@@ -131,9 +131,11 @@ export function inferZeroSlotReason(args: {
   rawProviderSlotCount: number;
   filteredSlotCount: number;
   providerOk: boolean;
+  impossibleBounds?: boolean;
 }): ZeroSlotReason | undefined {
   if (!args.providerInvoked) return "never_called";
   if (!args.providerOk) return "provider_error";
+  if (args.impossibleBounds) return "impossible_bounds";
   if (args.rawProviderSlotCount === 0) return "provider_empty";
   if (args.filteredSlotCount === 0) return "constraint_filter";
   return undefined;

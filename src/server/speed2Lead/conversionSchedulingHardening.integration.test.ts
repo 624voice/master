@@ -101,7 +101,7 @@ describe("conversion + scheduling hardening regression", () => {
     expect(merged.anchorTimeMinutes).toBe(19 * 60);
   });
 
-  test("Friday pivot preserves evening and anchor", () => {
+  test("Friday pivot clears stale anchor but preserves evening preference", () => {
     let state = mergeIntentIntoState(
       { status: "idle" },
       parseSchedulingIntentUpdate("Evenings work better", { status: "idle" }, now),
@@ -112,7 +112,7 @@ describe("conversion + scheduling hardening regression", () => {
     expect(pivot.availabilityPreference).toBeUndefined();
     const merged = mergeIntentIntoState(state, pivot);
     expect(merged.availabilityPreference).toBe("evening");
-    expect(merged.anchorTimeMinutes).toBe(19 * 60);
+    expect(merged.anchorTimeMinutes).toBeUndefined();
     expect(merged.requestedDate).toBe("2026-08-28");
   });
 

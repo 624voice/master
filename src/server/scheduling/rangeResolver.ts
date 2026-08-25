@@ -47,9 +47,9 @@ function partOfDayHours(
     case "afternoon":
       return { startHour: 12, startMinute: 0, endHour: 17, endMinute: 0 };
     case "evening": {
-      const endMinutes = Math.max(17 * 60, businessEndMinutes(request));
+      const endMinutes = businessEndMinutes(request);
       return {
-        startHour: 16,
+        startHour: 15,
         startMinute: 0,
         endHour: Math.floor(endMinutes / 60),
         endMinute: endMinutes % 60,

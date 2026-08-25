@@ -6,17 +6,14 @@ import {
 import {
   buildClosedDayCopy,
   buildExactUnavailableCopy,
+  buildInternalConstraintCopy,
   buildNeedDateCopy,
   buildNoAvailabilityCopy,
   buildProviderConflictCopy,
   buildSlotOfferCopy,
 } from "~/server/scheduling/copy";
 import { filterAndRankSlots } from "~/server/scheduling/filterRank";
-import {
-  buildSchedulingRequestFromState,
-  mergeIntentIntoState,
-  parseSchedulingIntentUpdate,
-} from "~/server/scheduling/intentParser";
+import { applyInboundSchedulingUpdate } from "~/server/scheduling/intentParser";
 import { bookProviderSlot, queryProviderAvailability } from "~/server/scheduling/provider";
 import {
   businessDatesForward,
@@ -29,17 +26,15 @@ import {
   offerSetKey,
 } from "~/server/scheduling/requestKey";
 import {
-  detectSchedulingConstraints,
   filterSlotsForSchedulingState,
-  hasExplicitExactTimeRequest,
   resolveOfferedSlotSelectionCandidate,
-  resolveRequestedMinutesFromMessage,
 } from "~/server/speed2Lead/schedulingContext";
 import {
   looksLikeSlotSelection,
 } from "~/server/scheduling/selection";
 import { fromCanonicalSchedulingState, invalidateOffersForRequestChange, buildRequestFromCanonicalState } from "~/server/scheduling/state";
 import type { LegacyConstraintFields } from "~/server/scheduling/state";
+import { validateSchedulingConstraints, normalizeImpossibleBounds } from "~/server/scheduling/stateUpdate";
 import {
   applyBookingTraceFields,
   createEmptyTrace,
@@ -180,6 +175,28 @@ async function fetchSlotsForRequest(
   };
 }
 
+function classifyZeroSlotOutcome(args: {
+  request: SchedulingRequest;
+  rawProviderSlotCount: number;
+  filteredSlotCount: number;
+  priorValidation: ReturnType<typeof validateSchedulingConstraints>;
+  constraintFilteredExact?: boolean;
+}): import("~/server/scheduling/types").SchedulingOutcomeType {
+  if (!args.priorValidation.ok) {
+    return "INVALID_INTERNAL_CONSTRAINT";
+  }
+  if (args.request.availabilityPreference === "exact_time" && args.request.exactTimeMinutes != null) {
+    return "EXACT_TIME_UNAVAILABLE";
+  }
+  if (args.constraintFilteredExact) {
+    return "INVALID_INTERNAL_CONSTRAINT";
+  }
+  if (args.rawProviderSlotCount > 0 && args.filteredSlotCount === 0) {
+    return "INVALID_INTERNAL_CONSTRAINT";
+  }
+  return "REAL_NO_AVAILABILITY";
+}
+
 function finalizeOfferResult(args: {
   state: CanonicalSchedulingState;
   requestKey: string;
@@ -190,6 +207,8 @@ function finalizeOfferResult(args: {
   queryStartIso?: string;
   queryEndIso?: string;
   trace: ReturnType<typeof createEmptyTrace>;
+  request?: SchedulingRequest;
+  priorValidation?: ReturnType<typeof validateSchedulingConstraints>;
 }): SchedulingTurnResult {
   const requestChanged = args.requestKeyBefore !== args.requestKey;
   const presentation = inferOfferPresentationType({
@@ -231,9 +250,18 @@ function finalizeOfferResult(args: {
   });
 
   if (args.filteredSlots.length === 0) {
+    const typedOutcome =
+      args.request && args.priorValidation
+        ? classifyZeroSlotOutcome({
+            request: args.request,
+            rawProviderSlotCount: args.rawProviderSlotCount,
+            filteredSlotCount: 0,
+            priorValidation: args.priorValidation,
+          })
+        : "NO_AVAILABILITY";
     args.trace.noAvailabilityReason = args.trace.zeroSlotReason ?? "provider_empty";
     return {
-      outcome: "NO_AVAILABILITY",
+      outcome: typedOutcome,
       state: nextState,
       offeredSlots: [],
       offerPresentationType: "no_availability",
@@ -322,18 +350,25 @@ export async function processSchedulingTurn(
     return result;
   }
 
-  const intentPatch = parseSchedulingIntentUpdate(input.inboundMessage, state, now);
-  state = mergeIntentIntoState(state, intentPatch);
+  state = applyInboundSchedulingUpdate(
+    state,
+    input.inboundMessage,
+    now,
+    state.offeredSlots ?? [],
+  );
 
   if (input.availabilityInput?.centralDate) {
     schedulingDateChanged =
       priorRequestDate != null &&
       input.availabilityInput.centralDate !== priorRequestDate;
+    const preserveExactTime =
+      state.availabilityPreference === "exact_time" && state.exactTimeMinutes != null;
     state = {
       ...state,
       requestedDate: input.availabilityInput.centralDate,
-      availabilityPreference:
-        input.availabilityInput.partOfDay === "morning"
+      availabilityPreference: preserveExactTime
+        ? "exact_time"
+        : input.availabilityInput.partOfDay === "morning"
           ? "morning"
           : input.availabilityInput.partOfDay === "afternoon"
             ? "afternoon"
@@ -342,58 +377,17 @@ export async function processSchedulingTurn(
               : input.availabilityInput.partOfDay === "full_day"
                 ? "full_day"
                 : state.availabilityPreference,
-      partOfDay: input.availabilityInput.partOfDay ?? state.partOfDay,
+      partOfDay: preserveExactTime
+        ? undefined
+        : input.availabilityInput.partOfDay ?? state.partOfDay,
       rejectedPartOfDay: schedulingDateChanged ? [] : state.rejectedPartOfDay,
       rejectedSlotStarts: schedulingDateChanged ? undefined : state.rejectedSlotStarts,
       offeredSlots: schedulingDateChanged ? undefined : state.offeredSlots,
     };
   }
 
+  state = normalizeImpossibleBounds(state);
   legacyScheduling = fromCanonicalSchedulingState(state);
-  const priorDate = legacyScheduling.centralDate;
-  const constraintPatch = detectSchedulingConstraints(
-    input.inboundMessage,
-    legacyScheduling,
-    legacyScheduling.offeredSlots ?? [],
-  );
-  if (
-    constraintPatch.centralDate != null &&
-    priorRequestDate != null &&
-    constraintPatch.centralDate !== priorRequestDate
-  ) {
-    schedulingDateChanged = true;
-  }
-  legacyScheduling = {
-    ...legacyScheduling,
-    ...constraintPatch,
-    rejectedPartOfDay: schedulingDateChanged
-      ? (constraintPatch.rejectedPartOfDay ?? [])
-      : (constraintPatch.rejectedPartOfDay ?? legacyScheduling.rejectedPartOfDay),
-    rejectedSlotStarts: schedulingDateChanged
-      ? constraintPatch.rejectedSlotStarts
-      : (constraintPatch.rejectedSlotStarts ?? legacyScheduling.rejectedSlotStarts),
-  };
-  state = {
-    ...state,
-    partOfDay: constraintPatch.partOfDay ?? legacyScheduling.partOfDay,
-    rejectedPartOfDay: schedulingDateChanged
-      ? (constraintPatch.rejectedPartOfDay ?? [])
-      : (legacyScheduling.rejectedPartOfDay ?? state.rejectedPartOfDay),
-    rejectedSlotStarts: legacyScheduling.rejectedSlotStarts,
-    searchAfterMinutes: legacyScheduling.searchAfterMinutes,
-    searchBeforeMinutes: legacyScheduling.searchBeforeMinutes,
-    earliestAllowedMinutes: legacyScheduling.earliestAllowedMinutes,
-    latestAllowedMinutes: legacyScheduling.latestAllowedMinutes,
-    requestedDate: constraintPatch.centralDate ?? state.requestedDate,
-    availabilityPreference:
-      constraintPatch.partOfDay === "morning"
-        ? "morning"
-        : constraintPatch.partOfDay === "afternoon"
-          ? "afternoon"
-          : constraintPatch.partOfDay === "evening"
-            ? "afternoon"
-            : state.availabilityPreference,
-  };
 
   trace.normalizedRequestedDate = state.requestedDate;
   trace.normalizedPreference = state.availabilityPreference;
@@ -458,23 +452,6 @@ export async function processSchedulingTurn(
   const timezone = CONSULTATION_TIMEZONE;
   const businessHours = getConsultationBusinessHours();
   const meetingDurationMinutes = getConsultationDurationMinutes();
-
-  if (state.requestedDate) {
-    const minutes = resolveRequestedMinutesFromMessage(input.inboundMessage, offered);
-    if (
-      minutes != null &&
-      hasExplicitExactTimeRequest(
-        input.inboundMessage,
-        fromCanonicalSchedulingState(state),
-      )
-    ) {
-      state = {
-        ...state,
-        availabilityPreference: "exact_time",
-        exactTimeMinutes: minutes,
-      };
-    }
-  }
 
   const maxOffer = input.maxOffer ?? 3;
 
@@ -577,6 +554,12 @@ export async function processSchedulingTurn(
     };
   }
 
+  const preQueryValidation = validateSchedulingConstraints(state);
+  if (!preQueryValidation.ok) {
+    state = normalizeImpossibleBounds(state);
+    legacyScheduling = fromCanonicalSchedulingState(state);
+  }
+
   const requestKey = buildSchedulingRequestKey(request);
   trace.staleStateInvalidated = trace.requestKeyBefore !== requestKey;
   state = invalidateOffersForRequestChange(state, requestKey);
@@ -670,9 +653,17 @@ export async function processSchedulingTurn(
       trace.zeroSlotReason =
         altFetched.rawSlots.length > 0 && alternatives.length === 0
           ? "constraint_filter"
-          : "provider_empty";
+          : fetched.rawSlots.length > 0
+            ? "constraint_filter"
+            : "provider_empty";
+      const typedOutcome = classifyZeroSlotOutcome({
+        request,
+        rawProviderSlotCount: fetched.rawSlots.length,
+        filteredSlotCount: 0,
+        priorValidation: preQueryValidation,
+      });
       return {
-        outcome: "NO_AVAILABILITY",
+        outcome: typedOutcome,
         state: {
           ...state,
           activeRequestKey: requestKey,
@@ -706,6 +697,8 @@ export async function processSchedulingTurn(
       queryStartIso: fetched.queryStartIso,
       queryEndIso: fetched.queryEndIso,
       trace,
+      request,
+      priorValidation: preQueryValidation,
     });
   }
 
@@ -734,6 +727,8 @@ export async function processSchedulingTurn(
     queryStartIso: fetched.queryStartIso,
     queryEndIso: fetched.queryEndIso,
     trace,
+    request,
+    priorValidation: preQueryValidation,
   });
 
   logSchedulingTrace(result.trace, input.tracePhoneSuffix);
@@ -766,11 +761,14 @@ export function buildReplyFromSchedulingResult(result: SchedulingTurnResult): st
     case "NEED_DATE":
       return buildNeedDateCopy();
     case "NO_AVAILABILITY":
+    case "REAL_NO_AVAILABILITY":
       if (!result.trace.providerInvoked) return buildNeedDateCopy();
-      if (result.state.exactTimeMinutes != null) {
-        return buildExactUnavailableCopy(result.offeredSlots);
-      }
       return buildNoAvailabilityCopy(Boolean(result.state.requestedDate));
+    case "EXACT_TIME_UNAVAILABLE":
+      if (!result.trace.providerInvoked) return buildNeedDateCopy();
+      return buildExactUnavailableCopy(result.offeredSlots);
+    case "INVALID_INTERNAL_CONSTRAINT":
+      return buildInternalConstraintCopy(Boolean(result.state.requestedDate));
     case "OFFERED_SLOTS":
     case "EXACT_TIME_AVAILABLE":
       return buildSlotOfferCopy(result.offeredSlots, result.offerPresentationType);

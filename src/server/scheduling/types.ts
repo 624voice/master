@@ -30,6 +30,9 @@ export type SchedulingOutcomeType =
   | "OFFERED_SLOTS"
   | "EXACT_TIME_AVAILABLE"
   | "NO_AVAILABILITY"
+  | "REAL_NO_AVAILABILITY"
+  | "EXACT_TIME_UNAVAILABLE"
+  | "INVALID_INTERNAL_CONSTRAINT"
   | "BOOKED"
   | "PROVIDER_CONFLICT"
   | "PROVIDER_ERROR"
@@ -46,6 +49,7 @@ export type OfferPresentationType =
 export type ZeroSlotReason =
   | "provider_empty"
   | "constraint_filter"
+  | "impossible_bounds"
   | "never_called"
   | "wrong_date"
   | "stale_state"

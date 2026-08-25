@@ -4,6 +4,7 @@ import type {
   CanonicalSchedulingState,
   SchedulingRequest,
 } from "~/server/scheduling/types";
+import { normalizeImpossibleBounds } from "~/server/scheduling/stateUpdate";
 
 export type LegacyConstraintFields = {
   partOfDay?: SchedulingPartOfDay;
@@ -133,29 +134,6 @@ export function invalidateOffersForRequestChange(
   };
 }
 
-/** Map legacy constraint fields onto a canonical scheduling request. */
-export function applyConstraintFieldsToRequest(
-  request: SchedulingRequest,
-  legacy?: LegacyConstraintFields,
-): SchedulingRequest {
-  if (!legacy) return request;
-  return {
-    ...request,
-    lowerTimeBound:
-      legacy.searchAfterMinutes ??
-      legacy.earliestAllowedMinutes ??
-      request.lowerTimeBound,
-    upperTimeBound:
-      legacy.searchBeforeMinutes ??
-      legacy.latestAllowedMinutes ??
-      request.upperTimeBound,
-    anchorTime: legacy.anchorTimeMinutes ?? request.anchorTime,
-    exactTimeMinutes:
-      request.exactTimeMinutes ??
-      (request.availabilityPreference === "exact_time" ? legacy.anchorTimeMinutes : undefined),
-  };
-}
-
 export function buildRequestFromCanonicalState(
   state: CanonicalSchedulingState & LegacyConstraintFields,
   timezone: string,
@@ -168,13 +146,18 @@ export function buildRequestFromCanonicalState(
   if (state.availabilityPreference !== "earliest" && !state.requestedDate) {
     return null;
   }
-  const base: SchedulingRequest = {
+
+  const normalized = normalizeImpossibleBounds(state);
+
+  return {
     timezone,
-    requestedDate: state.requestedDate,
-    availabilityPreference: state.availabilityPreference,
-    exactTimeMinutes: state.exactTimeMinutes,
+    requestedDate: normalized.requestedDate,
+    availabilityPreference: normalized.availabilityPreference!,
+    exactTimeMinutes: normalized.exactTimeMinutes,
+    lowerTimeBound: normalized.searchAfterMinutes ?? normalized.earliestAllowedMinutes,
+    upperTimeBound: normalized.searchBeforeMinutes ?? normalized.latestAllowedMinutes,
+    anchorTime: normalized.anchorTimeMinutes,
     businessHours,
     meetingDurationMinutes,
   };
-  return applyConstraintFieldsToRequest(base, state);
 }

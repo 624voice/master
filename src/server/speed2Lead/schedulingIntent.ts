@@ -1,8 +1,6 @@
 import { applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
-import {
-  mergeIntentIntoState,
-  parseSchedulingIntentUpdate,
-} from "~/server/scheduling/intentParser";
+import { applyInboundSchedulingUpdate, parseSchedulingStateUpdate } from "~/server/scheduling/intentParser";
+import { hasMeaningfulUpdate } from "~/server/scheduling/stateUpdate";
 import { fromCanonicalSchedulingState, toCanonicalSchedulingState } from "~/server/scheduling/state";
 import type { SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
@@ -15,8 +13,7 @@ export function prepareInboundSchedulingTurn<T extends AnyConversationContext>(
 ): T {
   const normalized = normalizeSessionMemory(context);
   const canonical = toCanonicalSchedulingState(normalized.scheduling);
-  const patch = parseSchedulingIntentUpdate(inboundMessage, canonical, now);
-  const merged = mergeIntentIntoState(canonical, patch);
+  const merged = applyInboundSchedulingUpdate(canonical, inboundMessage, now);
   const scheduling = fromCanonicalSchedulingState(merged);
   return applySchedulingMeta(normalized, scheduling) as T;
 }
@@ -55,11 +52,10 @@ export function extractNormalizedSchedulingIntent(args: {
   now?: Date;
 }): Partial<SchedulingState> {
   const canonical = toCanonicalSchedulingState(args.scheduling);
-  const patch = parseSchedulingIntentUpdate(
-    args.inboundMessage,
+  const merged = applyInboundSchedulingUpdate(
     canonical,
+    args.inboundMessage,
     args.now ?? new Date(),
   );
-  const merged = mergeIntentIntoState(canonical, patch);
   return fromCanonicalSchedulingState(merged);
 }

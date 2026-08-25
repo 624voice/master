@@ -14,7 +14,6 @@ import {
   classifySchedulingTimeIntent,
   detectRepetitionCorrection,
   detectSchedulingRefinement,
-  detectSchedulingConstraints,
   hasExplicitExactTimeRequest,
   hasKnownSchedulingDay,
   hasKnownSchedulingPartOfDay,
@@ -35,10 +34,8 @@ import {
   buildRequestFromCanonicalState,
 } from "~/server/scheduling/state";
 import type { SchedulingOutcomeType } from "~/server/scheduling/types";
-import {
-  mergeIntentIntoState,
-  parseSchedulingIntentUpdate,
-} from "~/server/scheduling/intentParser";
+import { applyInboundSchedulingUpdate, parseSchedulingStateUpdate } from "~/server/scheduling/intentParser";
+import { hasMeaningfulUpdate } from "~/server/scheduling/stateUpdate";
 import type { SchedulingState } from "~/server/speed2Lead/sessionMemoryTypes";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import type { ToolExecutionState } from "~/server/speed2Lead/tools";
@@ -157,21 +154,13 @@ function detectSchedulingIntent(message: string, context?: AnyConversationContex
       }
     }
     const canonical = toCanonicalSchedulingState(context.scheduling);
-    const patch = parseSchedulingIntentUpdate(message, canonical, now);
-    if (patch.requestedDate || patch.availabilityPreference || patch.exactTimeMinutes != null || patch.anchorTime != null) {
-      return true;
-    }
-    const constraints = detectSchedulingConstraints(
+    const update = parseSchedulingStateUpdate(
       message,
-      context.scheduling,
+      canonical,
+      now,
       context.scheduling?.offeredSlots ?? [],
     );
-    if (
-      constraints.rejectedPartOfDay?.length ||
-      constraints.rejectedSlotStarts?.length ||
-      constraints.partOfDay ||
-      constraints.centralDate
-    ) {
+    if (hasMeaningfulUpdate(update)) {
       return true;
     }
   }
@@ -318,8 +307,12 @@ export function planSchedulingGate(args: {
   const schedulingIntent = detectSchedulingIntent(args.inboundMessage, args.context, now);
   const strongInterest = detectStrongInterest(args.inboundMessage, args.context);
   let canonical = toCanonicalSchedulingState(args.context.scheduling);
-  const patch = parseSchedulingIntentUpdate(args.inboundMessage, canonical, now);
-  canonical = mergeIntentIntoState(canonical, patch);
+  canonical = applyInboundSchedulingUpdate(
+    canonical,
+    args.inboundMessage,
+    now,
+    args.context.scheduling?.offeredSlots ?? [],
+  );
   const preferenceInput = toAvailabilityInput(canonical);
 
   const offered = args.context.scheduling?.offeredSlots ?? [];
@@ -538,7 +531,10 @@ function resolveForcedSchedulingReply(
   const linkAllowed = allowCalendarLinkFallback({ plan, toolState, context });
   if (
     linkAllowed &&
-    (result.outcome === "PROVIDER_ERROR" || result.outcome === "NO_AVAILABILITY") &&
+    (result.outcome === "PROVIDER_ERROR" ||
+      result.outcome === "NO_AVAILABILITY" ||
+      result.outcome === "REAL_NO_AVAILABILITY" ||
+      result.outcome === "EXACT_TIME_UNAVAILABLE") &&
     result.offeredSlots.length === 0 &&
     !result.closedDayDate
   ) {
