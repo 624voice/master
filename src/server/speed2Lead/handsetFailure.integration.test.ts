@@ -249,7 +249,11 @@ describe("handset failure class A–J deployed-path replays", () => {
     );
     expect(result.handled).toBe(true);
     if (result.handled) {
-      expect(result.context.scheduling?.anchorTimeMinutes ?? 0).toBeGreaterThan(0);
+      expect(
+        result.context.scheduling?.exactTimeMinutes ??
+          result.context.scheduling?.anchorTimeMinutes ??
+          0,
+      ).toBeGreaterThan(0);
     }
   });
 

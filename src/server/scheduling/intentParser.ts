@@ -4,6 +4,7 @@ import {
   tomorrowCentralDate,
 } from "~/server/speed2Lead/schedulingRange";
 import type { AvailabilityPreference, CanonicalSchedulingState } from "~/server/scheduling/types";
+import type { LegacyConstraintFields } from "~/server/scheduling/state";
 
 const WEEKDAY_NAMES = [
   "sunday",
@@ -34,7 +35,19 @@ export type IntentPatch = {
   requestedDate?: string;
   availabilityPreference?: AvailabilityPreference;
   exactTimeMinutes?: number;
+  lowerTimeBound?: number;
+  upperTimeBound?: number;
+  anchorTime?: number;
 };
+
+const LATE_MORNING_RE = /\b(late morning|late-morning)\b/i;
+const LATE_AFTERNOON_RE = /\b(late afternoon|late-afternoon|end of day)\b/i;
+const NOONISH_RE = /\b(noon(?:-ish)?|around noon|about noon)\b/i;
+const BETWEEN_TIMES_RE =
+  /\bbetween\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\s+and\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\b/i;
+const AFTER_TIME_RE = /\bafter\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4})\b/i;
+const BEFORE_TIME_RE = /\bbefore\s+(?:noon|(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4}))\b/i;
+const AROUND_TIME_RE = /\b(?:around|about)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|\d{3,4}|noon)\b/i;
 
 function resolveDateFromMessage(message: string, now: Date): string | undefined {
   const lower = message.toLowerCase();
@@ -108,9 +121,60 @@ export function parseSchedulingIntentUpdate(
     patch.availabilityPreference = "afternoon";
   }
 
+  if (LATE_MORNING_RE.test(lower)) {
+    patch.availabilityPreference = "morning";
+    patch.lowerTimeBound = 10 * 60;
+    patch.upperTimeBound = 12 * 60;
+  } else if (LATE_AFTERNOON_RE.test(lower)) {
+    patch.availabilityPreference = "afternoon";
+    patch.lowerTimeBound = 14 * 60;
+    patch.upperTimeBound = 17 * 60;
+  }
+
+  const betweenMatch = lower.match(BETWEEN_TIMES_RE);
+  if (betweenMatch) {
+    const lowerBound = parseFlexibleTimeToken((betweenMatch[1] ?? "").replace(/\s+/g, ""));
+    const upperBound = parseFlexibleTimeToken((betweenMatch[2] ?? "").replace(/\s+/g, ""));
+    if (lowerBound != null && upperBound != null) {
+      patch.lowerTimeBound = lowerBound;
+      patch.upperTimeBound = upperBound;
+    }
+  }
+
+  const afterMatch = lower.match(AFTER_TIME_RE);
+  if (afterMatch && !betweenMatch) {
+    const minutes = parseFlexibleTimeToken((afterMatch[1] ?? "").replace(/\s+/g, ""));
+    if (minutes != null) patch.lowerTimeBound = minutes;
+  }
+
+  const beforeMatch = lower.match(BEFORE_TIME_RE);
+  if (beforeMatch && !betweenMatch) {
+    if ((beforeMatch[1] ?? "").toLowerCase() === "noon" || /\bbefore\s+noon\b/i.test(lower)) {
+      patch.upperTimeBound = 12 * 60;
+      patch.availabilityPreference = patch.availabilityPreference ?? "morning";
+    } else {
+      const minutes = parseFlexibleTimeToken((beforeMatch[1] ?? "").replace(/\s+/g, ""));
+      if (minutes != null) patch.upperTimeBound = minutes;
+    }
+  }
+
+  const aroundMatch = lower.match(AROUND_TIME_RE);
+  if (aroundMatch) {
+    const raw = (aroundMatch[1] ?? "").replace(/\s+/g, "");
+    const minutes = raw === "noon" ? 12 * 60 : parseFlexibleTimeToken(raw);
+    if (minutes != null) {
+      patch.anchorTime = minutes;
+      if (NOONISH_RE.test(lower)) {
+        patch.availabilityPreference = patch.availabilityPreference ?? "full_day";
+      }
+    }
+  } else if (NOONISH_RE.test(lower)) {
+    patch.anchorTime = 12 * 60;
+  }
+
   const exactMinutes = extractExactTimeMinutes(message);
   const dateForExact = patch.requestedDate ?? prior?.requestedDate;
-  if (exactMinutes != null && dateForExact) {
+  if (exactMinutes != null && dateForExact && !patch.anchorTime) {
     patch.availabilityPreference = "exact_time";
     patch.exactTimeMinutes = exactMinutes;
     patch.requestedDate = dateForExact;
@@ -156,9 +220,9 @@ function legacyPartToPreference(part?: string): AvailabilityPreference | undefin
 }
 
 export function mergeIntentIntoState(
-  prior: CanonicalSchedulingState,
+  prior: CanonicalSchedulingState & LegacyConstraintFields,
   patch: IntentPatch,
-): CanonicalSchedulingState {
+): CanonicalSchedulingState & LegacyConstraintFields {
   return {
     ...prior,
     requestedDate: patch.requestedDate ?? prior.requestedDate,
@@ -167,6 +231,11 @@ export function mergeIntentIntoState(
       patch.availabilityPreference === "exact_time"
         ? patch.exactTimeMinutes ?? prior.exactTimeMinutes
         : patch.exactTimeMinutes ?? prior.exactTimeMinutes,
+    searchAfterMinutes: patch.lowerTimeBound ?? prior.searchAfterMinutes,
+    searchBeforeMinutes: patch.upperTimeBound ?? prior.searchBeforeMinutes,
+    earliestAllowedMinutes: patch.lowerTimeBound ?? prior.earliestAllowedMinutes,
+    latestAllowedMinutes: patch.upperTimeBound ?? prior.latestAllowedMinutes,
+    anchorTimeMinutes: patch.anchorTime ?? prior.anchorTimeMinutes,
   };
 }
 

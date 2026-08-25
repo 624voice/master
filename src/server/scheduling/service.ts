@@ -38,7 +38,7 @@ import {
 import {
   looksLikeSlotSelection,
 } from "~/server/scheduling/selection";
-import { fromCanonicalSchedulingState, invalidateOffersForRequestChange } from "~/server/scheduling/state";
+import { fromCanonicalSchedulingState, invalidateOffersForRequestChange, buildRequestFromCanonicalState } from "~/server/scheduling/state";
 import type { LegacyConstraintFields } from "~/server/scheduling/state";
 import {
   applyBookingTraceFields,
@@ -231,6 +231,7 @@ function finalizeOfferResult(args: {
   });
 
   if (args.filteredSlots.length === 0) {
+    args.trace.noAvailabilityReason = args.trace.zeroSlotReason ?? "provider_empty";
     return {
       outcome: "NO_AVAILABILITY",
       state: nextState,
@@ -396,6 +397,9 @@ export async function processSchedulingTurn(
   trace.normalizedRequestedDate = state.requestedDate;
   trace.normalizedPreference = state.availabilityPreference;
   trace.normalizedExactTime = state.exactTimeMinutes;
+  trace.lowerTimeBound = state.searchAfterMinutes ?? state.earliestAllowedMinutes;
+  trace.upperTimeBound = state.searchBeforeMinutes ?? state.latestAllowedMinutes;
+  trace.anchorTime = state.anchorTimeMinutes ?? state.exactTimeMinutes;
 
   const offered = state.offeredSlots ?? [];
   if (offered.length > 0 && resolveOfferedSlotSelectionCandidate(input.inboundMessage, offered)) {
@@ -546,7 +550,12 @@ export async function processSchedulingTurn(
     return result;
   }
 
-  const request = buildSchedulingRequestFromState(state, timezone, businessHours, meetingDurationMinutes);
+  const request = buildRequestFromCanonicalState(
+    state,
+    timezone,
+    businessHours,
+    meetingDurationMinutes,
+  );
   if (!request) {
     if (!detectSchedulingIntent(input.inboundMessage)) {
       return {
@@ -568,6 +577,7 @@ export async function processSchedulingTurn(
   }
 
   const requestKey = buildSchedulingRequestKey(request);
+  trace.staleStateInvalidated = trace.requestKeyBefore !== requestKey;
   state = invalidateOffersForRequestChange(state, requestKey);
   legacyScheduling = fromCanonicalSchedulingState(state);
 

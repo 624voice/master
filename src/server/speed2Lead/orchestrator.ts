@@ -39,6 +39,7 @@ import {
   shouldSendDeterministicSchedulingAsk,
 } from "~/server/speed2Lead/conversationStage";
 import { applyDisposition, applySchedulingMeta, normalizeSessionMemory } from "~/server/speed2Lead/memory";
+import { calendarAttendeeInviteEnabled } from "~/server/appointmentLifecycle/googleCalendar";
 import { applyMeetingBridgeProgress } from "~/server/speed2Lead/conversationHandoff";
 import {
   prepareInboundSchedulingTurn,
@@ -207,7 +208,14 @@ function resolveFinalReply(
   }
 
   if (toolState.bookingConfirmed && toolState.bookingStart) {
-    return sanitized.trim() || `Perfect — you're booked. I'll send the details shortly.`;
+    const email =
+      context.knownFacts?.email ?? ("email" in context ? context.email : undefined);
+    return buildBookingConfirmationMessage(toolState.bookingStart, context.firstName, {
+      email,
+      sendsCalendarInvite: calendarAttendeeInviteEnabled(email),
+      useLifecycleCopy: false,
+      meetingLink: context.scheduling?.googleMeetUrl,
+    });
   }
 
   if (toolState.bookingFailed) {
@@ -537,11 +545,7 @@ export async function orchestrateInboundTurn(
     return { handled: true, reply: softCloseAckMessage(), context };
   }
 
-  let workingContext = advanceDiscoveryOnInbound(
-    applyMeetingBridgeProgress({ ...context, lastTurnSemantics: semantics }, inboundMessage, semantics),
-    inboundMessage,
-    semantics,
-  );
+  let workingContext = advanceDiscoveryOnInbound(context, inboundMessage, semantics);
   workingContext = prepareInboundSchedulingTurn(workingContext, inboundMessage, now);
   let gatePlan = planSchedulingGate({ inboundMessage, context: workingContext, now });
   const deterministicSchedulingAsk = shouldSendDeterministicSchedulingAsk(

@@ -201,6 +201,9 @@ export function advanceDiscoveryOnInbound<T extends AnyConversationContext>(
 }
 
 export function recordDiagnosticQuestionAsked<T extends AnyConversationContext>(context: T): T {
+  if (isMeetingInterestConfirmed(context.knownFacts)) {
+    return context;
+  }
   const facts = normalizeDiscoveryFacts(context.knownFacts);
   const nextCount = Math.min(MAX_DIAGNOSTIC_QUESTIONS, (facts.diagnosticQuestionsAsked ?? 0) + 1);
   let phase = facts.discoveryPhase ?? "diagnostic";

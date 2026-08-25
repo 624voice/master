@@ -152,6 +152,15 @@ export function resolveLlmTurnTask(
   return { stage, task: "acknowledge_report_reaction_and_ask_one_operational_question" };
 }
 
+/** Code-level invariant: discovery tasks are illegal after meeting interest is confirmed. */
+export function isDiscoveryTaskBlocked(context: AnyConversationContext, task: LlmTurnTask): boolean {
+  if (!isMeetingInterestConfirmed(context.knownFacts)) return false;
+  return (
+    task === "ask_one_operational_followup" ||
+    task === "acknowledge_report_reaction_and_ask_one_operational_question"
+  );
+}
+
 /** After bridge agreement, code owns the first scheduling question on the same turn. */
 export function shouldSendDeterministicSchedulingAsk(
   context: AnyConversationContext,

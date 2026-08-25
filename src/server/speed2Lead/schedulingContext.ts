@@ -68,7 +68,7 @@ const REPETITION_CORRECTION_RE =
   /\b(you already asked|already told you|i already said|like i just said|you keep asking|same question again|asked me that)\b/i;
 
 const REFINEMENT_LATER_RE =
-  /\b(later|too early|after those|anything later|something later|need something later|anything after|move later|push it later)\b/i;
+  /\b(later|too early|after those|anything later|something later|need something later|anything after|move later|push it later|later that morning|anything later that morning|later in the morning)\b/i;
 
 const REFINEMENT_EARLIER_RE =
   /\b(earlier|too late|before those|anything earlier|something earlier|move earlier)\b/i;
@@ -1002,12 +1002,18 @@ export function detectSchedulingRefinement(
 
   if (REFINEMENT_LATER_RE.test(lower)) {
     const latest = latestOfferedMinutes(offeredSlots) ?? scheduling?.searchAfterMinutes;
+    const preserveMorning =
+      /\b(?:later that morning|anything later that morning|later in the morning)\b/i.test(lower) ||
+      scheduling?.partOfDay === "morning";
     return {
-      input: baseInput,
+      input: {
+        ...baseInput,
+        partOfDay: preserveMorning ? "morning" : baseInput.partOfDay,
+      },
       rankPreferences: {
         searchAfterMinutes: latest ?? undefined,
       },
-      reason: "refine_later",
+      reason: preserveMorning ? "refine_later_morning" : "refine_later",
     };
   }
 

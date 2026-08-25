@@ -3,6 +3,7 @@ import type { AvailabilityPreference, SchedulingRequest } from "~/server/schedul
 
 const DEFAULT_MAX_OFFER = 3;
 const DEFAULT_MIN_SEPARATION_MINUTES = 45;
+const ANCHOR_RANK_TOLERANCE_MINUTES = 90;
 
 function partOfDayForMinutes(minutes: number): "morning" | "afternoon" | "evening" {
   if (minutes < 12 * 60) return "morning";
@@ -17,10 +18,29 @@ function slotMatchesPreference(minutes: number, preference: AvailabilityPreferen
   return partOfDayForMinutes(minutes) === preference;
 }
 
+function slotMatchesBounds(minutes: number, request: SchedulingRequest): boolean {
+  if (request.lowerTimeBound != null && minutes < request.lowerTimeBound) {
+    return false;
+  }
+  if (request.upperTimeBound != null && minutes > request.upperTimeBound) {
+    return false;
+  }
+  return true;
+}
+
 function sortByTime(slots: string[]): string[] {
   return [...slots].sort(
     (left, right) => new Date(left).getTime() - new Date(right).getTime(),
   );
+}
+
+function sortByAnchorProximity(slots: string[], anchorMinutes: number): string[] {
+  return [...slots].sort((left, right) => {
+    const leftMinutes = slotStartMinutes(left);
+    const rightMinutes = slotStartMinutes(right);
+    if (leftMinutes == null || rightMinutes == null) return 0;
+    return Math.abs(leftMinutes - anchorMinutes) - Math.abs(rightMinutes - anchorMinutes);
+  });
 }
 
 function pickSpreadSlots(candidates: string[], maxOffer: number): string[] {
@@ -62,8 +82,17 @@ export function filterAndRankSlots(args: {
   candidates = candidates.filter((slot) => {
     const minutes = slotStartMinutes(slot);
     if (minutes === null) return false;
-    return slotMatchesPreference(minutes, args.request.availabilityPreference);
+    if (!slotMatchesPreference(minutes, args.request.availabilityPreference)) return false;
+    return slotMatchesBounds(minutes, args.request);
   });
+
+  if (args.request.anchorTime != null) {
+    candidates = sortByAnchorProximity(candidates, args.request.anchorTime).filter((slot) => {
+      const minutes = slotStartMinutes(slot);
+      if (minutes == null) return false;
+      return Math.abs(minutes - args.request.anchorTime!) <= ANCHOR_RANK_TOLERANCE_MINUTES;
+    });
+  }
 
   if (args.request.availabilityPreference === "earliest") {
     return candidates.slice(0, maxOffer);

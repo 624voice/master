@@ -13,6 +13,12 @@ export type SchedulingRequest = {
   requestedDate?: string;
   availabilityPreference: AvailabilityPreference;
   exactTimeMinutes?: number;
+  /** Lower bound in minutes from midnight (inclusive). */
+  lowerTimeBound?: number;
+  /** Upper bound in minutes from midnight (inclusive). */
+  upperTimeBound?: number;
+  /** Anchor time for around/near ranking. */
+  anchorTime?: number;
   businessHours: ConsultationBusinessHours;
   meetingDurationMinutes: number;
 };
@@ -117,6 +123,11 @@ export type SchedulingTrace = ProviderDiagnostics & {
   normalizedRequestedDate?: string;
   normalizedPreference?: AvailabilityPreference;
   normalizedExactTime?: number;
+  lowerTimeBound?: number;
+  upperTimeBound?: number;
+  anchorTime?: number;
+  staleStateInvalidated?: boolean;
+  noAvailabilityReason?: string;
   finalOfferedSlots: string[];
   responseSource: ResponseSource;
   offerPresentationType: OfferPresentationType;

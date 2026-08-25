@@ -2,6 +2,7 @@ import type { SchedulingPartOfDay, SchedulingState } from "~/server/speed2Lead/s
 import type {
   AvailabilityPreference,
   CanonicalSchedulingState,
+  SchedulingRequest,
 } from "~/server/scheduling/types";
 
 export type LegacyConstraintFields = {
@@ -12,6 +13,7 @@ export type LegacyConstraintFields = {
   searchBeforeMinutes?: number;
   earliestAllowedMinutes?: number;
   latestAllowedMinutes?: number;
+  anchorTimeMinutes?: number;
   availabilityAttempts?: number;
 };
 
@@ -61,6 +63,7 @@ export function toCanonicalSchedulingState(
     earliestAllowedMinutes: legacy.earliestAllowedMinutes,
     latestAllowedMinutes: legacy.latestAllowedMinutes,
     availabilityAttempts: legacy.availabilityAttempts,
+    anchorTimeMinutes: legacy.anchorTimeMinutes,
   };
 }
 
@@ -85,7 +88,7 @@ export function fromCanonicalSchedulingState(
     exactTimeMinutes: canonical.exactTimeMinutes,
     centralDate: canonical.requestedDate,
     partOfDay,
-    anchorTimeMinutes: canonical.exactTimeMinutes,
+    anchorTimeMinutes: canonical.anchorTimeMinutes ?? canonical.exactTimeMinutes,
     activeRequestKey: canonical.activeRequestKey,
     offeredSlots: canonical.offeredSlots,
     lastPresentedOfferKey: canonical.lastPresentedOfferKey,
@@ -123,6 +126,57 @@ export function invalidateOffersForRequestChange(
     lastPresentedOfferKey: undefined,
     rejectedPartOfDay: dateChanged ? [] : state.rejectedPartOfDay,
     rejectedSlotStarts: dateChanged ? undefined : state.rejectedSlotStarts,
+    searchAfterMinutes: dateChanged ? undefined : state.searchAfterMinutes,
+    searchBeforeMinutes: dateChanged ? undefined : state.searchBeforeMinutes,
+    earliestAllowedMinutes: dateChanged ? undefined : state.earliestAllowedMinutes,
+    latestAllowedMinutes: dateChanged ? undefined : state.latestAllowedMinutes,
+    anchorTimeMinutes: dateChanged ? undefined : state.anchorTimeMinutes,
     status: state.status === "slots_offered" ? "idle" : state.status,
   };
+}
+
+/** Map legacy constraint fields onto a canonical scheduling request. */
+export function applyConstraintFieldsToRequest(
+  request: SchedulingRequest,
+  legacy?: LegacyConstraintFields,
+): SchedulingRequest {
+  if (!legacy) return request;
+  return {
+    ...request,
+    lowerTimeBound:
+      legacy.searchAfterMinutes ??
+      legacy.earliestAllowedMinutes ??
+      request.lowerTimeBound,
+    upperTimeBound:
+      legacy.searchBeforeMinutes ??
+      legacy.latestAllowedMinutes ??
+      request.upperTimeBound,
+    anchorTime: legacy.anchorTimeMinutes ?? request.anchorTime,
+    exactTimeMinutes:
+      request.exactTimeMinutes ??
+      (request.availabilityPreference === "exact_time" ? legacy.anchorTimeMinutes : undefined),
+  };
+}
+
+export function buildRequestFromCanonicalState(
+  state: CanonicalSchedulingState & LegacyConstraintFields,
+  timezone: string,
+  businessHours: import("~/server/appointmentLifecycle/consultationConfig").ConsultationBusinessHours,
+  meetingDurationMinutes: number,
+): SchedulingRequest | null {
+  if (!state.availabilityPreference) {
+    return null;
+  }
+  if (state.availabilityPreference !== "earliest" && !state.requestedDate) {
+    return null;
+  }
+  const base: SchedulingRequest = {
+    timezone,
+    requestedDate: state.requestedDate,
+    availabilityPreference: state.availabilityPreference,
+    exactTimeMinutes: state.exactTimeMinutes,
+    businessHours,
+    meetingDurationMinutes,
+  };
+  return applyConstraintFieldsToRequest(base, state);
 }

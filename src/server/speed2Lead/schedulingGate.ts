@@ -47,10 +47,18 @@ import { logSpeed2LeadTestEvent } from "~/server/speed2Lead/testObservability";
 import { buildNeedDateCopy, buildSlotOfferCopy } from "~/server/scheduling/copy";
 import { calendarAttendeeInviteEnabled } from "~/server/appointmentLifecycle/googleCalendar";
 import { preferenceToLegacyPartOfDay } from "~/server/scheduling/requestKey";
+import { buildSchedulingRequestKey } from "~/server/scheduling/requestKey";
+import {
+  buildSchedulingCustomerQuestionReply,
+  detectSchedulingCustomerQuestion,
+  isSchedulingCustomerQuestion,
+  type SchedulingCustomerQuestionKind,
+} from "~/server/speed2Lead/customerQuestions";
 
 export type SchedulingGateAction =
   | { type: "none" }
   | { type: "ask_preference" }
+  | { type: "answer_customer_question"; kind: SchedulingCustomerQuestionKind }
   | { type: "get_availability"; input: AvailabilityRangeInput; reason: string }
   | { type: "get_availability_for_request"; input: AvailabilityRangeInput; reason: string }
   | { type: "book_appointment"; start: string; reason: string };
@@ -258,6 +266,17 @@ export function planSchedulingGate(args: {
   }
 
   if (args.context.scheduling?.status === "confirmed") {
+    const customerQuestion = detectSchedulingCustomerQuestion(args.inboundMessage, args.context);
+    if (isSchedulingCustomerQuestion(customerQuestion)) {
+      return {
+        action: { type: "answer_customer_question", kind: customerQuestion },
+        schedulingIntent: true,
+        strongInterest: false,
+        explicitCalendarLinkRequest,
+        selectedSlotStart: null,
+        preferenceInput: null,
+      };
+    }
     return {
       action: { type: "none" },
       schedulingIntent: false,
@@ -265,6 +284,21 @@ export function planSchedulingGate(args: {
       explicitCalendarLinkRequest,
       selectedSlotStart: null,
       preferenceInput: null,
+    };
+  }
+
+  const earlyCustomerQuestion = detectSchedulingCustomerQuestion(args.inboundMessage, args.context);
+  if (
+    isSchedulingCustomerQuestion(earlyCustomerQuestion) &&
+    (isActiveV2Scheduling(args.context) || schedulingFactsComplete(args.context.scheduling))
+  ) {
+    return {
+      action: { type: "answer_customer_question", kind: earlyCustomerQuestion },
+      schedulingIntent: true,
+      strongInterest: false,
+      explicitCalendarLinkRequest,
+      selectedSlotStart: null,
+      preferenceInput: toAvailabilityInput(toCanonicalSchedulingState(args.context.scheduling)),
     };
   }
 
@@ -448,6 +482,7 @@ export function requiresDeterministicSchedulingCompletion(
   _context: AnyConversationContext,
 ): boolean {
   if (plan.action.type === "book_appointment") return true;
+  if (plan.action.type === "answer_customer_question") return true;
   if (plan.action.type === "get_availability" || plan.action.type === "get_availability_for_request") {
     return Boolean(plan.action.input.centralDate || (plan.action.input.rangeStart && plan.action.input.rangeEnd));
   }
@@ -552,6 +587,28 @@ export async function enforceSchedulingGate(args: {
       activeRequestKey: context.scheduling?.activeRequestKey,
       schedulingIntent: args.plan.schedulingIntent,
       outcome: "NEED_DATE",
+    };
+  }
+
+  if (args.plan.action.type === "answer_customer_question") {
+    gateApplied = true;
+    forcedReply =
+      buildSchedulingCustomerQuestionReply({
+        kind: args.plan.action.kind,
+        context,
+        toolState,
+        inboundMessage: args.inboundMessage,
+      }) ?? buildSchedulingResumeReply(context);
+    return {
+      context,
+      toolState,
+      forcedReply,
+      gateApplied,
+      calendarLinkAllowed,
+      availabilityFetched,
+      bookingAttempted,
+      activeRequestKey: context.scheduling?.activeRequestKey,
+      schedulingIntent: args.plan.schedulingIntent,
     };
   }
 
@@ -823,13 +880,23 @@ export function schedulingRequestKey(input: {
   partOfDay?: string;
   availabilityPreference?: string;
   exactTimeMinutes?: number;
+  lowerTimeBound?: number;
+  upperTimeBound?: number;
+  anchorTime?: number;
 }): string {
   const date = input.requestedDate ?? input.centralDate ?? "unknown";
-  const pref = input.availabilityPreference ?? input.partOfDay ?? "full_day";
-  if (pref === "exact_time" && input.exactTimeMinutes != null) {
-    return `date:${date}|exact:${input.exactTimeMinutes}`;
-  }
-  return `date:${date}|${pref}`;
+  const pref = (input.availabilityPreference ?? input.partOfDay ?? "full_day") as import("~/server/scheduling/types").AvailabilityPreference;
+  return buildSchedulingRequestKey({
+    timezone: CONSULTATION_TIMEZONE,
+    requestedDate: date === "unknown" ? undefined : date,
+    availabilityPreference: pref === "evening" ? "afternoon" : pref,
+    exactTimeMinutes: input.exactTimeMinutes,
+    lowerTimeBound: input.lowerTimeBound,
+    upperTimeBound: input.upperTimeBound,
+    anchorTime: input.anchorTime,
+    businessHours: getConsultationBusinessHours(),
+    meetingDurationMinutes: getConsultationDurationMinutes(),
+  });
 }
 
 export function resolveOfferedSlotSelection(

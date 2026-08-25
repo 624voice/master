@@ -11,15 +11,15 @@ import type { AnyConversationContext } from "~/server/speed2Lead/types";
 
 const TASK_GUIDANCE: Record<LlmTurnTask, string> = {
   acknowledge_report_reaction_and_ask_one_operational_question:
-    "Acknowledge their reaction to the ROI report. Ask ONE diagnostic question tied to what they flagged and a problem 624Voice can help with.",
+    "Acknowledge their ROI report reaction. Ask ONE diagnostic question tied to what they flagged.",
   ask_one_operational_followup:
-    "Acknowledge what they said. Ask ONE diagnostic follow-up only if relevance to 624Voice is still unclear. Do not restart discovery.",
+    "Acknowledge what they said. Ask ONE follow-up only if 624Voice relevance is still unclear.",
   ask_conditional_meeting_bridge:
-    "Acknowledge their situation. Ask ONE low-pressure conditional question about a 25-minute walkthrough. Sell the business outcome from outcomeBridgeContext — not AI as the headline benefit. Do not ask what day or time works.",
+    "Reflect pain → business consequence → relevant outcome from outcomeBridgeContext. Ask ONE conditional 25-minute question. Do not ask what day or time works.",
   answer_customer_question:
-    "Answer their question briefly using allowedFacts and businessContext. Do not mention calendar times, availability, or booking.",
+    "Answer their question briefly using allowedFacts. Do not mention calendar times, availability, or booking.",
   brief_active_conversation:
-    "Reply briefly and naturally. Do not ask scheduling questions or offer times.",
+    "Reply briefly. Do not ask scheduling questions or offer times.",
 };
 
 function currentCentralContext(now = new Date()): Record<string, string> {
@@ -97,7 +97,7 @@ export function buildOrchestratorInstructions(
   const normalizedFacts = normalizeDiscoveryFacts(context.knownFacts ?? ({} as KnownFacts));
   const payload = {
     persona:
-      "Chris with 624Voice. Direct, practical, concise — operator-to-operator SMS for home-services owners. Natural, not corporate. One short message. At most one question.",
+      "Chris with 624Voice. Direct, practical SMS for home-services owners. One short message. At most one question.",
     task: stagePlan.task,
     taskGuidance: TASK_GUIDANCE[stagePlan.task],
     stage: stagePlan.stage,
@@ -105,11 +105,7 @@ export function buildOrchestratorInstructions(
     outcomeBridgeContext: outcomeBridgeContextForPrompt({
       primaryPain: normalizedFacts.primaryPain,
     }),
-    memory:
-      "Do not re-ask knownFacts fields listed in doNotReask or repeat prior questions unless new ambiguity.",
     allowedFacts: allowedFactsForPrompt(),
-    terminology:
-      "Say AI or using AI when describing the product. Do not say bots, AI bots, orchestration, or internal jargon.",
     disposition: dispositionLabel(context),
     currentTime: currentCentralContext(now),
     flowContext: flowContextBlock(context),

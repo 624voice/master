@@ -1,13 +1,27 @@
 import type { AvailabilityPreference, SchedulingRequest } from "~/server/scheduling/types";
 
+function boundSegment(value: number | undefined, prefix: string): string {
+  return value != null ? `${prefix}${value}` : "";
+}
+
 export function buildSchedulingRequestKey(request: SchedulingRequest): string {
+  const bounds = [
+    boundSegment(request.lowerTimeBound, "lo:"),
+    boundSegment(request.upperTimeBound, "hi:"),
+    boundSegment(request.anchorTime, "anchor:"),
+  ]
+    .filter(Boolean)
+    .join("|");
+
   if (request.availabilityPreference === "exact_time" && request.exactTimeMinutes != null) {
-    return `date:${request.requestedDate ?? "unknown"}|exact:${request.exactTimeMinutes}`;
+    const base = `date:${request.requestedDate ?? "unknown"}|exact:${request.exactTimeMinutes}`;
+    return bounds ? `${base}|${bounds}` : base;
   }
   if (request.availabilityPreference === "earliest" && !request.requestedDate) {
-    return "earliest:global";
+    return bounds ? `earliest:global|${bounds}` : "earliest:global";
   }
-  return `date:${request.requestedDate ?? "unknown"}|${request.availabilityPreference}`;
+  const base = `date:${request.requestedDate ?? "unknown"}|${request.availabilityPreference}`;
+  return bounds ? `${base}|${bounds}` : base;
 }
 
 export function buildRangeRequestKey(rangeStart: string, rangeEnd: string): string {
