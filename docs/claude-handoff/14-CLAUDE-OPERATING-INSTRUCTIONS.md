@@ -89,7 +89,7 @@ Validation code: `src/server/sms/twilio.ts` → `isValidTwilioWebhook()`
 ### 9. Recommend Lowest-Risk A–H Execution
 
 Recommended approach:
-1. Clear test phone: `bun run scripts/reset-s2l-test-phone.ts +12148438991`
+1. Clear test phone: `bun run scripts/reset-s2l-test-phone.ts +1XXXXXXXXXX`
 2. Verify preview SHA
 3. Send A–H messages from handset (allowlisted number)
 4. Capture server-side state via logging or Redis inspection if available
@@ -171,6 +171,6 @@ Stop coding and audit architecture if:
 - Health: `/api/health`
 - Inbound webhook: `/api/sms/inbound`
 - OAuth setup: `/setup/google-calendar`
-- Test phones: `+12148438991`, `+18178544399` (allowlisted on preview)
+- Test phones: allowlisted via `SPEED2LEAD_TEST_PHONES` on preview (do not commit real numbers in docs)
 
 Do not expose secrets (Twilio auth token, OAuth client secret, CRON_SECRET, API keys).

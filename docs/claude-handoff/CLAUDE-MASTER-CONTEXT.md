@@ -52,8 +52,7 @@ Discovery: max 2 diagnostic questions. Rich single answer → bridge after one. 
 A–H deployed-boundary scheduling sequence has NOT been completed through the real webhook.
 
 Next validation: Twilio-signed preview requests OR real handset SMS on allowlisted numbers:
-- `+12148438991`
-- `+18178544399`
+- `+1XXXXXXXXXX` / `+1YYYYYYYYYY` (allowlisted via `SPEED2LEAD_TEST_PHONES` on preview)
 
 Sessions cleared. Do not expose secrets. Do not disable signature validation.
 

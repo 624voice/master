@@ -130,8 +130,8 @@ Options to run A–H:
 ## Test Session State
 
 Known handset test numbers (allowlisted via `SPEED2LEAD_TEST_PHONES` on preview):
-- `+12148438991`
-- `+18178544399`
+- `+1XXXXXXXXXX` (allowlisted test handset — see `SPEED2LEAD_TEST_PHONES` on preview)
+- `+1YYYYYYYYYY` (second allowlisted test handset)
 
 Sessions cleared via `scripts/reset-s2l-test-phone.ts` before this handoff.
 

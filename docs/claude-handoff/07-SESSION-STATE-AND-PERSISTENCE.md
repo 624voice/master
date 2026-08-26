@@ -153,8 +153,8 @@ Implementation: `src/server/speed2Lead/resetTestPhone.ts`
 Only phones in `SPEED2LEAD_TEST_PHONES` allowlist can be reset. Non-allowlisted phones throw error.
 
 Known test numbers (allowlisted on preview):
-- `+12148438991`
-- `+18178544399`
+- `+1XXXXXXXXXX` (allowlisted test handset — see `SPEED2LEAD_TEST_PHONES` on preview)
+- `+1YYYYYYYYYY` (second allowlisted test handset)
 
 Sessions for these numbers were cleared before this handoff.
 
