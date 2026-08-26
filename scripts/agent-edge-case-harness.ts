@@ -262,8 +262,9 @@ async function runScenario(
 ): Promise<ScenarioReport> {
   await resetHarnessPhone(phone);
 
-  const execution: "local" | "preview" = scenario.execution ?? "local";
   const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
+  const execution: "local" | "preview" =
+    useMockSlots && globalMockSlots ? "local" : (scenario.execution ?? "local");
   if (useMockSlots && execution === "local") {
     setHarnessOfferSlotsOverride(() => harnessMockOfferSlots(getActiveProfile()));
   } else {
