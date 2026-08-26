@@ -85,18 +85,27 @@ export async function claimInboundMessageSid(messageSid: string, phone: string):
 
 /** Serialize read-modify-write per phone so concurrent webhooks can't double-send. */
 export async function acquireAgentInboundLock(phone: string): Promise<string | null> {
+  return acquireAgentPhoneLock(phone);
+}
+
+export async function releaseAgentInboundLock(phone: string, token: string): Promise<void> {
+  await releaseAgentPhoneLock(phone, token);
+}
+
+/** Shared per-phone lock for any agent session mutation (inbound turns, conversation start). */
+export async function acquireAgentPhoneLock(phone: string): Promise<string | null> {
   const redis = getRedis();
   const token = crypto.randomUUID();
-  const acquired = await redis.set(`speed2lead:agent:inbound-lock:${normalizePhone(phone)}`, token, {
+  const acquired = await redis.set(`speed2lead:agent:phone-lock:${normalizePhone(phone)}`, token, {
     nx: true,
     ex: INBOUND_LOCK_SECONDS,
   });
   return acquired ? token : null;
 }
 
-export async function releaseAgentInboundLock(phone: string, token: string): Promise<void> {
+export async function releaseAgentPhoneLock(phone: string, token: string): Promise<void> {
   const redis = getRedis();
-  const key = `speed2lead:agent:inbound-lock:${normalizePhone(phone)}`;
+  const key = `speed2lead:agent:phone-lock:${normalizePhone(phone)}`;
   const current = await redis.get<string>(key);
   if (current === token) {
     await redis.del(key);
