@@ -83,6 +83,11 @@ export async function handleAgentInboundSms(
 
   if (isStopKeyword(body)) {
     await setOptedOut(phone);
+    const stopSession = await getAgentSession(phone);
+    if (stopSession) {
+      const updated = await cancelPendingPainPrompt(stopSession);
+      await saveAgentSession(updated);
+    }
     return; // Twilio/carrier sends the compliance confirmation; don't double-text.
   }
 
