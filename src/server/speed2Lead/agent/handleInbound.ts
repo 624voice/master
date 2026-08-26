@@ -17,6 +17,7 @@ import {
   type OfferedSlot,
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
+import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
 import { sendSms } from "~/server/sms/twilio";
@@ -86,6 +87,9 @@ export async function handleAgentInboundSms(
 
   session = appendMessage(session, "user", body);
   session.lastInboundMessageSid = messageSid;
+  // The prospect engaged before the scheduled second opener message went
+  // out — cancel it rather than asking a question they've already answered.
+  session = await cancelPendingPainPrompt(session);
 
   const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
   const turnContext: TurnContext = { slotsUnavailable: fetchFailed };

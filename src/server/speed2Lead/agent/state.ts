@@ -56,6 +56,13 @@ export type AgentSession = {
    * same message instead of double-processing it. */
   lastInboundMessageSid?: string;
 
+  /** ISO time the second opener message ("which part stood out") is due to
+   * send. Undefined once sent or cancelled (prospect replied early). */
+  painPromptDueAt?: string;
+  /** True once the second opener message has been sent OR skipped because
+   * the prospect replied before the delay elapsed. */
+  painPromptResolved?: boolean;
+
   messages: AgentMessage[];
   createdAt: string;
   updatedAt: string;
@@ -64,8 +71,28 @@ export type AgentSession = {
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
 const MAX_STORED_MESSAGES = 24;
 
+/** Redis SET of phones with a pending second-opener message, scanned by the
+ * pain-prompt cron the same way speed2lead:nurture-followups is scanned. */
+const PAIN_PROMPT_INDEX_KEY = "speed2lead:agent:pain-prompt-pending";
+
 function sessionKey(phone: string): string {
   return `speed2lead:agent:session:${normalizePhone(phone)}`;
+}
+
+export async function enqueuePainPrompt(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.sadd(PAIN_PROMPT_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function dequeuePainPrompt(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.srem(PAIN_PROMPT_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function listPendingPainPromptPhones(): Promise<string[]> {
+  const redis = getRedis();
+  const phones = (await redis.smembers(PAIN_PROMPT_INDEX_KEY)) as string[] | null;
+  return phones ?? [];
 }
 
 export async function getAgentSession(phone: string): Promise<AgentSession | null> {
@@ -87,6 +114,7 @@ export async function saveAgentSession(session: AgentSession): Promise<void> {
 export async function clearAgentSession(phone: string): Promise<void> {
   const redis = getRedis();
   await redis.del(sessionKey(phone));
+  await dequeuePainPrompt(phone);
 }
 
 export function createAgentSession(input: {

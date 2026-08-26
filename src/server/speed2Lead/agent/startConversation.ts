@@ -2,6 +2,7 @@ import type { RoiResult } from "~/lib/roi/computeRoi";
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
+import { buildOpenerMessage1, schedulePainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import {
   appendMessage,
   createAgentSession,
@@ -30,20 +31,6 @@ export function getPrimaryOpportunity(scenarios: RoiResult[]): string {
   ).label;
 }
 
-function buildOpeningMessage(input: {
-  firstName?: string;
-  businessName: string;
-  annualOpportunity: string;
-}): string {
-  const profile = getActiveProfile();
-  const greeting = input.firstName ? `Hey ${input.firstName}, ` : "Hey, ";
-  return (
-    `${greeting}${profile.senderFirstName} with ${profile.companyName}. I just reviewed your ROI report for ` +
-    `${input.businessName} — looks like there's about ${input.annualOpportunity} in opportunity on the table from ` +
-    `missed calls, slow response, and follow-up. Which of those is the biggest problem for you right now?`
-  );
-}
-
 export async function startAgentConversation(input: StartAgentInput): Promise<void> {
   if (!isSpeed2LeadEnabled()) {
     return;
@@ -66,8 +53,10 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     smsConsent: true,
   });
 
+  const profile = getActiveProfile();
+
   let session = createAgentSession({
-    tenantId: getActiveProfile().tenantId,
+    tenantId: profile.tenantId,
     phone,
     firstName,
     businessName: input.businessName,
@@ -77,13 +66,14 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     reportUrl: input.reportUrl,
   });
 
-  const opening = buildOpeningMessage({
+  const opener = buildOpenerMessage1(profile, {
     firstName,
     businessName: input.businessName,
     annualOpportunity: input.annualOpportunity,
   });
 
-  await sendSms(phone, opening);
-  session = appendMessage(session, "assistant", opening);
+  await sendSms(phone, opener);
+  session = appendMessage(session, "assistant", opener);
+  session = await schedulePainPrompt(session, profile);
   await saveAgentSession(session);
 }
