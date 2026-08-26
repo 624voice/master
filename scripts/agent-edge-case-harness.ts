@@ -7,17 +7,22 @@
  *   bun run scripts/agent-edge-case-harness.ts src/server/speed2Lead/agent/testScenarios/batch-1.ts
  *   bun run scripts/agent-edge-case-harness.ts batch-1 --scenario 1-not-sure
  *
- * Execution path: direct `handleAgentInboundSms()` against shared Upstash Redis +
- * Twilio (same infrastructure as preview-81). Outbound SMS are real Twilio sends to
- * the allowlisted test handset (+12149722278 only).
+ *   bun run scripts/agent-edge-case-harness.ts batch-1 --mock-slots
+ *
+ * Execution paths:
+ * - local (default): direct handleAgentInboundSms against shared Redis/Twilio
+ * - preview: signed POST to S2L_PREVIEW_URL (scenarios with execution: "preview")
+ * - --mock-slots: inject deterministic calendar slots for local scheduling tests
  */
 import twilio from "twilio";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
+import { harnessMockOfferSlots } from "~/server/speed2Lead/agent/harnessMockSlots";
 import { processPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { processPendingPainPrompts } from "~/server/speed2Lead/agent/painPrompt";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
+import { setHarnessOfferSlotsOverride } from "~/server/speed2Lead/agent/scheduling";
 import {
   runMechanicalChecks,
   summarizeChecks,
@@ -40,6 +45,8 @@ import { normalizePhone } from "~/server/sms/phone";
 
 const DEFAULT_PHONE = HARNESS_TEST_PHONE;
 const TURN_SETTLE_MS = 4500;
+const PREVIEW_URL = process.env.S2L_PREVIEW_URL ?? "https://deploy-preview-81--624voice.netlify.app";
+const PREVIEW_INBOUND_URL = `${PREVIEW_URL}/api/sms/inbound`;
 
 type OutboundSms = { sid: string; body: string; sentAt: string | null };
 
@@ -60,10 +67,12 @@ type ScenarioReport = {
   finalSession: Record<string, unknown> | null;
   reviewNotes: string;
   execution: {
-    path: "direct_handleAgentInboundSms";
+    path: "direct_handleAgentInboundSms" | "preview_signed_http";
     phone: string;
     tenantId: string;
     referenceIso: string;
+    mockSlots: boolean;
+    previewUrl?: string;
   };
   cronAfterStop?: { painSent: number; noResponseSent: number };
 };
@@ -75,18 +84,31 @@ function sleep(ms: number) {
 function parseArgs(argv: string[]) {
   const positional: string[] = [];
   let scenarioFilter: string | undefined;
+  let mockSlots = false;
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--scenario" && argv[i + 1]) {
       scenarioFilter = argv[i + 1];
       i += 1;
+    } else if (argv[i] === "--mock-slots") {
+      mockSlots = true;
     } else {
       positional.push(argv[i]!);
     }
   }
-  return { batchArg: positional[0], scenarioFilter };
+  return { batchArg: positional[0], scenarioFilter, mockSlots };
+}
+
+function buildExportName(batchKey: string): string {
+  return `build${batchKey
+    .split("-")
+    .map((part) => part[0]!.toUpperCase() + part.slice(1))
+    .join("")}`;
 }
 
 async function resolveBatchModule(batchArg: string): Promise<{ batch: ScenarioBatch; modulePath: string }> {
+  const batchKey = batchArg.endsWith(".ts")
+    ? path.basename(batchArg, ".ts")
+    : batchArg.replace(/\.tsx$/, "");
   const candidates = batchArg.endsWith(".ts")
     ? [path.resolve(batchArg)]
     : [
@@ -98,10 +120,9 @@ async function resolveBatchModule(batchArg: string): Promise<{ batch: ScenarioBa
   for (const modulePath of candidates) {
     try {
       const mod = await import(pathToFileURL(modulePath).href);
+      const buildFn = mod[buildExportName(batchKey)] as ((reference?: Date) => ScenarioBatch) | undefined;
       const batch: ScenarioBatch =
-        typeof mod.buildBatch1 === "function"
-          ? mod.buildBatch1(new Date())
-          : mod.batch1 ?? mod.default;
+        typeof buildFn === "function" ? buildFn(new Date()) : mod[batchKey.replace(/-/g, "")] ?? mod.default;
       if (!batch?.scenarios?.length) {
         throw new Error(`No scenarios exported from ${modulePath}`);
       }
@@ -162,6 +183,59 @@ async function resetHarnessPhone(phone: string) {
   await clearOptedOut(phone);
 }
 
+function signPreviewInbound(body: string, messageSid: string, authToken: string, accountSid: string, fromNumber: string) {
+  const params: Record<string, string> = {
+    From: DEFAULT_PHONE,
+    To: normalizePhone(fromNumber),
+    Body: body,
+    MessageSid: messageSid,
+    AccountSid: accountSid,
+  };
+  const signature = twilio.getExpectedTwilioSignature(authToken, PREVIEW_INBOUND_URL, params);
+  return { params, signature };
+}
+
+async function postPreviewInbound(
+  body: string,
+  messageSid: string,
+  twilioCtx: ReturnType<typeof buildTwilioClient>,
+): Promise<{ status: number; text: string }> {
+  const { params, signature } = signPreviewInbound(
+    body,
+    messageSid,
+    process.env.TWILIO_AUTH_TOKEN!,
+    process.env.TWILIO_ACCOUNT_SID!,
+    twilioCtx.fromNumber,
+  );
+  const res = await fetch(PREVIEW_INBOUND_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Twilio-Signature": signature,
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  return { status: res.status, text: await res.text() };
+}
+
+async function dispatchInboundTurn(
+  scenario: AgentScenario,
+  phone: string,
+  inbound: string,
+  messageSid: string,
+  execution: "local" | "preview",
+  twilioCtx: ReturnType<typeof buildTwilioClient>,
+): Promise<void> {
+  if (execution === "preview") {
+    const result = await postPreviewInbound(inbound, messageSid, twilioCtx);
+    if (result.status !== 200) {
+      throw new Error(`Preview inbound failed (${result.status}): ${result.text}`);
+    }
+    return;
+  }
+  await handleAgentInboundSms(phone, inbound, messageSid);
+}
+
 async function exerciseCronsAfterStop(phone: string): Promise<{ painSent: number; noResponseSent: number }> {
   const session = await getAgentSession(phone);
   if (session) {
@@ -184,8 +258,17 @@ async function runScenario(
   scenario: AgentScenario,
   phone: string,
   twilioCtx: ReturnType<typeof buildTwilioClient>,
+  globalMockSlots: boolean,
 ): Promise<ScenarioReport> {
   await resetHarnessPhone(phone);
+
+  const execution: "local" | "preview" = scenario.execution ?? "local";
+  const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
+  if (useMockSlots && execution === "local") {
+    setHarnessOfferSlotsOverride(() => harnessMockOfferSlots(getActiveProfile()));
+  } else {
+    setHarnessOfferSlotsOverride(null);
+  }
 
   const runStartedAt = new Date();
   const referenceIso = (scenario.meta?.referenceIso as string) ?? runStartedAt.toISOString();
@@ -195,35 +278,39 @@ async function runScenario(
   const turnSnapshots: TurnSnapshot[] = [];
   let stopAt: string | undefined;
 
-  for (let turnIndex = 0; turnIndex < scenario.turns.length; turnIndex += 1) {
-    const turn = scenario.turns[turnIndex]!;
-    if (turn.delayMs) {
-      await sleep(turn.delayMs);
+  try {
+    for (let turnIndex = 0; turnIndex < scenario.turns.length; turnIndex += 1) {
+      const turn = scenario.turns[turnIndex]!;
+      if (turn.delayMs) {
+        await sleep(turn.delayMs);
+      }
+
+      if (turn.inbound.trim().toUpperCase() === "STOP") {
+        stopAt = new Date().toISOString();
+      }
+
+      const messageSid = `SM-harness-${scenario.id}-${turnIndex}-${Date.now()}`;
+      await dispatchInboundTurn(scenario, phone, turn.inbound, messageSid, execution, twilioCtx);
+      await sleep(TURN_SETTLE_MS);
+
+      const session = await getAgentSession(phone);
+      const outboundSinceStart = await listOutboundSince(
+        twilioCtx.client,
+        twilioCtx.fromNumber,
+        phone,
+        runStartedAt,
+      );
+
+      turnSnapshots.push({
+        turnIndex,
+        inbound: turn.inbound,
+        session,
+        transcript: sessionToTranscript(session),
+        outboundSms: outboundSinceStart,
+      });
     }
-
-    if (turn.inbound.trim().toUpperCase() === "STOP") {
-      stopAt = new Date().toISOString();
-    }
-
-    const messageSid = `SM-harness-${scenario.id}-${turnIndex}-${Date.now()}`;
-    await handleAgentInboundSms(phone, turn.inbound, messageSid);
-    await sleep(TURN_SETTLE_MS);
-
-    const session = await getAgentSession(phone);
-    const outboundSinceStart = await listOutboundSince(
-      twilioCtx.client,
-      twilioCtx.fromNumber,
-      phone,
-      runStartedAt,
-    );
-
-    turnSnapshots.push({
-      turnIndex,
-      inbound: turn.inbound,
-      session,
-      transcript: sessionToTranscript(session),
-      outboundSms: outboundSinceStart,
-    });
+  } finally {
+    setHarnessOfferSlotsOverride(null);
   }
 
   let cronAfterStop: ScenarioReport["cronAfterStop"];
@@ -296,19 +383,23 @@ async function runScenario(
       : null,
     reviewNotes: scenario.reviewNotes,
     execution: {
-      path: "direct_handleAgentInboundSms",
+      path: execution === "preview" ? "preview_signed_http" : "direct_handleAgentInboundSms",
       phone,
       tenantId: getActiveProfile().tenantId,
       referenceIso,
+      mockSlots: useMockSlots,
+      previewUrl: execution === "preview" ? PREVIEW_URL : undefined,
     },
     cronAfterStop,
   };
 }
 
 async function main() {
-  const { batchArg, scenarioFilter } = parseArgs(process.argv.slice(2));
+  const { batchArg, scenarioFilter, mockSlots } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
-    console.error("Usage: bun run scripts/agent-edge-case-harness.ts <batch-file> [--scenario <id>]");
+    console.error(
+      "Usage: bun run scripts/agent-edge-case-harness.ts <batch-file> [--scenario <id>] [--mock-slots]",
+    );
     process.exit(1);
   }
 
@@ -324,7 +415,7 @@ async function main() {
         batchTitle: batch.title,
         modulePath,
         phone,
-        executionPath: "direct_handleAgentInboundSms",
+        mockSlots,
         scenarioCount: batch.scenarios.length,
         filter: scenarioFilter ?? null,
         startedAt: new Date().toISOString(),
@@ -345,7 +436,7 @@ async function main() {
   const reports: ScenarioReport[] = [];
   for (const scenario of selected) {
     console.log(`\n--- Running ${scenario.id}: ${scenario.title} ---`);
-    const report = await runScenario(scenario, phone, twilioCtx);
+    const report = await runScenario(scenario, phone, twilioCtx, mockSlots);
     reports.push(report);
     console.log(JSON.stringify(report, null, 2));
   }

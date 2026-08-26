@@ -101,6 +101,7 @@ export async function seedAgentSession(seed: ScenarioSeed, phone = HARNESS_TEST_
   session.noResponseStage = seed.noResponseStage;
   session.noResponseNextAt = seed.noResponseNextAt;
   session.noResponseResolved = seed.noResponseResolved;
+  session.meetingDeclineCount = 0;
 
   for (const message of seed.messages ?? []) {
     session = appendMessage(session, message.role, message.content);

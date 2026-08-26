@@ -90,6 +90,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["dateAllSlotsOnExpectedDay", "dateSlotsMatchExpectedWeekday"],
         reviewNotes: "Reply wording should sound natural; slot labels should read clearly in CT.",
         meta: { ...sharedMeta, expectedDateKey: tomorrowKey, preference: "tomorrow" },
+        execution: "preview",
       },
       {
         id: "4b-date-weekday",
@@ -102,6 +103,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["dateAllSlotsOnExpectedDay", "dateSlotsMatchExpectedWeekday"],
         reviewNotes: "Should pick the nearest upcoming Monday, not a wrong week silently.",
         meta: { ...sharedMeta, expectedDateKey: mondayKey, preference: "Monday" },
+        execution: "preview",
       },
       {
         id: "4c-date-exact",
@@ -114,6 +116,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["dateAllSlotsOnExpectedDay", "dateSlotsMatchExpectedWeekday"],
         reviewNotes: "Exact-date phrasing should be understood without asking for reformatting.",
         meta: { ...sharedMeta, expectedDateKey: exactDateKey, preference: exactDateLabel },
+        execution: "preview",
       },
       {
         id: "5a-daypart-morning",
@@ -126,6 +129,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["daypartMorningSlots"],
         reviewNotes: "Morning filter should still leave enough options; reply should not over-explain.",
         meta: { ...sharedMeta, daypart: "morning" },
+        execution: "preview",
       },
       {
         id: "5b-daypart-afternoon",
@@ -138,6 +142,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["daypartAfternoonSlots"],
         reviewNotes: "Afternoon slots only; avoid offering 8am-style times.",
         meta: { ...sharedMeta, daypart: "afternoon" },
+        execution: "preview",
       },
       {
         id: "5c-daypart-anytime",
@@ -150,6 +155,7 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
         expectedChecks: ["daypartAnytimeNoClarify", "daypartAnytimeOffersSlots"],
         reviewNotes: "Should present concrete times immediately, not ask morning vs afternoon.",
         meta: { ...sharedMeta, daypart: "anytime" },
+        execution: "preview",
       },
     ],
   };

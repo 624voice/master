@@ -70,6 +70,9 @@ export type AgentSession = {
   /** True once all stages sent or the campaign was cancelled. */
   noResponseResolved?: boolean;
 
+  /** Consecutive meeting declines in bridge/scheduling — terminal only at 2+. */
+  meetingDeclineCount?: number;
+
   messages: AgentMessage[];
   createdAt: string;
   updatedAt: string;

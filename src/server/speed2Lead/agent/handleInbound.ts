@@ -24,6 +24,14 @@ import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/s
 import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
+import {
+  buildPainClarifyingReply,
+  containsPainHint,
+  isAmbiguousDiscoveryReply,
+  isMeetingDecline,
+  isMeetingDeclineStage,
+  sessionAwaitingPainAnswer,
+} from "~/server/speed2Lead/agent/turnGuards";
 import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
@@ -140,6 +148,25 @@ export async function handleAgentInboundSms(
     // out — cancel it rather than asking a question they've already answered.
     session = await cancelPendingScheduledOutreach(session);
 
+    const profile = getActiveProfile();
+    const ambiguousPainReply =
+      sessionAwaitingPainAnswer(session) &&
+      isAmbiguousDiscoveryReply(body) &&
+      !containsPainHint(body, profile);
+
+    if (ambiguousPainReply) {
+      const reply = buildPainClarifyingReply(profile);
+      await sendAgentReplySms(phone, reply, messageSid);
+      session = appendMessage(session, "assistant", reply);
+      await saveAgentSession(session);
+      return;
+    }
+
+    const declineThisTurn = isMeetingDecline(body) && isMeetingDeclineStage(session.stage);
+    if (declineThisTurn) {
+      session.meetingDeclineCount = (session.meetingDeclineCount ?? 0) + 1;
+    }
+
     const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
     const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
 
@@ -222,9 +249,24 @@ export async function handleAgentInboundSms(
     if (session.stage !== "booked" && session.stage !== "declined") {
       session.stage = output.stage;
     }
-    if (output.primary_pain) {
+    if (output.primary_pain && !ambiguousPainReply) {
       session.primaryPain = output.primary_pain;
     }
+    if (output.wants_meeting && !declineThisTurn) {
+      session.meetingDeclineCount = 0;
+    }
+
+    const declineCount = session.meetingDeclineCount ?? 0;
+    if (declineCount >= 2) {
+      session.stage = "declined";
+    } else if (declineCount === 1) {
+      // One overcome allowed — never terminal on the first decline.
+      session.stage =
+        session.stage === "offering_slots" || session.stage === "confirming"
+          ? session.stage
+          : "bridge";
+    }
+
     if (offered.length > 0 && (output.stage === "offering_slots" || output.stage === "confirming")) {
       session.offeredSlots = offered;
     }

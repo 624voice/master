@@ -16,6 +16,15 @@ import type { OfferedSlot } from "~/server/speed2Lead/agent/state";
 const SLOT_SEARCH_WINDOW_DAYS = 10;
 const MAX_OFFERED_SLOTS = 6;
 
+let harnessOfferSlotsOverride: ((profile: AgentProfile) => Promise<SlotFetchResult>) | null = null;
+
+/** Test harness only — inject deterministic slots without Google Calendar. */
+export function setHarnessOfferSlotsOverride(
+  override: ((profile: AgentProfile) => Promise<SlotFetchResult>) | null,
+): void {
+  harnessOfferSlotsOverride = override;
+}
+
 export type SlotFetchResult =
   | { ok: true; slots: OfferedSlot[] }
   | { ok: false; reason: string };
@@ -32,6 +41,10 @@ function labelForSlot(iso: string, timezone: string): string {
  * variety across the next ~10 business days.
  */
 export async function offerSlots(profile: AgentProfile): Promise<SlotFetchResult> {
+  if (harnessOfferSlotsOverride) {
+    return harnessOfferSlotsOverride(profile);
+  }
+
   const now = new Date();
   const rangeStart = now;
   const rangeEnd = new Date(now.getTime() + SLOT_SEARCH_WINDOW_DAYS * 24 * 60 * 60 * 1000);

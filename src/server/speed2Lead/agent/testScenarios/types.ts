@@ -41,6 +41,10 @@ export type AgentScenario = {
   reviewNotes: string;
   /** Optional parameters for date/daypart checks (computed at runtime when absent). */
   meta?: Record<string, unknown>;
+  /** When true, harness injects deterministic mock calendar slots (local runs). */
+  useMockSlots?: boolean;
+  /** `local` = direct handleAgentInboundSms; `preview` = signed HTTP to preview deploy. */
+  execution?: "local" | "preview";
 };
 
 export type ScenarioBatch = {

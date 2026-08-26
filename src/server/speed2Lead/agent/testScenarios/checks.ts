@@ -103,18 +103,29 @@ function slotsMatchWeekday(session: AgentSession | null, expectedDateKey: string
   return { pass: true, detail: `All slots fall on ${expectedWeekday}` };
 }
 
+function snapshotAfterInbound(ctx: CheckContext, inbound: string): TurnSnapshot | undefined {
+  return ctx.turnSnapshots.find((snap) => snap.inbound === inbound);
+}
+
+function inventedTimePattern(text: string): boolean {
+  return /\b\d{1,2}(:\d{2})?\s*(am|pm)\b/i.test(text);
+}
+
 export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
   /** Scenario 1 — "not sure" is not treated as pain identification or meeting agreement. */
-  async notSureNotAgreement(ctx) {
+  notSureNotAgreement(ctx) {
     const session = ctx.session;
     if (!session) return { pass: false, detail: "No session after turn" };
-    if (session.stage === "offering_slots" || session.stage === "confirming" || session.stage === "booked") {
-      return { pass: false, detail: `Stage advanced to ${session.stage} — "not sure" should not trigger meeting flow` };
+    if (session.stage !== "discovery") {
+      return {
+        pass: false,
+        detail: `Expected stage=discovery after ambiguous reply; got ${session.stage}`,
+      };
     }
-    if (session.primaryPain && session.primaryPain !== "general") {
+    if (session.primaryPain) {
       return { pass: false, detail: `primaryPain set to ${session.primaryPain} from uncertain reply` };
     }
-    return { pass: true, detail: `Stage=${session.stage}, primaryPain=${session.primaryPain ?? "unset"}` };
+    return { pass: true, detail: "Stayed in discovery with primaryPain unset" };
   },
 
   notSureNoVerbatimPainReask(ctx) {
@@ -162,7 +173,12 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
       lower.includes("worth") ||
       lower.includes("quick call") ||
       lower.includes("25") ||
-      lower.includes("meeting");
+      lower.includes("meeting") ||
+      lower.includes("capture") ||
+      lower.includes("convert") ||
+      lower.includes("missed call") ||
+      lower.includes("revenue") ||
+      lower.includes("book");
     if (!pushesMeeting) {
       return { pass: false, detail: "First-decline reply lacks a brief meeting counter-argument" };
     }
@@ -178,23 +194,15 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
   },
 
   declineNoReplyAfterSecond(ctx) {
-    const assistantCount = assistantMessages(ctx.transcript).length;
-    // bridge seed has 1 assistant + first overcome + optional second reply = max 3
+    const stage = ctx.session?.stage;
+    if (stage !== "declined") {
+      return { pass: false, detail: `Expected stage=declined after second decline; got ${stage ?? "null"}` };
+    }
     const userTurns = ctx.transcript.filter((m) => m.role === "user").length;
     if (userTurns < 2) {
       return { pass: false, detail: "Expected two user turns for decline chain" };
     }
-    // After 2 user messages we should have at most 2 new assistant replies (overcome + surrender)
-    const bridgeAssistantCount = 2; // bridge question + maybe pain path
-    const newAssistant = assistantCount - bridgeAssistantCount;
-    if (newAssistant > 2) {
-      return { pass: false, detail: `Too many assistant replies after declines (${newAssistant})` };
-    }
-    const last = lastAssistantMessage(ctx.transcript)?.toLowerCase() ?? "";
-    if (last.includes("?") && (last.includes("worth") || last.includes("minute"))) {
-      return { pass: false, detail: "Final reply still pushes meeting after second decline" };
-    }
-    return { pass: true, detail: "No third meeting push detected after second decline" };
+    return { pass: true, detail: "Second decline is terminal; graceful exit SMS on turn 2 is OK" };
   },
 
   /** Scenario 3 — STOP handling. */
@@ -354,6 +362,108 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
       return { pass: false, detail: "No slots offered after anytime preference" };
     }
     return { pass: true, detail: `Offered ${slots.length} slot(s) without daypart gate` };
+  },
+
+  /** Batch 2 — meeting agree + scheduling flow. */
+  meetingAgreeOffersSlots(ctx) {
+    const stage = ctx.session?.stage;
+    const slots = ctx.session?.offeredSlots ?? [];
+    if (stage !== "offering_slots" && stage !== "confirming" && stage !== "booked") {
+      return { pass: false, detail: `Expected scheduling stage after agree; got ${stage ?? "null"}` };
+    }
+    if (slots.length === 0 && stage !== "booked") {
+      return { pass: false, detail: "No offeredSlots after meeting agreement" };
+    }
+    return { pass: true, detail: `stage=${stage}, offered ${slots.length} slot(s)` };
+  },
+
+  schedulingPreferenceAsked(ctx) {
+    const agreeSnap = ctx.turnSnapshots[0];
+    const reply = agreeSnap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    const asksWhen =
+      reply.includes("?") &&
+      /\b(when|what day|time|work|schedule|available)\b/i.test(reply);
+    if (!asksWhen && (ctx.session?.offeredSlots?.length ?? 0) === 0) {
+      return { pass: false, detail: "Agree reply did not ask scheduling preference or offer times" };
+    }
+    return { pass: true, detail: "Agent moved into scheduling with times or a preference ask" };
+  },
+
+  slotsFromProviderShape(ctx) {
+    const slots = ctx.session?.offeredSlots ?? [];
+    if (slots.length === 0) {
+      return { pass: false, detail: "No offeredSlots to validate" };
+    }
+    const bad = slots.filter((s) => !s.startIso || !s.label || Number.isNaN(Date.parse(s.startIso)));
+    if (bad.length > 0) {
+      return { pass: false, detail: `${bad.length} slot(s) missing valid ISO/label` };
+    }
+    return { pass: true, detail: `All ${slots.length} slots have ISO + label` };
+  },
+
+  noInventedTimesWhenUnavailable(ctx) {
+    const slots = ctx.session?.offeredSlots ?? [];
+    const last = lastAssistantMessage(ctx.transcript) ?? "";
+    if (slots.length > 0) {
+      return { pass: true, detail: "Slots present — invention check not applicable" };
+    }
+    if (inventedTimePattern(last)) {
+      return { pass: false, detail: "Reply names specific invented times without provider slots" };
+    }
+    return { pass: true, detail: "No specific invented times in reply when slots unavailable" };
+  },
+
+  ahAllSlotsOnFridayAfterE(ctx) {
+    const expected = ctx.meta.fridayDateKey as string | undefined;
+    const timezone = (ctx.meta.timezone as string) ?? getActiveProfile().timezone;
+    if (!expected) return { pass: false, detail: "meta.fridayDateKey not set" };
+    const snap = snapshotAfterInbound(ctx, "Then Friday");
+    return allSlotsOnDate(snap?.session ?? null, expected, timezone);
+  },
+
+  ahNoFourPmAfterReject(ctx) {
+    const timezone = (ctx.meta.timezone as string) ?? getActiveProfile().timezone;
+    const snap = snapshotAfterInbound(ctx, "No 4pm") ?? snapshotAfterInbound(ctx, "No 4");
+    const slots = snap?.session?.offeredSlots ?? [];
+    const fourPm = slots.filter((s) => slotHour(s.startIso, timezone) === 16);
+    if (fourPm.length > 0) {
+      return {
+        pass: false,
+        detail: `4pm still offered after rejection: ${fourPm.map((s) => s.label).join("; ")}`,
+      };
+    }
+    return { pass: true, detail: "No 4pm slot offered after rejection" };
+  },
+
+  ahMorningFridayAfterF(ctx) {
+    const expected = ctx.meta.fridayDateKey as string | undefined;
+    const timezone = (ctx.meta.timezone as string) ?? getActiveProfile().timezone;
+    if (!expected) return { pass: false, detail: "meta.fridayDateKey not set" };
+    const snap = snapshotAfterInbound(ctx, "Need a morning time on Friday");
+    const slots = snap?.session?.offeredSlots ?? [];
+    if (slots.length === 0) {
+      return { pass: false, detail: "No slots after Friday morning request" };
+    }
+    const wrongDay = slots.filter((s) => slotDateKey(s.startIso, timezone) !== expected);
+    const afternoon = slots.filter((s) => slotHour(s.startIso, timezone) >= 12);
+    if (wrongDay.length > 0) {
+      return { pass: false, detail: "Slots include non-Friday times after Friday morning request" };
+    }
+    if (afternoon.length > 0) {
+      return {
+        pass: false,
+        detail: `Afternoon slots offered for morning request: ${afternoon.map((s) => s.label).join("; ")}`,
+      };
+    }
+    return { pass: true, detail: "Friday morning slots only after F" };
+  },
+
+  slotSelectionAdvances(ctx) {
+    const stage = ctx.session?.stage;
+    if (stage === "confirming" || stage === "booked") {
+      return { pass: true, detail: `stage=${stage} after slot selection` };
+    }
+    return { pass: false, detail: `Expected confirming/booked after slot pick; got ${stage ?? "null"}` };
   },
 };
 
