@@ -1,7 +1,6 @@
 import type { RoiResult } from "~/lib/roi/computeRoi";
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
-import { sanitizeFirstName } from "~/server/speed2Lead/agent/nameSanitize";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import {
   appendMessage,
@@ -55,7 +54,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     return;
   }
 
-  const firstName = sanitizeFirstName(input.firstName);
+  const firstName = input.firstName.trim() || undefined;
 
   await registerLeadForLifecycle({
     phone,
