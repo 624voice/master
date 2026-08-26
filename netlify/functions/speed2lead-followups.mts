@@ -11,6 +11,7 @@ export default async () => {
     "/api/cron/demo-followups",
     "/api/cron/nurture-followups",
     "/api/cron/agent-pain-prompts",
+    "/api/cron/agent-no-response-followups",
   ];
   const results: Array<{ endpoint: string; status: number; body: string }> = [];
 

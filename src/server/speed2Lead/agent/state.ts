@@ -63,6 +63,13 @@ export type AgentSession = {
    * the prospect replied before the delay elapsed. */
   painPromptResolved?: boolean;
 
+  /** 0-based index of the next no-response stage to send (0 = stage 1). */
+  noResponseStage?: number;
+  /** ISO time the next no-response stage is due. Cleared once sent or cancelled. */
+  noResponseNextAt?: string;
+  /** True once all stages sent or the campaign was cancelled. */
+  noResponseResolved?: boolean;
+
   messages: AgentMessage[];
   createdAt: string;
   updatedAt: string;
@@ -129,6 +136,7 @@ export async function releaseAgentPhoneLock(phone: string, token: string): Promi
 /** Redis SET of phones with a pending second-opener message, scanned by the
  * pain-prompt cron the same way speed2lead:nurture-followups is scanned. */
 const PAIN_PROMPT_INDEX_KEY = "speed2lead:agent:pain-prompt-pending";
+const NO_RESPONSE_INDEX_KEY = "speed2lead:agent:no-response-pending";
 
 function sessionKey(phone: string): string {
   return `speed2lead:agent:session:${normalizePhone(phone)}`;
@@ -147,6 +155,22 @@ export async function dequeuePainPrompt(phone: string): Promise<void> {
 export async function listPendingPainPromptPhones(): Promise<string[]> {
   const redis = getRedis();
   const phones = (await redis.smembers(PAIN_PROMPT_INDEX_KEY)) as string[] | null;
+  return phones ?? [];
+}
+
+export async function enqueueNoResponseCampaign(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.sadd(NO_RESPONSE_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function dequeueNoResponseCampaign(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.srem(NO_RESPONSE_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function listPendingNoResponsePhones(): Promise<string[]> {
+  const redis = getRedis();
+  const phones = (await redis.smembers(NO_RESPONSE_INDEX_KEY)) as string[] | null;
   return phones ?? [];
 }
 
@@ -170,6 +194,7 @@ export async function clearAgentSession(phone: string): Promise<void> {
   const redis = getRedis();
   await redis.del(sessionKey(phone));
   await dequeuePainPrompt(phone);
+  await dequeueNoResponseCampaign(phone);
 }
 
 export function createAgentSession(input: {

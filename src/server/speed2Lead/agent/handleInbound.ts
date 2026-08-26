@@ -21,6 +21,7 @@ import {
   type OfferedSlot,
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
+import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
@@ -31,6 +32,12 @@ const STOP_KEYWORDS = new Set(["stop", "stopall", "unsubscribe", "cancel", "end"
 
 function isStopKeyword(body: string): boolean {
   return STOP_KEYWORDS.has(body.trim().toLowerCase());
+}
+
+async function cancelPendingScheduledOutreach(session: AgentSession): Promise<AgentSession> {
+  let updated = await cancelPendingPainPrompt(session);
+  updated = await cancelPendingNoResponseCampaign(updated);
+  return updated;
 }
 
 async function sendAgentReplySms(
@@ -85,7 +92,7 @@ export async function handleAgentInboundSms(
     await setOptedOut(phone);
     const stopSession = await getAgentSession(phone);
     if (stopSession) {
-      const updated = await cancelPendingPainPrompt(stopSession);
+      const updated = await cancelPendingScheduledOutreach(stopSession);
       await saveAgentSession(updated);
     }
     return; // Twilio/carrier sends the compliance confirmation; don't double-text.
@@ -131,7 +138,7 @@ export async function handleAgentInboundSms(
     session.lastInboundMessageSid = messageSid;
     // The prospect engaged before the scheduled second opener message went
     // out — cancel it rather than asking a question they've already answered.
-    session = await cancelPendingPainPrompt(session);
+    session = await cancelPendingScheduledOutreach(session);
 
     const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
     const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
@@ -152,6 +159,7 @@ export async function handleAgentInboundSms(
     if (output.opt_out) {
       await setOptedOut(phone);
       session.stage = "declined";
+      session = await cancelPendingNoResponseCampaign(session);
       await saveAgentSession(session);
       return;
     }
@@ -173,6 +181,7 @@ export async function handleAgentInboundSms(
         session.bookedStartIso = booked.startIso;
         session.bookedEventId = booked.eventId;
         session.offeredSlots = [];
+        session = await cancelPendingNoResponseCampaign(session);
 
         if (booked.confirmationSmsSent) {
           // Lifecycle sent the Meet-link confirmation and scheduled reminders.

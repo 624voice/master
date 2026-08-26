@@ -55,6 +55,9 @@ export type AgentProfile = {
   /** Minutes to wait after the first opener message before sending the
    * second one, so the prospect has a chance to read the report first. */
   painPromptDelayMinutes: number;
+  /** Minutes after session.createdAt for each no-response follow-up stage
+   * (+4h, Day 1, Day 3, Day 6, Day 10 by default). */
+  noResponseDelaysMinutes: number[];
 };
 
 export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
@@ -112,6 +115,7 @@ export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
   timezone: "America/Chicago",
   headlinePainKeys: ["missed_calls", "slow_response", "follow_up"],
   painPromptDelayMinutes: 5,
+  noResponseDelaysMinutes: [240, 1440, 4320, 8640, 14400],
 };
 
 export function getActiveProfile(): AgentProfile {

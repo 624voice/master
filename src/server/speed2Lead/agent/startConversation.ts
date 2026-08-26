@@ -2,6 +2,7 @@ import type { RoiResult } from "~/lib/roi/computeRoi";
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
+import { scheduleNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { buildOpenerMessage1, schedulePainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import {
   acquireAgentPhoneLock,
@@ -121,6 +122,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     await sendSms(phone, opener);
     session = appendMessage(session, "assistant", opener);
     session = await schedulePainPrompt(session, profile);
+    session = await scheduleNoResponseCampaign(session, profile);
     await saveAgentSession(session);
   } finally {
     await releaseAgentPhoneLock(phone, lockToken);
