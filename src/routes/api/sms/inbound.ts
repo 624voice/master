@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { handleInboundSms } from "~/server/speed2Lead/handleInbound";
+import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
+import { getAgentSession } from "~/server/speed2Lead/agent/state";
 import { isValidTwilioWebhook } from "~/server/sms/twilio";
+import { normalizePhone } from "~/server/sms/phone";
 
 export const Route = createFileRoute("/api/sms/inbound")({
   server: {
@@ -30,7 +33,16 @@ export const Route = createFileRoute("/api/sms/inbound")({
 
         if (from) {
           try {
-            await handleInboundSms(from, body);
+            // A rebuilt-engine session exists only for phones started via
+            // the new startAgentConversation() path — route those there and
+            // leave every other flow (old ROI engine, contact, demo) on the
+            // existing handler untouched.
+            const agentSession = await getAgentSession(normalizePhone(from));
+            if (agentSession) {
+              await handleAgentInboundSms(from, body);
+            } else {
+              await handleInboundSms(from, body);
+            }
           } catch (error) {
             console.error("Speed2Lead inbound SMS handler failed:", error);
           }

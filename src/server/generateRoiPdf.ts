@@ -20,6 +20,8 @@ import {
   getPrimaryOpportunity,
   startSpeed2Lead,
 } from "~/server/speed2Lead/startConversation";
+import { startAgentConversation } from "~/server/speed2Lead/agent/startConversation";
+import { isSpeed2LeadAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
 
 export type PdfRequest = {
   trade: TradeKey;
@@ -89,19 +91,32 @@ export const generateRoiPdf = createServerFn({ method: "POST" })
         });
         const reportUrl = buildReportUrl(reportToken);
 
-        await startSpeed2Lead({
-          phone: normalizedLead.phone,
-          firstName: normalizedLead.firstName,
-          lastName: normalizedLead.lastName,
-          businessName: normalizedLead.businessName,
-          email: normalizedLead.email,
-          annualOpportunity: moderateRoi,
-          primaryOpportunity,
-          trade,
-          truckCount,
-          monthlyCalls,
-          reportUrl,
-        });
+        if (isSpeed2LeadAgentV2Enabled()) {
+          await startAgentConversation({
+            phone: normalizedLead.phone,
+            firstName: normalizedLead.firstName,
+            lastName: normalizedLead.lastName,
+            businessName: normalizedLead.businessName,
+            email: normalizedLead.email,
+            annualOpportunity: moderateRoi,
+            primaryOpportunity,
+            reportUrl,
+          });
+        } else {
+          await startSpeed2Lead({
+            phone: normalizedLead.phone,
+            firstName: normalizedLead.firstName,
+            lastName: normalizedLead.lastName,
+            businessName: normalizedLead.businessName,
+            email: normalizedLead.email,
+            annualOpportunity: moderateRoi,
+            primaryOpportunity,
+            trade,
+            truckCount,
+            monthlyCalls,
+            reportUrl,
+          });
+        }
       } catch (error) {
         console.error("Speed2Lead initial SMS failed:", error);
       }

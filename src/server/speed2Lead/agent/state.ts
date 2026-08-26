@@ -1,0 +1,130 @@
+/**
+ * Session state for the rebuilt Speed2Lead agent.
+ *
+ * Deliberately flat and small: one object, no deprecated/legacy duplicate
+ * fields, no separate "scheduling state machine" object nested inside it.
+ * The LLM turn engine and the scheduling wrapper are the only writers.
+ */
+import { getRedis } from "~/server/speed2Lead/redis";
+import { isOptedOut, setOptedOut } from "~/server/speed2Lead/session";
+import { normalizePhone } from "~/server/sms/phone";
+
+export type AgentStage =
+  | "discovery"
+  | "bridge"
+  | "offering_slots"
+  | "confirming"
+  | "booked"
+  | "declined"
+  | "handoff";
+
+export type AgentMessage = {
+  role: "user" | "assistant";
+  content: string;
+  at: string;
+};
+
+/** A slot offered to the prospect in the most recent turn — the only slots a
+ * `slot_choice_index` from the LLM is ever allowed to reference. */
+export type OfferedSlot = {
+  /** ISO start time, exactly as returned by getConsultationSlots. */
+  startIso: string;
+  /** Human-readable label shown to the prospect, e.g. "Thursday 2:00pm CT". */
+  label: string;
+};
+
+export type AgentSession = {
+  tenantId: string;
+  phone: string;
+  firstName?: string;
+  businessName?: string;
+  email?: string;
+  annualOpportunity?: string;
+  primaryOpportunity?: string;
+  reportUrl?: string;
+
+  stage: AgentStage;
+  primaryPain?: string;
+  notes: string[];
+
+  offeredSlots: OfferedSlot[];
+  bookedStartIso?: string;
+  bookedEventId?: string;
+
+  messages: AgentMessage[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
+const MAX_STORED_MESSAGES = 24;
+
+function sessionKey(phone: string): string {
+  return `speed2lead:agent:session:${normalizePhone(phone)}`;
+}
+
+export async function getAgentSession(phone: string): Promise<AgentSession | null> {
+  const redis = getRedis();
+  const raw = await redis.get<AgentSession>(sessionKey(phone));
+  return raw ?? null;
+}
+
+export async function saveAgentSession(session: AgentSession): Promise<void> {
+  const redis = getRedis();
+  const trimmed: AgentSession = {
+    ...session,
+    messages: session.messages.slice(-MAX_STORED_MESSAGES),
+    updatedAt: new Date().toISOString(),
+  };
+  await redis.set(sessionKey(trimmed.phone), trimmed, { ex: SESSION_TTL_SECONDS });
+}
+
+export async function clearAgentSession(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.del(sessionKey(phone));
+}
+
+export function createAgentSession(input: {
+  tenantId: string;
+  phone: string;
+  firstName?: string;
+  businessName?: string;
+  email?: string;
+  annualOpportunity?: string;
+  primaryOpportunity?: string;
+  reportUrl?: string;
+}): AgentSession {
+  const now = new Date().toISOString();
+  return {
+    tenantId: input.tenantId,
+    phone: normalizePhone(input.phone),
+    firstName: input.firstName,
+    businessName: input.businessName,
+    email: input.email,
+    annualOpportunity: input.annualOpportunity,
+    primaryOpportunity: input.primaryOpportunity,
+    reportUrl: input.reportUrl,
+    stage: "discovery",
+    notes: [],
+    offeredSlots: [],
+    messages: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export function appendMessage(
+  session: AgentSession,
+  role: AgentMessage["role"],
+  content: string,
+): AgentSession {
+  return {
+    ...session,
+    messages: [...session.messages, { role, content, at: new Date().toISOString() }],
+  };
+}
+
+// Opt-out tracking is shared infrastructure (not part of the buggy
+// conversation layer) — reuse the existing Redis-backed implementation as-is
+// so a prospect who already texted STOP under the old engine stays opted out.
+export { isOptedOut, setOptedOut };
