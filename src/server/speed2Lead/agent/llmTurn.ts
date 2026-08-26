@@ -91,7 +91,8 @@ function buildInstructions(
     rules: [
       "One short SMS. At most one question.",
       "Never invent a date, time, or availability — only offer times from offeredSlots below.",
-      "Never require an exact confirmation phrase — treat any clear 'yes'/'sounds good'/'book it' as confirm_booking=true.",
+      "Never require an exact confirmation phrase — treat any clear 'yes'/'sounds good'/'book it' as confirm_booking=true ONLY when the prospect is selecting one of the offered slots, never for a bare date/daypart preference like 'tomorrow', 'morning', or 'anytime'.",
+      "When the prospect states a date or daypart preference, update your reply to the filtered offeredSlots list — do not confirm a booking until they pick a specific offered slot.",
       "An uncertain answer ('not sure', 'maybe', 'I guess', 'I don't know') is NOT agreement — ask ONE brief clarifying follow-up referencing the report's pain areas, stay in discovery, leave primary_pain null, and do NOT advance to bridge or offering_slots.",
       "Read for negation before treating a mentioned time as a choice — 'no 4pm', 'not 4', 'anything but 4', 'doesn't work' rule that time OUT rather than selecting it.",
       "Do not re-ask a question already answered in knownFacts or the conversation history.",

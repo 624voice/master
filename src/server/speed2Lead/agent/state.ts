@@ -73,6 +73,17 @@ export type AgentSession = {
   /** Consecutive meeting declines in bridge/scheduling — terminal only at 2+. */
   meetingDeclineCount?: number;
 
+  /** Full provider pool from the last fetch — offeredSlots is the filtered active set. */
+  slotPool?: OfferedSlot[];
+  requestedDate?: string;
+  availabilityPreference?: import("~/server/scheduling/types").AvailabilityPreference;
+  exactTimeMinutes?: number;
+  rejectedSlotStarts?: string[];
+  anchorTimeMinutes?: number;
+  lowerTimeBound?: number;
+  upperTimeBound?: number;
+  rejectedPartOfDay?: Array<"morning" | "afternoon" | "evening">;
+
   messages: AgentMessage[];
   createdAt: string;
   updatedAt: string;

@@ -17,12 +17,50 @@ const SLOT_SEARCH_WINDOW_DAYS = 10;
 const MAX_OFFERED_SLOTS = 6;
 
 let harnessOfferSlotsOverride: ((profile: AgentProfile) => Promise<SlotFetchResult>) | null = null;
+let harnessRawSlotsOverride: ((profile: AgentProfile) => Promise<RawSlotFetchResult>) | null = null;
+
+export type RawSlotFetchResult =
+  | { ok: true; slots: string[] }
+  | { ok: false; reason: string };
 
 /** Test harness only — inject deterministic slots without Google Calendar. */
 export function setHarnessOfferSlotsOverride(
   override: ((profile: AgentProfile) => Promise<SlotFetchResult>) | null,
+  rawOverride?: ((profile: AgentProfile) => Promise<RawSlotFetchResult>) | null,
 ): void {
   harnessOfferSlotsOverride = override;
+  harnessRawSlotsOverride = rawOverride ?? null;
+}
+
+/** Fetch raw slot ISOs — respects harness override when set. */
+export async function fetchRawConsultationSlots(
+  profile: AgentProfile,
+  args: {
+    rangeStart: string;
+    rangeEnd: string;
+    maxSlots?: number;
+    now?: Date;
+  },
+): Promise<RawSlotFetchResult> {
+  if (harnessRawSlotsOverride) {
+    return harnessRawSlotsOverride(profile);
+  }
+  if (harnessOfferSlotsOverride) {
+    const offered = await harnessOfferSlotsOverride(profile);
+    if (!offered.ok) return offered;
+    return { ok: true, slots: offered.slots.map((slot) => slot.startIso) };
+  }
+
+  const result = await getConsultationSlots({
+    rangeStart: args.rangeStart,
+    rangeEnd: args.rangeEnd,
+    maxSlots: args.maxSlots ?? 200,
+    now: args.now ?? new Date(),
+  });
+  if (!result.ok) {
+    return { ok: false, reason: result.reason };
+  }
+  return { ok: true, slots: result.slots };
 }
 
 export type SlotFetchResult =

@@ -18,7 +18,7 @@ import twilio from "twilio";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
-import { harnessMockOfferSlots } from "~/server/speed2Lead/agent/harnessMockSlots";
+import { harnessMockOfferSlots, harnessMockRawSlots } from "~/server/speed2Lead/agent/harnessMockSlots";
 import { processPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { processPendingPainPrompts } from "~/server/speed2Lead/agent/painPrompt";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
@@ -85,17 +85,20 @@ function parseArgs(argv: string[]) {
   const positional: string[] = [];
   let scenarioFilter: string | undefined;
   let mockSlots = false;
+  let forceLocal = false;
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--scenario" && argv[i + 1]) {
       scenarioFilter = argv[i + 1];
       i += 1;
     } else if (argv[i] === "--mock-slots") {
       mockSlots = true;
+    } else if (argv[i] === "--force-local") {
+      forceLocal = true;
     } else {
       positional.push(argv[i]!);
     }
   }
-  return { batchArg: positional[0], scenarioFilter, mockSlots };
+  return { batchArg: positional[0], scenarioFilter, mockSlots, forceLocal };
 }
 
 function buildExportName(batchKey: string): string {
@@ -259,14 +262,20 @@ async function runScenario(
   phone: string,
   twilioCtx: ReturnType<typeof buildTwilioClient>,
   globalMockSlots: boolean,
+  forceLocal: boolean,
 ): Promise<ScenarioReport> {
   await resetHarnessPhone(phone);
 
   const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
   const execution: "local" | "preview" =
-    useMockSlots && globalMockSlots ? "local" : (scenario.execution ?? "local");
+    forceLocal || (useMockSlots && globalMockSlots)
+      ? "local"
+      : (scenario.execution ?? "local");
   if (useMockSlots && execution === "local") {
-    setHarnessOfferSlotsOverride(() => harnessMockOfferSlots(getActiveProfile()));
+    setHarnessOfferSlotsOverride(
+      () => harnessMockOfferSlots(getActiveProfile()),
+      () => harnessMockRawSlots(getActiveProfile()),
+    );
   } else {
     setHarnessOfferSlotsOverride(null);
   }
@@ -396,7 +405,7 @@ async function runScenario(
 }
 
 async function main() {
-  const { batchArg, scenarioFilter, mockSlots } = parseArgs(process.argv.slice(2));
+  const { batchArg, scenarioFilter, mockSlots, forceLocal } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
     console.error(
       "Usage: bun run scripts/agent-edge-case-harness.ts <batch-file> [--scenario <id>] [--mock-slots]",
@@ -417,6 +426,7 @@ async function main() {
         modulePath,
         phone,
         mockSlots,
+        forceLocal,
         scenarioCount: batch.scenarios.length,
         filter: scenarioFilter ?? null,
         startedAt: new Date().toISOString(),
@@ -437,7 +447,7 @@ async function main() {
   const reports: ScenarioReport[] = [];
   for (const scenario of selected) {
     console.log(`\n--- Running ${scenario.id}: ${scenario.title} ---`);
-    const report = await runScenario(scenario, phone, twilioCtx, mockSlots);
+    const report = await runScenario(scenario, phone, twilioCtx, mockSlots, forceLocal);
     reports.push(report);
     console.log(JSON.stringify(report, null, 2));
   }

@@ -18,11 +18,14 @@ import {
   saveAgentSession,
   setOptedOut,
   type AgentSession,
-  type OfferedSlot,
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
 import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
+import {
+  resolveSlotsForAgentTurn,
+  validateConfirmBooking,
+} from "~/server/speed2Lead/agent/slotPreferences";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import {
   buildPainClarifyingReply,
@@ -62,31 +65,6 @@ async function sendAgentReplySms(
   }
   await sendSms(phone, body);
   return true;
-}
-
-type SlotsForTurnResult = {
-  slots: OfferedSlot[];
-  fetchFailed: boolean;
-};
-
-/**
- * Decide, deterministically, whether this turn should look up real calendar
- * availability before calling the LLM. We prefetch when the previous turn
- * already asked the meeting-bridge question (so a "yes" this turn can be
- * answered with real times immediately) or when we're already mid-offer.
- */
-async function slotsForThisTurn(session: AgentSession): Promise<SlotsForTurnResult> {
-  const profile = getActiveProfile();
-  if (session.stage === "bridge") {
-    const fetched = await offerSlots(profile);
-    return fetched.ok
-      ? { slots: fetched.slots, fetchFailed: false }
-      : { slots: [], fetchFailed: true };
-  }
-  if (session.stage === "offering_slots" || session.stage === "confirming") {
-    return { slots: session.offeredSlots, fetchFailed: false };
-  }
-  return { slots: [], fetchFailed: false };
 }
 
 export async function handleAgentInboundSms(
@@ -167,12 +145,14 @@ export async function handleAgentInboundSms(
       session.meetingDeclineCount = (session.meetingDeclineCount ?? 0) + 1;
     }
 
-    const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
-    const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
+    const slotResolution = await resolveSlotsForAgentTurn(session, body, profile);
+    session = slotResolution.session;
+    const offered = slotResolution.slots;
+    const turnContext: TurnContext = { slotsUnavailable: slotResolution.fetchFailed };
 
     let output: AgentTurnOutput;
     try {
-      output = await runAgentTurn(getActiveProfile(), session, offered, turnContext);
+      output = await runAgentTurn(profile, session, offered, turnContext);
     } catch (error) {
       console.error("Speed2Lead agent turn failed:", error);
       const fallback =
@@ -191,8 +171,26 @@ export async function handleAgentInboundSms(
       return;
     }
 
-    const chosenSlot =
-      output.slot_choice_index != null ? offered[output.slot_choice_index] : undefined;
+    const bookingValidation = validateConfirmBooking({
+      body,
+      session,
+      offered,
+      slotChoiceIndex: output.slot_choice_index,
+      confirmBooking: output.confirm_booking,
+    });
+
+    if (output.confirm_booking && !bookingValidation.proceed) {
+      console.warn("Speed2Lead agent rejected premature confirm_booking", {
+        phoneSuffix: phone.slice(-4),
+        reason: bookingValidation.logReason,
+        inbound: body.slice(0, 80),
+        slotChoiceIndex: output.slot_choice_index,
+        offeredCount: offered.length,
+      });
+      output = { ...output, confirm_booking: false, slot_choice_index: null };
+    }
+
+    const chosenSlot = bookingValidation.proceed ? bookingValidation.slot : undefined;
 
     if (output.confirm_booking && chosenSlot) {
       const booked = await confirmBookSlot({
@@ -208,6 +206,7 @@ export async function handleAgentInboundSms(
         session.bookedStartIso = booked.startIso;
         session.bookedEventId = booked.eventId;
         session.offeredSlots = [];
+        session.slotPool = [];
         session = await cancelPendingNoResponseCampaign(session);
 
         if (booked.confirmationSmsSent) {
@@ -219,10 +218,7 @@ export async function handleAgentInboundSms(
 
         // Idempotent replay (or other lifecycle skip): still tell the prospect
         // they're booked — silence here was the original silent-turn bug.
-        const parts = formatNaturalAppointmentParts(
-          booked.startIso,
-          getActiveProfile().timezone,
-        );
+        const parts = formatNaturalAppointmentParts(booked.startIso, profile.timezone);
         const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
         const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
         await sendAgentReplySms(phone, alreadyBooked, messageSid);
@@ -234,8 +230,9 @@ export async function handleAgentInboundSms(
       // Booking failed (e.g. someone else took the slot in the meantime) —
       // fall through and let the model's reply carry an apology + next step,
       // but refresh the offered list so we don't keep offering a dead slot.
-      const refreshed = await offerSlots(getActiveProfile());
+      const refreshed = await offerSlots(profile);
       session.offeredSlots = refreshed.ok ? refreshed.slots : [];
+      session.slotPool = refreshed.ok ? refreshed.slots : [];
       session.stage = "offering_slots";
       const text = output.reply || "That time just got taken — want me to grab you another?";
       await sendAgentReplySms(phone, text, messageSid);
@@ -267,8 +264,11 @@ export async function handleAgentInboundSms(
           : "bridge";
     }
 
-    if (offered.length > 0 && (output.stage === "offering_slots" || output.stage === "confirming")) {
+    if (offered.length > 0) {
       session.offeredSlots = offered;
+    }
+    if (slotResolution.pool.length > 0) {
+      session.slotPool = slotResolution.pool;
     }
 
     await sendAgentReplySms(phone, output.reply, messageSid);

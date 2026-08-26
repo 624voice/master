@@ -21,7 +21,8 @@ function localSlotIso(dateKey: string, hourLocal: number): string {
   return `${dateKey}T${String(hourLocal).padStart(2, "0")}:00:00${offset}`;
 }
 
-export function buildHarnessMockSlotIsos(reference = new Date(), timezone: string): string[] {
+/** Full mock pool (all day/hour combos) — used for code-owned preference filtering. */
+export function buildHarnessMockPoolIsos(reference = new Date(), timezone: string): string[] {
   const candidates: string[] = [];
   for (let dayOffset = 1; dayOffset <= 10; dayOffset += 1) {
     const day = addCalendarDaysInTimezone(reference, timezone, dayOffset);
@@ -30,7 +31,11 @@ export function buildHarnessMockSlotIsos(reference = new Date(), timezone: strin
       candidates.push(localSlotIso(dateKey, hour));
     }
   }
-  return spreadAcrossDays(candidates, 12);
+  return candidates;
+}
+
+export function buildHarnessMockSlotIsos(reference = new Date(), timezone: string): string[] {
+  return spreadAcrossDays(buildHarnessMockPoolIsos(reference, timezone), 12);
 }
 
 export function buildHarnessMockSlots(profile: AgentProfile, reference = new Date()): OfferedSlot[] {
@@ -42,4 +47,8 @@ export function buildHarnessMockSlots(profile: AgentProfile, reference = new Dat
 
 export async function harnessMockOfferSlots(profile: AgentProfile): Promise<SlotFetchResult> {
   return { ok: true, slots: buildHarnessMockSlots(profile) };
+}
+
+export async function harnessMockRawSlots(profile: AgentProfile): Promise<import("~/server/speed2Lead/agent/scheduling").RawSlotFetchResult> {
+  return { ok: true, slots: buildHarnessMockPoolIsos(new Date(), profile.timezone) };
 }
