@@ -70,6 +70,38 @@ export type AgentSession = {
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
 const MAX_STORED_MESSAGES = 24;
+const INBOUND_LOCK_SECONDS = 120;
+const INBOUND_SID_TTL_SECONDS = 60 * 60 * 24;
+
+/** Claim a Twilio MessageSid before processing (survives concurrent handlers). */
+export async function claimInboundMessageSid(messageSid: string, phone: string): Promise<boolean> {
+  const redis = getRedis();
+  const claimed = await redis.set(`speed2lead:agent:inbound-sid:${messageSid}`, normalizePhone(phone), {
+    nx: true,
+    ex: INBOUND_SID_TTL_SECONDS,
+  });
+  return Boolean(claimed);
+}
+
+/** Serialize read-modify-write per phone so concurrent webhooks can't double-send. */
+export async function acquireAgentInboundLock(phone: string): Promise<string | null> {
+  const redis = getRedis();
+  const token = crypto.randomUUID();
+  const acquired = await redis.set(`speed2lead:agent:inbound-lock:${normalizePhone(phone)}`, token, {
+    nx: true,
+    ex: INBOUND_LOCK_SECONDS,
+  });
+  return acquired ? token : null;
+}
+
+export async function releaseAgentInboundLock(phone: string, token: string): Promise<void> {
+  const redis = getRedis();
+  const key = `speed2lead:agent:inbound-lock:${normalizePhone(phone)}`;
+  const current = await redis.get<string>(key);
+  if (current === token) {
+    await redis.del(key);
+  }
+}
 
 /** Redis SET of phones with a pending second-opener message, scanned by the
  * pain-prompt cron the same way speed2lead:nurture-followups is scanned. */

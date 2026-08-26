@@ -8,9 +8,12 @@
  */
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import {
+  acquireAgentInboundLock,
   appendMessage,
+  claimInboundMessageSid,
   getAgentSession,
   isOptedOut,
+  releaseAgentInboundLock,
   saveAgentSession,
   setOptedOut,
   type AgentSession,
@@ -85,100 +88,121 @@ export async function handleAgentInboundSms(
     return;
   }
 
-  session = appendMessage(session, "user", body);
-  session.lastInboundMessageSid = messageSid;
-  // The prospect engaged before the scheduled second opener message went
-  // out — cancel it rather than asking a question they've already answered.
-  session = await cancelPendingPainPrompt(session);
+  if (messageSid && !(await claimInboundMessageSid(messageSid, phone))) {
+    return;
+  }
 
-  const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
-  const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
+  const lockToken = await acquireAgentInboundLock(phone);
+  if (!lockToken) {
+    return;
+  }
 
-  let output: AgentTurnOutput;
   try {
-    output = await runAgentTurn(getActiveProfile(), session, offered, turnContext);
-  } catch (error) {
-    console.error("Speed2Lead agent turn failed:", error);
-    const fallback =
-      "Sorry, hit a snag on my end — mind resending that? If it keeps happening, just let me know and I'll call you directly.";
-    await sendSms(phone, fallback);
-    session = appendMessage(session, "assistant", fallback);
-    await saveAgentSession(session);
-    return;
-  }
+    session = await getAgentSession(phone);
+    if (!session) {
+      return;
+    }
+    if (messageSid && session.lastInboundMessageSid === messageSid) {
+      return;
+    }
 
-  if (output.opt_out) {
-    await setOptedOut(phone);
-    session.stage = "declined";
-    await saveAgentSession(session);
-    return;
-  }
+    session = appendMessage(session, "user", body);
+    session.lastInboundMessageSid = messageSid;
+    // The prospect engaged before the scheduled second opener message went
+    // out — cancel it rather than asking a question they've already answered.
+    session = await cancelPendingPainPrompt(session);
 
-  const chosenSlot =
-    output.slot_choice_index != null ? offered[output.slot_choice_index] : undefined;
+    const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
+    const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
 
-  if (output.confirm_booking && chosenSlot) {
-    const booked = await confirmBookSlot({
-      slot: chosenSlot,
-      phone,
-      attendeeName: session.firstName ?? "there",
-      attendeeEmail: session.email,
-      businessName: session.businessName,
-    });
-
-    if (booked.ok) {
-      session.stage = "booked";
-      session.bookedStartIso = booked.startIso;
-      session.bookedEventId = booked.eventId;
-      session.offeredSlots = [];
-
-      if (booked.confirmationSmsSent) {
-        // Lifecycle sent the Meet-link confirmation and scheduled reminders.
-        session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
-        await saveAgentSession(session);
-        return;
-      }
-
-      // Idempotent replay (or other lifecycle skip): still tell the prospect
-      // they're booked — silence here was the original silent-turn bug.
-      const parts = formatNaturalAppointmentParts(
-        booked.startIso,
-        getActiveProfile().timezone,
-      );
-      const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
-      const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
-      await sendSms(phone, alreadyBooked);
-      session = appendMessage(session, "assistant", alreadyBooked);
+    let output: AgentTurnOutput;
+    try {
+      output = await runAgentTurn(getActiveProfile(), session, offered, turnContext);
+    } catch (error) {
+      console.error("Speed2Lead agent turn failed:", error);
+      const fallback =
+        "Sorry, hit a snag on my end — mind resending that? If it keeps happening, just let me know and I'll call you directly.";
+      await sendSms(phone, fallback);
+      session = appendMessage(session, "assistant", fallback);
       await saveAgentSession(session);
       return;
     }
 
-    // Booking failed (e.g. someone else took the slot in the meantime) —
-    // fall through and let the model's reply carry an apology + next step,
-    // but refresh the offered list so we don't keep offering a dead slot.
-    const refreshed = await offerSlots(getActiveProfile());
-    session.offeredSlots = refreshed.ok ? refreshed.slots : [];
-    session.stage = "offering_slots";
-    const text = output.reply || "That time just got taken — want me to grab you another?";
-    await sendSms(phone, text);
-    session = appendMessage(session, "assistant", text);
+    if (output.opt_out) {
+      await setOptedOut(phone);
+      session.stage = "declined";
+      await saveAgentSession(session);
+      return;
+    }
+
+    const chosenSlot =
+      output.slot_choice_index != null ? offered[output.slot_choice_index] : undefined;
+
+    if (output.confirm_booking && chosenSlot) {
+      const booked = await confirmBookSlot({
+        slot: chosenSlot,
+        phone,
+        attendeeName: session.firstName ?? "there",
+        attendeeEmail: session.email,
+        businessName: session.businessName,
+      });
+
+      if (booked.ok) {
+        session.stage = "booked";
+        session.bookedStartIso = booked.startIso;
+        session.bookedEventId = booked.eventId;
+        session.offeredSlots = [];
+
+        if (booked.confirmationSmsSent) {
+          // Lifecycle sent the Meet-link confirmation and scheduled reminders.
+          session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
+          await saveAgentSession(session);
+          return;
+        }
+
+        // Idempotent replay (or other lifecycle skip): still tell the prospect
+        // they're booked — silence here was the original silent-turn bug.
+        const parts = formatNaturalAppointmentParts(
+          booked.startIso,
+          getActiveProfile().timezone,
+        );
+        const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
+        const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
+        await sendSms(phone, alreadyBooked);
+        session = appendMessage(session, "assistant", alreadyBooked);
+        await saveAgentSession(session);
+        return;
+      }
+
+      // Booking failed (e.g. someone else took the slot in the meantime) —
+      // fall through and let the model's reply carry an apology + next step,
+      // but refresh the offered list so we don't keep offering a dead slot.
+      const refreshed = await offerSlots(getActiveProfile());
+      session.offeredSlots = refreshed.ok ? refreshed.slots : [];
+      session.stage = "offering_slots";
+      const text = output.reply || "That time just got taken — want me to grab you another?";
+      await sendSms(phone, text);
+      session = appendMessage(session, "assistant", text);
+      await saveAgentSession(session);
+      return;
+    }
+
+    // Normal turn: trust the model's stage/pain tracking, but never let it
+    // regress out of a terminal state once reached.
+    if (session.stage !== "booked" && session.stage !== "declined") {
+      session.stage = output.stage;
+    }
+    if (output.primary_pain) {
+      session.primaryPain = output.primary_pain;
+    }
+    if (offered.length > 0 && (output.stage === "offering_slots" || output.stage === "confirming")) {
+      session.offeredSlots = offered;
+    }
+
+    await sendSms(phone, output.reply);
+    session = appendMessage(session, "assistant", output.reply);
     await saveAgentSession(session);
-    return;
+  } finally {
+    await releaseAgentInboundLock(phone, lockToken);
   }
-
-  // Normal turn: trust the model's stage/pain tracking, but never let it
-  // regress out of a terminal state once reached.
-  if (session.stage !== "booked" && session.stage !== "declined") {
-    session.stage = output.stage;
-  }
-  if (output.primary_pain) {
-    session.primaryPain = output.primary_pain;
-  }
-  if (offered.length > 0 && (output.stage === "offering_slots" || output.stage === "confirming")) {
-    session.offeredSlots = offered;
-  }
-
-  await sendSms(phone, output.reply);
-  session = appendMessage(session, "assistant", output.reply);
-  await saveAgentSession(session);
 }

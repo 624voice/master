@@ -7,7 +7,11 @@ export default async () => {
     headers.Authorization = `Bearer ${secret}`;
   }
 
-  const endpoints = ["/api/cron/demo-followups", "/api/cron/nurture-followups"];
+  const endpoints = [
+    "/api/cron/demo-followups",
+    "/api/cron/nurture-followups",
+    "/api/cron/agent-pain-prompts",
+  ];
   const results: Array<{ endpoint: string; status: number; body: string }> = [];
 
   for (const endpoint of endpoints) {
