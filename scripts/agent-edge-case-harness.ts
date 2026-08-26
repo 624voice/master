@@ -299,8 +299,15 @@ async function runScenario(
         stopAt = new Date().toISOString();
       }
 
-      const messageSid = `SM-harness-${scenario.id}-${turnIndex}-${Date.now()}`;
+      const messageSid =
+        scenario.meta?.replayDuplicateMessageSid && turnIndex === 0
+          ? `SM-harness-dup-${scenario.id}`
+          : `SM-harness-${scenario.id}-${turnIndex}-${Date.now()}`;
       await dispatchInboundTurn(scenario, phone, turn.inbound, messageSid, execution, twilioCtx);
+      if (scenario.meta?.replayDuplicateMessageSid && turnIndex === 0) {
+        await sleep(500);
+        await dispatchInboundTurn(scenario, phone, turn.inbound, messageSid, execution, twilioCtx);
+      }
       await sleep(TURN_SETTLE_MS);
 
       const session = await getAgentSession(phone);

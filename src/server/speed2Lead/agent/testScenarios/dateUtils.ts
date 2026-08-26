@@ -121,3 +121,18 @@ export function weekdayNameForDateKey(dateKey: string, timezone: string): string
   const noonUtc = Date.UTC(y, m - 1, d, 12, 0, 0);
   return formatPartsInTimezone(new Date(noonUtc), timezone).weekday;
 }
+
+export function nextBusinessDayDateKey(
+  reference: Date,
+  timezone: string,
+  minDays = 3,
+): string {
+  for (let offset = minDays; offset <= 14; offset += 1) {
+    const candidate = addCalendarDaysInTimezone(reference, timezone, offset);
+    const weekday = formatPartsInTimezone(candidate, timezone).weekday;
+    if (weekday !== "Saturday" && weekday !== "Sunday") {
+      return dateKeyInTimezone(candidate, timezone);
+    }
+  }
+  throw new Error("Could not resolve next business day");
+}

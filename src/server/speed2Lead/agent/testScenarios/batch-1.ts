@@ -4,6 +4,7 @@ import {
   addCalendarDaysInTimezone,
   dateKeyInTimezone,
   formatExactDateLabel,
+  nextBusinessDayDateKey,
   nextWeekdayDateKey,
   tomorrowDateKey,
 } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
@@ -22,8 +23,18 @@ export function buildBatch1(referenceDate = new Date()): ScenarioBatch {
   const timezone = profile.timezone;
   const tomorrowKey = tomorrowDateKey(referenceDate, timezone);
   const mondayKey = nextWeekdayDateKey("Monday", referenceDate, timezone);
-  const exactAnchor = addCalendarDaysInTimezone(referenceDate, timezone, 4);
-  const exactDateKey = dateKeyInTimezone(exactAnchor, timezone);
+  const exactDateKey = nextBusinessDayDateKey(referenceDate, timezone, 3);
+  const exactAnchor = addCalendarDaysInTimezone(
+    referenceDate,
+    timezone,
+    Math.max(
+      3,
+      Math.round(
+        (new Date(`${exactDateKey}T12:00:00`).getTime() - referenceDate.getTime()) /
+          (24 * 60 * 60 * 1000),
+      ),
+    ),
+  );
   const exactDateLabel = formatExactDateLabel(exactAnchor, timezone);
 
   const sharedMeta = {
