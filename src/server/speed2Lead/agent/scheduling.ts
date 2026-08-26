@@ -79,7 +79,14 @@ export function spreadAcrossDays(candidates: string[], max: number): string[] {
 }
 
 export type BookSlotResult =
-  | { ok: true; eventId: string; startIso: string; meetUrl: string }
+  | {
+      ok: true;
+      eventId: string;
+      startIso: string;
+      meetUrl: string;
+      /** False when lifecycle skipped confirmation (e.g. idempotent replay). */
+      confirmationSmsSent: boolean;
+    }
   | { ok: false; reason: string };
 
 export async function confirmBookSlot(input: {
@@ -108,5 +115,6 @@ export async function confirmBookSlot(input: {
     eventId: result.eventId,
     startIso: result.selectedStart,
     meetUrl: result.googleMeetUrl,
+    confirmationSmsSent: Boolean(result.lifecycle.smsSent),
   };
 }

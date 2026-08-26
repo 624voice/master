@@ -17,6 +17,7 @@ import {
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput } from "~/server/speed2Lead/agent/llmTurn";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
+import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -100,14 +101,28 @@ export async function handleAgentInboundSms(fromPhoneRaw: string, body: string):
     });
 
     if (booked.ok) {
-      // The appointment lifecycle (inside confirmBookSlot -> bookConsultation)
-      // already sends the confirmation SMS with the real Google Meet link and
-      // reminder scheduling — do not send a second message here.
       session.stage = "booked";
       session.bookedStartIso = booked.startIso;
       session.bookedEventId = booked.eventId;
       session.offeredSlots = [];
-      session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
+
+      if (booked.confirmationSmsSent) {
+        // Lifecycle sent the Meet-link confirmation and scheduled reminders.
+        session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
+        await saveAgentSession(session);
+        return;
+      }
+
+      // Idempotent replay (or other lifecycle skip): still tell the prospect
+      // they're booked — silence here was the original silent-turn bug.
+      const parts = formatNaturalAppointmentParts(
+        booked.startIso,
+        getActiveProfile().timezone,
+      );
+      const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
+      const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
+      await sendSms(phone, alreadyBooked);
+      session = appendMessage(session, "assistant", alreadyBooked);
       await saveAgentSession(session);
       return;
     }
