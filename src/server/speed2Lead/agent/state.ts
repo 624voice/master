@@ -83,6 +83,20 @@ export async function claimInboundMessageSid(messageSid: string, phone: string):
   return Boolean(claimed);
 }
 
+/** Allow at most one agent-composed outbound SMS per inbound MessageSid. */
+export async function claimAgentOutboundForInbound(messageSid: string | undefined): Promise<boolean> {
+  if (!messageSid?.trim()) {
+    return true;
+  }
+  const redis = getRedis();
+  const claimed = await redis.set(
+    `speed2lead:agent:outbound-for-inbound:${messageSid.trim()}`,
+    "1",
+    { nx: true, ex: INBOUND_SID_TTL_SECONDS },
+  );
+  return Boolean(claimed);
+}
+
 /** Serialize read-modify-write per phone so concurrent webhooks can't double-send. */
 export async function acquireAgentInboundLock(phone: string): Promise<string | null> {
   return acquireAgentPhoneLock(phone);

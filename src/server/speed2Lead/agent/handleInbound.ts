@@ -10,6 +10,7 @@ import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import {
   acquireAgentInboundLock,
   appendMessage,
+  claimAgentOutboundForInbound,
   claimInboundMessageSid,
   getAgentSession,
   isOptedOut,
@@ -30,6 +31,22 @@ const STOP_KEYWORDS = new Set(["stop", "stopall", "unsubscribe", "cancel", "end"
 
 function isStopKeyword(body: string): boolean {
   return STOP_KEYWORDS.has(body.trim().toLowerCase());
+}
+
+async function sendAgentReplySms(
+  phone: string,
+  body: string,
+  messageSid: string | undefined,
+): Promise<boolean> {
+  if (!(await claimAgentOutboundForInbound(messageSid))) {
+    console.warn("handleAgentInboundSms skipped duplicate outbound", {
+      phoneSuffix: phone.slice(-4),
+      messageSid,
+    });
+    return false;
+  }
+  await sendSms(phone, body);
+  return true;
 }
 
 type SlotsForTurnResult = {
@@ -88,10 +105,6 @@ export async function handleAgentInboundSms(
     return;
   }
 
-  if (messageSid && !(await claimInboundMessageSid(messageSid, phone))) {
-    return;
-  }
-
   const lockToken = await acquireAgentInboundLock(phone);
   if (!lockToken) {
     return;
@@ -103,6 +116,9 @@ export async function handleAgentInboundSms(
       return;
     }
     if (messageSid && session.lastInboundMessageSid === messageSid) {
+      return;
+    }
+    if (messageSid && !(await claimInboundMessageSid(messageSid, phone))) {
       return;
     }
 
@@ -122,7 +138,7 @@ export async function handleAgentInboundSms(
       console.error("Speed2Lead agent turn failed:", error);
       const fallback =
         "Sorry, hit a snag on my end — mind resending that? If it keeps happening, just let me know and I'll call you directly.";
-      await sendSms(phone, fallback);
+      await sendAgentReplySms(phone, fallback, messageSid);
       session = appendMessage(session, "assistant", fallback);
       await saveAgentSession(session);
       return;
@@ -168,7 +184,7 @@ export async function handleAgentInboundSms(
         );
         const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
         const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
-        await sendSms(phone, alreadyBooked);
+        await sendAgentReplySms(phone, alreadyBooked, messageSid);
         session = appendMessage(session, "assistant", alreadyBooked);
         await saveAgentSession(session);
         return;
@@ -181,7 +197,7 @@ export async function handleAgentInboundSms(
       session.offeredSlots = refreshed.ok ? refreshed.slots : [];
       session.stage = "offering_slots";
       const text = output.reply || "That time just got taken — want me to grab you another?";
-      await sendSms(phone, text);
+      await sendAgentReplySms(phone, text, messageSid);
       session = appendMessage(session, "assistant", text);
       await saveAgentSession(session);
       return;
@@ -199,7 +215,7 @@ export async function handleAgentInboundSms(
       session.offeredSlots = offered;
     }
 
-    await sendSms(phone, output.reply);
+    await sendAgentReplySms(phone, output.reply, messageSid);
     session = appendMessage(session, "assistant", output.reply);
     await saveAgentSession(session);
   } finally {
