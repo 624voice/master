@@ -51,6 +51,11 @@ export type AgentSession = {
   bookedStartIso?: string;
   bookedEventId?: string;
 
+  /** Twilio MessageSid of the last inbound SMS actually processed for this
+   * phone, used to no-op a Twilio webhook retry/duplicate delivery of the
+   * same message instead of double-processing it. */
+  lastInboundMessageSid?: string;
+
   messages: AgentMessage[];
   createdAt: string;
   updatedAt: string;

@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/sms/inbound")({
             // existing handler untouched.
             const agentSession = await getAgentSession(normalizePhone(from));
             if (agentSession) {
-              await handleAgentInboundSms(from, body);
+              await handleAgentInboundSms(from, body, params.MessageSid);
             } else {
               await handleInboundSms(from, body);
             }

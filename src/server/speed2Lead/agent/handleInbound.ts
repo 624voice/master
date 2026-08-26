@@ -14,8 +14,9 @@ import {
   saveAgentSession,
   setOptedOut,
   type AgentSession,
+  type OfferedSlot,
 } from "~/server/speed2Lead/agent/state";
-import { runAgentTurn, type AgentTurnOutput } from "~/server/speed2Lead/agent/llmTurn";
+import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
 import { sendSms } from "~/server/sms/twilio";
@@ -27,25 +28,36 @@ function isStopKeyword(body: string): boolean {
   return STOP_KEYWORDS.has(body.trim().toLowerCase());
 }
 
+type SlotsForTurnResult = {
+  slots: OfferedSlot[];
+  fetchFailed: boolean;
+};
+
 /**
  * Decide, deterministically, whether this turn should look up real calendar
  * availability before calling the LLM. We prefetch when the previous turn
  * already asked the meeting-bridge question (so a "yes" this turn can be
  * answered with real times immediately) or when we're already mid-offer.
  */
-async function slotsForThisTurn(session: AgentSession) {
+async function slotsForThisTurn(session: AgentSession): Promise<SlotsForTurnResult> {
   const profile = getActiveProfile();
   if (session.stage === "bridge") {
     const fetched = await offerSlots(profile);
-    return fetched.ok ? fetched.slots : [];
+    return fetched.ok
+      ? { slots: fetched.slots, fetchFailed: false }
+      : { slots: [], fetchFailed: true };
   }
   if (session.stage === "offering_slots" || session.stage === "confirming") {
-    return session.offeredSlots;
+    return { slots: session.offeredSlots, fetchFailed: false };
   }
-  return [];
+  return { slots: [], fetchFailed: false };
 }
 
-export async function handleAgentInboundSms(fromPhoneRaw: string, body: string): Promise<void> {
+export async function handleAgentInboundSms(
+  fromPhoneRaw: string,
+  body: string,
+  messageSid?: string,
+): Promise<void> {
   const phone = normalizePhone(fromPhoneRaw);
 
   if (isStopKeyword(body)) {
@@ -64,13 +76,23 @@ export async function handleAgentInboundSms(fromPhoneRaw: string, body: string):
     return;
   }
 
-  session = appendMessage(session, "user", body);
+  // A Twilio webhook retry (or genuine duplicate delivery) of a message we
+  // already processed must be a no-op — otherwise it double-sends a reply
+  // and can double-book. Twilio always includes a MessageSid; compare it to
+  // the last one we actually acted on for this phone.
+  if (messageSid && session.lastInboundMessageSid === messageSid) {
+    return;
+  }
 
-  const offered = await slotsForThisTurn(session);
+  session = appendMessage(session, "user", body);
+  session.lastInboundMessageSid = messageSid;
+
+  const { slots: offered, fetchFailed } = await slotsForThisTurn(session);
+  const turnContext: TurnContext = { slotsUnavailable: fetchFailed };
 
   let output: AgentTurnOutput;
   try {
-    output = await runAgentTurn(getActiveProfile(), session, offered);
+    output = await runAgentTurn(getActiveProfile(), session, offered, turnContext);
   } catch (error) {
     console.error("Speed2Lead agent turn failed:", error);
     const fallback =
