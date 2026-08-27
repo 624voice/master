@@ -1,5 +1,5 @@
 import { getAgentSession } from "~/server/speed2Lead/agent/state";
-import type { AgentFlow } from "~/server/speed2Lead/agent/state";
+import type { AgentFlow, AgentSession } from "~/server/speed2Lead/agent/state";
 import { getSession } from "~/server/speed2Lead/session";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
@@ -11,6 +11,10 @@ function isTerminalLegacySession(context: AnyConversationContext): boolean {
   return false;
 }
 
+export function isTerminalAgentSession(session: AgentSession): boolean {
+  return session.stage === "booked" || session.stage === "declined" || session.stage === "handoff";
+}
+
 /** True when an active conversation already exists on this phone (any flow). */
 export async function shouldSkipAgentOpener(
   phone: string,
@@ -18,8 +22,8 @@ export async function shouldSkipAgentOpener(
 ): Promise<{ skip: boolean; reason?: string }> {
   const normalized = normalizePhone(phone);
   const agent = await getAgentSession(normalized);
-  if (agent) {
-    return { skip: true, reason: `agent_session:${agent.flow}` };
+  if (agent && !isTerminalAgentSession(agent)) {
+    return { skip: true, reason: `agent_session:${agent.flow ?? "unknown"}` };
   }
 
   const legacy = await getSession(normalized);
