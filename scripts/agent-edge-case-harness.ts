@@ -14,6 +14,7 @@
  * - preview: signed POST to S2L_PREVIEW_URL (scenarios with execution: "preview")
  * - --mock-slots: inject deterministic calendar slots for local scheduling tests
  */
+import twilio from "twilio";
 import { buildConsultationBookingKey } from "~/server/appointmentLifecycle/googleCalendar";
 import { clearActiveLifecycleForPhone } from "~/server/appointmentLifecycle/store";
 import { getRedis } from "~/server/speed2Lead/redis";
