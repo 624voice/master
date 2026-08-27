@@ -212,8 +212,8 @@ async function main() {
 
   const stage1 = await runStageTest(
     "Stage 1 (+4h check-in)",
-    "just making sure you saw the ROI report",
-    "Hi Jamie — just making sure you saw the ROI report",
+    "saw the ROI report come through",
+    "Hi Jamie — saw the ROI report come through",
   );
 
   const stage2 = await runStageTest(

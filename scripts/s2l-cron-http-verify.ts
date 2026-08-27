@@ -150,7 +150,7 @@ async function verifyNoResponseCron() {
   await sleep(4000);
 
   const outbound = await listOutboundSince(pollSince);
-  const marker = "just making sure you saw the ROI report";
+  const marker = "saw the ROI report come through";
   const message = outbound.find((m) => (m.body ?? "").includes(marker));
   const afterSession = await getAgentSession(TEST_PHONE);
   const after = {
