@@ -35,7 +35,7 @@ import {
   isMeetingDeclineStage,
   sessionAwaitingPainAnswer,
 } from "~/server/speed2Lead/agent/turnGuards";
-import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
+import { buildBookingConfirmationMessage } from "~/server/speed2Lead/guardrails";
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -216,13 +216,15 @@ export async function handleAgentInboundSms(
           return;
         }
 
-        // Idempotent replay (or other lifecycle skip): still tell the prospect
-        // they're booked — silence here was the original silent-turn bug.
-        const parts = formatNaturalAppointmentParts(booked.startIso, profile.timezone);
-        const tz = parts.timezoneShort ? ` ${parts.timezoneShort}` : "";
-        const alreadyBooked = `You're already booked for ${parts.weekday}, ${parts.month} ${parts.day} at ${parts.time}${tz}.`;
-        await sendAgentReplySms(phone, alreadyBooked, messageSid);
-        session = appendMessage(session, "assistant", alreadyBooked);
+        // Idempotent replay (or other lifecycle skip): lifecycle already sent
+        // confirmation on the first book — send the same details once from here.
+        const confirmation = buildBookingConfirmationMessage(
+          booked.startIso,
+          session.firstName ?? "there",
+          { meetingLink: booked.meetUrl },
+        );
+        await sendAgentReplySms(phone, confirmation, messageSid);
+        session = appendMessage(session, "assistant", confirmation);
         await saveAgentSession(session);
         return;
       }
