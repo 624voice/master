@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { processDemoFollowUps } from "~/server/demoSpeed2Lead/processFollowUps";
+import { recordCronRun } from "~/server/speed2Lead/cronHeartbeat";
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/api/cron/demo-followups")({
         }
 
         try {
+          await recordCronRun("demo-followups");
           const sent = await processDemoFollowUps();
           return new Response(JSON.stringify({ ok: true, sent }), {
             status: 200,

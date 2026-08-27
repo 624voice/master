@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { processPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
+import { recordCronRun } from "~/server/speed2Lead/cronHeartbeat";
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/api/cron/agent-no-response-followups")({
         }
 
         try {
+          await recordCronRun("agent-no-response-followups");
           const sent = await processPendingNoResponseCampaign();
           return new Response(JSON.stringify({ ok: true, sent }), {
             status: 200,

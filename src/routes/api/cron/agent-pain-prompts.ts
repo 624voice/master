@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { processPendingPainPrompts } from "~/server/speed2Lead/agent/painPrompt";
+import { recordCronRun } from "~/server/speed2Lead/cronHeartbeat";
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/api/cron/agent-pain-prompts")({
         }
 
         try {
+          await recordCronRun("agent-pain-prompts");
           const sent = await processPendingPainPrompts();
           return new Response(JSON.stringify({ ok: true, sent }), {
             status: 200,
