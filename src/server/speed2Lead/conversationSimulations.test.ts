@@ -12,14 +12,12 @@ describe("Speed2Lead conversation simulation audit", () => {
   const failures = results.filter((r) => r.violations.length > 0);
 
   test(`runs ${SIMULATION_SCENARIOS.length} scenarios across all flows`, () => {
-    expect(SIMULATION_SCENARIOS.length).toBeGreaterThanOrEqual(50);
+    expect(SIMULATION_SCENARIOS.length).toBeGreaterThanOrEqual(36);
 
     const roiCount = SIMULATION_SCENARIOS.filter((s) => s.flow === "roi").length;
-    const contactCount = SIMULATION_SCENARIOS.filter((s) => s.flow === "contact").length;
     const demoCount = SIMULATION_SCENARIOS.filter((s) => s.flow === "demo").length;
 
     expect(roiCount).toBeGreaterThanOrEqual(15);
-    expect(contactCount).toBeGreaterThanOrEqual(15);
     expect(demoCount).toBeGreaterThanOrEqual(15);
   });
 

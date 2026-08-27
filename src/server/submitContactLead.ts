@@ -8,8 +8,6 @@ import {
 } from "~/lib/lead/validateLead";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { startContactAgentConversation } from "~/server/speed2Lead/agent/contactFlow/startConversation";
-import { isSpeed2LeadContactAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
-import { startContactSpeed2Lead } from "~/server/contactSpeed2Lead/startConversation";
 import { saveLead } from "~/server/leads";
 
 type ContactLeadRequest = {
@@ -73,29 +71,18 @@ export const submitContactLead = createServerFn({ method: "POST" })
 
     if (data.smsConsent && isSpeed2LeadEnabled()) {
       try {
-        if (isSpeed2LeadContactAgentV2Enabled()) {
-          await startContactAgentConversation({
-            phone: normalizedLead.phone,
-            firstName: normalizedLead.firstName,
-            lastName: normalizedLead.lastName,
-            businessName: normalizedLead.businessName,
-            email: normalizedLead.email,
-            message: data.message.trim(),
-            trade: resolveContactTrade(data.trade, data.otherTrade),
-            fleetSize: data.fleetSize.trim(),
-            websiteOption: data.websiteOption,
-            website: data.website,
-          });
-        } else {
-          await startContactSpeed2Lead({
-            phone: normalizedLead.phone,
-            firstName: normalizedLead.firstName,
-            lastName: normalizedLead.lastName,
-            businessName: normalizedLead.businessName,
-            email: normalizedLead.email,
-            message: data.message.trim(),
-          });
-        }
+        await startContactAgentConversation({
+          phone: normalizedLead.phone,
+          firstName: normalizedLead.firstName,
+          lastName: normalizedLead.lastName,
+          businessName: normalizedLead.businessName,
+          email: normalizedLead.email,
+          message: data.message.trim(),
+          trade: resolveContactTrade(data.trade, data.otherTrade),
+          fleetSize: data.fleetSize.trim(),
+          websiteOption: data.websiteOption,
+          website: data.website,
+        });
       } catch (error) {
         console.error("Contact Speed2Lead initial SMS failed:", error);
       }

@@ -1,15 +1,12 @@
-import { advanceContactConversation } from "~/server/contactSpeed2Lead/stateMachine";
-import { createContactSession } from "~/server/contactSpeed2Lead/startConversation";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import { createDemoSession } from "~/server/demoSpeed2Lead/startConversation";
 import { advanceConversation } from "~/server/speed2Lead/stateMachine";
-import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
 import type { DemoConversationContext } from "~/server/demoSpeed2Lead/types";
 import type { ConversationContext } from "~/server/speed2Lead/types";
 
 const BOOKING_URL = "https://calendar.app.google/test";
 
-export type FlowKind = "roi" | "contact" | "demo";
+export type FlowKind = "roi" | "demo";
 
 export type SimulationResult = {
   flow: FlowKind;
@@ -58,16 +55,6 @@ function createRoiContext(): ConversationContext {
   };
 }
 
-function createContactContext(message = "We need help answering more calls after hours"): ContactConversationContext {
-  return createContactSession({
-    phone: "+15551234567",
-    firstName: "Chris",
-    businessName: "Test Plumbing",
-    message,
-    bookingUrl: BOOKING_URL,
-  });
-}
-
 function createDemoContext(): DemoConversationContext {
   return createDemoSession({
     phone: "+15551234567",
@@ -100,12 +87,8 @@ const UNSUPPORTED_ROI_CLAIMS = [
 ];
 
 export function simulateScenario(scenario: SimulationScenario): SimulationResult {
-  let context: ConversationContext | ContactConversationContext | DemoConversationContext =
-    scenario.flow === "roi"
-      ? createRoiContext()
-      : scenario.flow === "contact"
-        ? createContactContext(scenario.contactMessage)
-        : createDemoContext();
+  let context: ConversationContext | DemoConversationContext =
+    scenario.flow === "roi" ? createRoiContext() : createDemoContext();
 
   const replies: string[] = [];
 
@@ -113,9 +96,7 @@ export function simulateScenario(scenario: SimulationScenario): SimulationResult
     const result =
       scenario.flow === "roi"
         ? advanceConversation(context as ConversationContext, step)
-        : scenario.flow === "contact"
-          ? advanceContactConversation(context as ContactConversationContext, step)
-          : advanceDemoConversation(context as DemoConversationContext, step);
+        : advanceDemoConversation(context as DemoConversationContext, step);
     context = result.context;
     replies.push(result.reply);
   }
@@ -201,26 +182,6 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
   { flow: "roi", name: "ROI: pain then sounds good", steps: ["missed calls after hours", "sounds good"], expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true, noUnsupportedRoiClaims: true } },
   { flow: "roi", name: "ROI: customer asks question instead", steps: ["how does this actually work?"], expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true, replyContains: ["AI agents"], noUnsupportedRoiClaims: true } },
   { flow: "roi", name: "ROI: vague k", steps: ["k", "missed calls"], expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true, noUnsupportedRoiClaims: true } },
-
-  // Contact — 18 scenarios
-  { flow: "contact", name: "Contact: miss calls after hours", steps: ["We keep missing calls after hours.", "voicemail mostly"], contactMessage: "Need help with calls", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: urgent after hours", steps: ["We desperately need something answering our phones after 5"], contactMessage: "After hours calls", expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: website only", steps: ["Need a new website.", "looks outdated"], contactMessage: "Need a new website", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: just looking for info", steps: ["Just looking for information.", "The AI side"], contactMessage: "General inquiry", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: interested no context", steps: ["interested"], contactMessage: "General inquiry", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: sounds good with form context", steps: ["sounds good"], contactMessage: "We miss calls after hours every night", expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: can we talk tomorrow", steps: ["can we talk tomorrow?"], contactMessage: "Help with leads", expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: how much", steps: ["what does it cost?"], contactMessage: "AI help", expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true, replyContains: ["Pricing"] } },
-  { flow: "contact", name: "Contact: send me info", steps: ["send me info"], contactMessage: "Looking for info", expect: { expectNotCompleted: true, replyContains: ["learn more here"] } },
-  { flow: "contact", name: "Contact: who is this", steps: ["how did you get my number?"], contactMessage: "Call handling", expect: { maxQuestions: 1, expectNotCompleted: true, replyContains: ["contact form"] } },
-  { flow: "contact", name: "Contact: not interested", steps: ["not interested"], contactMessage: "Help", expect: { expectCompleted: true, expectNoCalendar: true } },
-  { flow: "contact", name: "Contact: CSR drowning", steps: ["my csr is drowning, we cant keep up", "voicemail mostly"], contactMessage: "Office overwhelmed", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: multiple problems", steps: ["missed calls AND slow follow up honestly all of it", "voicemail"], contactMessage: "Multiple issues", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: subject change to price", steps: ["website stuff", "actually how much is this?"], contactMessage: "Website", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: answering service", steps: ["we already have an answering service"], contactMessage: "Calls", expect: { maxQuestions: 1, expectNotCompleted: true } },
-  { flow: "contact", name: "Contact: pretty cool", steps: ["pretty cool", "after hours calls"], contactMessage: "General", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: long indirect answer", steps: ["well customers still cant reach anyone after 5pm", "voicemail"], contactMessage: "Call issues", expect: { maxQuestions: 1, expectCompleted: true, expectCalendar: true } },
-  { flow: "contact", name: "Contact: sure one word", steps: ["sure"], contactMessage: "Help with scheduling", expect: { maxQuestions: 1, expectCompleted: true } },
 
   // Demo — 18 scenarios
   { flow: "demo", name: "Demo: that was awesome", steps: ["That was awesome"], expect: { maxQuestions: 0, expectCompleted: true, expectCalendar: true } },

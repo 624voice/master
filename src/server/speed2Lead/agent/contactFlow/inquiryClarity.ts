@@ -1,4 +1,4 @@
-import { buildShortNeedSummary } from "~/server/contactSpeed2Lead/needSummary";
+import { buildShortNeedSummary } from "~/server/speed2Lead/agent/contactFlow/needSummary";
 import type { InquiryClarity } from "~/server/speed2Lead/agent/state";
 
 const VAGUE_INQUIRY_RE =

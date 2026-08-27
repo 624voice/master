@@ -1,6 +1,6 @@
 import { removeDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
 import type { DemoConversationContext } from "~/server/demoSpeed2Lead/types";
-import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
+import type { ContactConversationContext } from "~/server/speed2Lead/types";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import type { LeadIndexEntry, S2LSource } from "~/server/appointmentLifecycle/types";
 import { getLeadByPhone, saveLeadIndex } from "~/server/appointmentLifecycle/store";

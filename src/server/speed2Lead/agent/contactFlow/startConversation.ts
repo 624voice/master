@@ -8,7 +8,6 @@ import {
 } from "~/server/speed2Lead/agent/contactFlow/inquiryClarity";
 import { buildContactOpener } from "~/server/speed2Lead/agent/contactFlow/openers";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
-import { isSpeed2LeadContactAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
 import { scheduleNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import {
   acquireAgentPhoneLock,
@@ -35,7 +34,7 @@ export type StartContactAgentInput = {
 };
 
 export async function startContactAgentConversation(input: StartContactAgentInput): Promise<void> {
-  if (!isSpeed2LeadEnabled() || !isSpeed2LeadContactAgentV2Enabled()) {
+  if (!isSpeed2LeadEnabled()) {
     return;
   }
 

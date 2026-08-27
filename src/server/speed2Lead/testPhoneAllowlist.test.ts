@@ -112,18 +112,18 @@ describe("SPEED2LEAD_TEST_PHONES allowlist", () => {
     });
   });
 
-  test("STOP is handled before contact/demo routing", () => {
+  test("STOP is handled before demo routing", () => {
     const stopIndex = handleInboundSource.indexOf('intent === "stop"');
-    const contactIndex = handleInboundSource.indexOf("isContactSession(session)");
+    const demoIndex = handleInboundSource.indexOf("isDemoSession(session)");
     expect(stopIndex).toBeGreaterThan(-1);
-    expect(contactIndex).toBeGreaterThan(stopIndex);
+    expect(demoIndex).toBeGreaterThan(stopIndex);
   });
 
-  test("appointment lifecycle still bypasses contact/demo routing", () => {
+  test("appointment lifecycle still bypasses demo routing", () => {
     const lifecycleIndex = handleInboundSource.indexOf("handleAppointmentLifecycleInbound");
-    const contactIndex = handleInboundSource.indexOf("isContactSession(session)");
+    const demoIndex = handleInboundSource.indexOf("isDemoSession(session)");
     expect(lifecycleIndex).toBeGreaterThan(-1);
-    expect(contactIndex).toBeGreaterThan(lifecycleIndex);
+    expect(demoIndex).toBeGreaterThan(lifecycleIndex);
   });
 });
 

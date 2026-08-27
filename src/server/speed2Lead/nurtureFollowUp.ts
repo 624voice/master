@@ -4,7 +4,7 @@ import { getSession, isOptedOut, saveSession } from "~/server/speed2Lead/session
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { isSpeed2LeadTestPhone } from "~/server/speed2Lead/testPhoneAllowlist";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
-import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
+import type { ContactConversationContext } from "~/server/speed2Lead/types";
 import type { ConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
 

@@ -31,12 +31,42 @@ export type ConversationContext = SessionMemoryFields & {
   updatedAt: string;
 };
 
-export type { ContactConversationContext, ContactConversationState } from "~/server/contactSpeed2Lead/types";
+export type ContactConversationState =
+  | "awaiting_prompt"
+  | "awaiting_follow_up"
+  | "awaiting_info_area"
+  | "awaiting_faq_followup"
+  | "awaiting_not_ready_followup"
+  | "awaiting_info_followup"
+  | "awaiting_answering_service_gap"
+  | "awaiting_office_staff_task"
+  | "completed";
+
+export type ContactFollowUpKind = "missed_calls" | "website" | "general" | "none";
+
+/** Legacy contact store shape — retained for Redis deserialization only. */
+export type ContactConversationContext = SessionMemoryFields & {
+  flow: "contact";
+  phone: string;
+  firstName: string;
+  businessName: string;
+  shortNeedSummary: string;
+  relevantSolution: string;
+  relevantLink: string;
+  relevantExample: string;
+  bookingUrl: string;
+  state: ContactConversationState;
+  followUpKind?: ContactFollowUpKind;
+  detectedPains?: PainCategory[];
+  lastCustomerMessage?: string;
+  updatedAt: string;
+};
+
 export type { DemoConversationContext, DemoConversationState } from "~/server/demoSpeed2Lead/types";
 
 export type AnyConversationContext =
   | ConversationContext
-  | import("~/server/contactSpeed2Lead/types").ContactConversationContext
+  | ContactConversationContext
   | import("~/server/demoSpeed2Lead/types").DemoConversationContext;
 
 export type ReportTokenData = {

@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { createContactSession } from "~/server/contactSpeed2Lead/startConversation";
 import { createDemoSession } from "~/server/demoSpeed2Lead/startConversation";
 import {
   appendAssistantMessage,
@@ -10,7 +9,8 @@ import {
   seedKnownFacts,
 } from "~/server/speed2Lead/memory";
 import { createSession } from "~/server/speed2Lead/session";
-import type { ConversationContext } from "~/server/speed2Lead/types";
+import type { ContactConversationContext, ConversationContext } from "~/server/speed2Lead/types";
+import { buildShortNeedSummary } from "~/server/speed2Lead/agent/contactFlow/needSummary";
 
 function legacyRoiSession(): ConversationContext {
   return {
@@ -84,19 +84,24 @@ describe("session memory normalization", () => {
     expect(session.knownFacts.trade).toBe("plumbing");
   });
 
-  test("new Contact sessions seed customerGoal from form summary", () => {
-    const session = createContactSession({
+  test("legacy Contact sessions deserialize with customerGoal from form summary", () => {
+    const summary = buildShortNeedSummary("We need help with missed calls after hours");
+    const session = normalizeSessionMemory({
+      flow: "contact",
       phone: "+15551234567",
       firstName: "Chris",
       businessName: "Test Plumbing",
-      message: "We need help with missed calls after hours",
+      shortNeedSummary: summary,
+      relevantSolution: "AI voice agents",
+      relevantLink: "https://www.624voice.com/services",
+      relevantExample: "https://www.624voice.com/book",
       bookingUrl: "https://calendar.app.google/test",
-      email: "chris@example.com",
-    });
+      state: "awaiting_prompt",
+      updatedAt: "2026-01-01T12:00:00.000Z",
+    } satisfies ContactConversationContext);
 
     expect(session.knownFacts.flow).toBe("contact");
     expect(session.knownFacts.customerGoal).toBe("better call handling");
-    expect(session.knownFacts.email).toBe("chris@example.com");
   });
 
   test("new Demo sessions seed email and business metadata", () => {

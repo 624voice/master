@@ -1,7 +1,4 @@
 import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle/handleInbound";
-import { advanceContactConversation } from "~/server/contactSpeed2Lead/stateMachine";
-import { declineMessage as contactDeclineMessage } from "~/server/contactSpeed2Lead/messages";
-import type { ContactConversationContext } from "~/server/contactSpeed2Lead/types";
 import { advanceDemoConversation } from "~/server/demoSpeed2Lead/stateMachine";
 import {
   declineMessage as demoDeclineMessage,
@@ -38,12 +35,6 @@ import {
 import { removeNurtureFollowUp } from "~/server/speed2Lead/nurtureFollowUp";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
-
-function isContactSession(
-  session: AnyConversationContext | null,
-): session is ContactConversationContext {
-  return session?.flow === "contact";
-}
 
 function isDemoSession(
   session: AnyConversationContext | null,
@@ -99,11 +90,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     };
     const updated = await sendConversationSms(
       phone,
-      isDemoSession(session)
-        ? demoDeclineMessage()
-        : isContactSession(session)
-          ? contactDeclineMessage()
-          : declineMessage(),
+      isDemoSession(session) ? demoDeclineMessage() : declineMessage(),
       completed,
     );
     await saveSession(updated ?? completed);
@@ -147,14 +134,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     return;
   }
 
-  if (isContactSession(session)) {
-    const result = advanceContactConversation(session, body);
-    const updated = await sendConversationSms(phone, result.reply, result.context);
-    await saveSession(updated ?? result.context);
-    return;
-  }
-
-  // Legacy ROI sessions in the old store are no longer serviced — v2 uses agent/state.ts.
+  // Legacy ROI/contact sessions in the old store are no longer serviced — v2 uses agent/state.ts.
   await saveSession(session);
   await sendConversationSms(phone, unknownInboundMessage(), session);
 }
