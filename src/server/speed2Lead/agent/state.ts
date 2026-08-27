@@ -9,6 +9,12 @@ import { getRedis } from "~/server/speed2Lead/redis";
 import { isOptedOut, setOptedOut } from "~/server/speed2Lead/session";
 import { normalizePhone } from "~/server/sms/phone";
 
+export type AgentFlow = "roi" | "contact";
+
+export type InquiryClarity = "clear" | "vague" | "already_clear";
+
+export type DeclineReason = "timing" | "skepticism";
+
 export type AgentStage =
   | "discovery"
   | "bridge"
@@ -34,6 +40,8 @@ export type OfferedSlot = {
 };
 
 export type AgentSession = {
+  /** Which agent flow owns this session — ROI report vs contact form. */
+  flow: AgentFlow;
   tenantId: string;
   phone: string;
   firstName?: string;
@@ -42,6 +50,22 @@ export type AgentSession = {
   annualOpportunity?: string;
   primaryOpportunity?: string;
   reportUrl?: string;
+
+  /** Contact-form fields (flow === "contact"). */
+  trade?: string;
+  fleetSize?: string;
+  websiteStatus?: "has" | "none";
+  helpTextSummary?: string;
+  formMessage?: string;
+  inquiryClarity?: InquiryClarity;
+  discoveryQuestionCount?: number;
+  discoveryClosed?: boolean;
+  declineReason?: DeclineReason | null;
+  declineDiagnosisSent?: boolean;
+  declineAwaitingReason?: boolean;
+  exampleLinkSent?: boolean;
+  stageBeforePricing?: AgentStage;
+  pricingQuestionActive?: boolean;
 
   stage: AgentStage;
   primaryPain?: string;
@@ -214,15 +238,23 @@ export async function clearAgentSession(phone: string): Promise<void> {
 export function createAgentSession(input: {
   tenantId: string;
   phone: string;
+  flow?: AgentFlow;
   firstName?: string;
   businessName?: string;
   email?: string;
   annualOpportunity?: string;
   primaryOpportunity?: string;
   reportUrl?: string;
+  trade?: string;
+  fleetSize?: string;
+  websiteStatus?: "has" | "none";
+  helpTextSummary?: string;
+  formMessage?: string;
+  inquiryClarity?: InquiryClarity;
 }): AgentSession {
   const now = new Date().toISOString();
   return {
+    flow: input.flow ?? "roi",
     tenantId: input.tenantId,
     phone: normalizePhone(input.phone),
     firstName: input.firstName,
@@ -231,6 +263,19 @@ export function createAgentSession(input: {
     annualOpportunity: input.annualOpportunity,
     primaryOpportunity: input.primaryOpportunity,
     reportUrl: input.reportUrl,
+    trade: input.trade,
+    fleetSize: input.fleetSize,
+    websiteStatus: input.websiteStatus,
+    helpTextSummary: input.helpTextSummary,
+    formMessage: input.formMessage,
+    inquiryClarity: input.inquiryClarity,
+    discoveryQuestionCount: 0,
+    discoveryClosed: false,
+    declineReason: null,
+    declineDiagnosisSent: false,
+    declineAwaitingReason: false,
+    exampleLinkSent: false,
+    pricingQuestionActive: false,
     stage: "discovery",
     notes: [],
     offeredSlots: [],

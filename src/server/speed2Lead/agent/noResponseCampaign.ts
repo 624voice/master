@@ -17,6 +17,7 @@ import {
   saveAgentSession,
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
+import { buildContactNoResponseMessage } from "~/server/speed2Lead/agent/contactFlow/noResponseCampaign";
 import { sendSms } from "~/server/sms/twilio";
 
 export const NO_RESPONSE_STAGE_COUNT = 5;
@@ -91,6 +92,9 @@ export function buildNoResponseMessage(
   session: AgentSession,
   stageIndex: number,
 ): string {
+  if (session.flow === "contact") {
+    return buildContactNoResponseMessage(profile, session, stageIndex);
+  }
   const builder = MESSAGE_BUILDERS[stageIndex];
   if (!builder) {
     throw new Error(`Invalid no-response stage index: ${stageIndex}`);

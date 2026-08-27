@@ -10,3 +10,7 @@ import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 export function isSpeed2LeadAgentV2Enabled(): boolean {
   return resolveSpeed2LeadEnvFlag("SPEED2LEAD_AGENT_V2");
 }
+
+export function isSpeed2LeadContactAgentV2Enabled(): boolean {
+  return resolveSpeed2LeadEnvFlag("SPEED2LEAD_CONTACT_AGENT_V2");
+}

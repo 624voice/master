@@ -42,6 +42,7 @@ export default defineConfig({
     __DEPLOY_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
     __SPEED2LEAD_AGENT_V2__: JSON.stringify(String(process.env.SPEED2LEAD_AGENT_V2 === "true")),
     __SPEED2LEAD_LLM_ENABLED__: JSON.stringify(String(process.env.SPEED2LEAD_LLM_ENABLED === "true")),
+    __SPEED2LEAD_CONTACT_AGENT_V2__: JSON.stringify(String(process.env.SPEED2LEAD_CONTACT_AGENT_V2 === "true")),
   },
   server: {
     port: 3000,

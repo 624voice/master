@@ -1,11 +1,32 @@
 /**
- * Webhook entrypoint for the rebuilt Speed2Lead agent (ROI-report flow only).
+ * Webhook entrypoint for the rebuilt Speed2Lead agent (ROI + contact flows).
  *
  * Deterministic responsibilities live here: opt-out handling, deciding when
  * to fetch real slots, executing a confirmed booking, and persisting state.
  * Everything about what to SAY is delegated to the single LLM call in
- * `llmTurn.ts`.
+ * `llmTurn.ts`, except contact decline/pricing/injection guards owned in code.
  */
+import { resolveContactDeclineAction } from "~/server/speed2Lead/agent/contactFlow/declineHandling";
+import {
+  buildDiscoveryClosedFallback,
+  closeDiscovery,
+  markDiscoveryQuestionAsked,
+  replyContainsQuestion,
+  shouldBlockDiscoveryReply,
+  shouldCloseDiscoveryFromInbound,
+  shouldCloseDiscoveryFromModel,
+} from "~/server/speed2Lead/agent/contactFlow/discoveryGuard";
+import {
+  isDirectMeetingIntent,
+  isOffTopicRedirect,
+  isPricingQuestion,
+  isPromptInjectionAttempt,
+} from "~/server/speed2Lead/agent/contactFlow/intentDetect";
+import {
+  buildInjectionRedirect,
+  buildOffTopicRedirect,
+  PRICING_RESPONSE_COPY,
+} from "~/server/speed2Lead/agent/contactFlow/openers";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import {
   acquireAgentInboundLock,
@@ -127,7 +148,60 @@ export async function handleAgentInboundSms(
     session = await cancelPendingScheduledOutreach(session);
 
     const profile = getActiveProfile();
+    const isContact = session.flow === "contact";
+
+    if (isContact) {
+      const declineAction = resolveContactDeclineAction(session, body);
+      if (declineAction.type === "send" || declineAction.type === "terminal") {
+        await sendAgentReplySms(phone, declineAction.reply, messageSid);
+        session = { ...session, ...declineAction.sessionPatch };
+        session = appendMessage(session, "assistant", declineAction.reply);
+        await saveAgentSession(session);
+        return;
+      }
+
+      if (isPromptInjectionAttempt(body)) {
+        const reply = buildInjectionRedirect();
+        await sendAgentReplySms(phone, reply, messageSid);
+        session = appendMessage(session, "assistant", reply);
+        await saveAgentSession(session);
+        return;
+      }
+
+      if (isOffTopicRedirect(body)) {
+        const reply = buildOffTopicRedirect();
+        await sendAgentReplySms(phone, reply, messageSid);
+        session = appendMessage(session, "assistant", reply);
+        await saveAgentSession(session);
+        return;
+      }
+
+      if (isPricingQuestion(body) && !session.pricingQuestionActive) {
+        session.stageBeforePricing = session.stage;
+        session.pricingQuestionActive = true;
+        await sendAgentReplySms(phone, PRICING_RESPONSE_COPY, messageSid);
+        session = appendMessage(session, "assistant", PRICING_RESPONSE_COPY);
+        await saveAgentSession(session);
+        return;
+      }
+
+      if (session.pricingQuestionActive) {
+        session.pricingQuestionActive = false;
+        if (session.stageBeforePricing) {
+          session.stage = session.stageBeforePricing;
+        }
+      }
+
+      if (shouldCloseDiscoveryFromInbound(body, session)) {
+        session = closeDiscovery(session);
+        if (isDirectMeetingIntent(body)) {
+          session.stage = "offering_slots";
+        }
+      }
+    }
+
     const ambiguousPainReply =
+      !isContact &&
       sessionAwaitingPainAnswer(session) &&
       isAmbiguousDiscoveryReply(body) &&
       !containsPainHint(body, profile);
@@ -140,7 +214,8 @@ export async function handleAgentInboundSms(
       return;
     }
 
-    const declineThisTurn = isMeetingDecline(body) && isMeetingDeclineStage(session.stage);
+    const declineThisTurn =
+      !isContact && isMeetingDecline(body) && isMeetingDeclineStage(session.stage);
     if (declineThisTurn) {
       session.meetingDeclineCount = (session.meetingDeclineCount ?? 0) + 1;
     }
@@ -199,6 +274,7 @@ export async function handleAgentInboundSms(
         attendeeName: session.firstName ?? "there",
         attendeeEmail: session.email,
         businessName: session.businessName,
+        source: session.flow === "contact" ? "contact" : "roi",
       });
 
       if (booked.ok) {
@@ -249,6 +325,36 @@ export async function handleAgentInboundSms(
     if (output.primary_pain && !ambiguousPainReply) {
       session.primaryPain = output.primary_pain;
     }
+
+    if (isContact) {
+      if (shouldCloseDiscoveryFromModel(output)) {
+        session = closeDiscovery(session);
+      }
+      if (output.wants_meeting) {
+        session = closeDiscovery(session);
+        session.meetingDeclineCount = 0;
+      }
+      let reply = output.reply;
+      if (replyContainsQuestion(reply) && !session.discoveryClosed) {
+        session = markDiscoveryQuestionAsked(session);
+      }
+      if (shouldBlockDiscoveryReply(session, reply)) {
+        reply = buildDiscoveryClosedFallback(session);
+        session = closeDiscovery(session);
+        session.stage = "offering_slots";
+      }
+      if (offered.length > 0) {
+        session.offeredSlots = offered;
+      }
+      if (slotResolution.pool.length > 0) {
+        session.slotPool = slotResolution.pool;
+      }
+      await sendAgentReplySms(phone, reply, messageSid);
+      session = appendMessage(session, "assistant", reply);
+      await saveAgentSession(session);
+      return;
+    }
+
     if (output.wants_meeting && !declineThisTurn) {
       session.meetingDeclineCount = 0;
     }
@@ -257,7 +363,6 @@ export async function handleAgentInboundSms(
     if (declineCount >= 2) {
       session.stage = "declined";
     } else if (declineCount === 1) {
-      // One overcome allowed — never terminal on the first decline.
       session.stage =
         session.stage === "offering_slots" || session.stage === "confirming"
           ? session.stage

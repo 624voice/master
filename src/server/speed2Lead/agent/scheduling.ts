@@ -158,6 +158,7 @@ export async function confirmBookSlot(input: {
   attendeeName: string;
   attendeeEmail?: string;
   businessName?: string;
+  source?: "roi" | "contact";
 }): Promise<BookSlotResult> {
   const result = await bookConsultation({
     start: input.slot.startIso,
@@ -165,7 +166,7 @@ export async function confirmBookSlot(input: {
     attendeeEmail: input.attendeeEmail,
     phone: input.phone,
     businessName: input.businessName,
-    source: "roi",
+    source: input.source ?? "roi",
   });
 
   if (!result.ok || !("selectedStart" in result)) {

@@ -1,6 +1,7 @@
 import type { RoiResult } from "~/lib/roi/computeRoi";
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
+import { shouldSkipAgentOpener } from "~/server/speed2Lead/agent/contactFlow/crossFlow";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { scheduleNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { buildOpenerMessage1, schedulePainPrompt } from "~/server/speed2Lead/agent/painPrompt";
@@ -56,6 +57,16 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     return;
   }
 
+  const skip = await shouldSkipAgentOpener(phone, "roi");
+  if (skip.skip) {
+    console.warn("startAgentConversation skipped opener", {
+      phoneSuffix: phone.slice(-4),
+      reason: skip.reason,
+      caller,
+    });
+    return;
+  }
+
   if (await getAgentSession(phone)) {
     console.warn("startAgentConversation skipped: agent session already exists", {
       phoneSuffix: phone.slice(-4),
@@ -105,6 +116,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     let session = createAgentSession({
       tenantId: profile.tenantId,
       phone,
+      flow: "roi",
       firstName,
       businessName: input.businessName,
       email: input.email,
