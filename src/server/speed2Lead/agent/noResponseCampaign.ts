@@ -43,7 +43,7 @@ export function noResponseDueAt(
 
 export function buildNoResponseMessage1(_profile: AgentProfile, session: AgentSession): string {
   return (
-    `${hiDashPrefix(session.firstName)}just making sure you saw the ROI report. ` +
+    `${hiDashPrefix(session.firstName)}saw the ROI report come through. ` +
     "Anything in there stand out around missed calls, slow follow-up, or lost jobs?"
   );
 }

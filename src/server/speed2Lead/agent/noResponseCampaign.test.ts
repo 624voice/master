@@ -35,7 +35,7 @@ describe("buildNoResponseMessage1", () => {
     const message = buildNoResponseMessage1(DEFAULT_624VOICE_PROFILE, sessionWithName());
 
     expect(message.startsWith("Hi ")).toBe(false);
-    expect(message.startsWith("just making sure you saw the ROI report")).toBe(true);
+    expect(message.startsWith("saw the ROI report come through")).toBe(true);
   });
 });
 
