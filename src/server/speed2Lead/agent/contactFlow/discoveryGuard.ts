@@ -52,6 +52,25 @@ export function isConsequenceQuestion(reply: string): boolean {
   );
 }
 
+export function looksLikeBridgeQuestion(reply: string): boolean {
+  const lower = reply.toLowerCase();
+  return (
+    lower.includes("worth 25 minutes") ||
+    lower.includes("worth a quick 25") ||
+    (lower.includes("without adding") && lower.includes("headcount"))
+  );
+}
+
+export function discoveryRequirementsMet(
+  session: AgentSession,
+  inboundBody: string,
+): boolean {
+  if (session.inquiryClarity === "already_clear") return true;
+  if (session.discoveryClosed) return true;
+  if ((session.discoveryQuestionCount ?? 0) >= MAX_DISCOVERY_QUESTIONS) return true;
+  return isDirectMeetingIntent(inboundBody);
+}
+
 export function shouldBlockDiscoveryReply(session: AgentSession, reply: string): boolean {
   if (!session.discoveryClosed && !canAskDiscoveryQuestion(session) && replyContainsQuestion(reply)) {
     return true;

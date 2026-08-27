@@ -16,6 +16,13 @@ export type ScenarioSeed = BaseScenarioSeed & {
   discoveryQuestionCount?: number;
 };
 
+export type ContactTurnSnapshot = {
+  turnIndex: number;
+  inbound: string;
+  session: AgentSession | null;
+  transcript: ScenarioMessage[];
+};
+
 export type ContactScenario = {
   id: string;
   title: string;
@@ -26,6 +33,7 @@ export type ContactScenario = {
   useMockSlots?: boolean;
   /** Mechanical-only scenarios skip LLM turns. */
   mechanicalOnly?: boolean;
+  meta?: Record<string, unknown>;
 };
 
 export type ContactScenarioBatch = {
@@ -39,8 +47,10 @@ export type ContactCheckContext = {
   seed: ScenarioSeed;
   session: AgentSession | null;
   transcript: ScenarioMessage[];
+  turnSnapshots: ContactTurnSnapshot[];
   outboundSinceStart: Array<{ sid: string; body: string; sentAt: string | null }>;
   stopOptedOut?: boolean;
   outboundAfterStop?: Array<{ sid: string; body: string; sentAt: string | null }>;
   crossFlowBlocked?: boolean;
+  meta?: Record<string, unknown>;
 };

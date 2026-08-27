@@ -14,6 +14,15 @@ export function isDirectMeetingIntent(message: string): boolean {
   return DIRECT_MEETING_RE.test(message.trim());
 }
 
+const MEETING_AGREE_RE =
+  /\b(yes|yeah|yep|sure|ok(?:ay)?|sounds good|happy to|let'?s do it|let'?s schedule|let'?s set up|let'?s book|ready to chat|works for me)\b/i;
+
+export function isMeetingAgreeIntent(message: string): boolean {
+  const text = message.trim();
+  if (isDirectMeetingIntent(text)) return true;
+  return MEETING_AGREE_RE.test(text) && /\b(schedule|call|chat|meeting|book|talk|time)\b/i.test(text);
+}
+
 export function isPricingQuestion(message: string): boolean {
   return PRICING_RE.test(message.trim());
 }

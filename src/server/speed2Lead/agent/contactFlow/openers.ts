@@ -77,6 +77,10 @@ export function buildOffTopicRedirect(): string {
   return "I'm just here to help with your inquiry and scheduling — happy to pick that back up if you want.";
 }
 
+export function buildConsequenceQuestion(): string {
+  return "What's that been costing you, would you say?";
+}
+
 export function buildInjectionRedirect(): string {
   return "I'm just handling scheduling for the business — what can I help you with on your inquiry?";
 }

@@ -106,6 +106,63 @@ export async function seedContactAgentSession(
   return session;
 }
 
+/** Mid-bridge seed — discovery closed, ready for decline or scheduling tests. */
+export function contactBridgeReadySeed(firstName = "Alex"): ScenarioSeed {
+  const base = contactSeed(
+    "clear",
+    "We miss calls after hours and lose booked jobs",
+    "better call handling",
+    firstName,
+  );
+  return {
+    ...base,
+    stage: "bridge",
+    discoveryClosed: true,
+    discoveryQuestionCount: 2,
+    primaryPain: "missed_calls",
+    messages: [
+      ...(base.messages ?? []),
+      { role: "user", content: "Mostly after hours — nobody picks up and we lose the job" },
+      {
+        role: "assistant",
+        content:
+          "Got it — after-hours misses can cost real jobs. What's that been costing you, would you say?",
+      },
+      { role: "user", content: "Probably fifteen to twenty grand a year in lost revenue" },
+      {
+        role: "assistant",
+        content:
+          "So right now missed after-hours calls are slipping through, which means lost jobs. If I could show you a way to capture more of those without adding headcount, would it be worth 25 minutes to take a look?",
+      },
+    ],
+  };
+}
+
+/** One discovery question already asked — for cap/consequence tests. */
+export function contactDiscoveryOneAskedSeed(firstName = "Alex"): ScenarioSeed {
+  const base = contactSeed(
+    "clear",
+    "We miss calls after hours every night",
+    "better call handling",
+    firstName,
+  );
+  return {
+    ...base,
+    stage: "discovery",
+    discoveryClosed: false,
+    discoveryQuestionCount: 1,
+    messages: [
+      ...(base.messages ?? []),
+      { role: "user", content: "We lose three or four jobs a week when nobody picks up after hours" },
+      {
+        role: "assistant",
+        content:
+          "When nobody can grab the call, what usually happens to that opportunity?",
+      },
+    ],
+  };
+}
+
 export function expectedNoResponseDay1(session: AgentSession): string {
   const profile = getActiveProfile();
   if (session.inquiryClarity === "vague") {

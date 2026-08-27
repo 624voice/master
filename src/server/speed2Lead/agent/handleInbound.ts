@@ -10,6 +10,8 @@ import { resolveContactDeclineAction } from "~/server/speed2Lead/agent/contactFl
 import {
   buildDiscoveryClosedFallback,
   closeDiscovery,
+  discoveryRequirementsMet,
+  looksLikeBridgeQuestion,
   markDiscoveryQuestionAsked,
   replyContainsQuestion,
   shouldBlockDiscoveryReply,
@@ -18,11 +20,13 @@ import {
 } from "~/server/speed2Lead/agent/contactFlow/discoveryGuard";
 import {
   isDirectMeetingIntent,
+  isMeetingAgreeIntent,
   isOffTopicRedirect,
   isPricingQuestion,
   isPromptInjectionAttempt,
 } from "~/server/speed2Lead/agent/contactFlow/intentDetect";
 import {
+  buildConsequenceQuestion,
   buildInjectionRedirect,
   buildOffTopicRedirect,
   PRICING_RESPONSE_COPY,
@@ -190,13 +194,24 @@ export async function handleAgentInboundSms(
         if (session.stageBeforePricing) {
           session.stage = session.stageBeforePricing;
         }
+        if (isMeetingAgreeIntent(body) || isDirectMeetingIntent(body)) {
+          session = closeDiscovery(session);
+          session.stage = "bridge";
+        }
       }
 
       if (shouldCloseDiscoveryFromInbound(body, session)) {
         session = closeDiscovery(session);
         if (isDirectMeetingIntent(body)) {
-          session.stage = "offering_slots";
+          session.stage = "bridge";
         }
+      } else if (
+        isMeetingAgreeIntent(body) &&
+        session.stage === "discovery" &&
+        discoveryRequirementsMet(session, body)
+      ) {
+        session = closeDiscovery(session);
+        session.stage = "bridge";
       }
     }
 
@@ -319,7 +334,7 @@ export async function handleAgentInboundSms(
 
     // Normal turn: trust the model's stage/pain tracking, but never let it
     // regress out of a terminal state once reached.
-    if (session.stage !== "booked" && session.stage !== "declined") {
+    if (!isContact && session.stage !== "booked" && session.stage !== "declined") {
       session.stage = output.stage;
     }
     if (output.primary_pain && !ambiguousPainReply) {
@@ -327,24 +342,65 @@ export async function handleAgentInboundSms(
     }
 
     if (isContact) {
-      if (shouldCloseDiscoveryFromModel(output)) {
-        session = closeDiscovery(session);
-      }
-      if (output.wants_meeting) {
-        session = closeDiscovery(session);
-        session.meetingDeclineCount = 0;
-      }
       let reply = output.reply;
-      if (replyContainsQuestion(reply) && !session.discoveryClosed) {
-        session = markDiscoveryQuestionAsked(session);
+      const canLeaveDiscovery = discoveryRequirementsMet(session, body);
+
+      if (
+        !canLeaveDiscovery &&
+        (output.stage === "bridge" || output.wants_meeting || looksLikeBridgeQuestion(reply))
+      ) {
+        reply = buildConsequenceQuestion();
+        output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
       }
-      if (shouldBlockDiscoveryReply(session, reply)) {
+
+      const askedDiscoveryQuestion =
+        replyContainsQuestion(reply) &&
+        output.stage === "discovery" &&
+        !output.wants_meeting &&
+        !looksLikeBridgeQuestion(reply) &&
+        !session.discoveryClosed;
+
+      const blockedDiscovery = shouldBlockDiscoveryReply(session, reply);
+      if (blockedDiscovery) {
         reply = buildDiscoveryClosedFallback(session);
         session = closeDiscovery(session);
-        session.stage = "offering_slots";
+        session.stage = "bridge";
+      } else if (askedDiscoveryQuestion) {
+        session = markDiscoveryQuestionAsked(session);
+      }
+
+      if (shouldCloseDiscoveryFromModel(output) && canLeaveDiscovery) {
+        session = closeDiscovery(session);
+      }
+      if (output.wants_meeting && canLeaveDiscovery) {
+        session = closeDiscovery(session);
+        session.meetingDeclineCount = 0;
+      } else if (output.wants_meeting && !canLeaveDiscovery) {
+        output = { ...output, wants_meeting: false, stage: "discovery" };
+      }
+
+      if (!blockedDiscovery && session.stage !== "booked" && session.stage !== "declined") {
+        const inScheduling =
+          session.stage === "offering_slots" || session.stage === "confirming";
+        if (inScheduling && (output.stage === "bridge" || output.stage === "discovery")) {
+          // Never regress out of active scheduling on a preference/slot turn.
+        } else if (!canLeaveDiscovery && (output.stage === "bridge" || output.stage === "offering_slots")) {
+          session.stage = "discovery";
+        } else {
+          session.stage = output.stage;
+        }
       }
       if (offered.length > 0) {
         session.offeredSlots = offered;
+        if (
+          canLeaveDiscovery &&
+          (isDirectMeetingIntent(body) ||
+            isMeetingAgreeIntent(body) ||
+            output.wants_meeting ||
+            output.stage === "offering_slots")
+        ) {
+          session.stage = "offering_slots";
+        }
       }
       if (slotResolution.pool.length > 0) {
         session.slotPool = slotResolution.pool;

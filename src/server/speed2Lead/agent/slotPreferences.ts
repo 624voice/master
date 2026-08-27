@@ -277,7 +277,12 @@ export async function resolveSlotsForAgentTurn(
   profile: AgentProfile,
   now = new Date(),
 ): Promise<ResolvedAgentSlots> {
-  if (session.stage === "bridge") {
+  const emptySlots = (session.offeredSlots?.length ?? 0) === 0 && (session.slotPool?.length ?? 0) === 0;
+  const shouldPrefetch =
+    session.stage === "bridge" ||
+    (session.flow === "contact" && emptySlots && session.stage === "offering_slots");
+
+  if (shouldPrefetch) {
     const fetched = await initialWideFetch(profile, now);
     if (!fetched.ok) {
       return { slots: [], pool: [], fetchFailed: true, session };
