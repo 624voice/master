@@ -67,7 +67,7 @@ async function main() {
     if (await isOptedOut(raw.phone)) continue;
     if (isTerminal(raw)) continue;
 
-    const updatedAt = raw.updatedAt ?? raw.knownFacts?.phone ? undefined : undefined;
+    const updatedAt = raw.updatedAt;
     const updatedMs = updatedAt ? Date.parse(updatedAt) : NaN;
     const ageHours = Number.isFinite(updatedMs) ? (now - updatedMs) / (1000 * 60 * 60) : -1;
 

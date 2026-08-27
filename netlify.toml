@@ -2,6 +2,10 @@
   command = "npm run build"
   publish = "dist/client"
 
+[build.environment]
+  SPEED2LEAD_AGENT_V2 = "true"
+  SPEED2LEAD_LLM_ENABLED = "true"
+
 [functions."speed2lead-followups"]
   schedule = "*/5 * * * *"
 

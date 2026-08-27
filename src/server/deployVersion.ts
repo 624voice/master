@@ -3,6 +3,8 @@ declare const __DEPLOY_GIT_BRANCH__: string;
 declare const __DEPLOY_CONTEXT__: string;
 declare const __DEPLOY_BUILD_TIMESTAMP__: string;
 
+import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
+
 export type DeployVersionInfo = {
   gitCommitSha: string;
   branch: string;
@@ -74,8 +76,8 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
     buildId,
     buildTimestamp,
     environment: resolveEnvironment(deployContext),
-    speed2LeadLlmEnabled: process.env.SPEED2LEAD_LLM_ENABLED === "true",
-    speed2LeadAgentV2Enabled: process.env.SPEED2LEAD_AGENT_V2 === "true",
+    speed2LeadLlmEnabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_LLM_ENABLED"),
+    speed2LeadAgentV2Enabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_AGENT_V2"),
   };
 }
 

@@ -2,6 +2,7 @@ import {
   SPEED2LEAD_BOOKING_URL,
   SITE_ORIGIN,
 } from "~/config/features";
+import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 
 export function isRedisConfigured(): boolean {
   return (
@@ -32,7 +33,7 @@ export const REPORT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
 
 export function isSpeed2LeadLlmEnabled(): boolean {
-  return process.env.SPEED2LEAD_LLM_ENABLED === "true";
+  return resolveSpeed2LeadEnvFlag("SPEED2LEAD_LLM_ENABLED");
 }
 
 export function isOpenAiConfigured(): boolean {

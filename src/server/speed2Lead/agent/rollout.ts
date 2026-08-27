@@ -5,6 +5,8 @@
  * already in flight under the old engine keeps working unchanged (the
  * inbound webhook routes by which session actually exists for that phone).
  */
+import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
+
 export function isSpeed2LeadAgentV2Enabled(): boolean {
-  return process.env.SPEED2LEAD_AGENT_V2 === "true";
+  return resolveSpeed2LeadEnvFlag("SPEED2LEAD_AGENT_V2");
 }
