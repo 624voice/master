@@ -12,8 +12,8 @@ import {
 } from "~/server/appointmentLifecycle/reminderSchedule";
 import type { AppointmentLifecycleRecord } from "~/server/appointmentLifecycle/types";
 import { supportsAttendeeInvites } from "~/server/appointmentLifecycle/googleCalendar";
-import { buildBookingProviderFailureCopy } from "~/server/scheduling/service";
-import type { SchedulingTurnResult } from "~/server/scheduling/types";
+import { buildBookingProviderFailureCopy } from "~/server/speed2Lead/agent/scheduling/service";
+import type { SchedulingTurnResult } from "~/server/speed2Lead/agent/scheduling/types";
 
 const MEET_URL = "https://meet.google.com/abc-defg-hij";
 

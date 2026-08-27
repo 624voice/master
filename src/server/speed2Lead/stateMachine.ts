@@ -2,7 +2,7 @@ import {
   detectTimingPushback,
   isGenericAcknowledgment,
   isSubstantiveReengagement,
-} from "~/server/speed2Lead/conversationDisposition";
+} from "~/server/speed2Lead/inboundDisposition";
 import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
 import * as messages from "~/server/speed2Lead/messages";
 import {

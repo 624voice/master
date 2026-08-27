@@ -40,7 +40,7 @@ import {
   type GoogleCalendarApiEvent,
 } from "~/server/appointmentLifecycle/parseCalendarEvent";
 import type { NormalizedCalendarEvent, S2LSource } from "~/server/appointmentLifecycle/types";
-import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
+import { getActiveBookingStageCollector } from "~/server/speed2Lead/agent/scheduling/bookingStageTrace";
 import { getRedis } from "~/server/speed2Lead/redis";
 import { normalizePhone } from "~/server/sms/phone";
 

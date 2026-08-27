@@ -391,8 +391,8 @@ export type HandsetBookProviderProbeResult = {
   attendeeCount: number;
   configurationError?: "test_phones_not_configured";
   error?: string;
-  bookingResult?: Awaited<ReturnType<typeof import("~/server/scheduling/provider").bookProviderSlot>>;
-  stageSnapshot?: import("~/server/scheduling/bookingStageTrace").BookingStageSnapshot;
+  bookingResult?: Awaited<ReturnType<typeof import("~/server/speed2Lead/agent/scheduling/provider").bookProviderSlot>>;
+  stageSnapshot?: import("~/server/speed2Lead/agent/scheduling/bookingStageTrace").BookingStageSnapshot;
   smokePathComparison: {
     smokeUses: "createConsultationEvent";
     handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent";
@@ -456,7 +456,7 @@ export async function probeHandsetEquivalentBookProviderSlot(args: {
     };
   }
 
-  const { bookProviderSlot } = await import("~/server/scheduling/provider");
+  const { bookProviderSlot } = await import("~/server/speed2Lead/agent/scheduling/provider");
   const attendeeIncluded =
     supportsAttendeeInvites() && Boolean(email.trim());
 

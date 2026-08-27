@@ -14,24 +14,24 @@ import type { AgentSession, OfferedSlot } from "~/server/speed2Lead/agent/state"
 import {
   looksLikeSlotSelectionIntent,
   resolveOfferedSlotSelectionCandidate,
-} from "~/server/speed2Lead/schedulingContext";
-import { filterAndRankSlots } from "~/server/scheduling/filterRank";
+} from "~/server/speed2Lead/agent/schedulingContext";
+import { filterAndRankSlots } from "~/server/speed2Lead/agent/scheduling/filterRank";
 import {
   applyInboundSchedulingUpdate,
   parseSchedulingStateUpdate,
-} from "~/server/scheduling/intentParser";
-import { resolveRangeForRequest } from "~/server/scheduling/rangeResolver";
+} from "~/server/speed2Lead/agent/scheduling/intentParser";
+import { resolveRangeForRequest } from "~/server/speed2Lead/agent/scheduling/rangeResolver";
 import {
   buildRequestFromCanonicalState,
   type LegacyConstraintFields,
-} from "~/server/scheduling/state";
+} from "~/server/speed2Lead/agent/scheduling/state";
 import {
   applySchedulingStateUpdate,
   clearField,
   preserve,
   replaceField,
-} from "~/server/scheduling/stateUpdate";
-import type { CanonicalSchedulingState } from "~/server/scheduling/types";
+} from "~/server/speed2Lead/agent/scheduling/stateUpdate";
+import type { CanonicalSchedulingState } from "~/server/speed2Lead/agent/scheduling/types";
 import { spreadAcrossDays, fetchRawConsultationSlots } from "~/server/speed2Lead/agent/scheduling";
 import { slotDateKey } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
 
@@ -191,7 +191,7 @@ export function filterPoolSlots(
       requestedDate: canonical.requestedDate,
       businessHours,
       meetingDurationMinutes: duration,
-    } as import("~/server/scheduling/types").SchedulingRequest);
+    } as import("~/server/speed2Lead/agent/scheduling/types").SchedulingRequest);
 
   const filtered = filterAndRankSlots({
     rawSlots: candidates,

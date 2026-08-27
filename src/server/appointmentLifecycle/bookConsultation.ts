@@ -5,7 +5,7 @@ import {
 } from "~/server/appointmentLifecycle/googleCalendar";
 import { processCalendarEvent } from "~/server/appointmentLifecycle/processEvent";
 import type { ProcessEventResult } from "~/server/appointmentLifecycle/types";
-import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
+import { getActiveBookingStageCollector } from "~/server/speed2Lead/agent/scheduling/bookingStageTrace";
 
 export type BookConsultationInput = CreateConsultationEventInput;
 

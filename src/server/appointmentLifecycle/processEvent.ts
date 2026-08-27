@@ -20,7 +20,7 @@ import {
   saveLifecycleRecord,
   supersedeActiveLifecycle,
 } from "~/server/appointmentLifecycle/store";
-import { getActiveBookingStageCollector } from "~/server/scheduling/bookingStageTrace";
+import { getActiveBookingStageCollector } from "~/server/speed2Lead/agent/scheduling/bookingStageTrace";
 import type {
   AppointmentLifecycleRecord,
   LeadIndexEntry,

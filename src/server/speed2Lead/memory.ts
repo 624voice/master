@@ -1,23 +1,10 @@
 import type { PainCategory } from "~/server/speed2Lead/naturalLanguage";
 import { analyzeMessage, primaryPainLabel } from "~/server/speed2Lead/naturalLanguage";
-import { normalizeDiscoveryFacts, simplePainLabel } from "~/server/speed2Lead/discoveryProgress";
-import { shouldPreserveCustomerGoal } from "~/server/speed2Lead/turnSemantics";
 import type { TurnSemantics } from "~/server/speed2Lead/sessionMemoryTypes";
-import type { AvailabilityRangeInput } from "~/server/speed2Lead/schedulingRange";
-import {
-  earliestOfferedMinutes,
-  latestOfferedMinutes,
-} from "~/server/speed2Lead/slotRanking";
-import {
-  filterSlotsForSchedulingState,
-  normalizeSchedulingStateConstraints,
-  offeredSlotConstraintKey,
-} from "~/server/speed2Lead/schedulingContext";
 import type {
   ConversationMessage,
   ConversationMessageRole,
   KnownFacts,
-  SchedulingPartOfDay,
   SchedulingState,
   SessionMemoryFields,
 } from "~/server/speed2Lead/sessionMemoryTypes";
@@ -38,6 +25,15 @@ export {
   type SessionMemoryFields,
 } from "~/server/speed2Lead/sessionMemoryTypes";
 
+function normalizeDiscoveryFacts(facts: KnownFacts): KnownFacts {
+  const asked = facts.diagnosticQuestionsAsked ?? facts.questionsAsked ?? 0;
+  return {
+    ...facts,
+    questionsAsked: asked,
+    diagnosticQuestionsAsked: asked,
+  };
+}
+
 export function createEmptyScheduling(): SchedulingState {
   return { status: "idle" };
 }
@@ -52,7 +48,7 @@ export function createInitialMemory(
   };
 }
 
-function resolveFlow(context: AnyConversationContext): KnownFactsFlow {
+function resolveFlow(context: AnyConversationContext): KnownFacts["flow"] {
   if (context.flow === "contact") return "contact";
   if (context.flow === "demo") return "demo";
   return "roi";
@@ -113,18 +109,32 @@ export function seedKnownFacts(context: AnyConversationContext): KnownFacts {
   };
 }
 
-export function syncKnownFactsFromDetections(
+function simplePainLabel(pains: PainCategory[]): string {
+  if (pains.length === 0) return primaryPainLabel(pains);
+  const first = pains[0]!;
+  const labels: Partial<Record<PainCategory, string>> = {
+    missed_calls: "missed calls",
+    slow_response: "slow response",
+    follow_up: "follow-up gaps",
+    after_hours: "after-hours coverage",
+    workload: "office workload",
+    website: "website leads",
+    scheduling: "scheduling gaps",
+    multiple: "missed opportunities",
+  };
+  return labels[first] ?? primaryPainLabel(pains);
+}
+
+function syncKnownFactsFromDetections(
   context: AnyConversationContext,
   knownFacts: KnownFacts,
-  semantics?: TurnSemantics,
+  _semantics?: TurnSemantics,
 ): KnownFacts {
   let updated = normalizeDiscoveryFacts(knownFacts);
 
   if (context.lastCustomerMessage?.trim()) {
     const signals = analyzeMessage(context.lastCustomerMessage);
-    const mayPersistPain =
-      !semantics || semantics.kind === "substantive_answer" || semantics.kind === "correction";
-    if (signals.pains.length > 0 && mayPersistPain) {
+    if (signals.pains.length > 0) {
       updated = {
         ...updated,
         primaryPain: simplePainLabel(signals.pains as PainCategory[]),
@@ -139,11 +149,7 @@ export function syncKnownFactsFromDetections(
     };
   }
 
-  if (
-    context.lastCustomerMessage?.trim() &&
-    (!semantics || shouldPreserveCustomerGoal(semantics)) &&
-    context.flow !== "roi"
-  ) {
+  if (context.lastCustomerMessage?.trim() && context.flow !== "roi") {
     updated = {
       ...updated,
       customerGoal: context.lastCustomerMessage.trim(),
@@ -262,10 +268,14 @@ export function normalizeSessionMemory<T extends AnyConversationContext>(
     ...initial.scheduling,
     ...context.scheduling,
   };
-  const knownFacts = syncKnownFactsFromDetections(context, {
-    ...initial.knownFacts,
-    ...context.knownFacts,
-  }, context.lastTurnSemantics);
+  const knownFacts = syncKnownFactsFromDetections(
+    context,
+    {
+      ...initial.knownFacts,
+      ...context.knownFacts,
+    },
+    context.lastTurnSemantics,
+  );
 
   return {
     ...context,
@@ -325,177 +335,23 @@ export function applyKnownFactsUpdate<T extends AnyConversationContext>(
   } as T;
 }
 
-export function invalidateIncompatibleOfferedSlots<T extends AnyConversationContext>(
-  context: T,
-): T {
-  const normalized = normalizeSessionMemory(context);
-  const scheduling = normalized.scheduling;
-  const offered = scheduling.offeredSlots ?? [];
-  if (offered.length === 0) {
-    return normalized as T;
-  }
-
-  const compatible = filterSlotsForSchedulingState(offered, scheduling);
-  if (compatible.length === offered.length) {
-    return normalized as T;
-  }
-
-  if (compatible.length === 0) {
-    return {
-      ...normalized,
-      scheduling: {
-        ...scheduling,
-        status: "idle",
-        offeredSlots: undefined,
-        lastOfferedSlotKey: undefined,
-        lastOfferedEarliestMinutes: undefined,
-        lastOfferedLatestMinutes: undefined,
-      },
-      updatedAt: new Date().toISOString(),
-    } as T;
-  }
-
-  return applyOfferedSlots(normalized as T, compatible);
-}
-
-function constraintsMateriallyChanged(
-  scheduling: SchedulingState,
-  patch: Partial<SchedulingState>,
-): boolean {
-  if (patch.centralDate && patch.centralDate !== scheduling.centralDate) return true;
-  if (patch.partOfDay && patch.partOfDay !== scheduling.partOfDay) return true;
-  if (
-    patch.earliestAllowedMinutes != null &&
-    patch.earliestAllowedMinutes !== scheduling.earliestAllowedMinutes
-  ) {
-    return true;
-  }
-  if (
-    patch.latestAllowedMinutes != null &&
-    patch.latestAllowedMinutes !== scheduling.latestAllowedMinutes
-  ) {
-    return true;
-  }
-  if (patch.anchorTimeMinutes != null && patch.anchorTimeMinutes !== scheduling.anchorTimeMinutes) {
-    return true;
-  }
-  if (patch.searchAfterMinutes != null && patch.searchAfterMinutes !== scheduling.searchAfterMinutes) {
-    return true;
-  }
-  if (
-    patch.searchBeforeMinutes != null &&
-    patch.searchBeforeMinutes !== scheduling.searchBeforeMinutes
-  ) {
-    return true;
-  }
-  if (patch.rejectedPartOfDay && patch.rejectedPartOfDay.length > 0) return true;
-  if (patch.rejectedSlotStarts && patch.rejectedSlotStarts.length > 0) return true;
-  return false;
-}
-
 export function applyOfferedSlots<T extends AnyConversationContext>(
   context: T,
   offeredSlots: string[],
 ): T {
   const normalized = normalizeSessionMemory(context);
-  const slots = offeredSlots;
   return {
     ...normalized,
     scheduling: {
       ...normalized.scheduling,
       status: "slots_offered",
-      offeredSlots: slots,
+      offeredSlots,
       selectedStart: undefined,
       calendarEventId: undefined,
-      lastOfferedEarliestMinutes: earliestOfferedMinutes(slots) ?? undefined,
-      lastOfferedLatestMinutes: latestOfferedMinutes(slots) ?? undefined,
-      lastPresentedOfferKey: normalized.scheduling?.lastPresentedOfferKey,
-      lastOfferedSlotKey: offeredSlotConstraintKey(slots, {
-        ...normalized.scheduling,
-        status: "slots_offered",
-        offeredSlots: slots,
-      }),
       bookingPending: false,
     },
     updatedAt: new Date().toISOString(),
   } as T;
-}
-
-export function applySchedulingMeta<T extends AnyConversationContext>(
-  context: T,
-  meta: {
-    activeRequestKey?: string;
-    availabilityAttempts?: number;
-    bookingAttempts?: number;
-    calendarUnavailable?: boolean;
-    providerFailureReason?: string;
-    applicationLogicFailure?: boolean;
-    requestedDate?: string;
-    availabilityPreference?: import("~/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference;
-    exactTimeMinutes?: number;
-    lastPresentedOfferKey?: string;
-    centralDate?: string;
-    partOfDay?: SchedulingPartOfDay;
-    anchorTimeMinutes?: number;
-    searchAfterMinutes?: number;
-    searchBeforeMinutes?: number;
-    lastOfferedEarliestMinutes?: number;
-    lastOfferedLatestMinutes?: number;
-    rejectedPartOfDay?: SchedulingPartOfDay[];
-    earliestAllowedMinutes?: number;
-    latestAllowedMinutes?: number;
-    rejectedSlotStarts?: string[];
-    lastOfferedSlotKey?: string;
-    bookingPending?: boolean;
-  },
-): T {
-  const normalized = normalizeSessionMemory(context);
-  return {
-    ...normalized,
-    scheduling: {
-      ...normalized.scheduling,
-      ...meta,
-    },
-    updatedAt: new Date().toISOString(),
-  } as T;
-}
-
-export function applySchedulingIntent<T extends AnyConversationContext>(
-  context: T,
-  input: AvailabilityRangeInput,
-  extras: {
-    anchorTimeMinutes?: number;
-    searchAfterMinutes?: number;
-    searchBeforeMinutes?: number;
-    earliestAllowedMinutes?: number;
-    latestAllowedMinutes?: number;
-    rejectedPartOfDay?: SchedulingPartOfDay[];
-    rejectedSlotStarts?: string[];
-  } = {},
-): T {
-  const normalized = normalizeSessionMemory(context);
-  const scheduling = normalized.scheduling;
-  const resolvedPartOfDay =
-    input.partOfDay && input.partOfDay !== "full_day"
-      ? input.partOfDay
-      : scheduling.partOfDay;
-  const patch = {
-    centralDate: input.centralDate ?? scheduling.centralDate,
-    partOfDay: resolvedPartOfDay,
-    anchorTimeMinutes: extras.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
-    searchAfterMinutes: extras.searchAfterMinutes,
-    searchBeforeMinutes: extras.searchBeforeMinutes,
-    earliestAllowedMinutes:
-      extras.earliestAllowedMinutes ?? scheduling.earliestAllowedMinutes,
-    latestAllowedMinutes: extras.latestAllowedMinutes ?? scheduling.latestAllowedMinutes,
-    rejectedPartOfDay: extras.rejectedPartOfDay ?? scheduling.rejectedPartOfDay,
-    rejectedSlotStarts: extras.rejectedSlotStarts ?? scheduling.rejectedSlotStarts,
-  };
-  let updated = applySchedulingMeta(normalized, patch) as T;
-  if (constraintsMateriallyChanged(scheduling, patch)) {
-    updated = invalidateIncompatibleOfferedSlots(updated);
-  }
-  return updated;
 }
 
 export function applyDisposition<T extends AnyConversationContext>(
@@ -508,52 +364,4 @@ export function applyDisposition<T extends AnyConversationContext>(
     disposition,
     updatedAt: new Date().toISOString(),
   } as T;
-}
-
-export function applySchedulingConstraints<T extends AnyConversationContext>(
-  context: T,
-  patch: Partial<
-    Pick<
-      SchedulingState,
-      | "rejectedPartOfDay"
-      | "partOfDay"
-      | "anchorTimeMinutes"
-      | "searchAfterMinutes"
-      | "searchBeforeMinutes"
-      | "earliestAllowedMinutes"
-      | "latestAllowedMinutes"
-      | "rejectedSlotStarts"
-      | "centralDate"
-    >
-  >,
-): T {
-  const normalized = normalizeSessionMemory(context);
-  const scheduling = normalized.scheduling;
-  const mergedRejectedParts = patch.rejectedPartOfDay ?? scheduling.rejectedPartOfDay;
-  const mergedRejectedSlots =
-    patch.rejectedSlotStarts && patch.rejectedSlotStarts.length > 0
-      ? [...new Set([...(scheduling.rejectedSlotStarts ?? []), ...patch.rejectedSlotStarts])]
-      : scheduling.rejectedSlotStarts;
-
-  const mergedPatch = {
-    centralDate: patch.centralDate ?? scheduling.centralDate,
-    partOfDay: patch.partOfDay ?? scheduling.partOfDay,
-    anchorTimeMinutes: patch.anchorTimeMinutes ?? scheduling.anchorTimeMinutes,
-    searchAfterMinutes: patch.searchAfterMinutes ?? scheduling.searchAfterMinutes,
-    searchBeforeMinutes: patch.searchBeforeMinutes ?? scheduling.searchBeforeMinutes,
-    earliestAllowedMinutes:
-      patch.earliestAllowedMinutes ?? scheduling.earliestAllowedMinutes,
-    latestAllowedMinutes: patch.latestAllowedMinutes ?? scheduling.latestAllowedMinutes,
-    rejectedPartOfDay: mergedRejectedParts,
-    rejectedSlotStarts: mergedRejectedSlots,
-  };
-  const normalizedPatch = normalizeSchedulingStateConstraints(
-    { ...scheduling, ...mergedPatch },
-    { prior: scheduling },
-  );
-  let updated = applySchedulingMeta(normalized, normalizedPatch) as T;
-  if (constraintsMateriallyChanged(scheduling, normalizedPatch)) {
-    updated = invalidateIncompatibleOfferedSlots(updated);
-  }
-  return updated;
 }

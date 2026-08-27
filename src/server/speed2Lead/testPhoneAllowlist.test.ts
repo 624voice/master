@@ -30,11 +30,6 @@ const {
   shouldSendNurtureFollowUp,
 } = await import("~/server/speed2Lead/nurtureFollowUp");
 const { saveSession } = await import("~/server/speed2Lead/session");
-const {
-  logSpeed2LeadTestEvent,
-  maskPhoneForLog,
-  shouldLogSpeed2LeadTestPhone,
-} = await import("~/server/speed2Lead/testObservability");
 
 const handleInboundSource = readFileSync(
   new URL("./handleInbound.ts", import.meta.url),
@@ -117,27 +112,18 @@ describe("SPEED2LEAD_TEST_PHONES allowlist", () => {
     });
   });
 
-  test("handleInbound gates orchestrator with shouldUseSpeed2LeadLlmForPhone", () => {
-    expect(handleInboundSource).toContain(
-      "const useLlmOrchestrator = shouldUseSpeed2LeadLlmForPhone(phone)",
-    );
-    expect(handleInboundSource.indexOf("const useLlmOrchestrator")).toBeLessThan(
-      handleInboundSource.indexOf("await orchestrateInboundTurn(session, body"),
-    );
-  });
-
-  test("STOP for allowlisted test phone still bypasses LLM branch", () => {
+  test("STOP is handled before contact/demo routing", () => {
     const stopIndex = handleInboundSource.indexOf('intent === "stop"');
-    const llmIndex = handleInboundSource.indexOf("shouldUseSpeed2LeadLlmForPhone(phone)");
+    const contactIndex = handleInboundSource.indexOf("isContactSession(session)");
     expect(stopIndex).toBeGreaterThan(-1);
-    expect(llmIndex).toBeGreaterThan(stopIndex);
+    expect(contactIndex).toBeGreaterThan(stopIndex);
   });
 
-  test("appointment lifecycle still bypasses LLM branch", () => {
+  test("appointment lifecycle still bypasses contact/demo routing", () => {
     const lifecycleIndex = handleInboundSource.indexOf("handleAppointmentLifecycleInbound");
-    const llmIndex = handleInboundSource.indexOf("shouldUseSpeed2LeadLlmForPhone(phone)");
+    const contactIndex = handleInboundSource.indexOf("isContactSession(session)");
     expect(lifecycleIndex).toBeGreaterThan(-1);
-    expect(llmIndex).toBeGreaterThan(lifecycleIndex);
+    expect(contactIndex).toBeGreaterThan(lifecycleIndex);
   });
 });
 
@@ -165,60 +151,6 @@ describe("resetSpeed2LeadTestPhone", () => {
     await expect(resetSpeed2LeadTestPhone("+15559997777")).rejects.toThrow(
       /not listed in SPEED2LEAD_TEST_PHONES/,
     );
-  });
-});
-
-describe("structured test logging", () => {
-  test("does not emit test logs for non-allowlisted phones", () => {
-    process.env.SPEED2LEAD_TEST_PHONES = "+15551234567";
-    resetSpeed2LeadTestPhonesCacheForTests();
-    const lines: string[] = [];
-    const original = console.log;
-    console.log = (value?: unknown) => {
-      lines.push(String(value));
-    };
-    try {
-      logSpeed2LeadTestEvent("+15559998888", "inbound_received", {
-        flow: "roi",
-        OPENAI_API_KEY: "sk-secret",
-      });
-    } finally {
-      console.log = original;
-    }
-    expect(lines).toHaveLength(0);
-  });
-
-  test("masks phone and strips sensitive keys from test logs", () => {
-    process.env.SPEED2LEAD_TEST_PHONES = "+15551234567";
-    resetSpeed2LeadTestPhonesCacheForTests();
-    expect(maskPhoneForLog("+15551234567")).toBe("***4567");
-    expect(shouldLogSpeed2LeadTestPhone("+15551234567")).toBe(true);
-
-    const lines: string[] = [];
-    const original = console.log;
-    console.log = (value?: unknown) => {
-      lines.push(String(value));
-    };
-    try {
-      logSpeed2LeadTestEvent("+15551234567", "llm_turn_start", {
-        flow: "roi",
-        apiKey: "sk-secret",
-        firstName: "Alex",
-        messageLength: 12,
-      });
-    } finally {
-      console.log = original;
-    }
-
-    expect(lines).toHaveLength(1);
-    const parsed = JSON.parse(lines[0]!) as Record<string, unknown>;
-    expect(parsed.component).toBe("speed2LeadOrchestrator");
-    expect(parsed.testMode).toBe(true);
-    expect(parsed.phone).toBe("***4567");
-    expect(parsed.apiKey).toBeUndefined();
-    expect(parsed.firstName).toBeUndefined();
-    expect(parsed.messageLength).toBe(12);
-    expect(JSON.stringify(parsed)).not.toContain("sk-secret");
   });
 });
 

@@ -19,7 +19,7 @@ export type ScenarioSeed = {
   bookedStartIso?: string;
   bookedEventId?: string;
   requestedDate?: string;
-  availabilityPreference?: import("~/server/scheduling/types").AvailabilityPreference;
+  availabilityPreference?: import("~/server/speed2Lead/agent/scheduling/types").AvailabilityPreference;
   messages?: ScenarioMessage[];
   painPromptResolved?: boolean;
   painPromptDueAt?: string;

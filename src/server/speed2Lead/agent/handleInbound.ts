@@ -35,7 +35,7 @@ import {
   isMeetingDeclineStage,
   sessionAwaitingPainAnswer,
 } from "~/server/speed2Lead/agent/turnGuards";
-import { buildBookingConfirmationMessage } from "~/server/speed2Lead/guardrails";
+import { buildBookingConfirmationMessage } from "~/server/speed2Lead/bookingConfirmation";
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
 

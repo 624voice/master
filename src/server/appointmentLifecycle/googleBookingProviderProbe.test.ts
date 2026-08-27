@@ -11,7 +11,7 @@ describe("probeHandsetEquivalentBookProviderSlot", () => {
   beforeEach(async () => {
     delete process.env.SPEED2LEAD_TEST_PHONES;
     resetSpeed2LeadTestPhonesCacheForTests();
-    const provider = await import("~/server/scheduling/provider");
+    const provider = await import("~/server/speed2Lead/agent/scheduling/provider");
     bookProviderSlotSpy = spyOn(provider, "bookProviderSlot").mockResolvedValue({
       ok: true,
       eventId: "evt-diagnostic",

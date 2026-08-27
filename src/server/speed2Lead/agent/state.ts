@@ -76,7 +76,7 @@ export type AgentSession = {
   /** Full provider pool from the last fetch — offeredSlots is the filtered active set. */
   slotPool?: OfferedSlot[];
   requestedDate?: string;
-  availabilityPreference?: import("~/server/scheduling/types").AvailabilityPreference;
+  availabilityPreference?: import("~/server/speed2Lead/agent/scheduling/types").AvailabilityPreference;
   exactTimeMinutes?: number;
   rejectedSlotStarts?: string[];
   anchorTimeMinutes?: number;

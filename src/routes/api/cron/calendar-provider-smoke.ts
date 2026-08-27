@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { probeGoogleCalendarProvider } from "~/server/appointmentLifecycle/googleProviderProbe";
-import { resolveAvailabilityRange } from "~/server/speed2Lead/schedulingRange";
+import { resolveAvailabilityRange } from "~/server/speed2Lead/agent/scheduling/schedulingRange";
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
