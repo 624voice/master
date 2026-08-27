@@ -40,8 +40,8 @@ export default defineConfig({
     __DEPLOY_GIT_BRANCH__: JSON.stringify(gitBranch),
     __DEPLOY_CONTEXT__: JSON.stringify(deployContext),
     __DEPLOY_BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
-    __SPEED2LEAD_AGENT_V2__: JSON.stringify(process.env.SPEED2LEAD_AGENT_V2 === "true"),
-    __SPEED2LEAD_LLM_ENABLED__: JSON.stringify(process.env.SPEED2LEAD_LLM_ENABLED === "true"),
+    __SPEED2LEAD_AGENT_V2__: JSON.stringify(String(process.env.SPEED2LEAD_AGENT_V2 === "true")),
+    __SPEED2LEAD_LLM_ENABLED__: JSON.stringify(String(process.env.SPEED2LEAD_LLM_ENABLED === "true")),
   },
   server: {
     port: 3000,
