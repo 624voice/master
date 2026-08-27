@@ -13,6 +13,7 @@ export type DeployVersionInfo = {
   buildTimestamp: string | null;
   environment: "preview" | "production" | "local" | "unknown";
   speed2LeadLlmEnabled: boolean;
+  speed2LeadAgentV2Enabled: boolean;
 };
 
 function readEnv(name: string): string | undefined {
@@ -74,6 +75,7 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
     buildTimestamp,
     environment: resolveEnvironment(deployContext),
     speed2LeadLlmEnabled: process.env.SPEED2LEAD_LLM_ENABLED === "true",
+    speed2LeadAgentV2Enabled: process.env.SPEED2LEAD_AGENT_V2 === "true",
   };
 }
 
