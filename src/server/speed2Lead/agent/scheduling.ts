@@ -18,6 +18,12 @@ const MAX_OFFERED_SLOTS = 6;
 
 let harnessOfferSlotsOverride: ((profile: AgentProfile) => Promise<SlotFetchResult>) | null = null;
 let harnessRawSlotsOverride: ((profile: AgentProfile) => Promise<RawSlotFetchResult>) | null = null;
+let harnessFetchFailureOverride: (() => RawSlotFetchResult) | null = null;
+
+/** Test harness only — force calendar fetch failure (local provider-failure scenarios). */
+export function setHarnessFetchFailureOverride(override: (() => RawSlotFetchResult) | null): void {
+  harnessFetchFailureOverride = override;
+}
 
 export type RawSlotFetchResult =
   | { ok: true; slots: string[] }
@@ -42,6 +48,9 @@ export async function fetchRawConsultationSlots(
     now?: Date;
   },
 ): Promise<RawSlotFetchResult> {
+  if (harnessFetchFailureOverride) {
+    return harnessFetchFailureOverride();
+  }
   if (harnessRawSlotsOverride) {
     return harnessRawSlotsOverride(profile);
   }
@@ -79,6 +88,9 @@ function labelForSlot(iso: string, timezone: string): string {
  * variety across the next ~10 business days.
  */
 export async function offerSlots(profile: AgentProfile): Promise<SlotFetchResult> {
+  if (harnessFetchFailureOverride) {
+    return harnessFetchFailureOverride();
+  }
   if (harnessOfferSlotsOverride) {
     return harnessOfferSlotsOverride(profile);
   }

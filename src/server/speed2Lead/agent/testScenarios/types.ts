@@ -15,6 +15,11 @@ export type ScenarioSeed = {
   reportUrl?: string;
   primaryPain?: string;
   offeredSlots?: OfferedSlot[];
+  slotPool?: OfferedSlot[];
+  bookedStartIso?: string;
+  bookedEventId?: string;
+  requestedDate?: string;
+  availabilityPreference?: import("~/server/scheduling/types").AvailabilityPreference;
   messages?: ScenarioMessage[];
   painPromptResolved?: boolean;
   painPromptDueAt?: string;

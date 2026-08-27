@@ -80,6 +80,52 @@ export function bridgeReadySeed(firstName = "Jamie"): ScenarioSeed {
   };
 }
 
+/** Mid-scheduling seed with active offered slots (for FAQ / conflict scenarios). */
+export function offeringSlotsSeed(
+  firstName: string,
+  offeredSlots: import("~/server/speed2Lead/agent/state").OfferedSlot[],
+): ScenarioSeed {
+  const base = bridgeReadySeed(firstName);
+  return {
+    ...base,
+    stage: "offering_slots",
+    offeredSlots,
+    slotPool: offeredSlots,
+    messages: [
+      ...(base.messages ?? []),
+      { role: "user", content: "Yes let's schedule" },
+      {
+        role: "assistant",
+        content: `I have ${offeredSlots.map((s) => s.label).join(", ")} available. Which works best?`,
+      },
+    ],
+  };
+}
+
+/** Post-booking seed — scheduling must not restart. */
+export function bookedReadySeed(
+  firstName: string,
+  bookedStartIso: string,
+  bookedEventId = "harness-booked-event",
+): ScenarioSeed {
+  const base = bridgeReadySeed(firstName);
+  return {
+    ...base,
+    stage: "booked",
+    bookedStartIso,
+    bookedEventId,
+    offeredSlots: [],
+    slotPool: [],
+    messages: [
+      ...(base.messages ?? []),
+      { role: "user", content: "Yes let's schedule" },
+      { role: "assistant", content: "Great — pick a time that works." },
+      { role: "user", content: "The first one works" },
+      { role: "assistant", content: `[booked ${bookedStartIso}]` },
+    ],
+  };
+}
+
 export async function seedAgentSession(seed: ScenarioSeed, phone = HARNESS_TEST_PHONE): Promise<AgentSession> {
   const profile = getActiveProfile();
   let session = createAgentSession({
@@ -96,6 +142,11 @@ export async function seedAgentSession(seed: ScenarioSeed, phone = HARNESS_TEST_
   session.stage = seed.stage ?? session.stage;
   session.primaryPain = seed.primaryPain;
   session.offeredSlots = seed.offeredSlots ?? session.offeredSlots;
+  session.slotPool = seed.slotPool ?? session.slotPool;
+  session.bookedStartIso = seed.bookedStartIso;
+  session.bookedEventId = seed.bookedEventId;
+  session.requestedDate = seed.requestedDate;
+  session.availabilityPreference = seed.availabilityPreference;
   session.painPromptResolved = seed.painPromptResolved;
   session.painPromptDueAt = seed.painPromptDueAt;
   session.noResponseStage = seed.noResponseStage;

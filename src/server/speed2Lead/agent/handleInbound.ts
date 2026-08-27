@@ -227,14 +227,12 @@ export async function handleAgentInboundSms(
         return;
       }
 
-      // Booking failed (e.g. someone else took the slot in the meantime) —
-      // fall through and let the model's reply carry an apology + next step,
-      // but refresh the offered list so we don't keep offering a dead slot.
+      // Booking failed — code-owned conflict language; never trust model success text.
       const refreshed = await offerSlots(profile);
       session.offeredSlots = refreshed.ok ? refreshed.slots : [];
       session.slotPool = refreshed.ok ? refreshed.slots : [];
       session.stage = "offering_slots";
-      const text = output.reply || "That time just got taken — want me to grab you another?";
+      const text = "That time just got taken — want me to grab you another?";
       await sendAgentReplySms(phone, text, messageSid);
       session = appendMessage(session, "assistant", text);
       await saveAgentSession(session);

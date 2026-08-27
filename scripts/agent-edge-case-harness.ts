@@ -14,7 +14,9 @@
  * - preview: signed POST to S2L_PREVIEW_URL (scenarios with execution: "preview")
  * - --mock-slots: inject deterministic calendar slots for local scheduling tests
  */
-import twilio from "twilio";
+import { buildConsultationBookingKey } from "~/server/appointmentLifecycle/googleCalendar";
+import { clearActiveLifecycleForPhone } from "~/server/appointmentLifecycle/store";
+import { getRedis } from "~/server/speed2Lead/redis";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
@@ -22,7 +24,7 @@ import { harnessMockOfferSlots, harnessMockRawSlots } from "~/server/speed2Lead/
 import { processPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { processPendingPainPrompts } from "~/server/speed2Lead/agent/painPrompt";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
-import { setHarnessOfferSlotsOverride } from "~/server/speed2Lead/agent/scheduling";
+import { setHarnessOfferSlotsOverride, setHarnessFetchFailureOverride } from "~/server/speed2Lead/agent/scheduling";
 import {
   runMechanicalChecks,
   summarizeChecks,
@@ -32,12 +34,15 @@ import {
 import {
   HARNESS_TEST_PHONE,
   seedAgentSession,
+  offeringSlotsSeed,
+  bookedReadySeed,
 } from "~/server/speed2Lead/agent/testScenarios/seed";
 import type { AgentScenario, ScenarioBatch, ScenarioMessage } from "~/server/speed2Lead/agent/testScenarios/types";
 import {
   clearAgentSession,
   getAgentSession,
   saveAgentSession,
+  type OfferedSlot,
 } from "~/server/speed2Lead/agent/state";
 import { resetSpeed2LeadTestPhone } from "~/server/speed2Lead/resetTestPhone";
 import { clearOptedOut } from "~/server/speed2Lead/session";
@@ -239,6 +244,68 @@ async function dispatchInboundTurn(
   await handleAgentInboundSms(phone, inbound, messageSid);
 }
 
+async function occupyFirstOfferedSlot(
+  phone: string,
+  execution: "local" | "preview",
+  twilioCtx: ReturnType<typeof buildTwilioClient>,
+  firstName: string,
+): Promise<OfferedSlot | null> {
+  const setupSid = (step: number) => `SM-harness-occupy-${Date.now()}-${step}`;
+  await dispatchInboundTurn(
+    { execution } as AgentScenario,
+    phone,
+    "Yes let's schedule",
+    setupSid(0),
+    execution,
+    twilioCtx,
+  );
+  await sleep(TURN_SETTLE_MS);
+
+  const afterAgree = await getAgentSession(phone);
+  const slot = afterAgree?.offeredSlots[0];
+  if (!slot) return null;
+
+  await dispatchInboundTurn(
+    { execution } as AgentScenario,
+    phone,
+    "The first one works",
+    setupSid(1),
+    execution,
+    twilioCtx,
+  );
+  await sleep(TURN_SETTLE_MS);
+
+  await dispatchInboundTurn(
+    { execution } as AgentScenario,
+    phone,
+    "Yes book it",
+    setupSid(2),
+    execution,
+    twilioCtx,
+  );
+  await sleep(TURN_SETTLE_MS);
+
+  const afterBook = await getAgentSession(phone);
+  if (afterBook?.stage !== "booked") return null;
+
+  await clearActiveLifecycleForPhone(phone);
+  const bookingKey = buildConsultationBookingKey(phone, slot.startIso);
+  await getRedis().del(`appointment:booking:idempotency:${bookingKey}`);
+  await clearAgentSession(phone);
+  await clearOptedOut(phone);
+  await seedAgentSession(offeringSlotsSeed(firstName, [slot]), phone);
+  return slot;
+}
+
+function resolveScenarioSeed(scenario: AgentScenario) {
+  const bookedIso = scenario.meta?.seedBookedStartIso as string | undefined;
+  const bookedEventId = scenario.meta?.seedBookedEventId as string | undefined;
+  if (bookedIso) {
+    return bookedReadySeed(scenario.seed.firstName ?? "Test", bookedIso, bookedEventId);
+  }
+  return scenario.seed;
+}
+
 async function exerciseCronsAfterStop(phone: string): Promise<{ painSent: number; noResponseSent: number }> {
   const session = await getAgentSession(phone);
   if (session) {
@@ -280,10 +347,28 @@ async function runScenario(
     setHarnessOfferSlotsOverride(null);
   }
 
+  if (scenario.meta?.calendarFetchFailure === true && execution === "local") {
+    setHarnessFetchFailureOverride(() => ({ ok: false, reason: "harness_calendar_api_error" }));
+  } else {
+    setHarnessFetchFailureOverride(null);
+  }
+
   const runStartedAt = new Date();
   const referenceIso = (scenario.meta?.referenceIso as string) ?? runStartedAt.toISOString();
 
-  await seedAgentSession(scenario.seed, phone);
+  await seedAgentSession(resolveScenarioSeed(scenario), phone);
+
+  if (scenario.meta?.occupyFirstOfferedSlot === true) {
+    const occupied = await occupyFirstOfferedSlot(
+      phone,
+      execution,
+      twilioCtx,
+      scenario.seed.firstName ?? "Test",
+    );
+    if (!occupied) {
+      throw new Error(`Failed to pre-occupy first offered slot for ${scenario.id}`);
+    }
+  }
 
   const turnSnapshots: TurnSnapshot[] = [];
   let stopAt: string | undefined;
@@ -328,6 +413,7 @@ async function runScenario(
     }
   } finally {
     setHarnessOfferSlotsOverride(null);
+    setHarnessFetchFailureOverride(null);
   }
 
   let cronAfterStop: ScenarioReport["cronAfterStop"];

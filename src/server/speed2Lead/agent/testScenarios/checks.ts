@@ -541,6 +541,105 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
     }
     return { pass: true, detail: "Duplicate MessageSid produced no second outbound" };
   },
+
+  /** Batch 4 — scheduling/booking hardening (items 18–22). */
+  providerConflictLanguage(ctx) {
+    const snap = ctx.turnSnapshots.at(-1);
+    const last = snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    const lower = last.toLowerCase();
+    if (!/(just got taken|filled up|no longer available|taken|not available|already booked)/.test(lower)) {
+      return { pass: false, detail: `Expected conflict language in reply; got: ${last.slice(0, 120)}` };
+    }
+    return { pass: true, detail: "Reply uses provider-conflict language" };
+  },
+
+  booksWithoutReconfirmation(ctx) {
+    const selectSnap = ctx.turnSnapshots.find((s) => s.inbound.toLowerCase().includes("first one works"));
+    const reply = selectSnap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    const lower = reply.toLowerCase();
+    if (/should i book|want me to grab|should i go ahead|lock in that|grab you that/.test(lower)) {
+      return { pass: false, detail: "Selection turn asks redundant reconfirmation instead of booking" };
+    }
+    const stage = ctx.session?.stage;
+    if (stage !== "booked" && stage !== "confirming") {
+      return { pass: false, detail: `Expected booked/confirming after clear selection; got ${stage ?? "null"}` };
+    }
+    return { pass: true, detail: `stage=${stage}, no redundant reconfirmation on selection turn` };
+  },
+
+  pricingPreservesScheduleState(ctx) {
+    const snap = ctx.turnSnapshots.find((s) => /pricing/i.test(s.inbound));
+    const slots = snap?.session?.offeredSlots ?? [];
+    const stage = snap?.session?.stage;
+    const last = snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    if (slots.length === 0) {
+      return { pass: false, detail: "Offered slots cleared after pricing question during scheduling" };
+    }
+    if (stage !== "offering_slots" && stage !== "confirming") {
+      return { pass: false, detail: `Expected scheduling stage preserved; got ${stage ?? "null"}` };
+    }
+    if (!/pric|scope|cost|plan|package|depend/i.test(last)) {
+      return { pass: false, detail: "Reply did not address pricing question" };
+    }
+    return { pass: true, detail: `Scheduling state preserved with ${slots.length} offered slot(s)` };
+  },
+
+  providerFailureNoAsyncWork(ctx) {
+    const last = lastAssistantMessage(ctx.transcript) ?? "";
+    const lower = last.toLowerCase();
+    if (/check back|follow up later|working on it|get back to you shortly|i'll look into/.test(lower)) {
+      return { pass: false, detail: "Reply invents async follow-up work on provider failure" };
+    }
+    return { pass: true, detail: "No invented async follow-up language" };
+  },
+
+  bookedStateNotRestarted(ctx) {
+    const stage = ctx.session?.stage;
+    if (stage !== "booked") {
+      return { pass: false, detail: `Expected stage=booked after scheduling attempt; got ${stage ?? "null"}` };
+    }
+    if ((ctx.session?.offeredSlots?.length ?? 0) > 0 && ctx.turnSnapshots.at(-1)?.inbound.includes("Monday")) {
+      return { pass: false, detail: "New offered slots appeared after post-book scheduling request" };
+    }
+    return { pass: true, detail: "Booking state preserved; scheduling did not restart" };
+  },
+
+  /** Batch 5 — confirmation + post-book (items 23–25). */
+  confirmationHasDetails(ctx) {
+    const bodies = ctx.outboundSinceStart.map((m) => m.body).join("\n");
+    const lower = bodies.toLowerCase();
+    const hasTime = /\b\d{1,2}(:\d{2})?\s*(am|pm)\b/i.test(bodies) || /\bat \d/i.test(bodies);
+    const hasMeet = /meet\.google\.com/i.test(bodies);
+    const hasDay = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(bodies);
+    if (!hasTime || !hasMeet || !hasDay) {
+      return {
+        pass: false,
+        detail: `Confirmation SMS missing details (time=${hasTime}, meet=${hasMeet}, day=${hasDay})`,
+      };
+    }
+    return { pass: true, detail: "Confirmation outbound includes day, time, and Meet link" };
+  },
+
+  confirmationNoHoldingLanguage(ctx) {
+    const bodies = ctx.outboundSinceStart.map((m) => m.body).join("\n").toLowerCase();
+    if (/holding it|confirm shortly|link later|send (you )?the link|get back to you with/.test(bodies)) {
+      return { pass: false, detail: "Confirmation uses deferred/holding language" };
+    }
+    return { pass: true, detail: "No holding/shortly/link-later language in confirmation" };
+  },
+
+  postBookQuestionPreservesBooking(ctx) {
+    const stage = ctx.session?.stage;
+    if (stage !== "booked") {
+      return { pass: false, detail: `Expected stage=booked after post-book question; got ${stage ?? "null"}` };
+    }
+    if (!ctx.session?.bookedStartIso) {
+      return { pass: false, detail: "bookedStartIso missing after post-book question" };
+    }
+    const last = lastAssistantMessage(ctx.transcript);
+    if (!last) return { pass: false, detail: "No assistant reply to post-book question" };
+    return { pass: true, detail: "Answered post-book question without breaking booked state" };
+  },
 };
 
 export async function runMechanicalChecks(
