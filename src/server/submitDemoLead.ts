@@ -6,6 +6,8 @@ import {
   validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
+import { scheduleAbandonedDemoRecovery } from "~/server/speed2Lead/agent/demoFlow/abandonedRecovery";
+import { isSpeed2LeadDemoAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
 import { saveLead } from "~/server/leads";
 import { markDemoFormSubmitted, hasUsedVoiceDemo } from "~/server/vapi/demoUsage";
 
@@ -17,6 +19,7 @@ export type DemoLead = LeadInfo & {
 type DemoLeadRequest = {
   firstName: string;
   lastName: string;
+  businessName: string;
   email: string;
   phone: string;
   websiteOption: "has" | "none" | "";
@@ -28,6 +31,7 @@ function validateDemoLeadFields(data: DemoLeadRequest): string | null {
   const leadError = validateDemoLeadIdentity({
     firstName: data.firstName,
     lastName: data.lastName,
+    businessName: data.businessName,
     email: data.email,
     phone: data.phone,
   });
@@ -49,7 +53,7 @@ export const submitDemoLead = createServerFn({ method: "POST" })
     const normalizedLead = normalizeLeadInfo({
       firstName: data.firstName,
       lastName: data.lastName,
-      businessName: `${data.firstName.trim()} ${data.lastName.trim()}`.trim(),
+      businessName: data.businessName,
       email: data.email,
       phone: data.phone,
     });
@@ -81,7 +85,17 @@ export const submitDemoLead = createServerFn({ method: "POST" })
       source: "voice_demo",
     });
 
-    await markDemoFormSubmitted(normalizedLead.email, normalizedLead.phone);
+    const formEntry = await markDemoFormSubmitted({
+      email: normalizedLead.email,
+      phone: normalizedLead.phone,
+      firstName: normalizedLead.firstName,
+      lastName: normalizedLead.lastName,
+      businessName: normalizedLead.businessName,
+    });
+
+    if (isSpeed2LeadDemoAgentV2Enabled() && data.smsConsent) {
+      await scheduleAbandonedDemoRecovery(formEntry);
+    }
 
     return { ok: true as const, lead, demoAlreadyUsed: false };
   });

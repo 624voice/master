@@ -110,9 +110,10 @@ export function validateLeadInfo(lead: LeadInfo): string | null {
   return null;
 }
 
-export function validateDemoLeadIdentity(lead: Omit<LeadInfo, "businessName">): string | null {
+export function validateDemoLeadIdentity(lead: LeadInfo): string | null {
   if (!lead.firstName.trim()) return "First name is required.";
   if (!lead.lastName.trim()) return "Last name is required.";
+  if (!lead.businessName.trim()) return "Business name is required.";
   if (!lead.email.trim()) return "Email is required.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim())) {
     return "Enter a valid email address.";

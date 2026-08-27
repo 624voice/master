@@ -8,11 +8,15 @@ describe("parseEndOfCallReport", () => {
         type: "end-of-call-report",
         endedReason: "hangup",
         durationSeconds: 142,
+        analysis: {
+          structuredData: { appointmentBookedInDemo: true },
+        },
         artifact: {
           transcript: "AI: Hello\nUser: Hi there",
           recording: { url: "https://storage.example/rec.wav" },
         },
         call: {
+          id: "call-123",
           assistant: {
             metadata: {
               firstName: "Chris",
@@ -36,6 +40,8 @@ describe("parseEndOfCallReport", () => {
     expect(result!.endedReason).toBe("hangup");
     expect(result!.metadata.firstName).toBe("Chris");
     expect(result!.metadata.email).toBe("chris@example.com");
+    expect(result!.callId).toBe("call-123");
+    expect(result!.analysisStructuredData).toEqual({ appointmentBookedInDemo: true });
   });
 
   test("returns null for non end-of-call-report messages", () => {

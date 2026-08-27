@@ -17,6 +17,7 @@ export type DeployVersionInfo = {
   speed2LeadLlmEnabled: boolean;
   speed2LeadAgentV2Enabled: boolean;
   speed2LeadContactAgentV2Enabled: boolean;
+  speed2LeadDemoAgentV2Enabled: boolean;
 };
 
 function readEnv(name: string): string | undefined {
@@ -80,6 +81,7 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
     speed2LeadLlmEnabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_LLM_ENABLED"),
     speed2LeadAgentV2Enabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_AGENT_V2"),
     speed2LeadContactAgentV2Enabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_CONTACT_AGENT_V2"),
+    speed2LeadDemoAgentV2Enabled: resolveSpeed2LeadEnvFlag("SPEED2LEAD_DEMO_AGENT_V2"),
   };
 }
 

@@ -32,6 +32,7 @@ export const Route = createFileRoute("/demo")({
 function DemoPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
   const [website, setWebsite] = useState("");
   const [email, setEmail] = useState("");
@@ -70,6 +71,7 @@ function DemoPage() {
         data: {
           firstName,
           lastName,
+          businessName,
           websiteOption,
           website: websiteOption === "has" ? website : undefined,
           email,
@@ -101,6 +103,8 @@ function DemoPage() {
     setFirstName,
     lastName,
     setLastName,
+    businessName,
+    setBusinessName,
     websiteOption,
     setWebsiteOption,
     website,

@@ -9,7 +9,7 @@ import { getRedis } from "~/server/speed2Lead/redis";
 import { isOptedOut, setOptedOut } from "~/server/speed2Lead/session";
 import { normalizePhone } from "~/server/sms/phone";
 
-export type AgentFlow = "roi" | "contact";
+export type AgentFlow = "roi" | "contact" | "demo";
 
 export type InquiryClarity = "clear" | "vague" | "already_clear";
 
@@ -50,6 +50,12 @@ export type AgentSession = {
   annualOpportunity?: string;
   primaryOpportunity?: string;
   reportUrl?: string;
+
+  /** Demo-flow fields (flow === "demo"). */
+  vapiCallId?: string;
+  callDurationSeconds?: number;
+  callOutcome?: "full" | "short";
+  demoSummary?: import("~/server/speed2Lead/agent/demoFlow/types").DemoSummary | null;
 
   /** Contact-form fields (flow === "contact"). */
   trade?: string;

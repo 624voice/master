@@ -18,6 +18,7 @@ import {
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
 import { buildContactNoResponseMessage } from "~/server/speed2Lead/agent/contactFlow/noResponseCampaign";
+import { buildDemoNoResponseMessage } from "~/server/speed2Lead/agent/demoFlow/noResponseCampaign";
 import { sendSms } from "~/server/sms/twilio";
 
 export const NO_RESPONSE_STAGE_COUNT = 5;
@@ -94,6 +95,9 @@ export function buildNoResponseMessage(
 ): string {
   if (session.flow === "contact") {
     return buildContactNoResponseMessage(profile, session, stageIndex);
+  }
+  if (session.flow === "demo") {
+    return buildDemoNoResponseMessage(profile, session, stageIndex);
   }
   const builder = MESSAGE_BUILDERS[stageIndex];
   if (!builder) {

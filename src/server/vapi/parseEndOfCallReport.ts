@@ -10,11 +10,14 @@ export type DemoCallMetadata = {
 };
 
 export type ParsedEndOfCallReport = {
+  callId: string | undefined;
   metadata: DemoCallMetadata;
   transcript: string;
   recordingUrl: string;
   durationSeconds: number | undefined;
   endedReason: string;
+  analysisStructuredData?: unknown;
+  artifactStructuredOutputs?: unknown;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -86,6 +89,24 @@ function extractRecordingUrl(message: Record<string, unknown>): string {
   return readString(message, "recordingUrl");
 }
 
+function extractCallId(message: Record<string, unknown>): string | undefined {
+  const call = asRecord(message.call);
+  const id = call?.id ?? message.callId;
+  return typeof id === "string" && id.trim() ? id.trim() : undefined;
+}
+
+function extractAnalysis(message: Record<string, unknown>, call: Record<string, unknown> | null) {
+  const analysis = asRecord(message.analysis) ?? asRecord(call?.analysis);
+  return {
+    structuredData: analysis?.structuredData,
+  };
+}
+
+function extractStructuredOutputs(message: Record<string, unknown>) {
+  const artifact = asRecord(message.artifact);
+  return artifact?.structuredOutputs;
+}
+
 export function parseEndOfCallReport(body: unknown): ParsedEndOfCallReport | null {
   const root = asRecord(body);
   if (!root) {
@@ -97,16 +118,22 @@ export function parseEndOfCallReport(body: unknown): ParsedEndOfCallReport | nul
     return null;
   }
 
-  const durationValue = message.durationSeconds ?? message.duration;
+  const call = asRecord(message.call);
+  const durationValue = message.durationSeconds ?? message.duration ?? call?.durationSeconds;
   const durationSeconds =
     typeof durationValue === "number" ? durationValue : undefined;
 
+  const analysis = extractAnalysis(message, call);
+
   return {
+    callId: extractCallId(message),
     metadata: extractMetadata(root),
     transcript: extractTranscript(message),
     recordingUrl: extractRecordingUrl(message),
     durationSeconds,
     endedReason:
       readString(message, "endedReason") || readString(message, "endReason"),
+    analysisStructuredData: analysis.structuredData,
+    artifactStructuredOutputs: extractStructuredOutputs(message),
   };
 }

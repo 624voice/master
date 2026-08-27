@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { maybeCancelAbandonedDemoRecoveryOnInbound } from "~/server/speed2Lead/agent/demoFlow/abandonedRecovery";
 import { handleInboundSms } from "~/server/speed2Lead/handleInbound";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
 import { getAgentSession } from "~/server/speed2Lead/agent/state";
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/api/sms/inbound")({
 
         if (from) {
           try {
+            await maybeCancelAbandonedDemoRecoveryOnInbound(normalizePhone(from));
+
             // A rebuilt-engine session exists only for phones started via
             // the new startAgentConversation() path — route those there and
             // leave every other flow (old ROI engine, contact, demo) on the

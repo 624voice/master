@@ -158,7 +158,7 @@ export async function confirmBookSlot(input: {
   attendeeName: string;
   attendeeEmail?: string;
   businessName?: string;
-  source?: "roi" | "contact";
+  source?: "roi" | "contact" | "demo";
 }): Promise<BookSlotResult> {
   const result = await bookConsultation({
     start: input.slot.startIso,

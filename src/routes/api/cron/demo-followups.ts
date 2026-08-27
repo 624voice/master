@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { processAbandonedDemoRecovery } from "~/server/speed2Lead/agent/demoFlow/abandonedRecovery";
+import { isSpeed2LeadDemoAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
 import { processDemoFollowUps } from "~/server/demoSpeed2Lead/processFollowUps";
 import { recordCronRun } from "~/server/speed2Lead/cronHeartbeat";
 
@@ -29,7 +31,9 @@ export const Route = createFileRoute("/api/cron/demo-followups")({
 
         try {
           await recordCronRun("demo-followups");
-          const sent = await processDemoFollowUps();
+          const sent = isSpeed2LeadDemoAgentV2Enabled()
+            ? await processAbandonedDemoRecovery()
+            : await processDemoFollowUps();
           return new Response(JSON.stringify({ ok: true, sent }), {
             status: 200,
             headers: { "Content-Type": "application/json" },

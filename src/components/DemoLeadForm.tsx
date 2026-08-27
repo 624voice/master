@@ -8,6 +8,8 @@ export type DemoLeadFormProps = {
   setFirstName: (value: string) => void;
   lastName: string;
   setLastName: (value: string) => void;
+  businessName: string;
+  setBusinessName: (value: string) => void;
   websiteOption: "has" | "none" | "";
   setWebsiteOption: (value: "has" | "none" | "") => void;
   website: string;
@@ -58,6 +60,21 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
             autoComplete="family-name"
           />
         </div>
+      </div>
+      <div>
+        <label htmlFor="demo-businessName" className={labelClassName}>
+          Business Name
+        </label>
+        <input
+          id="demo-businessName"
+          type="text"
+          required
+          value={props.businessName}
+          onChange={(e) => props.setBusinessName(e.target.value)}
+          className={inputClassName}
+          placeholder="Smith Plumbing"
+          autoComplete="organization"
+        />
       </div>
       <div>
         <label htmlFor="demo-email" className={labelClassName}>
