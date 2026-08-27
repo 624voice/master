@@ -16,9 +16,9 @@ export const BOOK_MEETING_EMBED_URL =
 export const BOOK_MEETING_URL =
   "https://calendar.app.google/hpzTSkjb9NTqaMjh9";
 
-/** Speed2Lead SMS booking link. */
+/** Speed2Lead SMS booking link — operator calendar for info@624voice.com. */
 export const SPEED2LEAD_BOOKING_URL =
-  "https://calendar.app.google/U757QVWUJVK8x3a16";
+  "https://calendar.app.google/Jy8NRQgZrm5XFVRw9";
 
 export const ROI_DISCLAIMER =
   "Estimates based on industry averages. Your results may vary.";

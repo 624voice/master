@@ -2,6 +2,7 @@ import type { RoiResult } from "~/lib/roi/computeRoi";
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { getBookingUrl, isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
 import { initialMessage } from "~/server/speed2Lead/messages";
+import { enqueueNurtureFollowUp, registerNurtureOnSession } from "~/server/speed2Lead/nurtureFollowUp";
 import {
   createSession,
   isOptedOut,
@@ -30,13 +31,14 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
     return;
   }
 
-  const context = createSession({
-    ...input,
-    phone,
-    bookingUrl: getBookingUrl(),
-  });
+  const context = registerNurtureOnSession(
+    createSession({
+      ...input,
+      phone,
+      bookingUrl: getBookingUrl(),
+    }),
+  );
 
-  await saveSession(context);
   await registerLeadForLifecycle({
     phone,
     firstName: input.firstName,
@@ -46,5 +48,9 @@ export async function startSpeed2Lead(input: StartSpeed2LeadInput): Promise<void
     source: "roi",
     smsConsent: true,
   });
-  await sendConversationSms(phone, initialMessage(context), context);
+
+  const opening = initialMessage(context);
+  const updated = await sendConversationSms(phone, opening, context);
+  await saveSession(updated ?? context);
+  await enqueueNurtureFollowUp(phone);
 }

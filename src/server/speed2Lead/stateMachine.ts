@@ -1,8 +1,14 @@
+import {
+  detectTimingPushback,
+  isGenericAcknowledgment,
+  isSubstantiveReengagement,
+} from "~/server/speed2Lead/conversationDisposition";
 import { classifyGlobalIntent, getSignals } from "~/server/speed2Lead/globalIntents";
 import * as messages from "~/server/speed2Lead/messages";
 import {
   shouldAskPersonalizationQuestion,
   shouldSendCalendarNow,
+  shouldSkipPriorityQuestion,
   type PainCategory,
 } from "~/server/speed2Lead/naturalLanguage";
 import type { ConversationContext, ConversationState } from "~/server/speed2Lead/types";
@@ -109,6 +115,24 @@ function handleProblemResponse(
 ): TransitionResult {
   const signals = getSignals(inboundText);
 
+  if (context.disposition === "soft_closed") {
+    if (isGenericAcknowledgment(inboundText) && !isSubstantiveReengagement(inboundText)) {
+      return { context, reply: messages.softCloseAckMessage() };
+    }
+    if (!isSubstantiveReengagement(inboundText)) {
+      return { context, reply: messages.softCloseAckMessage() };
+    }
+  }
+
+  if (detectTimingPushback(inboundText)) {
+    return {
+      context: withState(withInbound(context, inboundText), context.state, {
+        disposition: "soft_closed" as const,
+      }),
+      reply: messages.softCloseMessage(context),
+    };
+  }
+
   if (signals.identityQuestion) {
     return {
       context,
@@ -133,6 +157,11 @@ function handleProblemResponse(
   }
 
   if (signals.pains.length > 0) {
+    if (shouldSkipPriorityQuestion(signals, ctxSignals)) {
+      return complete(ctx, messages.calendarMessage(ctx), {
+        detectedPains: signals.pains,
+      });
+    }
     return {
       context: withState(ctx, "awaiting_priority", { detectedPains: signals.pains }),
       reply: messages.priorityQuestion(ctx),

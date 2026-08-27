@@ -18,7 +18,8 @@ export type AppointmentLogEvent =
   | "lifecycle_superseded"
   | "manual_cleanup_required"
   | "reminder_suppressed_reschedule_pending"
-  | "reschedule_pending_expired";
+  | "reschedule_pending_expired"
+  | "google_provider_diagnostic";
 
 export function logAppointmentEvent(
   event: AppointmentLogEvent,

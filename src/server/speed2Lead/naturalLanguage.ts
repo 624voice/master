@@ -686,6 +686,26 @@ export function shouldAskPersonalizationQuestion(
   );
 }
 
+/** Skip explicit urgency/priority question when pain is clear enough to book. */
+export function shouldSkipPriorityQuestion(
+  signals: MessageSignals,
+  context: ConversationContextSignals = {},
+): boolean {
+  if (shouldSendCalendarNow(signals, context)) {
+    return true;
+  }
+  if (signals.pains.length > 0 && (signals.urgency === "high" || signals.urgency === "medium")) {
+    return true;
+  }
+  if (signals.pains.length > 0 && signals.hasSubstance && signals.fitResponse !== "unknown") {
+    return true;
+  }
+  if (signals.pains.length > 0 && hasEstablishedContext(context) && signals.meetingReadiness !== "none") {
+    return true;
+  }
+  return false;
+}
+
 export function primaryPainLabel(pains: PainCategory[]): string {
   if (pains.includes("after_hours") || pains.includes("missed_calls")) {
     return "after-hours and missed-call coverage";

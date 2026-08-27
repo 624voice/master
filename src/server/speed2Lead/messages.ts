@@ -12,14 +12,14 @@ function fill(template: string, context: ConversationContext): string {
 
 export function initialMessage(context: ConversationContext): string {
   return fill(
-    `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report over. Curious — where do you think you're losing the most opportunities today: missed calls, slow response to new leads, or follow-up?`,
+    `Hey [FIRST NAME], Chris with 624Voice. I just sent your ROI report over — missed calls, response speed, follow-up, and the rest. Which part stood out most?`,
     context,
   );
 }
 
 export function identityAnswerMessage(context: ConversationContext): string {
   return fill(
-    "Chris with 624Voice — you just downloaded your ROI report from 624voice.com. Happy to help however is useful.\n\nWhere do you think you're losing the most opportunities today: missed calls, slow response to new leads, or follow-up?",
+    "Chris with 624Voice — you just downloaded your ROI report from 624voice.com. Happy to help however is useful.\n\nWhich part of the report stood out most — missed calls, slow response, follow-up, or something else?",
     context,
   );
 }
@@ -128,6 +128,17 @@ export function officeStaffFollowUp(context: ConversationContext): string {
 
 export function declineMessage(): string {
   return "No problem. I will leave you with the report, and you can reach out if the numbers raise any questions.\n\nReply STOP if you do not want to receive additional texts.";
+}
+
+export function softCloseMessage(context: ConversationContext): string {
+  return fill(
+    "Totally understand, [FIRST NAME]. I'll leave the report with you — text back anytime if you want to dig in.",
+    context,
+  );
+}
+
+export function softCloseAckMessage(): string {
+  return "Sounds good.";
 }
 
 export function optOutConfirmationMessage(): string {

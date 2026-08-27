@@ -1,0 +1,479 @@
+import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import {
+  buildGoogleOAuthAuthorizationUrl,
+  completeGoogleOAuthCallback,
+  refreshGoogleOAuthAccessToken,
+  startGoogleOAuthConnection,
+} from "~/server/appointmentLifecycle/googleOAuthFlow";
+import {
+  GOOGLE_OAUTH_SCOPES,
+  resolveGoogleOAuthRedirectUri,
+} from "~/server/appointmentLifecycle/googleOAuthConfig";
+import {
+  getGoogleCalendarAuthContext,
+  getGoogleCalendarProviderAccessToken,
+  GoogleCalendarAuthError,
+  isGoogleCalendarBookingConfigured,
+  resetGoogleCalendarAuthCacheForTests,
+} from "~/server/appointmentLifecycle/googleCalendarAuth";
+import {
+  getOAuthConnection,
+  sanitizeOAuthConnection,
+} from "~/server/appointmentLifecycle/googleOAuthStore";
+import {
+  handleCalendarOAuthSmokeRequest,
+  handleGoogleOAuthCallbackRequest,
+  handleGoogleOAuthStartRequest,
+  handleGoogleOAuthStatusRequest,
+} from "~/server/appointmentLifecycle/googleOAuthHandlers";
+import {
+  capturedRedisStore,
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
+import { seedTestGoogleOAuthConnection } from "~/server/appointmentLifecycle/testSupport/googleOAuthTestHelpers";
+import { getGoogleCalendarProviderAccessToken as calendarExportToken } from "~/server/appointmentLifecycle/googleCalendar";
+
+installSpeed2LeadIntegrationMocks();
+
+const originalFetch = globalThis.fetch;
+
+const PREVIEW_ORIGIN = "https://deploy-preview-61--624voice.netlify.app";
+const PREVIEW_REDIRECT_URI = `${PREVIEW_ORIGIN}/api/google/oauth/callback`;
+const PRODUCTION_ORIGIN = "https://www.624voice.com";
+const PRODUCTION_REDIRECT_URI = `${PRODUCTION_ORIGIN}/api/google/oauth/callback`;
+
+describe("Google OAuth redirect URI resolution", () => {
+  const originalContext = process.env.CONTEXT;
+  const originalUrl = process.env.URL;
+  const originalSiteOrigin = process.env.SITE_ORIGIN;
+  const originalDeployPrimeUrl = process.env.DEPLOY_PRIME_URL;
+  const originalRedirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
+
+  afterEach(() => {
+    process.env.CONTEXT = originalContext;
+    process.env.URL = originalUrl;
+    process.env.SITE_ORIGIN = originalSiteOrigin;
+    process.env.DEPLOY_PRIME_URL = originalDeployPrimeUrl;
+    process.env.GOOGLE_OAUTH_REDIRECT_URI = originalRedirectUri;
+  });
+
+  test("preview OAuth start uses request origin even when production URL env is set", () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
+
+    const request = new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`);
+    expect(resolveGoogleOAuthRedirectUri({ request })).toBe(PREVIEW_REDIRECT_URI);
+  });
+
+  test("production config resolves www.624voice.com callback when production context is active", () => {
+    process.env.CONTEXT = "production";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    delete process.env.DEPLOY_PRIME_URL;
+
+    expect(resolveGoogleOAuthRedirectUri()).toBe(PRODUCTION_REDIRECT_URI);
+  });
+
+  test("preview without request falls back to Netlify deploy URL env", () => {
+    process.env.CONTEXT = "deploy-preview";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.DEPLOY_PRIME_URL = PREVIEW_ORIGIN;
+
+    expect(resolveGoogleOAuthRedirectUri()).toBe(PREVIEW_REDIRECT_URI);
+  });
+});
+
+describe("Google OAuth authorization URL", () => {
+  beforeEach(() => {
+    process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
+  });
+
+  afterEach(() => {
+    delete process.env.GOOGLE_OAUTH_CLIENT_ID;
+    delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+    delete process.env.CONTEXT;
+  });
+
+  test("uses required minimum scopes with offline access", () => {
+    const redirectUri = resolveGoogleOAuthRedirectUri({
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start`),
+    });
+    const url = new URL(buildGoogleOAuthAuthorizationUrl({ state: "test-state", redirectUri }));
+    expect(url.searchParams.get("access_type")).toBe("offline");
+    expect(url.searchParams.get("prompt")).toBe("consent");
+    expect(url.searchParams.get("response_type")).toBe("code");
+    expect(url.searchParams.get("scope")).toBe(GOOGLE_OAUTH_SCOPES.join(" "));
+    expect(url.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
+  });
+});
+
+describe("Google OAuth callback and token storage", () => {
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+    process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
+    process.env.GOOGLE_OAUTH_EXPECTED_EMAIL = "info@624voice.com";
+    process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+    process.env.CONTEXT = "deploy-preview";
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    delete process.env.GOOGLE_OAUTH_CLIENT_ID;
+    delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    delete process.env.GOOGLE_OAUTH_EXPECTED_EMAIL;
+    delete process.env.GOOGLE_CALENDAR_ID;
+    delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+    delete process.env.CONTEXT;
+  });
+
+  test("validates OAuth state and stores refresh token securely", async () => {
+    const previewRequest = new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start`);
+    const started = await startGoogleOAuthConnection({ request: previewRequest });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token") && init?.method === "POST") {
+        const body = String(init.body);
+        expect(body).toContain(
+          `redirect_uri=${encodeURIComponent(PREVIEW_REDIRECT_URI)}`,
+        );
+        return new Response(
+          JSON.stringify({
+            access_token: "oauth-access-token",
+            refresh_token: "oauth-refresh-token",
+            expires_in: 3600,
+            scope: GOOGLE_OAUTH_SCOPES.join(" "),
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("googleapis.com/oauth2/v2/userinfo")) {
+        return new Response(JSON.stringify({ email: "info@624voice.com" }), { status: 200 });
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+
+    const authUrl = new URL(started.authorizationUrl);
+    expect(authUrl.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
+
+    const result = await completeGoogleOAuthCallback({
+      code: "auth-code",
+      state: started.state,
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback`),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.setupSession.length).toBeGreaterThan(0);
+
+    const stored = await getOAuthConnection();
+    expect(stored?.refreshToken).toBe("oauth-refresh-token");
+    expect(stored?.connectedEmail).toBe("info@624voice.com");
+    expect(JSON.stringify(sanitizeOAuthConnection(stored))).not.toContain("oauth-refresh-token");
+    expect(sanitizeOAuthConnection(stored).hasRefreshToken).toBe(true);
+  });
+
+  test("rejects invalid OAuth state", async () => {
+    const result = await completeGoogleOAuthCallback({ code: "auth-code", state: "bad-state" });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe("invalid_state");
+  });
+
+  test("refresh obtains usable access token without exposing secrets", async () => {
+    await seedTestGoogleOAuthConnection({
+      refreshToken: "oauth-refresh-token",
+      accessToken: undefined,
+      accessTokenExpiresAt: undefined,
+    });
+
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token") && init?.method === "POST") {
+        const body = String(init.body);
+        expect(body).toContain("grant_type=refresh_token");
+        expect(body).toContain("oauth-refresh-token");
+        return new Response(
+          JSON.stringify({ access_token: "refreshed-access-token", expires_in: 3600 }),
+          { status: 200 },
+        );
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+
+    const refreshed = await refreshGoogleOAuthAccessToken();
+    expect(refreshed.ok).toBe(true);
+    if (!refreshed.ok) return;
+    expect(refreshed.accessToken).toBe("refreshed-access-token");
+
+    const token = await getGoogleCalendarProviderAccessToken();
+    expect(token).toBe("refreshed-access-token");
+  });
+
+  test("token refresh failure returns typed auth error", async () => {
+    await seedTestGoogleOAuthConnection({
+      refreshToken: "oauth-refresh-token",
+      accessToken: undefined,
+      accessTokenExpiresAt: undefined,
+    });
+
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token")) {
+        return new Response("invalid_grant", { status: 400 });
+      }
+      return originalFetch(input);
+    }) as typeof fetch;
+
+    await expect(getGoogleCalendarProviderAccessToken()).rejects.toBeInstanceOf(
+      GoogleCalendarAuthError,
+    );
+  });
+});
+
+describe("OAuth provider selection", () => {
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+    resetGoogleCalendarAuthCacheForTests();
+    process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
+    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL = "agent@test.iam.gserviceaccount.com";
+    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY = "unused";
+  });
+
+  afterEach(() => {
+    delete process.env.GOOGLE_CALENDAR_ID;
+    delete process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    delete process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
+  });
+
+  test("uses OAuth token after OAuth provider selected", async () => {
+    await seedTestGoogleOAuthConnection();
+    const auth = await getGoogleCalendarAuthContext();
+    expect(auth.mode).toBe("oauth_user");
+    expect(auth.oauthConnected).toBe(true);
+    expect(await isGoogleCalendarBookingConfigured()).toBe(true);
+
+    const token = await calendarExportToken();
+    expect(token).toBe("test-oauth-access-token");
+  });
+
+  test("does not use service account when OAuth connection is active", async () => {
+    await seedTestGoogleOAuthConnection();
+    let saTokenRequested = false;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token") && init?.body?.toString().includes("jwt-bearer")) {
+        saTokenRequested = true;
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+
+    await getGoogleCalendarProviderAccessToken();
+    expect(saTokenRequested).toBe(false);
+  });
+});
+
+describe("OAuth setup and smoke handlers", () => {
+  const originalCronSecret = process.env.CRON_SECRET;
+  const originalContext = process.env.CONTEXT;
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+    process.env.CRON_SECRET = "test-cron-secret";
+    process.env.CONTEXT = "deploy-preview";
+    process.env.NODE_ENV = "production";
+    process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
+    process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
+  });
+
+  afterEach(() => {
+    process.env.CRON_SECRET = originalCronSecret;
+    process.env.CONTEXT = originalContext;
+    process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.GOOGLE_OAUTH_CLIENT_ID;
+    delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    delete process.env.GOOGLE_CALENDAR_ID;
+  });
+
+  test("status handler requires auth and never returns tokens", async () => {
+    const unauthorized = await handleGoogleOAuthStatusRequest(
+      new Request("https://deploy-preview-61--624voice.netlify.app/api/google/oauth/status"),
+    );
+    expect(unauthorized.status).toBe(401);
+
+    const invalidToken = await handleGoogleOAuthStatusRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?token=wrong-token`, {
+        headers: { Authorization: "Bearer wrong-token" },
+      }),
+    );
+    expect(invalidToken.status).toBe(401);
+
+    const response = await handleGoogleOAuthStatusRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?token=test-cron-secret`, {
+        headers: { Authorization: "Bearer test-cron-secret" },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(JSON.stringify(body)).not.toContain("refreshToken");
+    expect(JSON.stringify(body)).not.toContain("access_token");
+  });
+
+  test("valid setup token reaches OAuth start redirect", async () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+
+    const response = await handleGoogleOAuthStartRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toContain("accounts.google.com/o/oauth2/v2/auth");
+    expect(response.headers.get("Location")).not.toContain("test-cron-secret");
+  });
+
+  test("start handler redirects to Google OAuth with preview callback URI", async () => {
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+
+    const response = await handleGoogleOAuthStartRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
+    );
+    expect(response.status).toBe(302);
+    const location = response.headers.get("Location");
+    expect(location).toContain("accounts.google.com/o/oauth2/v2/auth");
+    expect(location).not.toContain("client_secret");
+    const authUrl = new URL(location!);
+    expect(authUrl.searchParams.get("redirect_uri")).toBe(PREVIEW_REDIRECT_URI);
+  });
+
+  test("oauth smoke handler reports not connected before authorization", async () => {
+    const response = await handleCalendarOAuthSmokeRequest(
+      new Request("https://deploy-preview-61--624voice.netlify.app/api/cron/calendar-oauth-smoke?booking=false", {
+        headers: { Authorization: "Bearer test-cron-secret" },
+      }),
+    );
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { configurationError?: string };
+    expect(body.configurationError).toBe("oauth_not_connected");
+  });
+});
+
+describe("OAuth callback setup continuation", () => {
+  const originalCronSecret = process.env.CRON_SECRET;
+  const originalContext = process.env.CONTEXT;
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+    globalThis.fetch = originalFetch;
+    process.env.CRON_SECRET = "test-cron-secret";
+    process.env.CONTEXT = "deploy-preview";
+    process.env.NODE_ENV = "production";
+    process.env.GOOGLE_OAUTH_CLIENT_ID = "test-client-id.apps.googleusercontent.com";
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET = "test-client-secret";
+    process.env.GOOGLE_OAUTH_EXPECTED_EMAIL = "info@624voice.com";
+    process.env.GOOGLE_CALENDAR_ID = "info@624voice.com";
+    process.env.URL = PRODUCTION_ORIGIN;
+    process.env.SITE_ORIGIN = PRODUCTION_ORIGIN;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    process.env.CRON_SECRET = originalCronSecret;
+    process.env.CONTEXT = originalContext;
+    process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.GOOGLE_OAUTH_CLIENT_ID;
+    delete process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+    delete process.env.GOOGLE_OAUTH_EXPECTED_EMAIL;
+    delete process.env.GOOGLE_CALENDAR_ID;
+    delete process.env.URL;
+    delete process.env.SITE_ORIGIN;
+  });
+
+  function installOAuthExchangeMocks() {
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("oauth2.googleapis.com/token") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({
+            access_token: "oauth-access-token",
+            refresh_token: "oauth-refresh-token",
+            expires_in: 3600,
+            scope: GOOGLE_OAUTH_SCOPES.join(" "),
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("googleapis.com/oauth2/v2/userinfo")) {
+        return new Response(JSON.stringify({ email: "info@624voice.com" }), { status: 200 });
+      }
+      return originalFetch(input, init);
+    }) as typeof fetch;
+  }
+
+  test("successful callback redirects to authorized setup continuation", async () => {
+    const started = await startGoogleOAuthConnection({
+      request: new Request(`${PREVIEW_ORIGIN}/api/google/oauth/start?token=test-cron-secret`),
+    });
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    installOAuthExchangeMocks();
+
+    const callbackResponse = await handleGoogleOAuthCallbackRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback?code=auth-code&state=${started.state}`),
+    );
+    expect(callbackResponse.status).toBe(302);
+    const location = callbackResponse.headers.get("Location");
+    expect(location).toContain("/setup/google-calendar?");
+    expect(location).toContain("setup=");
+    expect(location).toContain("connected=1");
+    expect(location).not.toContain("test-cron-secret");
+
+    const setupSession = new URL(location!).searchParams.get("setup");
+    expect(setupSession).toBeTruthy();
+
+    const statusResponse = await handleGoogleOAuthStatusRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/status?setup=${setupSession}`),
+    );
+    expect(statusResponse.status).toBe(200);
+    const body = (await statusResponse.json()) as {
+      connection: { connectedEmail: string | null; connected: boolean; hasRefreshToken: boolean };
+      expectedEmailMatch: boolean | null;
+      auth: { oauthConnected: boolean; actingAs: string };
+    };
+    expect(body.connection.connected).toBe(true);
+    expect(body.connection.connectedEmail).toBe("info@624voice.com");
+    expect(body.connection.hasRefreshToken).toBe(true);
+    expect(body.expectedEmailMatch).toBe(true);
+    expect(body.auth.oauthConnected).toBe(true);
+    expect(body.auth.actingAs).toBe("info@624voice.com");
+  });
+
+  test("invalid OAuth state is rejected without setup continuation", async () => {
+    const callbackResponse = await handleGoogleOAuthCallbackRequest(
+      new Request(`${PREVIEW_ORIGIN}/api/google/oauth/callback?code=auth-code&state=bad-state`),
+    );
+    expect(callbackResponse.status).toBe(302);
+    const location = callbackResponse.headers.get("Location");
+    expect(location).toContain("error=invalid_state");
+    expect(location).not.toContain("setup=");
+  });
+});

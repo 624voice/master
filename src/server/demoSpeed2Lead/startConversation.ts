@@ -1,5 +1,9 @@
 import { registerLeadForLifecycle } from "~/server/appointmentLifecycle/handoff";
 import { getBookingUrl, isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
+import {
+  createInitialMemory,
+  normalizeSessionMemory,
+} from "~/server/speed2Lead/memory";
 import { isOptedOut, saveSession } from "~/server/speed2Lead/session";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
@@ -23,7 +27,7 @@ export function createDemoSession(input: {
   bookingUrl: string;
 }): DemoConversationContext {
   const demoCompletedAt = input.demoCompletedAt;
-  const session: DemoConversationContext = {
+  const base: DemoConversationContext = {
     flow: "demo",
     phone: normalizePhone(input.phone),
     firstName: input.firstName,
@@ -40,7 +44,12 @@ export function createDemoSession(input: {
     updatedAt: new Date().toISOString(),
   };
 
-  return scheduleFirstFollowUp(session, demoCompletedAt);
+  const withMemory = normalizeSessionMemory({
+    ...base,
+    ...createInitialMemory(base),
+  });
+
+  return scheduleFirstFollowUp(withMemory, demoCompletedAt);
 }
 
 export async function startDemoSpeed2Lead(input: {
@@ -78,7 +87,6 @@ export async function startDemoSpeed2Lead(input: {
     bookingUrl: getBookingUrl(),
   });
 
-  await saveSession(context);
   await registerLeadForLifecycle({
     phone,
     firstName: input.firstName,
@@ -88,8 +96,11 @@ export async function startDemoSpeed2Lead(input: {
     source: "demo",
     smsConsent: true,
   });
-  await sendConversationSms(phone, initialMessage(context), context);
-  await registerDemoFollowUp(context);
+
+  const opening = initialMessage(context);
+  const updated = await sendConversationSms(phone, opening, context);
+  await saveSession(updated ?? context);
+  await registerDemoFollowUp(updated ?? context);
 }
 
 export { MIN_DEMO_DURATION_SECONDS };

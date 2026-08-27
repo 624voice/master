@@ -1,12 +1,14 @@
 import {
-  REMINDER_24H_WINDOW_MS,
-  REMINDER_2H_WINDOW_MS,
+  REMINDER_24H_LATE_CATCHUP_MS,
+  REMINDER_2H_LATE_CATCHUP_MS,
   REMINDER_MIN_SPACING_MS,
 } from "~/server/appointmentLifecycle/config";
 import type { AppointmentLifecycleRecord, ReminderKind } from "~/server/appointmentLifecycle/types";
 
 const MS_24H = 24 * 60 * 60 * 1000;
+const MS_23H = MS_24H - REMINDER_24H_LATE_CATCHUP_MS;
 const MS_2H = 2 * 60 * 60 * 1000;
+const MS_1H30M = MS_2H - REMINDER_2H_LATE_CATCHUP_MS;
 
 export function msUntilAppointment(record: AppointmentLifecycleRecord, now = new Date()): number {
   return new Date(record.appointmentStart).getTime() - now.getTime();
@@ -26,8 +28,8 @@ export function shouldSend24hReminder(
   const confirmationAge = now.getTime() - new Date(record.confirmationSentAt).getTime();
   if (confirmationAge < REMINDER_MIN_SPACING_MS) return false;
 
-  const target = MS_24H;
-  return Math.abs(until - target) <= REMINDER_24H_WINDOW_MS;
+  // Precise: eligible at T−24h and after, with late catch-up through T−23h only.
+  return until <= MS_24H && until >= MS_23H;
 }
 
 export function shouldSend2hReminder(
@@ -44,8 +46,8 @@ export function shouldSend2hReminder(
   const confirmationAge = now.getTime() - new Date(record.confirmationSentAt).getTime();
   if (confirmationAge < REMINDER_MIN_SPACING_MS) return false;
 
-  const target = MS_2H;
-  return until <= target + REMINDER_2H_WINDOW_MS && until >= target - REMINDER_2H_WINDOW_MS;
+  // Precise: eligible at T−2h and after, with late catch-up through T−1h30m only.
+  return until <= MS_2H && until >= MS_1H30M;
 }
 
 export function shouldSkip24hForLeadTime(

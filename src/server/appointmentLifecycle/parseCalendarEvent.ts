@@ -7,6 +7,7 @@ import type {
   NormalizedCalendarEvent,
 } from "~/server/appointmentLifecycle/types";
 import { DEFAULT_TIMEZONE } from "~/server/appointmentLifecycle/config";
+import { extractGoogleMeetUrl } from "~/server/appointmentLifecycle/googleMeetConference";
 
 type GoogleCalendarApiEvent = {
   id: string;
@@ -19,6 +20,11 @@ type GoogleCalendarApiEvent = {
   attendees?: Array<{ email?: string; displayName?: string; responseStatus?: string }>;
   hangoutLink?: string;
   conferenceData?: {
+    createRequest?: {
+      requestId?: string;
+      status?: { statusCode?: string };
+    };
+    conferenceStatus?: { statusCode?: string };
     entryPoints?: Array<{ entryPointType?: string; uri?: string }>;
   };
   location?: string;
@@ -50,15 +56,7 @@ function mapStatus(status?: string): CalendarEventStatus {
   return "confirmed";
 }
 
-function extractMeetingLink(event: GoogleCalendarApiEvent): string | undefined {
-  if (event.hangoutLink) {
-    return event.hangoutLink;
-  }
-  const videoEntry = event.conferenceData?.entryPoints?.find(
-    (entry) => entry.entryPointType === "video" && entry.uri,
-  );
-  return videoEntry?.uri;
-}
+export { extractGoogleMeetUrl } from "~/server/appointmentLifecycle/googleMeetConference";
 
 function primaryAttendee(event: GoogleCalendarApiEvent): {
   email?: string;
@@ -97,7 +95,7 @@ export function parseGoogleCalendarApiEvent(event: GoogleCalendarApiEvent): Norm
     appointmentStart: new Date(startRaw).toISOString(),
     appointmentEnd: new Date(endRaw).toISOString(),
     timezone: event.start?.timeZone ?? DEFAULT_TIMEZONE,
-    meetingLink: extractMeetingLink(event),
+    meetingLink: extractGoogleMeetUrl(event),
     updatedAt: event.updated ? new Date(event.updated).toISOString() : new Date().toISOString(),
   };
 }
