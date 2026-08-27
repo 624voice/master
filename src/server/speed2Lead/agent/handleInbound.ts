@@ -32,6 +32,7 @@ import {
   buildOffTopicRedirect,
   PRICING_RESPONSE_COPY,
 } from "~/server/speed2Lead/agent/contactFlow/openers";
+import { buildContactSchedulingTurnReply } from "~/server/speed2Lead/agent/contactFlow/schedulingReply";
 import {
   buildDemoDiscoveryFallback,
   buildDemoInjectionRedirect,
@@ -435,11 +436,13 @@ export async function handleAgentInboundSms(
         !looksLikeBridgeQuestion(reply) &&
         !session.discoveryClosed;
 
-      const blockedDiscovery = shouldBlockDiscoveryReply(session, reply);
+      const blockedDiscovery = shouldBlockDiscoveryReply(session, reply, body);
       if (blockedDiscovery) {
         reply = buildDiscoveryClosedFallback(session);
         session = closeDiscovery(session);
-        session.stage = "bridge";
+        if (session.stage !== "offering_slots" && session.stage !== "confirming") {
+          session.stage = "bridge";
+        }
       } else if (askedDiscoveryQuestion) {
         session = markDiscoveryQuestionAsked(session);
       }
@@ -452,6 +455,20 @@ export async function handleAgentInboundSms(
         session.meetingDeclineCount = 0;
       } else if (output.wants_meeting && !canLeaveDiscovery) {
         output = { ...output, wants_meeting: false, stage: "discovery" };
+      }
+
+      const schedulingReply = buildContactSchedulingTurnReply({
+        session,
+        inboundBody: body,
+        offered,
+        fetchFailed: slotResolution.fetchFailed,
+        profile,
+      });
+      if (schedulingReply) {
+        reply = schedulingReply;
+        if (session.stage === "bridge" && (offered.length > 0 || session.requestedDate)) {
+          session.stage = "offering_slots";
+        }
       }
 
       if (!blockedDiscovery && session.stage !== "booked" && session.stage !== "declined") {

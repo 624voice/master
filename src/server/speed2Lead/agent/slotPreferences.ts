@@ -283,10 +283,29 @@ export async function resolveSlotsForAgentTurn(
     (session.flow === "contact" && emptySlots && session.stage === "offering_slots");
 
   if (shouldPrefetch) {
+    const prefOnly = isSchedulingPreferenceOnly(inboundBody, session, now);
+    const sessionWithPrefs = prefOnly
+      ? applyInboundSlotPreferences(session, inboundBody, profile, now)
+      : session;
+
     const fetched = await initialWideFetch(profile, now);
     if (!fetched.ok) {
-      return { slots: [], pool: [], fetchFailed: true, session };
+      return { slots: [], pool: [], fetchFailed: true, session: sessionWithPrefs };
     }
+
+    if (prefOnly && sessionWithPrefs.requestedDate) {
+      const canonical = agentSessionToCanonical(sessionWithPrefs);
+      const poolIsos = fetched.pool.map((slot) => slot.startIso);
+      const filtered = filterPoolSlots(poolIsos, canonical, profile);
+      const slots = toOfferedSlots(filtered, profile.timezone);
+      return {
+        slots,
+        pool: fetched.pool,
+        fetchFailed: false,
+        session: { ...sessionWithPrefs, slotPool: fetched.pool, offeredSlots: slots },
+      };
+    }
+
     return {
       slots: fetched.slots,
       pool: fetched.pool,
@@ -335,24 +354,35 @@ export function isSchedulingPreferenceOnly(
   session: AgentSession,
   now = new Date(),
 ): boolean {
-  const canonical = agentSessionToCanonical(session);
   const offeredIsos = session.offeredSlots.map((slot) => slot.startIso);
   if (resolveOfferedSlotSelectionCandidate(body, offeredIsos)) {
     return false;
   }
 
   const exactDate = parseExactDateFromMessage(body, "", now);
-  const update = parseSchedulingStateUpdate(body, canonical, now, offeredIsos);
-  const prefChanged =
+  if (exactDate) return true;
+
+  // Parse against a neutral baseline so repeat prefs ("Tomorrow" again) still count.
+  const baseline = agentSessionToCanonical({
+    ...session,
+    requestedDate: undefined,
+    availabilityPreference: undefined,
+    exactTimeMinutes: undefined,
+    anchorTimeMinutes: undefined,
+    lowerTimeBound: undefined,
+    upperTimeBound: undefined,
+    rejectedSlotStarts: [],
+    rejectedPartOfDay: undefined,
+  });
+  const update = parseSchedulingStateUpdate(body, baseline, now, offeredIsos);
+  return (
     update.requestedDate?.op === "replace" ||
     update.availabilityPreference?.op === "replace" ||
     update.exactTimeMinutes?.op === "replace" ||
     update.rejectedSlotStarts?.op === "add" ||
     update.rejectedSlotStarts?.op === "clear" ||
-    update.invalidateOffers === true ||
-    Boolean(exactDate);
-
-  return prefChanged;
+    update.invalidateOffers === true
+  );
 }
 
 export function validateConfirmBooking(args: {

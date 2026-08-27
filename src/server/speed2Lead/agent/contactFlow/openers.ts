@@ -30,7 +30,7 @@ export function buildAlreadyClearOpener(session: AgentSession): string {
 export function buildVagueInquiryOpener(session: AgentSession): string {
   return (
     `${heyPrefix(session.firstName)}Chris with 624Voice — saw your note from ${session.businessName}. ` +
-    "What's making now the time you're looking into this?"
+    "What's prompting you to look into this now?"
   );
 }
 
