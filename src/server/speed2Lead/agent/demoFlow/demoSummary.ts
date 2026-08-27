@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { VAPI_DEMO_SUMMARY_STRUCTURED_OUTPUT_ID } from "~/config/vapi";
 import { getSpeed2LeadLlmModel, isOpenAiConfigured } from "~/server/speed2Lead/config";
 import type { DemoSummary } from "~/server/speed2Lead/agent/demoFlow/types";
 
@@ -31,6 +32,17 @@ export const DEMO_SUMMARY_JSON_SCHEMA = {
   ],
 } as const;
 
+const DEMO_SUMMARY_FIELD_KEYS = [
+  "serviceAreaChecked",
+  "schedulingFlowCompleted",
+  "appointmentBookedInDemo",
+  "objectionsRaised",
+  "upsellPresented",
+  "topPositiveMoment",
+  "topConcern",
+  "prospectSentiment",
+] as const;
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   return value as Record<string, unknown>;
@@ -50,7 +62,15 @@ function normalizeSentiment(value: unknown): DemoSummary["prospectSentiment"] {
   return "neutral";
 }
 
+/** True when the payload includes at least one demo-summary schema field (not `{}`). */
+export function hasDemoSummarySourceData(raw: unknown): boolean {
+  const record = asRecord(raw);
+  if (!record) return false;
+  return DEMO_SUMMARY_FIELD_KEYS.some((key) => key in record);
+}
+
 export function normalizeDemoSummary(raw: unknown): DemoSummary | null {
+  if (!hasDemoSummarySourceData(raw)) return null;
   const record = asRecord(raw);
   if (!record) return null;
 
@@ -72,16 +92,19 @@ export function normalizeDemoSummary(raw: unknown): DemoSummary | null {
   };
 }
 
-/** Read Vapi analysis.structuredData or artifact structuredOutputs (first object result). */
-export function parseDemoSummaryFromVapiPayload(input: {
-  structuredData?: unknown;
-  structuredOutputs?: unknown;
-}): DemoSummary | null {
-  const fromAnalysis = normalizeDemoSummary(input.structuredData);
-  if (fromAnalysis) return fromAnalysis;
-
-  const outputs = asRecord(input.structuredOutputs);
+function parseStructuredOutputs(
+  structuredOutputs: unknown,
+  preferredOutputId = VAPI_DEMO_SUMMARY_STRUCTURED_OUTPUT_ID,
+): DemoSummary | null {
+  const outputs = asRecord(structuredOutputs);
   if (!outputs) return null;
+
+  const preferred = outputs[preferredOutputId];
+  if (preferred !== undefined) {
+    const entry = asRecord(preferred);
+    const parsed = normalizeDemoSummary(entry?.result ?? preferred);
+    if (parsed) return parsed;
+  }
 
   for (const value of Object.values(outputs)) {
     const entry = asRecord(value);
@@ -91,6 +114,26 @@ export function parseDemoSummaryFromVapiPayload(input: {
   }
 
   return null;
+}
+
+/**
+ * Resolve demo summary from Vapi end-of-call-report fields in priority order:
+ * 1) analysis.structuredData (legacy analysisPlan path)
+ * 2) message.artifact.structuredOutputs
+ * 3) call.artifact.structuredOutputs (Vapi documented location)
+ */
+export function parseDemoSummaryFromVapiPayload(input: {
+  structuredData?: unknown;
+  messageArtifactStructuredOutputs?: unknown;
+  callArtifactStructuredOutputs?: unknown;
+}): DemoSummary | null {
+  const fromAnalysis = normalizeDemoSummary(input.structuredData);
+  if (fromAnalysis) return fromAnalysis;
+
+  const fromMessageArtifact = parseStructuredOutputs(input.messageArtifactStructuredOutputs);
+  if (fromMessageArtifact) return fromMessageArtifact;
+
+  return parseStructuredOutputs(input.callArtifactStructuredOutputs);
 }
 
 export async function extractDemoSummaryFromTranscript(
@@ -132,13 +175,15 @@ export async function extractDemoSummaryFromTranscript(
 
 export async function resolveDemoSummary(input: {
   structuredData?: unknown;
-  structuredOutputs?: unknown;
+  messageArtifactStructuredOutputs?: unknown;
+  callArtifactStructuredOutputs?: unknown;
   transcript: string;
   endedReason?: string;
 }): Promise<DemoSummary | null> {
   const fromVapi = parseDemoSummaryFromVapiPayload({
     structuredData: input.structuredData,
-    structuredOutputs: input.structuredOutputs,
+    messageArtifactStructuredOutputs: input.messageArtifactStructuredOutputs,
+    callArtifactStructuredOutputs: input.callArtifactStructuredOutputs,
   });
   if (fromVapi) return fromVapi;
 

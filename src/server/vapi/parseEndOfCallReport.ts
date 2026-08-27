@@ -17,7 +17,8 @@ export type ParsedEndOfCallReport = {
   durationSeconds: number | undefined;
   endedReason: string;
   analysisStructuredData?: unknown;
-  artifactStructuredOutputs?: unknown;
+  messageArtifactStructuredOutputs?: unknown;
+  callArtifactStructuredOutputs?: unknown;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -102,9 +103,16 @@ function extractAnalysis(message: Record<string, unknown>, call: Record<string, 
   };
 }
 
-function extractStructuredOutputs(message: Record<string, unknown>) {
-  const artifact = asRecord(message.artifact);
+function extractStructuredOutputsFromArtifact(artifact: Record<string, unknown> | null) {
   return artifact?.structuredOutputs;
+}
+
+function extractMessageArtifact(message: Record<string, unknown>) {
+  return asRecord(message.artifact);
+}
+
+function extractCallArtifact(call: Record<string, unknown> | null) {
+  return call ? asRecord(call.artifact) : null;
 }
 
 export function parseEndOfCallReport(body: unknown): ParsedEndOfCallReport | null {
@@ -124,6 +132,8 @@ export function parseEndOfCallReport(body: unknown): ParsedEndOfCallReport | nul
     typeof durationValue === "number" ? durationValue : undefined;
 
   const analysis = extractAnalysis(message, call);
+  const messageArtifact = extractMessageArtifact(message);
+  const callArtifact = extractCallArtifact(call);
 
   return {
     callId: extractCallId(message),
@@ -134,6 +144,7 @@ export function parseEndOfCallReport(body: unknown): ParsedEndOfCallReport | nul
     endedReason:
       readString(message, "endedReason") || readString(message, "endReason"),
     analysisStructuredData: analysis.structuredData,
-    artifactStructuredOutputs: extractStructuredOutputs(message),
+    messageArtifactStructuredOutputs: extractStructuredOutputsFromArtifact(messageArtifact),
+    callArtifactStructuredOutputs: extractStructuredOutputsFromArtifact(callArtifact),
   };
 }

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { VAPI_DEMO_SUMMARY_STRUCTURED_OUTPUT_ID } from "~/config/vapi";
 import { parseEndOfCallReport } from "./parseEndOfCallReport";
 
 describe("parseEndOfCallReport", () => {
@@ -42,6 +43,30 @@ describe("parseEndOfCallReport", () => {
     expect(result!.metadata.email).toBe("chris@example.com");
     expect(result!.callId).toBe("call-123");
     expect(result!.analysisStructuredData).toEqual({ appointmentBookedInDemo: true });
+  });
+
+  test("extracts structuredOutputs from call.artifact", () => {
+    const payload = {
+      [VAPI_DEMO_SUMMARY_STRUCTURED_OUTPUT_ID]: {
+        result: { appointmentBookedInDemo: true, prospectSentiment: "positive" },
+      },
+    };
+
+    const result = parseEndOfCallReport({
+      message: {
+        type: "end-of-call-report",
+        call: {
+          id: "call-456",
+          artifact: {
+            structuredOutputs: payload,
+          },
+        },
+      },
+    });
+
+    expect(result).not.toBeNull();
+    expect(result!.callArtifactStructuredOutputs).toEqual(payload);
+    expect(result!.messageArtifactStructuredOutputs).toBeUndefined();
   });
 
   test("returns null for non end-of-call-report messages", () => {

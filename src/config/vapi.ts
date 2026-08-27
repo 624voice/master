@@ -1,6 +1,9 @@
 /** Jessica — Vapi web demo assistant (public id, safe in client bundle). */
 export const VAPI_ASSISTANT_ID = "14034cb9-f583-4010-b54f-a81177744e01";
 
+/** Jessica structured output for post-call demo summary extraction. */
+export const VAPI_DEMO_SUMMARY_STRUCTURED_OUTPUT_ID = "a9fbecf6-f50f-4084-b868-440c771b3c94";
+
 /** Max demo call length in seconds (6 minutes). */
 export const DEMO_MAX_CALL_SECONDS = 360;
 

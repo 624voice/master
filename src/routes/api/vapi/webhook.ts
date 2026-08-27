@@ -55,7 +55,8 @@ export const Route = createFileRoute("/api/vapi/webhook")({
             durationSeconds,
             endedReason,
             analysisStructuredData,
-            artifactStructuredOutputs,
+            messageArtifactStructuredOutputs,
+            callArtifactStructuredOutputs,
           } = report;
 
           if (metadata.email && metadata.phone) {
@@ -94,7 +95,8 @@ export const Route = createFileRoute("/api/vapi/webhook")({
                   const callOutcome = computeDemoCallOutcome(durationSeconds);
                   const demoSummary = await resolveDemoSummary({
                     structuredData: analysisStructuredData,
-                    structuredOutputs: artifactStructuredOutputs,
+                    messageArtifactStructuredOutputs,
+                    callArtifactStructuredOutputs,
                     transcript,
                     endedReason,
                   });
