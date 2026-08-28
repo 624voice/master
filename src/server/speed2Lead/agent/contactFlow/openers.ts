@@ -77,8 +77,13 @@ export function buildOffTopicRedirect(): string {
   return "I'm just here to help with your inquiry and scheduling — happy to pick that back up if you want.";
 }
 
-export function buildConsequenceQuestion(): string {
-  return "What's that been costing you, would you say?";
+export function buildConsequenceQuestion(alreadyAsked = 0): string {
+  const variants = [
+    "What's that been costing you, would you say?",
+    "Roughly what kind of impact has that had on revenue or jobs?",
+    "Any sense what that's adding up to over a month or so?",
+  ] as const;
+  return variants[Math.min(Math.max(alreadyAsked, 0), variants.length - 1)]!;
 }
 
 export function buildInjectionRedirect(): string {

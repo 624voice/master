@@ -14,7 +14,7 @@ function presentationForTurn(session: AgentSession, offeredCount: number): Offer
   return hadPriorOffer ? "changed_offer" : "first_offer";
 }
 
-/** Code-owned SMS when contact-flow scheduling prefs or slot fetch results should drive the reply. */
+/** Code-owned SMS when contact-flow scheduling prefs should drive the reply. */
 export function buildContactSchedulingTurnReply(args: {
   session: AgentSession;
   inboundBody: string;
@@ -33,15 +33,12 @@ export function buildContactSchedulingTurnReply(args: {
   if (!inScheduling) return null;
 
   const prefOnly = isSchedulingPreferenceOnly(args.inboundBody, args.session, now);
-  if (!prefOnly && !args.fetchFailed) {
+  if (!prefOnly) {
     return null;
   }
 
   if (args.fetchFailed) {
-    if (args.session.requestedDate) {
-      return buildNoAvailabilityCopy(true);
-    }
-    return buildNeedDateCopy();
+    return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
   }
 
   if (args.offered.length > 0) {
@@ -53,5 +50,5 @@ export function buildContactSchedulingTurnReply(args: {
     return buildNoAvailabilityCopy(true);
   }
 
-  return null;
+  return buildNeedDateCopy();
 }

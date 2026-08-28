@@ -14,6 +14,9 @@ export type ScenarioSeed = BaseScenarioSeed & {
   websiteStatus?: "has" | "none";
   discoveryClosed?: boolean;
   discoveryQuestionCount?: number;
+  requestedDate?: string;
+  availabilityPreference?: import("~/server/speed2Lead/agent/scheduling/types").AvailabilityPreference;
+  slotPool?: OfferedSlot[];
 };
 
 export type ContactTurnSnapshot = {

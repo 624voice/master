@@ -41,6 +41,8 @@ export type AgentTurnOutput = {
   slot_choice_index: number | null;
   confirm_booking: boolean;
   opt_out: boolean;
+  /** Contact/demo: true when the latest user message gives enough discovery signal to stop asking. */
+  discovery_answer_sufficient: boolean;
 };
 
 const MAX_SMS_LENGTH = 320;
@@ -71,8 +73,22 @@ const TURN_SCHEMA = {
       description: "True only if the prospect just gave a clear affirmative to book the picked slot.",
     },
     opt_out: { type: "boolean", description: "True if the prospect asked to stop texts." },
+    discovery_answer_sufficient: {
+      type: "boolean",
+      description:
+        "True when the prospect's latest message gives enough cost/pain/impact signal to stop discovery (contact/demo). Includes vague amounts ('few thousand', 'a couple thousand'), frequency, or qualitative business impact. False when they gave zero usable signal.",
+    },
   },
-  required: ["reply", "stage", "primary_pain", "wants_meeting", "slot_choice_index", "confirm_booking", "opt_out"],
+  required: [
+    "reply",
+    "stage",
+    "primary_pain",
+    "wants_meeting",
+    "slot_choice_index",
+    "confirm_booking",
+    "opt_out",
+    "discovery_answer_sufficient",
+  ],
 } as const;
 
 export type TurnContext = {
@@ -195,6 +211,9 @@ function buildContactInstructions(
       "One short SMS. At most one question.",
       "Never invent dates, times, or URLs — only offer times from offeredSlots; use exampleLinkForTrade only when sharing a relevant example (code may append it).",
       "Once wants_meeting is true or discovery is closed, no more discovery questions — go to scheduling.",
+      "Treat ANY cost or impact signal as sufficient to move toward bridge — including vague answers like 'few thousand', 'a couple thousand', 'a lot', 'not sure but it adds up', or qualitative impact. Do NOT re-ask the consequence question after they give one.",
+      "If they truly give no cost signal at all, you may ask ONE consequence question once — vary the wording if you must re-ask; never repeat the exact same question verbatim.",
+      "Set discovery_answer_sufficient=true when their latest message includes ANY cost, revenue, or business-impact signal (vague counts). Set false only when they gave zero usable signal this turn.",
       "Direct meeting intent ('can we schedule', 'send times', etc.) → skip discovery, go straight to scheduling.",
       "If pricing is asked, answer with pricingAnswerIfAsked then resume the prior conversation goal — do not pitch a number.",
       "Meeting declines are handled by code — do not send your own decline-diagnosis copy.",
