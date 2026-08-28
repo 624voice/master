@@ -4,7 +4,7 @@ import type { ContactScenarioBatch } from "~/server/speed2Lead/agent/contactFlow
 import { createAgentSession } from "~/server/speed2Lead/agent/state";
 import { tomorrowDateKey } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
 
-/** Batch 5 — Chris Aug 27 live-handset transcript regression (+12148438991 test 3). */
+/** Batch 5 — Chris Aug 27 live-handset transcript regression (allowlisted test handset). */
 export function buildContactBatch5(referenceDate = new Date()): ContactScenarioBatch {
   const profile = getActiveProfile();
   const timezone = profile.timezone;
