@@ -92,6 +92,7 @@ function parseArgs(argv: string[]) {
   let scenarioFilter: string | undefined;
   let mockSlots = false;
   let forceLocal = false;
+  let usePreview = false;
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--scenario" && argv[i + 1]) {
       scenarioFilter = argv[i + 1];
@@ -100,11 +101,13 @@ function parseArgs(argv: string[]) {
       mockSlots = true;
     } else if (argv[i] === "--force-local") {
       forceLocal = true;
+    } else if (argv[i] === "--preview") {
+      usePreview = true;
     } else {
       positional.push(argv[i]!);
     }
   }
-  return { batchArg: positional[0], scenarioFilter, mockSlots, forceLocal };
+  return { batchArg: positional[0], scenarioFilter, mockSlots, forceLocal, usePreview };
 }
 
 function buildExportName(batchKey: string): string {
@@ -331,6 +334,7 @@ async function runScenario(
   twilioCtx: ReturnType<typeof buildTwilioClient>,
   globalMockSlots: boolean,
   forceLocal: boolean,
+  globalPreview: boolean,
 ): Promise<ScenarioReport> {
   await resetHarnessPhone(phone);
 
@@ -338,7 +342,9 @@ async function runScenario(
   const execution: "local" | "preview" =
     forceLocal || (useMockSlots && globalMockSlots)
       ? "local"
-      : (scenario.execution ?? "local");
+      : globalPreview || scenario.execution === "preview" || !useMockSlots
+        ? "preview"
+        : (scenario.execution ?? "local");
   if (useMockSlots && execution === "local") {
     setHarnessOfferSlotsOverride(
       () => harnessMockOfferSlots(getActiveProfile()),
@@ -499,10 +505,10 @@ async function runScenario(
 }
 
 async function main() {
-  const { batchArg, scenarioFilter, mockSlots, forceLocal } = parseArgs(process.argv.slice(2));
+  const { batchArg, scenarioFilter, mockSlots, forceLocal, usePreview } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
     console.error(
-      "Usage: bun run scripts/agent-edge-case-harness.ts <batch-file> [--scenario <id>] [--mock-slots]",
+      "Usage: bun run scripts/agent-edge-case-harness.ts <batch-file> [--scenario <id>] [--mock-slots] [--preview] [--force-local]",
     );
     process.exit(1);
   }
@@ -521,6 +527,8 @@ async function main() {
         phone,
         mockSlots,
         forceLocal,
+        usePreview,
+        previewUrl: usePreview ? PREVIEW_URL : undefined,
         scenarioCount: batch.scenarios.length,
         filter: scenarioFilter ?? null,
         startedAt: new Date().toISOString(),
@@ -541,7 +549,7 @@ async function main() {
   const reports: ScenarioReport[] = [];
   for (const scenario of selected) {
     console.log(`\n--- Running ${scenario.id}: ${scenario.title} ---`);
-    const report = await runScenario(scenario, phone, twilioCtx, mockSlots, forceLocal);
+    const report = await runScenario(scenario, phone, twilioCtx, mockSlots, forceLocal, usePreview);
     reports.push(report);
     console.log(JSON.stringify(report, null, 2));
   }
