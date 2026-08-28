@@ -23,6 +23,7 @@ import { buildContactBatch3 } from "~/server/speed2Lead/agent/contactFlow/testSc
 import { buildContactBatch4 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-4";
 import { buildContactBatch5 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-5";
 import { buildContactBatch6 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-6";
+import { buildContactBatch7 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-7";
 import {
   CONTACT_HARNESS_PHONE,
   seedContactAgentSession,
@@ -99,6 +100,9 @@ function resolveBatch(batchArg: string): ContactScenarioBatch {
   }
   if (batchArg === "contact-batch-6" || batchArg === "batch-6") {
     return buildContactBatch6();
+  }
+  if (batchArg === "contact-batch-7" || batchArg === "batch-7") {
+    return buildContactBatch7();
   }
   throw new Error(`Unknown contact batch: ${batchArg}`);
 }

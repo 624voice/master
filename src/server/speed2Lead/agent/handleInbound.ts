@@ -11,6 +11,7 @@ import { resolveDemoDeclineAction } from "~/server/speed2Lead/agent/demoFlow/dec
 import {
   buildDiscoveryClosedFallback,
   closeDiscovery,
+  discoveryPainQuantified,
   discoveryRequirementsMet,
   looksLikeBridgeQuestion,
   markDiscoveryQuestionAsked,
@@ -34,10 +35,13 @@ import {
 } from "~/server/speed2Lead/agent/contactFlow/openers";
 import {
   avoidDuplicateAssistantReply,
+  buildConsequenceQuestionVariant,
   buildDiscoveryProceedFallback,
+  countConsequenceQuestionsAsked,
   shouldProceedAfterRepeatedCostAsk,
 } from "~/server/speed2Lead/agent/contactFlow/discoveryReply";
 import { buildContactSchedulingTurnReply } from "~/server/speed2Lead/agent/contactFlow/schedulingReply";
+import { guardAgentReply, flagSchedulingFailure } from "~/server/speed2Lead/agent/scheduling/replyGuard";
 import {
   buildDemoDiscoveryFallback,
   buildDemoInjectionRedirect,
@@ -64,6 +68,7 @@ import {
   resolveSlotsForAgentTurn,
   validateConfirmBooking,
 } from "~/server/speed2Lead/agent/slotPreferences";
+import { resolveOfferedSlotSelectionCandidate } from "~/server/speed2Lead/agent/schedulingContext";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import {
   buildPainClarifyingReply,
@@ -315,6 +320,14 @@ export async function handleAgentInboundSms(
     session = slotResolution.session;
     const offered = slotResolution.slots;
     const turnContext: TurnContext = { slotsUnavailable: slotResolution.fetchFailed };
+    const activeOffered = offered.length > 0 ? offered : (session.offeredSlots ?? []);
+    const selectedOfferedIso =
+      activeOffered.length > 0
+        ? resolveOfferedSlotSelectionCandidate(
+            body,
+            activeOffered.map((slot) => slot.startIso),
+          )
+        : null;
 
     let output: AgentTurnOutput;
     try {
@@ -335,6 +348,14 @@ export async function handleAgentInboundSms(
       session = await cancelPendingNoResponseCampaign(session);
       await saveAgentSession(session);
       return;
+    }
+
+    if (
+      output.confirm_booking &&
+      selectedOfferedIso &&
+      !/\b(book it|book that|go ahead and book|yes\s+book|lock it in|confirm that)\b/i.test(body)
+    ) {
+      output = { ...output, confirm_booking: false };
     }
 
     const bookingValidation = validateConfirmBooking({
@@ -402,6 +423,7 @@ export async function handleAgentInboundSms(
       }
 
       // Booking failed — code-owned conflict language; never trust model success text.
+      session = flagSchedulingFailure(session, booked.reason);
       const refreshed = await offerSlots(profile);
       session.offeredSlots = refreshed.ok ? refreshed.slots : [];
       session.slotPool = refreshed.ok ? refreshed.slots : [];
@@ -425,11 +447,22 @@ export async function handleAgentInboundSms(
     if (isDiscoveryFlow) {
       let reply = output.reply;
       const canLeaveDiscovery = discoveryRequirementsMet(session, body);
+      const painQuantified = discoveryPainQuantified(session, body);
 
       if (isContact && output.discovery_answer_sufficient && !session.discoveryClosed) {
-        session = closeDiscovery(session);
-        if (output.stage === "discovery") {
-          output = { ...output, stage: "bridge" };
+        if (painQuantified) {
+          session = closeDiscovery(session);
+          if (output.stage === "discovery") {
+            output = { ...output, stage: "bridge" };
+          }
+        } else {
+          output = {
+            ...output,
+            stage: "discovery",
+            wants_meeting: false,
+            discovery_answer_sufficient: false,
+          };
+          reply = buildConsequenceQuestionVariant(countConsequenceQuestionsAsked(session));
         }
       }
 
@@ -442,10 +475,37 @@ export async function handleAgentInboundSms(
         output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
       }
 
+      if (!painQuantified && !session.discoveryClosed) {
+        if (
+          output.stage === "bridge" ||
+          output.stage === "offering_slots" ||
+          looksLikeBridgeQuestion(reply) ||
+          (output.wants_meeting && !isDirectMeetingIntent(body))
+        ) {
+          if (isDemo) {
+            reply = buildDemoDiscoveryFallback();
+          } else if (isContact && !isConsequenceQuestion(reply)) {
+            reply = buildConsequenceQuestionVariant(countConsequenceQuestionsAsked(session));
+          }
+          output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
+        }
+      }
+
       if (isContact && isConsequenceQuestion(reply) && shouldProceedAfterRepeatedCostAsk(session, reply)) {
         reply = buildDiscoveryProceedFallback(session);
         session = closeDiscovery(session);
         output = { ...output, stage: "bridge", wants_meeting: false, confirm_booking: false };
+      } else if (
+        isContact &&
+        session.stage === "discovery" &&
+        !session.discoveryClosed &&
+        (session.discoveryQuestionCount ?? 0) >= 1 &&
+        !isConsequenceQuestion(reply) &&
+        !looksLikeBridgeQuestion(reply)
+      ) {
+        reply = buildConsequenceQuestionVariant(countConsequenceQuestionsAsked(session));
+        session = markDiscoveryQuestionAsked(session);
+        output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
       } else if (isContact) {
         reply = avoidDuplicateAssistantReply(session, reply);
       }
@@ -468,13 +528,13 @@ export async function handleAgentInboundSms(
         session = markDiscoveryQuestionAsked(session);
       }
 
-      if (shouldCloseDiscoveryFromModel(output) && canLeaveDiscovery) {
+      if (shouldCloseDiscoveryFromModel(output) && canLeaveDiscovery && painQuantified) {
         session = closeDiscovery(session);
       }
-      if (output.wants_meeting && canLeaveDiscovery) {
+      if (output.wants_meeting && canLeaveDiscovery && painQuantified) {
         session = closeDiscovery(session);
         session.meetingDeclineCount = 0;
-      } else if (output.wants_meeting && !canLeaveDiscovery) {
+      } else if (output.wants_meeting && (!canLeaveDiscovery || !painQuantified)) {
         output = { ...output, wants_meeting: false, stage: "discovery" };
       }
 
@@ -484,6 +544,7 @@ export async function handleAgentInboundSms(
         offered,
         fetchFailed: slotResolution.fetchFailed,
         profile,
+        llmReply: reply,
       });
       if (schedulingReply) {
         reply = schedulingReply;
@@ -492,11 +553,28 @@ export async function handleAgentInboundSms(
         }
       }
 
+      if (selectedOfferedIso && session.discoveryClosed) {
+        session.stage = "confirming";
+        output = { ...output, stage: "confirming", confirm_booking: false };
+      } else if (
+        isDirectMeetingIntent(body) &&
+        session.discoveryClosed &&
+        offered.length > 0
+      ) {
+        session.stage = "offering_slots";
+      }
+
       if (!blockedDiscovery && session.stage !== "booked" && session.stage !== "declined") {
         const inScheduling =
           session.stage === "offering_slots" || session.stage === "confirming";
         if (inScheduling && (output.stage === "bridge" || output.stage === "discovery")) {
           // Never regress out of active scheduling on a preference/slot turn.
+        } else if (
+          session.discoveryClosed &&
+          (session.stage === "offering_slots" || session.stage === "confirming" || offered.length > 0) &&
+          (output.stage === "discovery" || output.stage === "bridge")
+        ) {
+          // Discovery is closed — ignore model regressions back into discovery/bridge.
         } else if (!canLeaveDiscovery && (output.stage === "bridge" || output.stage === "offering_slots")) {
           session.stage = "discovery";
         } else {
@@ -506,7 +584,9 @@ export async function handleAgentInboundSms(
       if (offered.length > 0) {
         session.offeredSlots = offered;
         if (
+          !selectedOfferedIso &&
           canLeaveDiscovery &&
+          painQuantified &&
           (isDirectMeetingIntent(body) ||
             isMeetingAgreeIntent(body) ||
             output.wants_meeting ||
@@ -518,6 +598,33 @@ export async function handleAgentInboundSms(
       if (slotResolution.pool.length > 0) {
         session.slotPool = slotResolution.pool;
       }
+
+      if (selectedOfferedIso && session.discoveryClosed) {
+        session.stage = "confirming";
+      }
+
+      const guarded = guardAgentReply({
+        reply,
+        session,
+        fetchFailed: slotResolution.fetchFailed,
+        modelStage: session.stage,
+        bookingConfirmed: false,
+      });
+      reply = guarded.reply;
+      session = guarded.session;
+      if (session.stage !== "booked" && session.stage !== "declined") {
+        session.stage = guarded.stage;
+      }
+      if (
+        slotResolution.fetchFailed &&
+        (session.stage === "offering_slots" ||
+          session.stage === "confirming" ||
+          session.requestedDate) &&
+        !guarded.flaggedFailure
+      ) {
+        session = flagSchedulingFailure(session, "calendar_fetch_failed");
+      }
+
       await sendAgentReplySms(phone, reply, messageSid);
       session = appendMessage(session, "assistant", reply);
       await saveAgentSession(session);
@@ -545,8 +652,31 @@ export async function handleAgentInboundSms(
       session.slotPool = slotResolution.pool;
     }
 
-    await sendAgentReplySms(phone, output.reply, messageSid);
-    session = appendMessage(session, "assistant", output.reply);
+    const guarded = guardAgentReply({
+      reply: output.reply,
+      session,
+      fetchFailed: slotResolution.fetchFailed,
+      modelStage: session.stage,
+      bookingConfirmed: false,
+    });
+    if (session.stage !== "booked" && session.stage !== "declined") {
+      session.stage = guarded.stage;
+    }
+    if (guarded.flaggedFailure) {
+      session = guarded.session;
+    }
+    if (
+      slotResolution.fetchFailed &&
+      (session.stage === "offering_slots" ||
+        session.stage === "confirming" ||
+        session.requestedDate) &&
+      !guarded.flaggedFailure
+    ) {
+      session = flagSchedulingFailure(session, "calendar_fetch_failed");
+    }
+
+    await sendAgentReplySms(phone, guarded.reply, messageSid);
+    session = appendMessage(session, "assistant", guarded.reply);
     await saveAgentSession(session);
   } finally {
     await releaseAgentInboundLock(phone, lockToken);

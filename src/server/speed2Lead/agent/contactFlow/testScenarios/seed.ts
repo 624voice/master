@@ -109,6 +109,16 @@ export async function seedContactAgentSession(
   return session;
 }
 
+/** Clear-need opener only — first user reply tests discovery gating. */
+export function contactOpenerClearSeed(firstName = "Alex"): ScenarioSeed {
+  return contactSeed(
+    "clear",
+    "We miss calls after hours and lose booked jobs",
+    "better call handling",
+    firstName,
+  );
+}
+
 /** Mid-bridge seed — discovery closed, ready for decline or scheduling tests. */
 export function contactBridgeReadySeed(firstName = "Alex"): ScenarioSeed {
   const base = contactSeed(

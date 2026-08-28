@@ -58,7 +58,9 @@ export function isConsequenceQuestion(reply: string): boolean {
   return (
     lower.includes("what's that been costing") ||
     lower.includes("how's that been affecting") ||
-    lower.includes("what has that been costing")
+    lower.includes("what has that been costing") ||
+    lower.includes("what kind of impact") ||
+    lower.includes("adding up to over a month")
   );
 }
 
@@ -80,6 +82,14 @@ export function discoveryRequirementsMet(
   if (session.discoveryClosed) return true;
   if ((session.discoveryQuestionCount ?? 0) >= maxQuestions) return true;
   return isDirectMeetingIntent(inboundBody);
+}
+
+/** At least one discovery/consequence question must be asked before bridge/scheduling (contact/demo). */
+export function discoveryPainQuantified(session: AgentSession, inboundBody: string): boolean {
+  if (session.flow !== "contact" && session.flow !== "demo") return true;
+  if (session.inquiryClarity === "already_clear") return true;
+  if (isDirectMeetingIntent(inboundBody)) return true;
+  return (session.discoveryQuestionCount ?? 0) >= 1;
 }
 
 export function shouldBlockDiscoveryReply(

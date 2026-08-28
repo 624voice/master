@@ -247,7 +247,7 @@ function buildContactInstructions(
         ? offered.map((slot, index) => ({ index, label: slot.label }))
         : "none offered yet this turn — do not mention specific times",
     calendarStatus: context.slotsUnavailable
-      ? "Calendar lookup just failed — do not invent times."
+      ? "Calendar lookup just failed — do not invent times and do not claim a booking was completed. Apologize briefly and offer to have someone follow up directly instead."
       : "ok",
     bookedAlready: Boolean(session.bookedStartIso),
   };
@@ -343,7 +343,7 @@ function buildDemoInstructions(
         ? offered.map((slot, index) => ({ index, label: slot.label }))
         : "none offered yet this turn — do not mention specific times",
     calendarStatus: context.slotsUnavailable
-      ? "Calendar lookup just failed — do not invent times."
+      ? "Calendar lookup just failed — do not invent times and do not claim a booking was completed. Apologize briefly and offer to have someone follow up directly instead."
       : "ok",
     bookedAlready: Boolean(session.bookedStartIso),
   };
