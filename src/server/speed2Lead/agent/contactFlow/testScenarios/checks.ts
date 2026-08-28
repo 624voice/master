@@ -451,6 +451,57 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
       ? { pass: true, detail: "Second opener blocked while active session exists" }
       : { pass: false, detail: "Expected resubmit opener block on active session" };
   },
+
+  /** Batch 6 — cost answer + scheduling availability regressions. */
+  costAnswerProceedsWithoutRepeat(ctx) {
+    const snap = snapshotAfterInbound(ctx, "Few thousand a month");
+    const reply =
+      snap?.transcript.filter((message) => message.role === "assistant").at(-1)?.content ?? "";
+    if (isConsequenceQuestion(reply)) {
+      return { pass: false, detail: `Repeated consequence question after cost answer: ${reply}` };
+    }
+    const stage = snap?.session?.stage ?? ctx.session?.stage;
+    if (stage !== "bridge" && stage !== "offering_slots" && stage !== "confirming" && !ctx.session?.discoveryClosed) {
+      return { pass: false, detail: `Expected bridge/scheduling after cost answer; got ${stage ?? "null"}` };
+    }
+    return { pass: true, detail: `Proceeded to ${stage} without consequence repeat` };
+  },
+
+  mondayBlockedOffersTuesday(ctx) {
+    const expectedTuesday =
+      (ctx.meta?.tuesdayDateKey as string | undefined) ??
+      nextWeekdayDateKey("Tuesday", new Date(), getActiveProfile().timezone);
+    const snap = snapshotAfterInbound(ctx, "Tuesday");
+    const session = snap?.session ?? ctx.session;
+    const reply =
+      snap?.transcript.filter((message) => message.role === "assistant").at(-1)?.content ?? "";
+
+    if (reply.includes("Nothing open in that window")) {
+      return { pass: false, detail: "Still claiming nothing open after Tuesday request" };
+    }
+    if (session?.requestedDate !== expectedTuesday) {
+      return {
+        pass: false,
+        detail: `Expected requestedDate=${expectedTuesday}; got ${session?.requestedDate ?? "null"}`,
+      };
+    }
+    const slots = session?.offeredSlots ?? [];
+    if (slots.length === 0) {
+      return { pass: false, detail: "No Tuesday slots offered from partially-booked calendar fixture" };
+    }
+    const timezone = (ctx.meta?.timezone as string) ?? getActiveProfile().timezone;
+    return allSlotsOnDate(session, expectedTuesday, timezone);
+  },
+
+  pricingMidSchedulingNotStuck(ctx) {
+    const reply = lastAssistant(ctx.transcript) ?? "";
+    if (reply.includes("Nothing open in that window")) {
+      return { pass: false, detail: "Pricing question got scheduling availability fallback" };
+    }
+    return reply === PRICING_RESPONSE_COPY
+      ? { pass: true, detail: "Code-owned pricing copy sent during active scheduling" }
+      : { pass: false, detail: `Expected pricing copy; got: ${reply.slice(0, 100)}` };
+  },
 };
 
 export async function runContactMechanicalChecks(

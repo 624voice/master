@@ -39,7 +39,7 @@ describe("buildContactSchedulingTurnReply", () => {
     );
   });
 
-  test("uses code-owned copy when calendar fetch failed with date set", () => {
+  test("does not override non-scheduling replies when calendar fetch failed", () => {
     const session = {
       ...createAgentSession({
         tenantId: "624voice",
@@ -49,18 +49,17 @@ describe("buildContactSchedulingTurnReply", () => {
       stage: "offering_slots" as const,
       discoveryClosed: true,
       requestedDate: tomorrowDateKey(reference, DEFAULT_624VOICE_PROFILE.timezone),
-      availabilityPreference: "afternoon" as const,
     };
 
     const reply = buildContactSchedulingTurnReply({
       session,
-      inboundBody: "Tomorrow afternoon",
+      inboundBody: "How does pricing work?",
       offered: [],
       fetchFailed: true,
       profile: DEFAULT_624VOICE_PROFILE,
       now: reference,
     });
 
-    expect(reply).toBe("Nothing open in that window — want to try another time that day?");
+    expect(reply).toBeNull();
   });
 });

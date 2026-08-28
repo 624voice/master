@@ -320,6 +320,31 @@ export async function resolveSlotsForAgentTurn(
 
   const withPrefs = applyInboundSlotPreferences(session, inboundBody, profile, now);
   const canonical = agentSessionToCanonical(withPrefs);
+  const dateChanged =
+    session.requestedDate != null &&
+    withPrefs.requestedDate != null &&
+    session.requestedDate !== withPrefs.requestedDate;
+  const prefOnly = isSchedulingPreferenceOnly(inboundBody, session, now);
+
+  if (
+    canonical.availabilityPreference === "earliest" ||
+    (canonical.availabilityPreference === "full_day" && !canonical.requestedDate)
+  ) {
+    const fetched = await initialWideFetch(profile, now);
+    if (!fetched.ok) {
+      return { slots: [], pool: [], fetchFailed: true, session: withPrefs };
+    }
+    const poolIsos = fetched.pool.map((slot) => slot.startIso);
+    const filtered = filterPoolSlots(poolIsos, canonical, profile);
+    const slots = toOfferedSlots(filtered, profile.timezone);
+    return {
+      slots,
+      pool: fetched.pool,
+      fetchFailed: false,
+      session: { ...withPrefs, slotPool: fetched.pool, offeredSlots: slots },
+    };
+  }
+
   const poolIsos = (withPrefs.slotPool ?? withPrefs.offeredSlots).map((slot) => slot.startIso);
 
   const fetched = await fetchProviderSlotsForRequest(canonical, profile, now);
@@ -327,6 +352,13 @@ export async function resolveSlotsForAgentTurn(
     const pool = toOfferedSlots(fetched.raw, profile.timezone);
     const filtered = filterPoolSlots(fetched.raw, canonical, profile);
     const slots = toOfferedSlots(filtered, profile.timezone);
+    if (filtered.length === 0 && fetched.raw.length > 0) {
+      console.warn("Speed2Lead slot filter removed all provider slots", {
+        requestedDate: canonical.requestedDate,
+        preference: canonical.availabilityPreference,
+        rawCount: fetched.raw.length,
+      });
+    }
     return {
       slots,
       pool,
@@ -338,15 +370,34 @@ export async function resolveSlotsForAgentTurn(
   if (poolIsos.length > 0) {
     const filtered = filterPoolSlots(poolIsos, canonical, profile);
     const slots = toOfferedSlots(filtered, profile.timezone);
-    return {
-      slots,
-      pool: withPrefs.slotPool ?? withPrefs.offeredSlots,
-      fetchFailed: false,
-      session: { ...withPrefs, offeredSlots: slots },
-    };
+    if (slots.length > 0) {
+      return {
+        slots,
+        pool: withPrefs.slotPool ?? withPrefs.offeredSlots,
+        fetchFailed: false,
+        session: { ...withPrefs, offeredSlots: slots },
+      };
+    }
   }
 
-  return { slots: [], pool: [], fetchFailed: true, session: withPrefs };
+  if (dateChanged || (prefOnly && canonical.requestedDate)) {
+    const wide = await initialWideFetch(profile, now);
+    if (wide.ok) {
+      const widePoolIsos = wide.pool.map((slot) => slot.startIso);
+      const filtered = filterPoolSlots(widePoolIsos, canonical, profile);
+      const slots = toOfferedSlots(filtered, profile.timezone);
+      if (slots.length > 0) {
+        return {
+          slots,
+          pool: wide.pool,
+          fetchFailed: false,
+          session: { ...withPrefs, slotPool: wide.pool, offeredSlots: slots },
+        };
+      }
+    }
+  }
+
+  return { slots: [], pool: withPrefs.slotPool ?? [], fetchFailed: true, session: withPrefs };
 }
 
 export function isSchedulingPreferenceOnly(

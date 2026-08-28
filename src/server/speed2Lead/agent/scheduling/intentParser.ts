@@ -303,12 +303,14 @@ export function parseSchedulingStateUpdate(
 
   if (EARLIEST_RE.test(lower)) {
     update.availabilityPreference = replaceField("earliest");
+    update.requestedDate = clearField();
     Object.assign(update, clearExactAndAnchor());
     broadened = true;
   }
 
   if (FLEXIBLE_RE.test(lower) && update.availabilityPreference?.op !== "replace") {
     update.availabilityPreference = replaceField("full_day");
+    update.requestedDate = clearField();
     Object.assign(update, clearExactAndAnchor());
     broadened = true;
   }

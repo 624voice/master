@@ -84,6 +84,9 @@ export async function seedContactAgentSession(
   session.discoveryQuestionCount = seed.discoveryQuestionCount ?? session.discoveryQuestionCount;
   session.primaryPain = seed.primaryPain;
   session.offeredSlots = seed.offeredSlots ?? session.offeredSlots;
+  session.requestedDate = seed.requestedDate ?? session.requestedDate;
+  session.availabilityPreference = seed.availabilityPreference ?? session.availabilityPreference;
+  session.slotPool = seed.slotPool ?? session.slotPool;
   session.noResponseStage = seed.noResponseStage;
   session.noResponseNextAt = seed.noResponseNextAt;
   session.noResponseResolved = seed.noResponseResolved;

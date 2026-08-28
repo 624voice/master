@@ -18,6 +18,7 @@ import {
   shouldBlockDiscoveryReply,
   shouldCloseDiscoveryFromInbound,
   shouldCloseDiscoveryFromModel,
+  isConsequenceQuestion,
 } from "~/server/speed2Lead/agent/discoveryGuard";
 import {
   isDirectMeetingIntent,
@@ -27,11 +28,15 @@ import {
   isPromptInjectionAttempt,
 } from "~/server/speed2Lead/agent/contactFlow/intentDetect";
 import {
-  buildConsequenceQuestion,
   buildInjectionRedirect,
   buildOffTopicRedirect,
   PRICING_RESPONSE_COPY,
 } from "~/server/speed2Lead/agent/contactFlow/openers";
+import {
+  avoidDuplicateAssistantReply,
+  buildDiscoveryProceedFallback,
+  shouldProceedAfterRepeatedCostAsk,
+} from "~/server/speed2Lead/agent/contactFlow/discoveryReply";
 import { buildContactSchedulingTurnReply } from "~/server/speed2Lead/agent/contactFlow/schedulingReply";
 import {
   buildDemoDiscoveryFallback,
@@ -421,12 +426,28 @@ export async function handleAgentInboundSms(
       let reply = output.reply;
       const canLeaveDiscovery = discoveryRequirementsMet(session, body);
 
+      if (isContact && output.discovery_answer_sufficient && !session.discoveryClosed) {
+        session = closeDiscovery(session);
+        if (output.stage === "discovery") {
+          output = { ...output, stage: "bridge" };
+        }
+      }
+
       if (
+        isDemo &&
         !canLeaveDiscovery &&
         (output.stage === "bridge" || output.wants_meeting || looksLikeBridgeQuestion(reply))
       ) {
-        reply = isDemo ? buildDemoDiscoveryFallback() : buildConsequenceQuestion();
+        reply = buildDemoDiscoveryFallback();
         output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
+      }
+
+      if (isContact && isConsequenceQuestion(reply) && shouldProceedAfterRepeatedCostAsk(session, reply)) {
+        reply = buildDiscoveryProceedFallback(session);
+        session = closeDiscovery(session);
+        output = { ...output, stage: "bridge", wants_meeting: false, confirm_booking: false };
+      } else if (isContact) {
+        reply = avoidDuplicateAssistantReply(session, reply);
       }
 
       const askedDiscoveryQuestion =

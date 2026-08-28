@@ -10,13 +10,19 @@
 import twilio from "twilio";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
 import { shouldSkipAgentOpener } from "~/server/speed2Lead/agent/contactFlow/crossFlow";
-import { harnessMockOfferSlots, harnessMockRawSlots } from "~/server/speed2Lead/agent/harnessMockSlots";
+import {
+  harnessMockOfferSlots,
+  harnessMockRawSlots,
+  harnessMockRawSlotsMondayBlocked,
+  buildHarnessMockSlotsMondayBlocked,
+} from "~/server/speed2Lead/agent/harnessMockSlots";
 import { isPhoneOptedOut, runContactMechanicalChecks } from "~/server/speed2Lead/agent/contactFlow/testScenarios/checks";
 import { buildContactBatch1 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-1";
 import { buildContactBatch2 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-2";
 import { buildContactBatch3 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-3";
 import { buildContactBatch4 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-4";
 import { buildContactBatch5 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-5";
+import { buildContactBatch6 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-6";
 import {
   CONTACT_HARNESS_PHONE,
   seedContactAgentSession,
@@ -91,6 +97,9 @@ function resolveBatch(batchArg: string): ContactScenarioBatch {
   if (batchArg === "contact-batch-5" || batchArg === "batch-5") {
     return buildContactBatch5();
   }
+  if (batchArg === "contact-batch-6" || batchArg === "batch-6") {
+    return buildContactBatch6();
+  }
   throw new Error(`Unknown contact batch: ${batchArg}`);
 }
 
@@ -129,11 +138,19 @@ async function runScenario(
   await resetHarnessPhone();
 
   const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
+  const mondayBlocked = scenario.meta?.mondayBlockedCalendar === true;
   if (useMockSlots) {
-    setHarnessOfferSlotsOverride(
-      () => harnessMockOfferSlots(getActiveProfile()),
-      () => harnessMockRawSlots(getActiveProfile()),
-    );
+    if (mondayBlocked) {
+      setHarnessOfferSlotsOverride(
+        () => buildHarnessMockSlotsMondayBlocked(getActiveProfile()),
+        () => harnessMockRawSlotsMondayBlocked(getActiveProfile()),
+      );
+    } else {
+      setHarnessOfferSlotsOverride(
+        () => harnessMockOfferSlots(getActiveProfile()),
+        () => harnessMockRawSlots(getActiveProfile()),
+      );
+    }
   } else {
     setHarnessOfferSlotsOverride(null);
   }
@@ -248,7 +265,7 @@ async function main() {
   const { batchArg, scenarioFilter, mockSlots } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
     console.error(
-      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4|5 [--scenario id] [--mock-slots]",
+      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4|5|6 [--scenario id] [--mock-slots]",
     );
     process.exit(1);
   }

@@ -4,7 +4,7 @@
  */
 import { formatNaturalAppointmentParts } from "~/server/appointmentLifecycle/formatTime";
 import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
-import { addCalendarDaysInTimezone, dateKeyInTimezone } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
+import { addCalendarDaysInTimezone, dateKeyInTimezone, slotWeekday } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
 import type { OfferedSlot } from "~/server/speed2Lead/agent/state";
 import type { SlotFetchResult } from "~/server/speed2Lead/agent/scheduling";
 import { spreadAcrossDays } from "~/server/speed2Lead/agent/scheduling";
@@ -51,4 +51,29 @@ export async function harnessMockOfferSlots(profile: AgentProfile): Promise<Slot
 
 export async function harnessMockRawSlots(profile: AgentProfile): Promise<import("~/server/speed2Lead/agent/scheduling").RawSlotFetchResult> {
   return { ok: true, slots: buildHarnessMockPoolIsos(new Date(), profile.timezone) };
+}
+
+/** Mock pool with all Monday slots removed — for partially-booked calendar tests. */
+export function buildHarnessMockPoolMondayBlocked(reference = new Date(), timezone: string): string[] {
+  return buildHarnessMockPoolIsos(reference, timezone).filter(
+    (iso) => slotWeekday(iso, timezone) !== "Monday",
+  );
+}
+
+export function buildHarnessMockSlotsMondayBlocked(
+  profile: AgentProfile,
+  reference = new Date(),
+): OfferedSlot[] {
+  return spreadAcrossDays(buildHarnessMockPoolMondayBlocked(reference, profile.timezone), 12).map(
+    (startIso) => ({
+      startIso,
+      label: labelForSlot(startIso, profile.timezone),
+    }),
+  );
+}
+
+export async function harnessMockRawSlotsMondayBlocked(
+  profile: AgentProfile,
+): Promise<import("~/server/speed2Lead/agent/scheduling").RawSlotFetchResult> {
+  return { ok: true, slots: buildHarnessMockPoolMondayBlocked(new Date(), profile.timezone) };
 }
