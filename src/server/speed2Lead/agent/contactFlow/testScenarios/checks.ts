@@ -16,6 +16,7 @@ import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import {
   nextWeekdayDateKey,
   slotDateKey,
+  tomorrowDateKey,
 } from "~/server/speed2Lead/agent/testScenarios/dateUtils";
 import { listPendingNoResponsePhones } from "~/server/speed2Lead/agent/state";
 import { isOptedOut } from "~/server/speed2Lead/session";
@@ -89,11 +90,19 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
     const opener = ctx.seed.messages?.[0]?.content ?? "";
     const expected = buildVagueInquiryOpener({
       ...ctx.session!,
+      firstName: ctx.seed.firstName,
+      businessName: ctx.seed.businessName ?? "Test Plumbing",
       inquiryClarity: "vague",
     });
-    return opener.includes("What's making now the time")
-      ? { pass: true, detail: "Vague opener present" }
+    return opener === expected
+      ? { pass: true, detail: "Vague opener matches template" }
       : { pass: false, detail: `Expected vague opener; got: ${opener}` };
+  },
+  vagueOpenerGrammar(ctx) {
+    const opener = ctx.seed.messages?.[0]?.content ?? "";
+    return opener.includes("What's prompting you to look into this now?")
+      ? { pass: true, detail: "Vague opener uses fixed grammar" }
+      : { pass: false, detail: `Garbled vague opener: ${opener}` };
   },
   alreadyClearOpenerShape(ctx) {
     const opener = ctx.seed.messages?.[0]?.content ?? "";
@@ -337,6 +346,110 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
       return { pass: false, detail: "Reply names specific invented times without provider slots" };
     }
     return { pass: true, detail: "No specific invented times when calendar unavailable" };
+  },
+
+  /** Batch 5 — Chris live-handset transcript regressions. */
+  noOffTopicRedirectOnDiscoveryAnswer(ctx) {
+    const inbound =
+      "Not sure, we miss a few calls a week and when we call them back they've moved on";
+    const snap = snapshotAfterInbound(ctx, inbound);
+    const reply =
+      snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    if (reply.includes("happy to pick that back up")) {
+      return { pass: false, detail: "False off-topic redirect on legitimate discovery answer" };
+    }
+    return { pass: true, detail: "Discovery answer was not redirected as off-topic" };
+  },
+
+  tomorrowAdvancesScheduling(ctx) {
+    const snap = snapshotAfterInbound(ctx, "Tomorrow");
+    const session = snap?.session ?? ctx.session;
+    const reply =
+      snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    const expectedDate =
+      (ctx.meta?.tomorrowDateKey as string | undefined) ??
+      tomorrowDateKey(new Date(), getActiveProfile().timezone);
+
+    if (!session?.requestedDate) {
+      return { pass: false, detail: "Tomorrow did not set requestedDate" };
+    }
+    if (session.requestedDate !== expectedDate) {
+      return {
+        pass: false,
+        detail: `requestedDate=${session.requestedDate}, expected ${expectedDate}`,
+      };
+    }
+    if (reply.includes("What day or time range works best")) {
+      return { pass: false, detail: "Full scheduling reset instead of accepting tomorrow" };
+    }
+    if (session.stage !== "offering_slots" && session.stage !== "confirming") {
+      return { pass: false, detail: `Expected scheduling stage after tomorrow; got ${session.stage}` };
+    }
+    return { pass: true, detail: `Tomorrow parsed to ${session.requestedDate}, stage=${session.stage}` };
+  },
+
+  tomorrowAfternoonRetainsDate(ctx) {
+    const snap = snapshotAfterInbound(ctx, "Tomorrow afternoon");
+    const session = snap?.session ?? ctx.session;
+    const expectedDate =
+      (ctx.meta?.tomorrowDateKey as string | undefined) ??
+      tomorrowDateKey(new Date(), getActiveProfile().timezone);
+
+    if (session?.requestedDate !== expectedDate) {
+      return {
+        pass: false,
+        detail: `Lost requestedDate after tomorrow afternoon: ${session?.requestedDate ?? "null"}`,
+      };
+    }
+    if (session?.availabilityPreference !== "afternoon") {
+      return {
+        pass: false,
+        detail: `Expected afternoon preference; got ${session?.availabilityPreference ?? "null"}`,
+      };
+    }
+    return { pass: true, detail: "Tomorrow afternoon retained date + part-of-day" };
+  },
+
+  twoPmRetainsSchedulingState(ctx) {
+    const snap = snapshotAfterInbound(ctx, "2pm");
+    const session = snap?.session ?? ctx.session;
+    const reply =
+      snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+    const expectedDate =
+      (ctx.meta?.tomorrowDateKey as string | undefined) ??
+      tomorrowDateKey(new Date(), getActiveProfile().timezone);
+
+    if (reply.includes("What day or time range works best")) {
+      return { pass: false, detail: "Full scheduling reset after concrete 2pm time" };
+    }
+    if (session?.requestedDate !== expectedDate) {
+      return {
+        pass: false,
+        detail: `Lost requestedDate after 2pm: ${session?.requestedDate ?? "null"}`,
+      };
+    }
+    if (session?.stage !== "offering_slots" && session?.stage !== "confirming") {
+      return { pass: false, detail: `Expected active scheduling stage after 2pm; got ${session?.stage}` };
+    }
+    return { pass: true, detail: `2pm retained scheduling state, stage=${session?.stage}` };
+  },
+
+  noInventedCalendarApology(ctx) {
+    const badPhrases = ["don't have my calendar", "do not have my calendar", "calendar right now"];
+    for (const snap of ctx.turnSnapshots) {
+      const reply = snap.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
+      const lower = reply.toLowerCase();
+      if (badPhrases.some((phrase) => lower.includes(phrase))) {
+        return { pass: false, detail: `LLM calendar apology leaked through: ${reply.slice(0, 120)}` };
+      }
+    }
+    return { pass: true, detail: "No invented calendar-unavailable apology in transcript" };
+  },
+
+  resubmitBlockedWhileActive(ctx) {
+    return ctx.crossFlowBlocked
+      ? { pass: true, detail: "Second opener blocked while active session exists" }
+      : { pass: false, detail: "Expected resubmit opener block on active session" };
   },
 };
 

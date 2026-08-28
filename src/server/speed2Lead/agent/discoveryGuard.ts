@@ -1,5 +1,7 @@
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
 import { isDirectMeetingIntent, isPricingQuestion } from "~/server/speed2Lead/agent/contactFlow/intentDetect";
+import { isSchedulingPreferenceOnly } from "~/server/speed2Lead/agent/slotPreferences";
+import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 
 export const CONTACT_MAX_DISCOVERY_QUESTIONS = 2;
 export const DEMO_MAX_DISCOVERY_QUESTIONS = 2;
@@ -80,7 +82,27 @@ export function discoveryRequirementsMet(
   return isDirectMeetingIntent(inboundBody);
 }
 
-export function shouldBlockDiscoveryReply(session: AgentSession, reply: string): boolean {
+export function shouldBlockDiscoveryReply(
+  session: AgentSession,
+  reply: string,
+  inboundBody?: string,
+): boolean {
+  if (
+    inboundBody &&
+    (session.stage === "offering_slots" || session.stage === "confirming") &&
+    isSchedulingPreferenceOnly(inboundBody, session)
+  ) {
+    return false;
+  }
+  if (
+    inboundBody &&
+    session.flow === "contact" &&
+    (session.stage === "discovery" || session.stage === "bridge") &&
+    isSchedulingPreferenceOnly(inboundBody, session, new Date(), getActiveProfile())
+  ) {
+    return false;
+  }
+
   if (
     !session.discoveryClosed &&
     !canAskDiscoveryQuestion(session) &&

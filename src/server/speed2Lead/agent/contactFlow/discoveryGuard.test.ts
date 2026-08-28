@@ -29,4 +29,18 @@ describe("discoveryGuard", () => {
     expect(shouldBlockDiscoveryReply(session, "What usually happens to those calls?")).toBe(true);
     expect(shouldBlockDiscoveryReply(session, "What day works best for a quick chat?")).toBe(false);
   });
+
+  test("does not block scheduling preference replies during offering_slots", () => {
+    const session = {
+      ...closeDiscovery(
+        createAgentSession({ tenantId: "624voice", phone: "+12149722278", flow: "contact" }),
+      ),
+      stage: "offering_slots" as const,
+      offeredSlots: [],
+      slotPool: [],
+    };
+    expect(
+      shouldBlockDiscoveryReply(session, "What day or time range works best?", "Tomorrow"),
+    ).toBe(false);
+  });
 });

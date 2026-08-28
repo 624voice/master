@@ -48,8 +48,11 @@ export function isPromptInjectionAttempt(message: string): boolean {
 export function isOffTopicRedirect(message: string): boolean {
   const lower = message.toLowerCase();
   if (isDirectMeetingIntent(message) || isPricingQuestion(message)) return false;
+  // Legitimate discovery answers often mention calling customers back — not a redirect request.
+  if (/\bcall them back\b/.test(lower) || /\bcalling them back\b/.test(lower)) return false;
   return (
     /\b(weather|bitcoin|recipe|write me a|poem|joke|who is the president|translate this)\b/.test(lower) ||
-    /\b(call|text|email) (him|her|them|my wife|my husband)\b/.test(lower)
+    /\b(call|text|email)\s+(him|her|my wife|my husband)\b/.test(lower) ||
+    /\b(call|text|email)\s+them\b(?!\s+back)\b/.test(lower)
   );
 }

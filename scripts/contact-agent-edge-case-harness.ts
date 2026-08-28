@@ -16,6 +16,7 @@ import { buildContactBatch1 } from "~/server/speed2Lead/agent/contactFlow/testSc
 import { buildContactBatch2 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-2";
 import { buildContactBatch3 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-3";
 import { buildContactBatch4 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-4";
+import { buildContactBatch5 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/batch-5";
 import {
   CONTACT_HARNESS_PHONE,
   seedContactAgentSession,
@@ -86,6 +87,9 @@ function resolveBatch(batchArg: string): ContactScenarioBatch {
   }
   if (batchArg === "contact-batch-4" || batchArg === "batch-4") {
     return buildContactBatch4();
+  }
+  if (batchArg === "contact-batch-5" || batchArg === "batch-5") {
+    return buildContactBatch5();
   }
   throw new Error(`Unknown contact batch: ${batchArg}`);
 }
@@ -165,6 +169,10 @@ async function runScenario(
       await saveAgentSession(roiSession);
       const skip = await shouldSkipAgentOpener(DEFAULT_PHONE, "contact");
       crossFlowBlocked = skip.skip;
+    } else if (scenario.id === "c24-resubmit-while-active") {
+      await seedContactAgentSession(scenario.seed, DEFAULT_PHONE);
+      const skip = await shouldSkipAgentOpener(DEFAULT_PHONE, "contact");
+      crossFlowBlocked = skip.skip;
     } else {
       await seedContactAgentSession(scenario.seed, DEFAULT_PHONE);
     }
@@ -240,7 +248,7 @@ async function main() {
   const { batchArg, scenarioFilter, mockSlots } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
     console.error(
-      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4 [--scenario id] [--mock-slots]",
+      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4|5 [--scenario id] [--mock-slots]",
     );
     process.exit(1);
   }

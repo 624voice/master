@@ -54,11 +54,11 @@ describe("contact openers", () => {
     expect(message).toContain("what's happening today that made you start looking into this?");
   });
 
-  test("vague opener asks what makes now the time", () => {
+  test("vague opener asks what is prompting them now", () => {
     const message = buildVagueInquiryOpener(
       contactSession({ inquiryClarity: "vague", helpTextSummary: "your request" }),
     );
-    expect(message).toContain("What's making now the time you're looking into this?");
+    expect(message).toContain("What's prompting you to look into this now?");
   });
 
   test("already-clear opener bridges toward meeting", () => {
