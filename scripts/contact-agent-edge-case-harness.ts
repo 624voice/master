@@ -6,8 +6,11 @@
  *   bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1
  *   bun run scripts/contact-agent-edge-case-harness.ts contact-batch-2 --scenario c10-discovery-cap-enforced
  *   bun run scripts/contact-agent-edge-case-harness.ts contact-batch-4 --mock-slots
+ *   S2L_PREVIEW_URL=https://cursor-contact-calendar-consolidation-537c--624voice.netlify.app \
+ *     bun run scripts/contact-agent-edge-case-harness.ts contact-batch-4 --preview
  */
 import twilio from "twilio";
+import { normalizePhone } from "~/server/sms/phone";
 import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
 import { shouldSkipAgentOpener } from "~/server/speed2Lead/agent/contactFlow/crossFlow";
 import {
@@ -51,6 +54,9 @@ import { clearOptedOut } from "~/server/speed2Lead/session";
 
 const DEFAULT_PHONE = CONTACT_HARNESS_PHONE;
 const TURN_SETTLE_MS = 4500;
+const PREVIEW_URL =
+  process.env.S2L_PREVIEW_URL ?? "https://cursor-contact-calendar-consolidation-537c--624voice.netlify.app";
+const PREVIEW_INBOUND_URL = `${PREVIEW_URL}/api/sms/inbound`;
 
 const authToken = process.env.TWILIO_AUTH_TOKEN!;
 const accountSid = process.env.TWILIO_ACCOUNT_SID!;
@@ -69,17 +75,23 @@ function parseArgs(argv: string[]) {
   const positional: string[] = [];
   let scenarioFilter: string | undefined;
   let mockSlots = false;
+  let usePreview = false;
+  let forceLocal = false;
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--scenario" && argv[i + 1]) {
       scenarioFilter = argv[i + 1];
       i += 1;
     } else if (argv[i] === "--mock-slots") {
       mockSlots = true;
+    } else if (argv[i] === "--preview") {
+      usePreview = true;
+    } else if (argv[i] === "--force-local") {
+      forceLocal = true;
     } else {
       positional.push(argv[i]!);
     }
   }
-  return { batchArg: positional[0], scenarioFilter, mockSlots };
+  return { batchArg: positional[0], scenarioFilter, mockSlots, usePreview, forceLocal };
 }
 
 function resolveBatch(batchArg: string): ContactScenarioBatch {
@@ -130,20 +142,72 @@ async function listOutboundSince(since: Date, phone = DEFAULT_PHONE) {
     }));
 }
 
+function signPreviewInbound(body: string, messageSid: string) {
+  const params: Record<string, string> = {
+    From: DEFAULT_PHONE,
+    To: normalizePhone(fromNumber),
+    Body: body,
+    MessageSid: messageSid,
+    AccountSid: accountSid,
+  };
+  const signature = twilio.getExpectedTwilioSignature(authToken, PREVIEW_INBOUND_URL, params);
+  return { params, signature };
+}
+
+async function postPreviewInbound(
+  body: string,
+  messageSid: string,
+): Promise<{ status: number; text: string }> {
+  const { params, signature } = signPreviewInbound(body, messageSid);
+  const res = await fetch(PREVIEW_INBOUND_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Twilio-Signature": signature,
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  return { status: res.status, text: await res.text() };
+}
+
+async function dispatchInboundTurn(
+  inbound: string,
+  messageSid: string,
+  execution: "local" | "preview",
+): Promise<void> {
+  if (execution === "preview") {
+    const result = await postPreviewInbound(inbound, messageSid);
+    if (result.status !== 200) {
+      throw new Error(`Preview inbound failed (${result.status}): ${result.text}`);
+    }
+    return;
+  }
+  await handleAgentInboundSms(DEFAULT_PHONE, inbound, messageSid);
+}
+
 async function runScenario(
   scenario: ContactScenario,
   globalMockSlots: boolean,
+  globalPreview: boolean,
+  forceLocal: boolean,
 ): Promise<{
   id: string;
   pass: boolean;
   failedChecks: string[];
   mechanicalChecks: Record<string, { pass: boolean; detail: string }>;
+  execution: "local" | "preview";
 }> {
   await resetHarnessPhone();
 
   const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
+  const execution: "local" | "preview" =
+    forceLocal || (useMockSlots && globalMockSlots)
+      ? "local"
+      : globalPreview || !useMockSlots
+        ? "preview"
+        : "local";
   const mondayBlocked = scenario.meta?.mondayBlockedCalendar === true;
-  if (useMockSlots) {
+  if (useMockSlots && execution === "local") {
     if (mondayBlocked) {
       setHarnessOfferSlotsOverride(
         () => buildHarnessMockSlotsMondayBlocked(getActiveProfile()),
@@ -159,7 +223,7 @@ async function runScenario(
     setHarnessOfferSlotsOverride(null);
   }
 
-  if (scenario.meta?.calendarFetchFailure === true && useMockSlots) {
+  if (scenario.meta?.calendarFetchFailure === true && execution === "local") {
     setHarnessFetchFailureOverride(() => ({ ok: false, reason: "harness_calendar_api_error" }));
   } else {
     setHarnessFetchFailureOverride(null);
@@ -209,7 +273,7 @@ async function runScenario(
         stopAt = new Date();
       }
       const messageSid = `SM-contact-harness-${scenario.id}-${index}-${Date.now()}`;
-      await handleAgentInboundSms(DEFAULT_PHONE, turn.inbound, messageSid);
+      await dispatchInboundTurn(turn.inbound, messageSid, execution);
       await sleep(TURN_SETTLE_MS);
 
       const session = await getAgentSession(DEFAULT_PHONE);
@@ -258,6 +322,7 @@ async function runScenario(
       pass: failedChecks.length === 0,
       failedChecks,
       mechanicalChecks,
+      execution,
     };
   } finally {
     setHarnessOfferSlotsOverride(null);
@@ -266,10 +331,10 @@ async function runScenario(
 }
 
 async function main() {
-  const { batchArg, scenarioFilter, mockSlots } = parseArgs(process.argv.slice(2));
+  const { batchArg, scenarioFilter, mockSlots, usePreview, forceLocal } = parseArgs(process.argv.slice(2));
   if (!batchArg) {
     console.error(
-      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4|5|6 [--scenario id] [--mock-slots]",
+      "Usage: bun run scripts/contact-agent-edge-case-harness.ts contact-batch-1|2|3|4|5|6|7 [--scenario id] [--mock-slots] [--preview] [--force-local]",
     );
     process.exit(1);
   }
@@ -288,7 +353,15 @@ async function main() {
 
   console.log(
     JSON.stringify(
-      { batchId: batch.batchId, title: batch.title, count: scenarios.length, mockSlots },
+      {
+        batchId: batch.batchId,
+        title: batch.title,
+        count: scenarios.length,
+        mockSlots,
+        usePreview,
+        forceLocal,
+        previewUrl: usePreview || !mockSlots ? PREVIEW_URL : undefined,
+      },
       null,
       2,
     ),
@@ -297,7 +370,7 @@ async function main() {
   const results = [];
   for (const scenario of scenarios) {
     console.log(`\n--- Running ${scenario.id}: ${scenario.title} ---`);
-    const result = await runScenario(scenario, mockSlots);
+    const result = await runScenario(scenario, mockSlots, usePreview, forceLocal);
     results.push(result);
     console.log(JSON.stringify(result, null, 2));
   }
@@ -307,7 +380,13 @@ async function main() {
     total: results.length,
     passed: results.filter((r) => r.pass).length,
     failed: results.filter((r) => !r.pass).length,
-    results: results.map((r) => ({ id: r.id, pass: r.pass, failedChecks: r.failedChecks })),
+    previewUrl: usePreview || !mockSlots ? PREVIEW_URL : undefined,
+    results: results.map((r) => ({
+      id: r.id,
+      pass: r.pass,
+      failedChecks: r.failedChecks,
+      execution: r.execution,
+    })),
   };
 
   console.log("\n========== BATCH SUMMARY ==========");

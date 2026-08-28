@@ -323,9 +323,12 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
     if (!ctx.session.bookedStartIso) {
       return { pass: false, detail: "Missing bookedStartIso after contact-flow booking" };
     }
+    if (!ctx.session.bookedEventId) {
+      return { pass: false, detail: "Missing bookedEventId — calendar event was not created" };
+    }
     return {
       pass: true,
-      detail: `Contact flow booked at ${ctx.session.bookedStartIso}`,
+      detail: `Contact flow booked at ${ctx.session.bookedStartIso} (event ${ctx.session.bookedEventId})`,
     };
   },
 
