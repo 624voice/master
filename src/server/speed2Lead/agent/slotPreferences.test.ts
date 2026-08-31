@@ -104,4 +104,14 @@ describe("slotPreferences", () => {
     });
     expect(result.confirm_booking).toBe(false);
   });
+
+  test("applyExplicitBookConfirmOutput ignores yes book it when stuck on fake booked", () => {
+    const { session } = bridgeOfferingSession();
+    session.stage = "booked";
+    const result = applyExplicitBookConfirmOutput("Yes book it", session, session.offeredSlots, {
+      confirm_booking: false,
+      slot_choice_index: null,
+    });
+    expect(result.confirm_booking).toBe(false);
+  });
 });

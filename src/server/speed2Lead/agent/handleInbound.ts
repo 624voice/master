@@ -41,7 +41,11 @@ import {
   shouldProceedAfterRepeatedCostAsk,
 } from "~/server/speed2Lead/agent/contactFlow/discoveryReply";
 import { buildContactSchedulingTurnReply } from "~/server/speed2Lead/agent/contactFlow/schedulingReply";
-import { guardAgentReply, flagSchedulingFailure } from "~/server/speed2Lead/agent/scheduling/replyGuard";
+import {
+  flagSchedulingFailure,
+  guardAgentReply,
+  shouldPreserveTerminalStage,
+} from "~/server/speed2Lead/agent/scheduling/replyGuard";
 import {
   buildDemoDiscoveryFallback,
   buildDemoInjectionRedirect,
@@ -447,8 +451,9 @@ export async function handleAgentInboundSms(
     }
 
     // Normal turn: trust the model's stage/pain tracking, but never let it
-    // regress out of a terminal state once reached.
-    if (!isDiscoveryFlow && session.stage !== "booked" && session.stage !== "declined") {
+    // regress out of a real completed booking or an explicit decline.
+    // A "booked" stage without bookedEventId is a fake claim — do not protect it.
+    if (!isDiscoveryFlow && !shouldPreserveTerminalStage(session)) {
       session.stage = output.stage;
     }
     if (output.primary_pain && !ambiguousPainReply) {
@@ -575,7 +580,7 @@ export async function handleAgentInboundSms(
         session.stage = "offering_slots";
       }
 
-      if (!blockedDiscovery && session.stage !== "booked" && session.stage !== "declined") {
+      if (!blockedDiscovery && !shouldPreserveTerminalStage(session)) {
         const inScheduling =
           session.stage === "offering_slots" || session.stage === "confirming";
         if (inScheduling && (output.stage === "bridge" || output.stage === "discovery")) {
@@ -623,7 +628,7 @@ export async function handleAgentInboundSms(
       });
       reply = guarded.reply;
       session = guarded.session;
-      if (session.stage !== "booked" && session.stage !== "declined") {
+      if (!shouldPreserveTerminalStage(session)) {
         session.stage = guarded.stage;
       }
       if (
@@ -670,11 +675,11 @@ export async function handleAgentInboundSms(
       modelStage: session.stage,
       bookingConfirmed: false,
     });
-    if (session.stage !== "booked" && session.stage !== "declined") {
-      session.stage = guarded.stage;
-    }
     if (guarded.flaggedFailure) {
       session = guarded.session;
+    }
+    if (!shouldPreserveTerminalStage(session)) {
+      session.stage = guarded.stage;
     }
     if (
       slotResolution.fetchFailed &&

@@ -5,8 +5,10 @@ import {
   countQuestions,
   enforceAtMostOneQuestion,
   guardAgentReply,
+  hasRealBooking,
   looksLikeFabricatedBookingClaim,
   looksLikeUnauthorizedMeetingPlatform,
+  shouldPreserveTerminalStage,
 } from "~/server/speed2Lead/agent/scheduling/replyGuard";
 
 describe("scheduling replyGuard", () => {
@@ -54,10 +56,52 @@ describe("scheduling replyGuard", () => {
       modelStage: "booked",
       bookingConfirmed: false,
     });
-    expect(result.stage).not.toBe("booked");
+    expect(result.stage).toBe("confirming");
+    expect(result.session.stage).toBe("confirming");
     expect(result.reply).toContain("trouble finalizing");
     expect(result.flaggedFailure).toBe(true);
     expect(result.session.schedulingFailureReason).toBeTruthy();
+  });
+
+  test("rolls LLM booked-without-event back to confirming even if session.stage is already booked", () => {
+    const session = {
+      ...createAgentSession({
+        tenantId: "624voice",
+        phone: "+12149722278",
+        flow: "roi",
+      }),
+      stage: "booked" as const,
+      offeredSlots: [
+        { startIso: "2026-09-01T14:45:00.000Z", label: "Tuesday Sep 1, 9:45am CT" },
+      ],
+    };
+    const result = guardAgentReply({
+      reply: "Perfect, you're on the calendar.",
+      session,
+      fetchFailed: false,
+      modelStage: "booked",
+      bookingConfirmed: false,
+    });
+    expect(result.stage).toBe("confirming");
+    expect(result.session.stage).toBe("confirming");
+    expect(result.session.bookedEventId).toBeUndefined();
+    expect(result.reply).toContain("trouble finalizing");
+    expect(result.session.schedulingFailureReason).toBe("booked_stage_without_event");
+  });
+
+  test("shouldPreserveTerminalStage only protects real bookings and declines", () => {
+    const base = createAgentSession({
+      tenantId: "624voice",
+      phone: "+12149722278",
+      flow: "roi",
+    });
+    expect(hasRealBooking({ ...base, stage: "booked" })).toBe(false);
+    expect(shouldPreserveTerminalStage({ ...base, stage: "booked" })).toBe(false);
+    expect(
+      shouldPreserveTerminalStage({ ...base, stage: "booked", bookedEventId: "evt-1" }),
+    ).toBe(true);
+    expect(shouldPreserveTerminalStage({ ...base, stage: "declined" })).toBe(true);
+    expect(shouldPreserveTerminalStage({ ...base, stage: "confirming" })).toBe(false);
   });
 
   test("allows code-owned confirmation path marker", () => {

@@ -174,6 +174,30 @@ export type GuardAgentReplyResult = {
   flaggedFailure: boolean;
 };
 
+/** True only after confirmBookSlot persisted a real calendar event. */
+export function hasRealBooking(session: AgentSession): boolean {
+  return Boolean(session.bookedEventId);
+}
+
+/**
+ * Terminal stages the LLM/guard must not roll back: a real completed booking,
+ * or an explicit decline. A "booked" stage without bookedEventId is a fake
+ * claim and is not protected.
+ */
+export function shouldPreserveTerminalStage(session: AgentSession): boolean {
+  return session.stage === "declined" || (session.stage === "booked" && hasRealBooking(session));
+}
+
+function rollFakeBookedToConfirming(
+  session: AgentSession,
+  stage: AgentSession["stage"],
+): { session: AgentSession; stage: AgentSession["stage"] } {
+  if (stage !== "booked") {
+    return { session, stage };
+  }
+  return { session: { ...session, stage: "confirming" }, stage: "confirming" };
+}
+
 /** Code-owned guardrails — never trust LLM booking language without a real event ID. */
 export function guardAgentReply(args: GuardAgentReplyArgs): GuardAgentReplyResult {
   let reply = enforceAtMostOneQuestion(args.reply);
@@ -185,21 +209,20 @@ export function guardAgentReply(args: GuardAgentReplyArgs): GuardAgentReplyResul
     reply = buildSchedulingHandoffCopy();
     session = flagSchedulingFailure(session, "unauthorized_meeting_platform");
     flaggedFailure = true;
-    if (stage === "booked") stage = "confirming";
+    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
   }
 
   if (looksLikeFabricatedBookingClaim(reply) && !args.bookingConfirmed) {
     reply = buildSchedulingHandoffCopy();
     session = flagSchedulingFailure(session, "fabricated_booking_claim");
     flaggedFailure = true;
-    if (stage === "booked") stage = "confirming";
+    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
   }
 
   if (stage === "booked" && !args.bookingConfirmed && !session.bookedEventId) {
-    stage =
-      session.stage === "confirming" || session.requestedDate
-        ? "confirming"
-        : "offering_slots";
+    // Keep the selected/offered slot and land in confirming so the next
+    // explicit "yes book it" can run confirmBookSlot for real.
+    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
     if (!flaggedFailure) {
       reply = buildSchedulingHandoffCopy();
       session = flagSchedulingFailure(session, "booked_stage_without_event");
