@@ -436,6 +436,32 @@ export function isSchedulingPreferenceOnly(
   );
 }
 
+export const EXPLICIT_BOOK_CONFIRM_RE =
+  /\b(book it|book that|go ahead and book|yes\s+book|lock it in|confirm that)\b/i;
+
+/** Code-owned booking confirm when the prospect uses explicit book language in scheduling. */
+export function applyExplicitBookConfirmOutput(
+  body: string,
+  session: AgentSession,
+  offered: OfferedSlot[],
+  output: { confirm_booking: boolean; slot_choice_index: number | null },
+): { confirm_booking: boolean; slot_choice_index: number | null } {
+  if (!EXPLICIT_BOOK_CONFIRM_RE.test(body)) {
+    return output;
+  }
+  const slots = offered.length > 0 ? offered : (session.offeredSlots ?? []);
+  if (slots.length === 0) {
+    return output;
+  }
+  if (session.stage !== "confirming" && session.stage !== "offering_slots") {
+    return output;
+  }
+  return {
+    confirm_booking: true,
+    slot_choice_index: output.slot_choice_index ?? 0,
+  };
+}
+
 export function validateConfirmBooking(args: {
   body: string;
   session: AgentSession;

@@ -10,6 +10,7 @@ import {
   buildNeedDateCopy,
   buildNoAvailabilityCopy,
   buildProviderConflictCopy,
+  buildCalendarFetchFailureCopy,
   buildSlotOfferCopy,
 } from "~/server/speed2Lead/agent/scheduling/copy";
 import { filterAndRankSlots } from "~/server/speed2Lead/agent/scheduling/filterRank";
@@ -782,7 +783,7 @@ export function buildReplyFromSchedulingResult(result: SchedulingTurnResult): st
       if (result.trace.bookingAttempted && result.trace.selectionResolved) {
         return buildBookingProviderFailureCopy(result);
       }
-      return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
+      return buildCalendarFetchFailureCopy();
     default:
       return null;
   }

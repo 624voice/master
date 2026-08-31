@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { buildHarnessMockSlots } from "~/server/speed2Lead/agent/harnessMockSlots";
 import { DEFAULT_624VOICE_PROFILE } from "~/server/speed2Lead/agent/profile";
 import {
+  applyExplicitBookConfirmOutput,
   applyInboundSlotPreferences,
   filterPoolSlots,
   isSchedulingPreferenceOnly,
@@ -81,5 +82,36 @@ describe("slotPreferences", () => {
     });
     expect(result.proceed).toBe(true);
     expect(result.slot?.startIso).toBe(session.offeredSlots[0]?.startIso);
+  });
+
+  test("applyExplicitBookConfirmOutput forces confirm on yes book it in confirming", () => {
+    const { session } = bridgeOfferingSession();
+    session.stage = "confirming";
+    const result = applyExplicitBookConfirmOutput("Yes book it", session, session.offeredSlots, {
+      confirm_booking: false,
+      slot_choice_index: null,
+    });
+    expect(result.confirm_booking).toBe(true);
+    expect(result.slot_choice_index).toBe(0);
+  });
+
+  test("applyExplicitBookConfirmOutput ignores explicit book language outside scheduling", () => {
+    const { session } = bridgeOfferingSession();
+    session.stage = "discovery";
+    const result = applyExplicitBookConfirmOutput("Yes book it", session, session.offeredSlots, {
+      confirm_booking: false,
+      slot_choice_index: null,
+    });
+    expect(result.confirm_booking).toBe(false);
+  });
+
+  test("applyExplicitBookConfirmOutput ignores yes book it when stuck on fake booked", () => {
+    const { session } = bridgeOfferingSession();
+    session.stage = "booked";
+    const result = applyExplicitBookConfirmOutput("Yes book it", session, session.offeredSlots, {
+      confirm_booking: false,
+      slot_choice_index: null,
+    });
+    expect(result.confirm_booking).toBe(false);
   });
 });

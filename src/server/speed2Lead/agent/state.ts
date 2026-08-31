@@ -81,6 +81,10 @@ export type AgentSession = {
   bookedStartIso?: string;
   bookedEventId?: string;
 
+  /** Set when calendar fetch or booking fails mid-scheduling — searchable for manual follow-up. */
+  schedulingFailureAt?: string;
+  schedulingFailureReason?: string;
+
   /** Twilio MessageSid of the last inbound SMS actually processed for this
    * phone, used to no-op a Twilio webhook retry/duplicate delivery of the
    * same message instead of double-processing it. */

@@ -75,3 +75,13 @@ export function buildProviderConflictCopy(slots: string[]): string {
   const list = formatSlotList(slotLabels(slots));
   return `That time just got taken — I still have ${list}.`;
 }
+
+/** Calendar fetch failed — prospect timing is noted but no slots were retrieved. */
+export function buildCalendarFetchFailureCopy(): string {
+  return "I'm having trouble pulling my calendar up right now — I still have your timing noted.";
+}
+
+/** Booking could not be finalized — honest handoff instead of a fake confirmation. */
+export function buildSchedulingHandoffCopy(): string {
+  return "I'm having trouble finalizing this on my end — I've got your info and will follow up shortly to confirm.";
+}

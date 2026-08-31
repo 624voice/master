@@ -8,6 +8,7 @@ import {
 } from "~/server/speed2Lead/agent/contactFlow/openers";
 import {
   isConsequenceQuestion,
+  looksLikeBridgeQuestion,
   MAX_DISCOVERY_QUESTIONS,
 } from "~/server/speed2Lead/agent/contactFlow/discoveryGuard";
 import { expectedNoResponseDay1 } from "~/server/speed2Lead/agent/contactFlow/testScenarios/seed";
@@ -186,7 +187,8 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
       return { pass: false, detail: `Model asked a third diagnostic question: ${reply.slice(0, 120)}` };
     }
     const schedulingPivot =
-      /\b(what day|which time|works best|schedule|25-minute|quick chat)\b/i.test(reply);
+      /\b(what day|which time|works best|schedule|25[- ]minute|quick chat|worth 25)\b/i.test(reply) ||
+      looksLikeBridgeQuestion(reply);
     if (schedulingPivot || !reply.includes("?")) {
       return { pass: true, detail: "No third diagnostic question — scheduling pivot or statement" };
     }
@@ -321,9 +323,12 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
     if (!ctx.session.bookedStartIso) {
       return { pass: false, detail: "Missing bookedStartIso after contact-flow booking" };
     }
+    if (!ctx.session.bookedEventId) {
+      return { pass: false, detail: "Missing bookedEventId — calendar event was not created" };
+    }
     return {
       pass: true,
-      detail: `Contact flow booked at ${ctx.session.bookedStartIso}`,
+      detail: `Contact flow booked at ${ctx.session.bookedStartIso} (event ${ctx.session.bookedEventId})`,
     };
   },
 
@@ -501,6 +506,89 @@ export const CONTACT_MECHANICAL_CHECKS: Record<string, ContactMechanicalCheck> =
     return reply === PRICING_RESPONSE_COPY
       ? { pass: true, detail: "Code-owned pricing copy sent during active scheduling" }
       : { pass: false, detail: `Expected pricing copy; got: ${reply.slice(0, 100)}` };
+  },
+
+  /** Batch 7 — calendar failure + discovery ordering guards. */
+  noFakeBookingOnCalendarFailure(ctx) {
+    const last = lastAssistant(ctx.transcript) ?? "";
+    const lower = last.toLowerCase();
+    if (/\b(i('|')?ve|i have)\s+(booked|scheduled)\s+(you|us|that|it)\b/.test(lower)) {
+      return { pass: false, detail: "Reply claims a completed booking after calendar failure" };
+    }
+    if (/\b(you'?re|you are)\s+(all set|confirmed|booked)\b/.test(lower)) {
+      return { pass: false, detail: "Reply confirms booking without a real calendar event" };
+    }
+    if (ctx.session?.stage === "booked" && !ctx.session?.bookedEventId) {
+      return { pass: false, detail: "Session marked booked without bookedEventId" };
+    }
+    return { pass: true, detail: "No fabricated booking language after calendar failure" };
+  },
+
+  noUnauthorizedMeetingPlatform(ctx) {
+    const last = lastAssistant(ctx.transcript) ?? "";
+    if (/\b(zoom|microsoft teams|webex)\b/i.test(last)) {
+      return { pass: false, detail: "Reply names an LLM-invented meeting platform" };
+    }
+    return { pass: true, detail: "No unauthorized meeting platform in reply" };
+  },
+
+  schedulingFailureFlagged(ctx) {
+    if (!ctx.session?.schedulingFailureAt) {
+      return { pass: false, detail: "schedulingFailureAt not set after calendar failure" };
+    }
+    return {
+      pass: true,
+      detail: `Flagged at ${ctx.session.schedulingFailureAt} (${ctx.session.schedulingFailureReason ?? "unknown"})`,
+    };
+  },
+
+  discoveryBeforeBookingAsk(ctx) {
+    const assistantMessages = ctx.transcript.filter((m) => m.role === "assistant");
+    const opener = assistantMessages[0]?.content ?? "";
+    const secondReply = assistantMessages[1]?.content ?? "";
+    if (!secondReply) {
+      return { pass: false, detail: "No second assistant reply after opener response" };
+    }
+    const askedDiscovery =
+      looksLikeDiagnosticQuestion(secondReply) ||
+      isConsequenceQuestion(secondReply) ||
+      looksLikeDiagnosticQuestion(opener);
+    if (!askedDiscovery) {
+      return { pass: false, detail: "No discovery/consequence question before bridge/scheduling" };
+    }
+    const lower = secondReply.toLowerCase();
+    if (lower.includes("what day works best") && !askedDiscovery) {
+      return { pass: false, detail: "Jumped straight to day ask without discovery" };
+    }
+    if (lower.includes("what day works best") && looksLikeBridgeQuestion(secondReply)) {
+      return { pass: false, detail: "Combined bridge and day ask in one message" };
+    }
+    return { pass: true, detail: "Discovery/consequence asked before scheduling kickoff" };
+  },
+
+  atMostOneQuestionPerReply(ctx) {
+    for (const message of ctx.transcript) {
+      if (message.role !== "assistant") continue;
+      const count = (message.content.match(/\?/g) ?? []).length;
+      if (count > 1) {
+        return {
+          pass: false,
+          detail: `Reply has ${count} questions: ${message.content.slice(0, 100)}`,
+        };
+      }
+    }
+    return { pass: true, detail: "Each assistant reply has at most one question mark" };
+  },
+
+  noCombinedBridgeAndDayAsk(ctx) {
+    for (const message of ctx.transcript) {
+      if (message.role !== "assistant") continue;
+      const lower = message.content.toLowerCase();
+      if (lower.includes("worth 25 minutes") && lower.includes("what day works best")) {
+        return { pass: false, detail: "Bridge and day ask combined in one SMS" };
+      }
+    }
+    return { pass: true, detail: "Bridge and day ask never combined" };
   },
 };
 
