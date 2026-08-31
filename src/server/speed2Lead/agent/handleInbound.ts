@@ -67,9 +67,12 @@ import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import {
   resolveSlotsForAgentTurn,
   validateConfirmBooking,
+  applyExplicitBookConfirmOutput,
+  EXPLICIT_BOOK_CONFIRM_RE,
 } from "~/server/speed2Lead/agent/slotPreferences";
 import { resolveOfferedSlotSelectionCandidate } from "~/server/speed2Lead/agent/schedulingContext";
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
+import { buildProviderConflictCopy } from "~/server/speed2Lead/agent/scheduling/copy";
 import {
   buildPainClarifyingReply,
   containsPainHint,
@@ -350,10 +353,16 @@ export async function handleAgentInboundSms(
       return;
     }
 
+    const explicitBook = applyExplicitBookConfirmOutput(body, session, offered, {
+      confirm_booking: output.confirm_booking,
+      slot_choice_index: output.slot_choice_index,
+    });
+    output = { ...output, ...explicitBook };
+
     if (
       output.confirm_booking &&
       selectedOfferedIso &&
-      !/\b(book it|book that|go ahead and book|yes\s+book|lock it in|confirm that)\b/i.test(body)
+      !EXPLICIT_BOOK_CONFIRM_RE.test(body)
     ) {
       output = { ...output, confirm_booking: false };
     }
@@ -428,7 +437,9 @@ export async function handleAgentInboundSms(
       session.offeredSlots = refreshed.ok ? refreshed.slots : [];
       session.slotPool = refreshed.ok ? refreshed.slots : [];
       session.stage = "offering_slots";
-      const text = "That time just got taken — want me to grab you another?";
+      const text = buildProviderConflictCopy(
+        (refreshed.ok ? refreshed.slots : []).map((slot) => slot.startIso),
+      );
       await sendAgentReplySms(phone, text, messageSid);
       session = appendMessage(session, "assistant", text);
       await saveAgentSession(session);

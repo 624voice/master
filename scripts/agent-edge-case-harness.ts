@@ -339,8 +339,9 @@ async function runScenario(
   await resetHarnessPhone(phone);
 
   const useMockSlots = globalMockSlots || scenario.useMockSlots === true;
+  const forceMockFailure = scenario.meta?.calendarFetchFailure === true;
   const execution: "local" | "preview" =
-    forceLocal || (useMockSlots && globalMockSlots)
+    forceLocal || forceMockFailure || (useMockSlots && globalMockSlots)
       ? "local"
       : globalPreview || scenario.execution === "preview" || !useMockSlots
         ? "preview"
