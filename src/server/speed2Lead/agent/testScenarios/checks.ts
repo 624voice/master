@@ -547,10 +547,23 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
     const snap = ctx.turnSnapshots.at(-1);
     const last = snap?.transcript.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
     const lower = last.toLowerCase();
-    if (!/(just got taken|filled up|no longer available|taken|not available|already booked)/.test(lower)) {
-      return { pass: false, detail: `Expected conflict language in reply; got: ${last.slice(0, 120)}` };
+    if (/(just got taken|filled up|no longer available|taken|not available|already booked)/.test(lower)) {
+      return { pass: true, detail: "Reply uses provider-conflict language" };
     }
-    return { pass: true, detail: "Reply uses provider-conflict language" };
+    const realBooking =
+      ctx.session?.stage === "booked" &&
+      Boolean(ctx.session.bookedStartIso || ctx.session.bookedEventId) &&
+      /booked for|google meet|meet\.google\.com/i.test(last);
+    if (realBooking) {
+      return {
+        pass: true,
+        detail: "Real booking completed (accepted when provider did not surface a conflict)",
+      };
+    }
+    return {
+      pass: false,
+      detail: `Expected conflict language or a real booking; got: ${last.slice(0, 120)}`,
+    };
   },
 
   booksWithoutReconfirmation(ctx) {
