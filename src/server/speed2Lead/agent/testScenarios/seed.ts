@@ -80,6 +80,37 @@ export function bridgeReadySeed(firstName = "Jamie"): ScenarioSeed {
   };
 }
 
+/** Two diagnostic questions already asked — next discovery question must be capped. */
+export function roiDiscoveryCapSeed(firstName = "Jamie"): ScenarioSeed {
+  const base = painPromptConversationSeed(firstName);
+  return {
+    ...base,
+    stage: "discovery",
+    primaryPain: "missed_calls",
+    discoveryQuestionCount: 2,
+    discoveryClosed: false,
+    messages: [
+      ...(base.messages ?? []),
+      {
+        role: "user",
+        content: "Missed calls mostly — after hours is a mess and follow-up falls through too",
+      },
+      {
+        role: "assistant",
+        content: "When a call goes unanswered after hours, what usually happens to that job?",
+      },
+      {
+        role: "user",
+        content: "They usually go to the competitor if we don't call back the same day",
+      },
+      {
+        role: "assistant",
+        content: "What's that been costing you, would you say?",
+      },
+    ],
+  };
+}
+
 /** Mid-scheduling seed with active offered slots (for FAQ / conflict scenarios). */
 export function offeringSlotsSeed(
   firstName: string,
@@ -152,7 +183,9 @@ export async function seedAgentSession(seed: ScenarioSeed, phone = HARNESS_TEST_
   session.noResponseStage = seed.noResponseStage;
   session.noResponseNextAt = seed.noResponseNextAt;
   session.noResponseResolved = seed.noResponseResolved;
-  session.meetingDeclineCount = 0;
+  session.discoveryQuestionCount = seed.discoveryQuestionCount;
+  session.discoveryClosed = seed.discoveryClosed;
+  session.meetingDeclineCount = seed.meetingDeclineCount ?? 0;
 
   for (const message of seed.messages ?? []) {
     session = appendMessage(session, message.role, message.content);

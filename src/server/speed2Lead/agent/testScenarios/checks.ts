@@ -1,5 +1,7 @@
 import { buildPainPromptMessage } from "~/server/speed2Lead/agent/painPrompt";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
+import { ROI_DECLINE_EXIT } from "~/server/speed2Lead/agent/roiDeclineHandling";
+import { looksLikeBridgeQuestion } from "~/server/speed2Lead/agent/discoveryGuard";
 import {
   listPendingNoResponsePhones,
   listPendingPainPromptPhones,
@@ -652,6 +654,91 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
     const last = lastAssistantMessage(ctx.transcript);
     if (!last) return { pass: false, detail: "No assistant reply to post-book question" };
     return { pass: true, detail: "Answered post-book question without breaking booked state" };
+  },
+
+  /** Batch 6 — ROI discovery cap + governed decline. */
+  roiDiscoveryCountAtMostTwo(ctx) {
+    const count = ctx.session?.discoveryQuestionCount ?? 0;
+    if (count > 2) {
+      return { pass: false, detail: `discoveryQuestionCount=${count} exceeded hard max of 2` };
+    }
+    return { pass: true, detail: `discoveryQuestionCount=${count}` };
+  },
+
+  roiDiscoveryCappedTowardScheduling(ctx) {
+    const count = ctx.session?.discoveryQuestionCount ?? 0;
+    if (count > 2) {
+      return { pass: false, detail: `discoveryQuestionCount=${count} exceeded hard max of 2` };
+    }
+    const reply = lastAssistantMessage(ctx.transcript) ?? "";
+    const lower = reply.toLowerCase();
+    const diagnostic =
+      (lower.includes("what usually happens") ||
+        lower.includes("how's that been") ||
+        lower.includes("what's that been costing") ||
+        lower.includes("when nobody") ||
+        lower.includes("what happens to those")) &&
+      reply.includes("?");
+    if (diagnostic) {
+      return { pass: false, detail: `Third diagnostic question leaked past cap: ${reply.slice(0, 120)}` };
+    }
+    const schedulingPivot =
+      /\b(what day|which time|works best|schedule|25[- ]minutes?|quick chat|worth 25|worth it|headcount)\b/i.test(
+        reply,
+      ) || looksLikeBridgeQuestion(reply);
+    if (schedulingPivot || !reply.includes("?")) {
+      return {
+        pass: true,
+        detail: `Forced toward scheduling (stage=${ctx.session?.stage}, closed=${Boolean(ctx.session?.discoveryClosed)})`,
+      };
+    }
+    return {
+      pass: false,
+      detail: `Unexpected post-cap reply: ${reply.slice(0, 120)}`,
+    };
+  },
+
+  roiDeclineReframeUsesReportOrGuarantee(ctx) {
+    const reply = ctx.turnSnapshots[0]?.transcript.filter((m) => m.role === "assistant").at(-1)?.content;
+    if (!reply) return { pass: false, detail: "No assistant reply after first ROI decline" };
+    const stage = ctx.turnSnapshots[0]?.session?.stage;
+    if (stage === "declined") {
+      return { pass: false, detail: "First ROI decline was terminal — expected one constrained reframe" };
+    }
+    const lower = reply.toLowerCase();
+    const guarantee = getActiveProfile().resultsGuarantee?.toLowerCase() ?? "";
+    const citesReportOrGuarantee =
+      lower.includes("118,500") ||
+      lower.includes("118500") ||
+      lower.includes("missed") ||
+      lower.includes("opportunity") ||
+      lower.includes("90-day") ||
+      (guarantee.length > 0 && lower.includes(guarantee.slice(0, 24))) ||
+      lower.includes("25") ||
+      lower.includes("worth");
+    if (!citesReportOrGuarantee) {
+      return { pass: false, detail: `Reframe missing report/guarantee context: ${reply.slice(0, 140)}` };
+    }
+    return { pass: true, detail: "First decline sent a constrained reframe" };
+  },
+
+  roiSecondDeclineGracefulExit(ctx) {
+    const reply = lastAssistantMessage(ctx.transcript) ?? "";
+    if (reply !== ROI_DECLINE_EXIT) {
+      return { pass: false, detail: `Expected ROI decline exit copy; got: ${reply}` };
+    }
+    if (ctx.session?.stage !== "declined") {
+      return { pass: false, detail: `Expected stage=declined; got ${ctx.session?.stage ?? "null"}` };
+    }
+    return { pass: true, detail: "Second consecutive decline used graceful exit" };
+  },
+
+  roiGuaranteePresentOnDefaultProfile() {
+    const guarantee = getActiveProfile().resultsGuarantee ?? "";
+    if (!guarantee.includes("90-day")) {
+      return { pass: false, detail: "Default profile missing 90-day resultsGuarantee" };
+    }
+    return { pass: true, detail: guarantee };
   },
 };
 

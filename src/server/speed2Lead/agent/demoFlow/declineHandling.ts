@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { getSpeed2LeadLlmModel, isOpenAiConfigured } from "~/server/speed2Lead/config";
+import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { isMeetingDecline, isMeetingDeclineStage } from "~/server/speed2Lead/agent/turnGuards";
 import { buildDemoTimingDeclineExit } from "~/server/speed2Lead/agent/demoFlow/openers";
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
@@ -31,12 +32,14 @@ export async function generateDemoDeclineReframe(session: AgentSession): Promise
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const profile = getActiveProfile();
   const context = {
     firstName: session.firstName,
     businessName: session.businessName,
     callOutcome: session.callOutcome,
     demoSummary: session.demoSummary ?? null,
     primaryPain: session.primaryPain,
+    resultsGuarantee: profile.resultsGuarantee ?? null,
     recentMessages: session.messages.slice(-6),
   };
 
@@ -46,6 +49,8 @@ export async function generateDemoDeclineReframe(session: AgentSession): Promise
       "Write ONE short SMS (max 320 chars, at most one question) as Chris with 624Voice. " +
       "The prospect just declined a 25-minute meeting. Give ONE relevant, low-pressure reframe " +
       "using context from their Jessica demo — no hype, no fake urgency, no second pitch stack. " +
+      "You may cite the exact guarantee text provided in context verbatim if it fits naturally; " +
+      "do not invent any other guarantee, number, or timeframe beyond what's given. " +
       "Return only JSON with reply.",
     input: [{ role: "user", content: JSON.stringify(context, null, 2) }],
     text: {

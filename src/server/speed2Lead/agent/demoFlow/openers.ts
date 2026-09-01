@@ -1,7 +1,10 @@
+import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
 
 function heyPrefix(firstName?: string): string {
-  return firstName ? `Hey ${firstName}, ` : "Hey, ";
+  const name = usableGreetingName(firstName);
+  return name ? `Hey ${name}, ` : "Hey, ";
 }
 
 /** Opener part 1 — sent immediately after a completed demo call. */
@@ -40,6 +43,7 @@ export function buildDemoTimingDeclineExit(): string {
 }
 
 export function buildDemoResumeLinkMessage(firstName: string | undefined, link: string): string {
-  const prefix = firstName ? `Hey ${firstName} — ` : "Hey — ";
+  const name = usableGreetingName(firstName);
+  const prefix = name ? `Hey ${name} — ` : "Hey — ";
   return `${prefix}here's the link to pick the Jessica demo back up: ${link}`;
 }

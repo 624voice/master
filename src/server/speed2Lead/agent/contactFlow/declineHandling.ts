@@ -4,6 +4,7 @@ import {
   buildTimingDeclineExit,
 } from "~/server/speed2Lead/agent/contactFlow/openers";
 import { classifyDeclineReasonReply } from "~/server/speed2Lead/agent/contactFlow/intentDetect";
+import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { isMeetingDecline, isMeetingDeclineStage } from "~/server/speed2Lead/agent/turnGuards";
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
 
@@ -36,7 +37,7 @@ export function resolveContactDeclineAction(
     if (reason === "skepticism") {
       return {
         type: "send",
-        reply: buildSkepticismDeclineResponse(session.businessName),
+        reply: buildSkepticismDeclineResponse(getActiveProfile(), session.businessName),
         sessionPatch: {
           declineReason: "skepticism",
           declineAwaitingReason: false,

@@ -31,6 +31,24 @@ export function buildDemoBatch3(): DemoScenarioBatch {
         reviewNotes: "Template check for +4h drip copy.",
         mechanicalOnly: true,
       },
+      {
+        id: "d13b-no-response-stage3-guarantee",
+        title: "Demo no-response Day 6 cites the 90-day guarantee",
+        seed: demoSeed({}),
+        turns: [],
+        expectedChecks: ["noResponseStage3Guarantee"],
+        reviewNotes: "Stage-3 drip must source resultsGuarantee from AgentProfile.",
+        mechanicalOnly: true,
+      },
+      {
+        id: "d13c-no-response-stage4-guarantee",
+        title: "Demo no-response Day 10 cites the 90-day guarantee",
+        seed: demoSeed({}),
+        turns: [],
+        expectedChecks: ["noResponseStage4Guarantee"],
+        reviewNotes: "Stage-4 drip must source resultsGuarantee from AgentProfile.",
+        mechanicalOnly: true,
+      },
     ],
   };
 }

@@ -9,6 +9,7 @@
 import { resolveContactDeclineAction } from "~/server/speed2Lead/agent/contactFlow/declineHandling";
 import { resolveDemoDeclineAction } from "~/server/speed2Lead/agent/demoFlow/declineHandling";
 import {
+  applyRoiDiscoveryCap,
   buildDiscoveryClosedFallback,
   closeDiscovery,
   discoveryPainQuantified,
@@ -52,7 +53,7 @@ import {
   buildDemoOffTopicRedirect,
   DEMO_PRICING_RESPONSE_COPY,
 } from "~/server/speed2Lead/agent/demoFlow/openers";
-import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
+import { resolveRoiDeclineAction } from "~/server/speed2Lead/agent/roiDeclineHandling";
 import {
   acquireAgentInboundLock,
   appendMessage,
@@ -66,6 +67,7 @@ import {
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
+import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import {
@@ -317,6 +319,17 @@ export async function handleAgentInboundSms(
       return;
     }
 
+    if (!isDiscoveryFlow) {
+      const declineAction = await resolveRoiDeclineAction(session, body);
+      if (declineAction.type === "send" || declineAction.type === "terminal") {
+        await sendAgentReplySms(phone, declineAction.reply, messageSid);
+        session = { ...session, ...declineAction.sessionPatch };
+        session = appendMessage(session, "assistant", declineAction.reply);
+        await saveAgentSession(session);
+        return;
+      }
+    }
+
     const declineThisTurn =
       !isDiscoveryFlow && isMeetingDecline(body) && isMeetingDeclineStage(session.stage);
     if (declineThisTurn) {
@@ -355,6 +368,20 @@ export async function handleAgentInboundSms(
       session = await cancelPendingNoResponseCampaign(session);
       await saveAgentSession(session);
       return;
+    }
+
+    if (!isDiscoveryFlow) {
+      const capped = applyRoiDiscoveryCap(session, {
+        reply: output.reply,
+        stage: output.stage,
+      });
+      session = capped.session;
+      output = {
+        ...output,
+        reply: capped.output.reply,
+        stage: capped.output.stage,
+        ...(capped.capped ? { confirm_booking: false } : {}),
+      };
     }
 
     const explicitBook = applyExplicitBookConfirmOutput(body, session, offered, {

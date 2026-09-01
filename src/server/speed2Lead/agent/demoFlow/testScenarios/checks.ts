@@ -1,4 +1,8 @@
-import { buildDemoNoResponseMessage0 } from "~/server/speed2Lead/agent/demoFlow/noResponseCampaign";
+import {
+  buildDemoNoResponseMessage0,
+  buildDemoNoResponseMessage3,
+  buildDemoNoResponseMessage4,
+} from "~/server/speed2Lead/agent/demoFlow/noResponseCampaign";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { createAgentSession } from "~/server/speed2Lead/agent/state";
 import { isOptedOut } from "~/server/speed2Lead/session";
@@ -87,6 +91,30 @@ export function runDemoMechanicalChecks(
       const copy = buildDemoNoResponseMessage0(getActiveProfile(), session);
       const pass = copy.includes("trying Jessica earlier");
       return { pass, detail: copy.slice(0, 120) };
+    }
+    case "noResponseStage3Guarantee": {
+      const session = createAgentSession({
+        tenantId: getActiveProfile().tenantId,
+        phone: ctx.phone,
+        flow: "demo",
+        firstName: ctx.seed.firstName,
+        businessName: ctx.seed.businessName,
+      });
+      const copy = buildDemoNoResponseMessage3(getActiveProfile(), session);
+      const pass = copy.includes("90-day") && copy.includes("Jessica");
+      return { pass, detail: copy.slice(0, 160) };
+    }
+    case "noResponseStage4Guarantee": {
+      const session = createAgentSession({
+        tenantId: getActiveProfile().tenantId,
+        phone: ctx.phone,
+        flow: "demo",
+        firstName: ctx.seed.firstName,
+        businessName: ctx.seed.businessName,
+      });
+      const copy = buildDemoNoResponseMessage4(getActiveProfile(), session);
+      const pass = copy.includes("90-day") && copy.includes("Jessica");
+      return { pass, detail: copy.slice(0, 160) };
     }
     case "declineTerminal": {
       const pass = ctx.finalSession?.stage === "declined";

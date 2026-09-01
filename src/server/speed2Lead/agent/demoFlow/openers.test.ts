@@ -34,6 +34,22 @@ describe("demo openers", () => {
     expect(opener).toContain("cut out early");
     expect(opener).toContain("fresh link");
   });
+
+  test("omits a clearly broken first name from the greeting", () => {
+    const session = {
+      ...createAgentSession({
+        tenantId: "624voice",
+        phone: "+12149722278",
+        flow: "demo",
+        firstName: "xxx",
+        businessName: "Test Plumbing",
+      }),
+      callOutcome: "full" as const,
+    };
+    const opener = buildDemoOpenerPart1(session);
+    expect(opener.startsWith("Hey, ")).toBe(true);
+    expect(opener).not.toContain("Hey xxx,");
+  });
 });
 
 describe("computeDemoCallOutcome", () => {

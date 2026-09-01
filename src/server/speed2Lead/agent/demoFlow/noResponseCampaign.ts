@@ -1,12 +1,15 @@
 import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
 
 function heyPrefix(firstName?: string): string {
-  return firstName ? `Hey ${firstName}` : "Hey";
+  const name = usableGreetingName(firstName);
+  return name ? `Hey ${name}` : "Hey";
 }
 
 function hiDotPrefix(firstName?: string): string {
-  return firstName ? `Hi ${firstName}. ` : "";
+  const name = usableGreetingName(firstName);
+  return name ? `Hi ${name}. ` : "";
 }
 
 function businessName(session: AgentSession): string {
@@ -38,18 +41,22 @@ export function buildDemoNoResponseMessage2(_profile: AgentProfile, _session: Ag
 }
 
 /** Day 6 — stage index 3. */
-export function buildDemoNoResponseMessage3(_profile: AgentProfile, session: AgentSession): string {
+export function buildDemoNoResponseMessage3(profile: AgentProfile, session: AgentSession): string {
+  const guarantee = profile.resultsGuarantee?.trim()?.replace(/[.\s]+$/, "");
+  const guaranteeClause = guarantee ? ` — and ${guarantee}` : "";
   return (
     "No pressure if this isn't a priority right now. But if I could show you how to put something like Jessica " +
-    `to work for ${businessName(session)} without adding another person to the payroll, would it be worth 25 minutes to take a look?`
+    `to work for ${businessName(session)} without adding another person to the payroll${guaranteeClause}, would it be worth 25 minutes to take a look?`
   );
 }
 
 /** Day 10 — stage index 4. */
-export function buildDemoNoResponseMessage4(_profile: AgentProfile, session: AgentSession): string {
+export function buildDemoNoResponseMessage4(profile: AgentProfile, session: AgentSession): string {
+  const guarantee = profile.resultsGuarantee?.trim()?.replace(/[.\s]+$/, "");
+  const guaranteeClause = guarantee ? ` — ${guarantee}` : "";
   return (
     "I'll close the loop for now so I don't keep chasing you. If you ever want to look at what Jessica could handle " +
-    `for ${businessName(session)}, just text me here and we can pick it back up.`
+    `for ${businessName(session)}${guaranteeClause}, just text me here and we can pick it back up.`
   );
 }
 

@@ -5,11 +5,12 @@ import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 
 export const CONTACT_MAX_DISCOVERY_QUESTIONS = 2;
 export const DEMO_MAX_DISCOVERY_QUESTIONS = 2;
+export const ROI_MAX_DISCOVERY_QUESTIONS = 2;
 
 export function maxDiscoveryQuestionsForFlow(flow: AgentSession["flow"]): number {
   if (flow === "demo") return DEMO_MAX_DISCOVERY_QUESTIONS;
   if (flow === "contact") return CONTACT_MAX_DISCOVERY_QUESTIONS;
-  return 0;
+  return ROI_MAX_DISCOVERY_QUESTIONS;
 }
 
 export function canAskDiscoveryQuestion(
@@ -138,4 +139,45 @@ export function buildDiscoveryClosedFallback(session: AgentSession): string {
     return "What day or time range works best for a quick 25-minute chat?";
   }
   return "What day works best for a quick 25-minute chat?";
+}
+
+export type RoiDiscoveryTurnOutput = {
+  reply: string;
+  stage: AgentSession["stage"];
+};
+
+/**
+ * ROI-only discovery cap. Contact/demo keep using the isDiscoveryFlow gate;
+ * this must not be folded into that path (ROI still needs ambiguousPainReply
+ * and meeting-decline guards that live outside isDiscoveryFlow).
+ */
+export function applyRoiDiscoveryCap(
+  session: AgentSession,
+  output: RoiDiscoveryTurnOutput,
+): { session: AgentSession; output: RoiDiscoveryTurnOutput; capped: boolean } {
+  if (session.flow !== "roi") {
+    return { session, output, capped: false };
+  }
+
+  const askedQuestion = replyContainsQuestion(output.reply);
+  if (output.stage === "discovery" && askedQuestion && !canAskDiscoveryQuestion(session)) {
+    return {
+      session: { ...closeDiscovery(session), stage: "bridge" },
+      output: {
+        reply: buildDiscoveryClosedFallback({ ...session, stage: "bridge" }),
+        stage: "bridge",
+      },
+      capped: true,
+    };
+  }
+
+  if (output.stage === "discovery" && askedQuestion) {
+    return {
+      session: markDiscoveryQuestionAsked(session),
+      output,
+      capped: false,
+    };
+  }
+
+  return { session, output, capped: false };
 }
