@@ -8,6 +8,7 @@ import {
   type DemoFormEntry,
 } from "~/server/vapi/demoUsage";
 import { sendSms } from "~/server/sms/twilio";
+import { normalizePhone } from "~/server/sms/phone";
 import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 
 const RECOVERY_INDEX_KEY = "speed2lead:demo:abandoned-recovery-pending";
