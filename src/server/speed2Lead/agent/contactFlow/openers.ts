@@ -1,10 +1,12 @@
 import { exampleLinkForTrade } from "~/server/speed2Lead/agent/contactFlow/exampleLinks";
 import { restateNeedForBridge } from "~/server/speed2Lead/agent/contactFlow/inquiryClarity";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
 import type { AgentSession, InquiryClarity } from "~/server/speed2Lead/agent/state";
 
 function heyPrefix(firstName?: string): string {
-  return firstName ? `Hey ${firstName}, ` : "Hey, ";
+  const name = usableGreetingName(firstName);
+  return name ? `Hey ${name}, ` : "Hey, ";
 }
 
 /** Opener — need clear from form. */
@@ -64,11 +66,17 @@ export function buildTimingDeclineExit(): string {
   return "Fair enough. I'll leave it there. If anything changes, just text me here.";
 }
 
-export function buildSkepticismDeclineResponse(businessName?: string): string {
+export function buildSkepticismDeclineResponse(
+  profile: AgentProfile,
+  businessName?: string,
+): string {
   const name = businessName?.trim() || "your business";
+  const guarantee = profile.resultsGuarantee?.trim();
+  if (!guarantee) {
+    return `That's fair. Want me to show you how it'd work for ${name}?`;
+  }
   return (
-    "That's fair — for what it's worth, that's part of why we back it with a 90-day results guarantee: " +
-    "you either see it pay for itself in booked revenue within 90 days, or we keep working for free until it does. " +
+    `That's fair — for what it's worth, that's part of why ${guarantee} ` +
     `Want me to show you how it'd work for ${name}?`
   );
 }

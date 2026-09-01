@@ -7,6 +7,7 @@
  * cron pattern as painPrompt.ts.
  */
 import { getActiveProfile, type AgentProfile } from "~/server/speed2Lead/agent/profile";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import {
   appendMessage,
   dequeueNoResponseCampaign,
@@ -24,11 +25,13 @@ import { sendSms } from "~/server/sms/twilio";
 export const NO_RESPONSE_STAGE_COUNT = 5;
 
 function hiDashPrefix(firstName?: string): string {
-  return firstName ? `Hi ${firstName} — ` : "";
+  const name = usableGreetingName(firstName);
+  return name ? `Hi ${name} — ` : "";
 }
 
 function hiDotPrefix(firstName?: string): string {
-  return firstName ? `Hi ${firstName}. ` : "";
+  const name = usableGreetingName(firstName);
+  return name ? `Hi ${name}. ` : "";
 }
 
 export function noResponseDueAt(

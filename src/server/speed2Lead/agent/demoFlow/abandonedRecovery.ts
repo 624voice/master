@@ -8,7 +8,7 @@ import {
   type DemoFormEntry,
 } from "~/server/vapi/demoUsage";
 import { sendSms } from "~/server/sms/twilio";
-import { normalizePhone } from "~/server/sms/phone";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 
 const RECOVERY_INDEX_KEY = "speed2lead:demo:abandoned-recovery-pending";
 const RECOVERY_STAGE_COUNT = 4;
@@ -30,7 +30,7 @@ function recoveryDueAt(entry: DemoFormEntry, stageIndex: number): string {
 }
 
 export function buildAbandonedRecoveryMessage(entry: DemoFormEntry, stageIndex: number): string {
-  const firstName = entry.firstName?.trim();
+  const firstName = usableGreetingName(entry.firstName);
   const link = demoResumeLink();
   const hey = firstName ? `Hey ${firstName}, ` : "Hey, ";
   const hi = firstName ? `Hi ${firstName}. ` : "";

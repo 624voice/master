@@ -6,8 +6,10 @@ import {
 import {
   buildAlreadyClearOpener,
   buildClearNeedOpener,
+  buildSkepticismDeclineResponse,
   buildVagueInquiryOpener,
 } from "~/server/speed2Lead/agent/contactFlow/openers";
+import { DEFAULT_624VOICE_PROFILE } from "~/server/speed2Lead/agent/profile";
 import { createAgentSession } from "~/server/speed2Lead/agent/state";
 
 function contactSession(overrides: Record<string, unknown> = {}) {
@@ -75,5 +77,28 @@ describe("contact openers", () => {
 
   test("summarizeHelpText delegates to need summary", () => {
     expect(summarizeHelpText("Need a new website")).toBe("a new website");
+  });
+
+  test("omits a clearly broken first name from the greeting", () => {
+    const message = buildClearNeedOpener(contactSession({ firstName: "d" }));
+    expect(message.startsWith("Hey, ")).toBe(true);
+    expect(message).not.toContain("Hey d,");
+  });
+});
+
+describe("buildSkepticismDeclineResponse", () => {
+  test("cites the profile 90-day guarantee", () => {
+    const reply = buildSkepticismDeclineResponse(DEFAULT_624VOICE_PROFILE, "Test Plumbing");
+    expect(reply).toContain("90-day");
+    expect(reply).toContain(DEFAULT_624VOICE_PROFILE.resultsGuarantee);
+    expect(reply).toContain("Test Plumbing");
+  });
+
+  test("omits the guarantee clause when the field is unset", () => {
+    const { resultsGuarantee: _omit, ...rest } = DEFAULT_624VOICE_PROFILE;
+    const reply = buildSkepticismDeclineResponse(rest, "Test Plumbing");
+    expect(reply).not.toContain("90-day");
+    expect(reply).toContain("Test Plumbing");
+    expect(reply).toContain("Want me to show you how it'd work");
   });
 });

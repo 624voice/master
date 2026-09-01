@@ -58,6 +58,11 @@ export type AgentProfile = {
   /** Minutes after session.createdAt for each no-response follow-up stage
    * (+4h, Day 1, Day 3, Day 6, Day 10 by default). */
   noResponseDelaysMinutes: number[];
+  /**
+   * Optional results-guarantee sentence used in decline/no-response copy.
+   * Omit to drop the guarantee clause without changing the rest of the message.
+   */
+  resultsGuarantee?: string;
 };
 
 export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
@@ -116,6 +121,8 @@ export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
   headlinePainKeys: ["missed_calls", "slow_response", "follow_up"],
   painPromptDelayMinutes: 5,
   noResponseDelaysMinutes: [240, 1440, 4320, 8640, 14400],
+  resultsGuarantee:
+    "we back it with a 90-day results guarantee: you either see it pay for itself in booked revenue within 90 days, or we keep working for free until it does.",
 };
 
 export function getActiveProfile(): AgentProfile {

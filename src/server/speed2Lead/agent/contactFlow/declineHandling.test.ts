@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildDeclineDiagnosisQuestion,
+  buildSkepticismDeclineResponse,
   buildTimingDeclineExit,
 } from "~/server/speed2Lead/agent/contactFlow/openers";
 import { resolveContactDeclineAction } from "~/server/speed2Lead/agent/contactFlow/declineHandling";
+import { DEFAULT_624VOICE_PROFILE } from "~/server/speed2Lead/agent/profile";
 import { createAgentSession } from "~/server/speed2Lead/agent/state";
 
 function contactSession(overrides: Partial<import("~/server/speed2Lead/agent/state").AgentSession> = {}) {
@@ -27,6 +29,20 @@ describe("resolveContactDeclineAction", () => {
     if (action.type === "send") {
       expect(action.reply).toBe(buildDeclineDiagnosisQuestion());
       expect(action.sessionPatch.declineDiagnosisSent).toBe(true);
+    }
+  });
+
+  test("skepticism path uses profile resultsGuarantee", () => {
+    const action = resolveContactDeclineAction(
+      contactSession({ declineAwaitingReason: true, declineDiagnosisSent: true }),
+      "I'm not convinced this would actually solve the problem",
+    );
+    expect(action.type).toBe("send");
+    if (action.type === "send") {
+      expect(action.reply).toBe(
+        buildSkepticismDeclineResponse(DEFAULT_624VOICE_PROFILE, "Test Plumbing"),
+      );
+      expect(action.reply).toContain("90-day");
     }
   });
 

@@ -1,12 +1,15 @@
 import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import type { AgentSession } from "~/server/speed2Lead/agent/state";
 
 function hiDashPrefix(firstName?: string): string {
-  return firstName ? `Hi ${firstName} — ` : "";
+  const name = usableGreetingName(firstName);
+  return name ? `Hi ${name} — ` : "";
 }
 
 function hiDotPrefix(firstName?: string): string {
-  return firstName ? `Hi ${firstName}. ` : "";
+  const name = usableGreetingName(firstName);
+  return name ? `Hi ${name}. ` : "";
 }
 
 function helpSummary(session: AgentSession): string {
@@ -49,10 +52,12 @@ export function buildContactNoResponseMessage2(_profile: AgentProfile, _session:
   );
 }
 
-export function buildContactNoResponseMessage3(_profile: AgentProfile, _session: AgentSession): string {
+export function buildContactNoResponseMessage3(profile: AgentProfile, _session: AgentSession): string {
+  const guarantee = profile.resultsGuarantee?.trim()?.replace(/[.\s]+$/, "");
+  const guaranteeClause = guarantee ? ` — and ${guarantee}` : "";
   return (
     "No pressure if this isn't a priority right now. I can probably show you a way to capture more opportunities " +
-    "without adding more work or headcount — and it's backed by our 90-day guarantee if you want to see how it'd work. " +
+    `without adding more work or headcount${guaranteeClause}. ` +
     "Would it be worth 25 minutes to take a look?"
   );
 }

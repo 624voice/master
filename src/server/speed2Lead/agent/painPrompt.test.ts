@@ -25,6 +25,24 @@ describe("buildOpenerMessage1", () => {
 
     expect(message.startsWith("Hey, ")).toBe(true);
   });
+
+  test("omits a single-character or placeholder first name", () => {
+    const broken = buildOpenerMessage1(DEFAULT_624VOICE_PROFILE, {
+      firstName: "d",
+      businessName: "Acme HVAC",
+      annualOpportunity: "$120,000",
+    });
+    expect(broken.startsWith("Hey, ")).toBe(true);
+    expect(broken).not.toContain("Hey d,");
+
+    const placeholder = buildOpenerMessage1(DEFAULT_624VOICE_PROFILE, {
+      firstName: "test",
+      businessName: "Acme HVAC",
+      annualOpportunity: "$120,000",
+    });
+    expect(placeholder.startsWith("Hey, ")).toBe(true);
+    expect(placeholder).not.toContain("Hey test,");
+  });
 });
 
 describe("buildPainPromptMessage", () => {

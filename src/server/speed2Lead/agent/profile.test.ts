@@ -13,3 +13,11 @@ describe("painOutcomeFor", () => {
     expect(painOutcomeFor(DEFAULT_624VOICE_PROFILE, "not_a_real_pain").key).toBe("general");
   });
 });
+
+describe("DEFAULT_624VOICE_PROFILE.resultsGuarantee", () => {
+  test("uses the 90-day results-guarantee wording", () => {
+    expect(DEFAULT_624VOICE_PROFILE.resultsGuarantee).toBe(
+      "we back it with a 90-day results guarantee: you either see it pay for itself in booked revenue within 90 days, or we keep working for free until it does.",
+    );
+  });
+});

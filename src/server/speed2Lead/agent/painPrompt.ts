@@ -16,6 +16,7 @@
  * is in session.messages.
  */
 import { getActiveProfile, type AgentProfile } from "~/server/speed2Lead/agent/profile";
+import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 import {
   appendMessage,
   dequeuePainPrompt,
@@ -32,7 +33,8 @@ export function buildOpenerMessage1(
   profile: AgentProfile,
   input: { firstName?: string; businessName: string; annualOpportunity: string },
 ): string {
-  const greeting = input.firstName ? `Hey ${input.firstName}, ` : "Hey, ";
+  const name = usableGreetingName(input.firstName);
+  const greeting = name ? `Hey ${name}, ` : "Hey, ";
   return (
     `${greeting}I just sent over your ROI Report for ${input.businessName}. Looks like there's about ` +
     `${input.annualOpportunity} in opportunity on the table.\n\n` +

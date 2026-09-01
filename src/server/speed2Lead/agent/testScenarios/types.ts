@@ -30,6 +30,9 @@ export type ScenarioSeed = {
   enqueuePainPrompt?: boolean;
   /** Enqueue phone on no-response Redis index after seeding. */
   enqueueNoResponse?: boolean;
+  discoveryQuestionCount?: number;
+  discoveryClosed?: boolean;
+  meetingDeclineCount?: number;
 };
 
 export type ScenarioTurn = {
