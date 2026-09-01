@@ -683,8 +683,9 @@ export const MECHANICAL_CHECKS: Record<string, MechanicalCheck> = {
       return { pass: false, detail: `Third diagnostic question leaked past cap: ${reply.slice(0, 120)}` };
     }
     const schedulingPivot =
-      /\b(what day|which time|works best|schedule|25[- ]minute|quick chat|worth 25)\b/i.test(reply) ||
-      looksLikeBridgeQuestion(reply);
+      /\b(what day|which time|works best|schedule|25[- ]minutes?|quick chat|worth 25|worth it|headcount)\b/i.test(
+        reply,
+      ) || looksLikeBridgeQuestion(reply);
     if (schedulingPivot || !reply.includes("?")) {
       return {
         pass: true,
