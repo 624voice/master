@@ -1,5 +1,4 @@
 import { describe, expect, test, beforeEach } from "bun:test";
-import { mock } from "bun:test";
 import {
   capturedOutboundSms,
   installSpeed2LeadIntegrationMocks,
@@ -7,18 +6,6 @@ import {
 } from "~/server/speed2Lead/testSupport/integrationMocks";
 
 installSpeed2LeadIntegrationMocks();
-
-mock.module("~/server/speed2Lead/agent/llmTurn", () => ({
-  runAgentTurn: async () => ({
-    reply: "Got it — happy to keep going when you're ready.",
-    stage: "discovery",
-    primary_pain: null,
-    wants_meeting: false,
-    opt_out: false,
-    discovery_answer_sufficient: false,
-  }),
-  enforceReplyHygiene: (text: string) => text.trim(),
-}));
 
 const { createAgentSession, getAgentSession, saveAgentSession } = await import(
   "~/server/speed2Lead/agent/state"
@@ -72,8 +59,18 @@ describe("persisted pre-Phase-B scheduling stages (read-compat)", () => {
   });
 
   test("offering_slots + non-intent inbound remaps to bridge and is not stuck", async () => {
-    await persistLegacySession("offering_slots", "+15550001003");
-    await handleAgentInboundSms("+15550001003", "thanks", "SM-legacy-thanks");
+    const previousKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    try {
+      await persistLegacySession("offering_slots", "+15550001003");
+      await handleAgentInboundSms("+15550001003", "thanks", "SM-legacy-thanks");
+    } finally {
+      if (previousKey === undefined) {
+        delete process.env.OPENAI_API_KEY;
+      } else {
+        process.env.OPENAI_API_KEY = previousKey;
+      }
+    }
 
     const persisted = await getAgentSession("+15550001003");
     expect(persisted).toBeTruthy();
