@@ -26,7 +26,9 @@ mock.module("~/server/speed2Lead/redis", () => ({
 }));
 
 const { saveLeadIndex } = await import("~/server/appointmentLifecycle/store");
-const { matchCalendarEventToLead } = await import("~/server/appointmentLifecycle/matchLead");
+const { extractEmailFromText, extractPhoneFromText, matchCalendarEventToLead } = await import(
+  "~/server/appointmentLifecycle/matchLead"
+);
 
 function lead(overrides: Partial<LeadIndexEntry> = {}): LeadIndexEntry {
   return {
@@ -151,5 +153,54 @@ describe("matchLead production safety", () => {
       }),
     );
     expect(result.matched).toBe(false);
+  });
+});
+
+describe("extractPhoneFromText", () => {
+  test("numeric-local-part emails cannot produce a phone", () => {
+    expect(extractPhoneFromText("s2l.phasea.prod.1788905100222@example.com")).toBeUndefined();
+    expect(extractPhoneFromText("Contact: 1788905100222@example.com")).toBeUndefined();
+  });
+
+  test("URLs containing long digit runs cannot produce a phone", () => {
+    expect(extractPhoneFromText("See https://example.com/path/15551234567890/status")).toBeUndefined();
+    expect(extractPhoneFromText("https://maps.example.com/place/2149722278123")).toBeUndefined();
+  });
+
+  test("tel: URI is extracted even when a numeric-local-part email is present", () => {
+    expect(
+      extractPhoneFromText(
+        "Guest: 1788905100222@example.com\nCall tel:+12145551212 if needed",
+      ),
+    ).toBe("+12145551212");
+  });
+
+  test("labeled phone is extracted even when a numeric-local-part email is present", () => {
+    expect(
+      extractPhoneFromText(
+        "Email: 1788905100222@example.com\nMobile: (214) 555-1212",
+      ),
+    ).toBe("+12145551212");
+  });
+
+  test("ordinary formatted phone values still parse", () => {
+    expect(extractPhoneFromText("Phone number: (555) 123-4567")).toBe("+15551234567");
+    expect(extractPhoneFromText("Reach me at 555-123-4567")).toBe("+15551234567");
+    expect(extractPhoneFromText("+1 (555) 123-4567")).toBe("+15551234567");
+    expect(extractPhoneFromText("2149722278")).toBe("+12149722278");
+  });
+
+  test("digits inside a longer numeric sequence are not a phone", () => {
+    expect(extractPhoneFromText("Reference 1788905100222")).toBeUndefined();
+  });
+
+  test("alphanumeric identifiers are not phones", () => {
+    expect(extractPhoneFromText("order15551234567xyz")).toBeUndefined();
+  });
+});
+
+describe("extractEmailFromText", () => {
+  test("extracts a plain email", () => {
+    expect(extractEmailFromText("Email: jane@example.com")).toBe("jane@example.com");
   });
 });
