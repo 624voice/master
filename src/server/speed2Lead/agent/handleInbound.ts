@@ -1,10 +1,10 @@
 /**
- * Webhook entrypoint for the rebuilt Speed2Lead agent (ROI + contact flows).
+ * Webhook entrypoint for the rebuilt Speed2Lead agent (ROI + contact + demo).
  *
- * Deterministic responsibilities live here: opt-out handling, deciding when
- * to fetch real slots, executing a confirmed booking, and persisting state.
- * Everything about what to SAY is delegated to the single LLM call in
- * `llmTurn.ts`, except contact decline/pricing/injection guards owned in code.
+ * Deterministic responsibilities live here: opt-out handling, booking-link
+ * handoff, and persisting state. Meeting conversion is booking-link only —
+ * the appointment lifecycle establishes BOOKED. Reply wording is delegated
+ * to `llmTurn.ts`, except contact/demo decline/pricing/injection guards.
  */
 import { resolveContactDeclineAction } from "~/server/speed2Lead/agent/contactFlow/declineHandling";
 import { resolveDemoDeclineAction } from "~/server/speed2Lead/agent/demoFlow/declineHandling";
@@ -41,9 +41,7 @@ import {
   countConsequenceQuestionsAsked,
   shouldProceedAfterRepeatedCostAsk,
 } from "~/server/speed2Lead/agent/contactFlow/discoveryReply";
-import { buildContactSchedulingTurnReply } from "~/server/speed2Lead/agent/contactFlow/schedulingReply";
 import {
-  flagSchedulingFailure,
   guardAgentReply,
   shouldPreserveTerminalStage,
 } from "~/server/speed2Lead/agent/scheduling/replyGuard";
@@ -65,19 +63,10 @@ import {
   saveAgentSession,
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
-import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
+import { runAgentTurn, type AgentTurnOutput } from "~/server/speed2Lead/agent/llmTurn";
 import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
-import {
-  resolveSlotsForAgentTurn,
-  validateConfirmBooking,
-  applyExplicitBookConfirmOutput,
-  EXPLICIT_BOOK_CONFIRM_RE,
-} from "~/server/speed2Lead/agent/slotPreferences";
-import { resolveOfferedSlotSelectionCandidate } from "~/server/speed2Lead/agent/schedulingContext";
-import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
-import { buildProviderConflictCopy } from "~/server/speed2Lead/agent/scheduling/copy";
 import {
   executeBookingLinkResend,
   executeBookingLinkTransition,
@@ -103,7 +92,6 @@ import {
   isMeetingDeclineStage,
   sessionAwaitingPainAnswer,
 } from "~/server/speed2Lead/agent/turnGuards";
-import { buildBookingConfirmationMessage } from "~/server/speed2Lead/bookingConfirmation";
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -113,11 +101,12 @@ async function cancelPendingScheduledOutreach(session: AgentSession): Promise<Ag
   return updated;
 }
 
-async function persistSessionAfterTurn(session: AgentSession): Promise<void> {
-  const bookingLinkMode = getActiveProfile().bookingMode === "link";
+/** Persist after an inbound turn. Remaps leftover pre-Phase-B scheduling stages. */
+export async function persistSessionAfterTurn(session: AgentSession): Promise<void> {
   let next = session;
+  // Read-compat: persisted pre-Phase-B scheduling stages cannot be written
+  // back. New sessions never enter them; inbound continues via booking-link.
   if (
-    bookingLinkMode &&
     next.stage !== "booking_link_pending" &&
     next.stage !== "booked" &&
     next.stage !== "handoff" &&
@@ -253,7 +242,6 @@ export async function handleAgentInboundSms(
     }
 
     const profile = getActiveProfile();
-    const bookingLinkMode = profile.bookingMode === "link";
     const isContact = session.flow === "contact";
     const isDemo = session.flow === "demo";
     const isDiscoveryFlow = isContact || isDemo;
@@ -411,24 +399,9 @@ export async function handleAgentInboundSms(
       session.meetingDeclineCount = (session.meetingDeclineCount ?? 0) + 1;
     }
 
-    const slotResolution = bookingLinkMode
-      ? { session, slots: [] as typeof session.offeredSlots, pool: [] as typeof session.offeredSlots, fetchFailed: false }
-      : await resolveSlotsForAgentTurn(session, body, profile);
-    session = slotResolution.session;
-    const offered = bookingLinkMode ? [] : slotResolution.slots;
-    const turnContext: TurnContext = { slotsUnavailable: bookingLinkMode ? false : slotResolution.fetchFailed };
-    const activeOffered = offered.length > 0 ? offered : (session.offeredSlots ?? []);
-    const selectedOfferedIso =
-      activeOffered.length > 0
-        ? resolveOfferedSlotSelectionCandidate(
-            body,
-            activeOffered.map((slot) => slot.startIso),
-          )
-        : null;
-
     let output: AgentTurnOutput;
     try {
-      output = await runAgentTurn(profile, session, offered, turnContext);
+      output = await runAgentTurn(profile, session);
     } catch (error) {
       console.error("Speed2Lead agent turn failed:", error);
       const fallback =
@@ -450,16 +423,11 @@ export async function handleAgentInboundSms(
     if (output.stage === "handoff") {
       output = { ...output, stage: session.stage === "booking_link_pending" ? "booking_link_pending" : session.stage };
     }
-    if (bookingLinkMode) {
-      output = { ...output, confirm_booking: false, slot_choice_index: null };
-    }
     if (session.stage === "booking_link_pending") {
       output = {
         ...output,
         stage: "booking_link_pending",
         wants_meeting: false,
-        confirm_booking: false,
-        slot_choice_index: null,
       };
     }
 
@@ -472,102 +440,11 @@ export async function handleAgentInboundSms(
       output = {
         ...output,
         reply: capped.output.reply,
-        stage: capped.output.stage,
-        ...(capped.capped ? { confirm_booking: false } : {}),
+        stage:
+          capped.output.stage === "offering_slots" || capped.output.stage === "confirming"
+            ? "bridge"
+            : capped.output.stage,
       };
-    }
-
-    const explicitBook = applyExplicitBookConfirmOutput(body, session, offered, {
-      confirm_booking: output.confirm_booking,
-      slot_choice_index: output.slot_choice_index,
-    });
-    output = { ...output, ...explicitBook };
-
-    if (
-      output.confirm_booking &&
-      selectedOfferedIso &&
-      !EXPLICIT_BOOK_CONFIRM_RE.test(body)
-    ) {
-      output = { ...output, confirm_booking: false };
-    }
-
-    const bookingValidation = validateConfirmBooking({
-      body,
-      session,
-      offered,
-      slotChoiceIndex: output.slot_choice_index,
-      confirmBooking: output.confirm_booking,
-    });
-
-    if (output.confirm_booking && !bookingValidation.proceed) {
-      console.warn("Speed2Lead agent rejected premature confirm_booking", {
-        phoneSuffix: phone.slice(-4),
-        reason: bookingValidation.logReason,
-        inbound: body.slice(0, 80),
-        slotChoiceIndex: output.slot_choice_index,
-        offeredCount: offered.length,
-      });
-      output = { ...output, confirm_booking: false, slot_choice_index: null };
-    }
-
-    const chosenSlot = bookingValidation.proceed ? bookingValidation.slot : undefined;
-
-    if (!bookingLinkMode && output.confirm_booking && chosenSlot) {
-      const booked = await confirmBookSlot({
-        slot: chosenSlot,
-        phone,
-        attendeeName: session.firstName ?? "there",
-        attendeeEmail: session.email,
-        businessName: session.businessName,
-        source:
-          session.flow === "contact"
-            ? "contact"
-            : session.flow === "demo"
-              ? "demo"
-              : "roi",
-      });
-
-      if (booked.ok) {
-        session.stage = "booked";
-        session.bookedStartIso = booked.startIso;
-        session.bookedEventId = booked.eventId;
-        session.offeredSlots = [];
-        session.slotPool = [];
-        session = await cancelPendingNoResponseCampaign(session);
-
-        if (booked.confirmationSmsSent) {
-          // Lifecycle sent the Meet-link confirmation and scheduled reminders.
-          session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
-          await persistSessionAfterTurn(session);
-          return;
-        }
-
-        // Idempotent replay (or other lifecycle skip): lifecycle already sent
-        // confirmation on the first book — send the same details once from here.
-        const confirmation = buildBookingConfirmationMessage(
-          booked.startIso,
-          session.firstName ?? "there",
-          { meetingLink: booked.meetUrl },
-        );
-        await sendAgentReplySms(phone, confirmation, messageSid);
-        session = appendMessage(session, "assistant", confirmation);
-        await persistSessionAfterTurn(session);
-        return;
-      }
-
-      // Booking failed — code-owned conflict language; never trust model success text.
-      session = flagSchedulingFailure(session, booked.reason);
-      const refreshed = await offerSlots(profile);
-      session.offeredSlots = refreshed.ok ? refreshed.slots : [];
-      session.slotPool = refreshed.ok ? refreshed.slots : [];
-      session.stage = "offering_slots";
-      const text = buildProviderConflictCopy(
-        (refreshed.ok ? refreshed.slots : []).map((slot) => slot.startIso),
-      );
-      await sendAgentReplySms(phone, text, messageSid);
-      session = appendMessage(session, "assistant", text);
-      await persistSessionAfterTurn(session);
-      return;
     }
 
     // Normal turn: trust the model's stage/pain tracking, but never let it
@@ -608,13 +485,12 @@ export async function handleAgentInboundSms(
         (output.stage === "bridge" || output.wants_meeting || looksLikeBridgeQuestion(reply))
       ) {
         reply = buildDemoDiscoveryFallback();
-        output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
+        output = { ...output, stage: "discovery", wants_meeting: false };
       }
 
       if (!painQuantified && !session.discoveryClosed) {
         if (
           output.stage === "bridge" ||
-          output.stage === "offering_slots" ||
           looksLikeBridgeQuestion(reply) ||
           (output.wants_meeting && !isDirectMeetingIntent(body))
         ) {
@@ -623,14 +499,14 @@ export async function handleAgentInboundSms(
           } else if (isContact && !isConsequenceQuestion(reply)) {
             reply = buildConsequenceQuestionVariant(countConsequenceQuestionsAsked(session));
           }
-          output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
+          output = { ...output, stage: "discovery", wants_meeting: false };
         }
       }
 
       if (isContact && isConsequenceQuestion(reply) && shouldProceedAfterRepeatedCostAsk(session, reply)) {
         reply = buildDiscoveryProceedFallback(session);
         session = closeDiscovery(session);
-        output = { ...output, stage: "bridge", wants_meeting: false, confirm_booking: false };
+        output = { ...output, stage: "bridge", wants_meeting: false };
       } else if (
         isContact &&
         session.stage === "discovery" &&
@@ -641,7 +517,7 @@ export async function handleAgentInboundSms(
       ) {
         reply = buildConsequenceQuestionVariant(countConsequenceQuestionsAsked(session));
         session = markDiscoveryQuestionAsked(session);
-        output = { ...output, stage: "discovery", wants_meeting: false, confirm_booking: false };
+        output = { ...output, stage: "discovery", wants_meeting: false };
       } else if (isContact) {
         reply = avoidDuplicateAssistantReply(session, reply);
       }
@@ -674,78 +550,18 @@ export async function handleAgentInboundSms(
         output = { ...output, wants_meeting: false, stage: "discovery" };
       }
 
-      const schedulingReply = bookingLinkMode
-        ? null
-        : buildContactSchedulingTurnReply({
-            session,
-            inboundBody: body,
-            offered,
-            fetchFailed: slotResolution.fetchFailed,
-            profile,
-            llmReply: reply,
-          });
-      if (schedulingReply) {
-        reply = schedulingReply;
-        if (session.stage === "bridge" && (offered.length > 0 || session.requestedDate)) {
-          session.stage = "offering_slots";
-        }
-      }
-
-      if (!bookingLinkMode && selectedOfferedIso && session.discoveryClosed) {
-        session.stage = "confirming";
-        output = { ...output, stage: "confirming", confirm_booking: false };
-      } else if (
-        !bookingLinkMode &&
-        isDirectMeetingIntent(body) &&
-        session.discoveryClosed &&
-        offered.length > 0
-      ) {
-        session.stage = "offering_slots";
-      }
-
       if (!blockedDiscovery && !shouldPreserveTerminalStage(session)) {
-        const inScheduling =
-          session.stage === "offering_slots" || session.stage === "confirming";
-        if (inScheduling && (output.stage === "bridge" || output.stage === "discovery")) {
-          // Never regress out of active scheduling on a preference/slot turn.
-        } else if (
-          session.discoveryClosed &&
-          (session.stage === "offering_slots" || session.stage === "confirming" || offered.length > 0) &&
-          (output.stage === "discovery" || output.stage === "bridge")
-        ) {
-          // Discovery is closed — ignore model regressions back into discovery/bridge.
-        } else if (!canLeaveDiscovery && (output.stage === "bridge" || output.stage === "offering_slots")) {
+        if (!canLeaveDiscovery && output.stage === "bridge") {
           session.stage = "discovery";
         } else {
           session.stage = output.stage;
         }
       }
-      if (offered.length > 0) {
-        session.offeredSlots = offered;
-        if (
-          !selectedOfferedIso &&
-          canLeaveDiscovery &&
-          painQuantified &&
-          (isDirectMeetingIntent(body) ||
-            isMeetingAgreeIntent(body) ||
-            output.wants_meeting ||
-            output.stage === "offering_slots")
-        ) {
-          session.stage = "offering_slots";
-        }
-      }
-      if (slotResolution.pool.length > 0) {
-        session.slotPool = slotResolution.pool;
-      }
-
-      if (selectedOfferedIso && session.discoveryClosed) {
-        session.stage = "confirming";
-      }
 
       const guarded = guardAgentReply({
         reply,
         session,
-        fetchFailed: slotResolution.fetchFailed,
+        fetchFailed: false,
         modelStage: session.stage,
         bookingConfirmed: false,
       });
@@ -753,15 +569,6 @@ export async function handleAgentInboundSms(
       session = guarded.session;
       if (!shouldPreserveTerminalStage(session)) {
         session.stage = guarded.stage;
-      }
-      if (
-        slotResolution.fetchFailed &&
-        (session.stage === "offering_slots" ||
-          session.stage === "confirming" ||
-          session.requestedDate) &&
-        !guarded.flaggedFailure
-      ) {
-        session = flagSchedulingFailure(session, "calendar_fetch_failed");
       }
 
       await sendAgentReplySms(phone, reply, messageSid);
@@ -784,17 +591,10 @@ export async function handleAgentInboundSms(
           : "bridge";
     }
 
-    if (offered.length > 0) {
-      session.offeredSlots = offered;
-    }
-    if (slotResolution.pool.length > 0) {
-      session.slotPool = slotResolution.pool;
-    }
-
     const guarded = guardAgentReply({
       reply: output.reply,
       session,
-      fetchFailed: slotResolution.fetchFailed,
+      fetchFailed: false,
       modelStage: session.stage,
       bookingConfirmed: false,
     });
@@ -803,15 +603,6 @@ export async function handleAgentInboundSms(
     }
     if (!shouldPreserveTerminalStage(session)) {
       session.stage = guarded.stage;
-    }
-    if (
-      slotResolution.fetchFailed &&
-      (session.stage === "offering_slots" ||
-        session.stage === "confirming" ||
-        session.requestedDate) &&
-      !guarded.flaggedFailure
-    ) {
-      session = flagSchedulingFailure(session, "calendar_fetch_failed");
     }
 
     await sendAgentReplySms(phone, guarded.reply, messageSid);

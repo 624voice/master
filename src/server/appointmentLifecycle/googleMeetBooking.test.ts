@@ -12,8 +12,6 @@ import {
 } from "~/server/appointmentLifecycle/reminderSchedule";
 import type { AppointmentLifecycleRecord } from "~/server/appointmentLifecycle/types";
 import { supportsAttendeeInvites } from "~/server/appointmentLifecycle/googleCalendar";
-import { buildBookingProviderFailureCopy } from "~/server/speed2Lead/agent/scheduling/service";
-import type { SchedulingTurnResult } from "~/server/speed2Lead/agent/scheduling/types";
 
 const MEET_URL = "https://meet.google.com/abc-defg-hij";
 
@@ -91,22 +89,5 @@ describe("Google Meet booking invariants", () => {
     });
     expect(record.reminder24hSentAt).toBeDefined();
     expect(record.reminder2hSentAt).toBeDefined();
-  });
-
-  test("booking-stage provider failure uses booking-specific recovery copy", () => {
-    const result = {
-      outcome: "PROVIDER_ERROR",
-      offeredSlots: ["2026-08-26T14:00:00.000Z"],
-      trace: {
-        bookingAttempted: true,
-        selectionResolved: true,
-        selectedStart: "2026-08-26T14:00:00.000Z",
-        detailedFailureStage: "calendar_insert_error",
-      },
-    } as SchedulingTurnResult;
-
-    const copy = buildBookingProviderFailureCopy(result);
-    expect(copy).toContain("couldn't finish booking");
-    expect(copy).not.toContain("pulling my calendar up");
   });
 });

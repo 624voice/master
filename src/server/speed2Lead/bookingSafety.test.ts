@@ -28,13 +28,13 @@ describe("controlled phone test booking safety (code paths unchanged)", () => {
     expect(source).toMatch(/slot_unavailable|busy|conflict/i);
   });
 
-  test("agent scheduling service tracks booking failures without confirming", () => {
+  test("rebuilt inbound engine does not call conversational scheduling", () => {
     const source = readFileSync(
-      new URL("./agent/scheduling/service.ts", import.meta.url),
+      new URL("./agent/handleInbound.ts", import.meta.url),
       "utf8",
     );
-    expect(source).toMatch(/outcome:\s*"BOOKED"/);
-    expect(source).toMatch(/provider_conflict|invalid_selection|provider_error/i);
+    expect(source).toContain("executeBookingLinkTransition");
+    expect(source).not.toMatch(/confirmBookSlot|processSchedulingTurn|offerSlots/);
   });
 
   test("preview calendar availability requires configured Google credentials", () => {

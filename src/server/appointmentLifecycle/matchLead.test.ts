@@ -9,6 +9,7 @@ mock.module("~/server/speed2Lead/redis", () => ({
     get: async <T>(key: string) => (redisStore.get(key) as T | undefined) ?? null,
     set: async (key: string, value: unknown) => {
       redisStore.set(key, value);
+      return "OK";
     },
     del: async (key: string) => {
       redisStore.delete(key);

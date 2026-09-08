@@ -52,8 +52,12 @@ export function installSpeed2LeadIntegrationMocks(): void {
   mock.module("~/server/speed2Lead/redis", () => ({
     getRedis: () => ({
       get: async (key: string) => capturedRedisStore.get(key) ?? null,
-      set: async (key: string, value: unknown) => {
+      set: async (key: string, value: unknown, opts?: { nx?: boolean; ex?: number }) => {
+        if (opts?.nx && capturedRedisStore.has(key)) {
+          return null;
+        }
         capturedRedisStore.set(key, value);
+        return "OK";
       },
       del: async (key: string) => {
         capturedRedisStore.delete(key);

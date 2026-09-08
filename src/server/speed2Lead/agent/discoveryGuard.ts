@@ -45,9 +45,8 @@ export function shouldCloseDiscoveryFromInbound(body: string, session: AgentSess
 
 export function shouldCloseDiscoveryFromModel(output: {
   wants_meeting: boolean;
-  confirm_booking: boolean;
 }): boolean {
-  return output.wants_meeting || output.confirm_booking;
+  return output.wants_meeting;
 }
 
 export function replyContainsQuestion(reply: string): boolean {

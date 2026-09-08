@@ -1,5 +1,7 @@
 # Scheduling Architecture
 
+> **Obsolete for production SMS.** Conversational slot offering (`processSchedulingTurn`, `offerSlots`, `confirmBookSlot`) was removed in Phase B. Live meeting conversion is booking-link handoff only (`bookingLinkHandoff.ts`); BOOKED comes from the appointment lifecycle. Treat the rest of this document as historical.
+
 **This is the most important technical document in the handoff package.**
 
 ## Overview

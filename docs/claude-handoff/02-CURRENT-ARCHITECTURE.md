@@ -1,5 +1,7 @@
 # Current Technical Architecture
 
+> **Phase B note:** Conversational slot scheduling (`processSchedulingTurn` / SMS slot offer + book) is removed from the rebuilt agent. Production meeting conversion is booking-link handoff. Paths below that describe `processSchedulingTurn` are historical.
+
 ## Runtime Path (Exact)
 
 ```

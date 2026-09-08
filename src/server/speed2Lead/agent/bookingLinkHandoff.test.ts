@@ -38,6 +38,16 @@ describe("§4 meeting-intent evaluators", () => {
     expect(shouldTransitionToBookingLink(session, "maybe later")).toBe(false);
   });
 
+  test("4a Path A still fires for persisted offering_slots / confirming sessions", () => {
+    const offering = createAgentSession({ tenantId: "t", phone: "+15551111112", flow: "roi" });
+    offering.stage = "offering_slots";
+    expect(shouldTransitionToBookingLink(offering, "can we schedule a time")).toBe(true);
+
+    const confirming = createAgentSession({ tenantId: "t", phone: "+15551111113", flow: "contact" });
+    confirming.stage = "confirming";
+    expect(shouldTransitionToBookingLink(confirming, "can we schedule a call")).toBe(true);
+  });
+
   test("4a does not fire when already pending", () => {
     const session = createAgentSession({ tenantId: "t", phone: "+15551111111", flow: "demo" });
     session.stage = "booking_link_pending";
