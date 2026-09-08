@@ -1,4 +1,5 @@
 import { SPEED2LEAD_BOOKING_URL } from "~/config/features";
+import { getActiveProfile } from "~/server/speed2Lead/agent/profile";
 
 export const APPOINTMENT_LIFECYCLE_TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
 export const REMINDER_MIN_SPACING_MS = 30 * 60 * 1000; // 30 minutes after confirmation
@@ -26,6 +27,10 @@ export function getCalendarSyncSecret(): string | undefined {
 }
 
 export function getBookingCalendarLink(): string {
+  const fromProfile = getActiveProfile().bookingCalendarLink?.trim();
+  if (fromProfile) {
+    return fromProfile;
+  }
   return process.env.SPEED2LEAD_BOOKING_URL ?? SPEED2LEAD_BOOKING_URL;
 }
 

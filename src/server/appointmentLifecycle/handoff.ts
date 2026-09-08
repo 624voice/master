@@ -4,6 +4,8 @@ import type { ContactConversationContext } from "~/server/speed2Lead/types";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
 import type { LeadIndexEntry, S2LSource } from "~/server/appointmentLifecycle/types";
 import { getLeadByPhone, saveLeadIndex } from "~/server/appointmentLifecycle/store";
+import { enterBooked } from "~/server/speed2Lead/agent/bookingLinkFollowUps";
+import { getAgentSession, saveAgentSession } from "~/server/speed2Lead/agent/state";
 import {
   getSession,
   saveSession,
@@ -20,7 +22,7 @@ export async function registerLeadForLifecycle(input: {
   source: S2LSource;
   smsConsent: boolean;
   shortNeedSummary?: string;
-}): Promise<void> {
+}): Promise<LeadIndexEntry> {
   const entry: LeadIndexEntry = {
     phone: normalizePhone(input.phone),
     email: input.email,
@@ -33,9 +35,16 @@ export async function registerLeadForLifecycle(input: {
     shortNeedSummary: input.shortNeedSummary,
   };
   await saveLeadIndex(entry);
+  return entry;
 }
 
 export async function markSpeed2LeadBooked(phone: string): Promise<void> {
+  const agentSession = await getAgentSession(phone);
+  if (agentSession) {
+    const booked = await enterBooked(agentSession);
+    await saveAgentSession(booked);
+  }
+
   const session = await getSession(phone);
   if (!session) {
     return;

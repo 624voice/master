@@ -63,6 +63,16 @@ export type AgentProfile = {
    * Omit to drop the guarantee clause without changing the rest of the message.
    */
   resultsGuarantee?: string;
+  /** Phase A: "link" only. getActiveProfile() throws if anything else is configured. */
+  bookingMode: "link";
+  bookingProvider: "google_calendar";
+  bookingDetectionMode: "polling";
+  bookingFollowUpOffsetsMinutes: [number, number, number];
+  /** Governs booking attribution only — never flow identity. */
+  bookingAttributionWindowDays: number;
+  humanEscalationConfig: { phone: string };
+  /** Optional per-tenant booking URL. Conversation code must not hardcode a tenant URL. */
+  bookingCalendarLink?: string;
 };
 
 export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
@@ -123,12 +133,24 @@ export const DEFAULT_624VOICE_PROFILE: AgentProfile = {
   noResponseDelaysMinutes: [240, 1440, 4320, 8640, 14400],
   resultsGuarantee:
     "we back it with a 90-day results guarantee: you either see it pay for itself in booked revenue within 90 days, or we keep working for free until it does.",
+  bookingMode: "link",
+  bookingProvider: "google_calendar",
+  bookingDetectionMode: "polling",
+  bookingFollowUpOffsetsMinutes: [240, 1440, 4320],
+  bookingAttributionWindowDays: 30,
+  humanEscalationConfig: {
+    phone: process.env.SPEED2LEAD_HUMAN_ESCALATION_PHONE ?? "",
+  },
 };
 
 export function getActiveProfile(): AgentProfile {
   // Single-tenant today; swap this for a lookup keyed by phone number / site
   // once a second customer is onboarded onto the same codebase.
-  return DEFAULT_624VOICE_PROFILE;
+  const profile = DEFAULT_624VOICE_PROFILE;
+  if (profile.bookingMode !== "link") {
+    throw new Error(`bookingMode must be "link" in Phase A (got ${String(profile.bookingMode)})`);
+  }
+  return profile;
 }
 
 export function painOutcomeFor(profile: AgentProfile, painKey: string | undefined): PainOutcome {

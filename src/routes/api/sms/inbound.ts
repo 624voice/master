@@ -5,6 +5,7 @@ import { handleAgentInboundSms } from "~/server/speed2Lead/agent/handleInbound";
 import { getAgentSession } from "~/server/speed2Lead/agent/state";
 import { isValidTwilioWebhook } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
+import { handleIngressCompliance, sendLegacyOptOutConfirmation } from "~/server/sms/optOut";
 
 export const Route = createFileRoute("/api/sms/inbound")({
   server: {
@@ -34,17 +35,28 @@ export const Route = createFileRoute("/api/sms/inbound")({
 
         if (from) {
           try {
-            await maybeCancelAbandonedDemoRecoveryOnInbound(normalizePhone(from));
-
-            // A rebuilt-engine session exists only for phones started via
-            // the new startAgentConversation() path — route those there and
-            // leave every other flow (old ROI engine, contact, demo) on the
-            // existing handler untouched.
-            const agentSession = await getAgentSession(normalizePhone(from));
-            if (agentSession) {
-              await handleAgentInboundSms(from, body, params.MessageSid);
+            const compliance = await handleIngressCompliance({
+              optOutType: params.OptOutType,
+              body,
+              phone: from,
+            });
+            if (compliance.handled) {
+              if (compliance.sendLegacyConfirmation) {
+                await sendLegacyOptOutConfirmation(from);
+              }
             } else {
-              await handleInboundSms(from, body);
+              await maybeCancelAbandonedDemoRecoveryOnInbound(normalizePhone(from));
+
+              // A rebuilt-engine session exists only for phones started via
+              // the new startAgentConversation() path — route those there and
+              // leave every other flow (old ROI engine, contact, demo) on the
+              // existing handler untouched.
+              const agentSession = await getAgentSession(normalizePhone(from));
+              if (agentSession) {
+                await handleAgentInboundSms(from, body, params.MessageSid);
+              } else {
+                await handleInboundSms(from, body);
+              }
             }
           } catch (error) {
             console.error("Speed2Lead inbound SMS handler failed:", error);

@@ -28,6 +28,7 @@ import type { AgentSession, OfferedSlot } from "~/server/speed2Lead/agent/state"
 export type AgentStageOutput =
   | "discovery"
   | "bridge"
+  | "booking_link_pending"
   | "offering_slots"
   | "confirming"
   | "booked"
@@ -58,7 +59,7 @@ const TURN_SCHEMA = {
     },
     stage: {
       type: "string",
-      enum: ["discovery", "bridge", "offering_slots", "confirming", "booked", "declined", "handoff"],
+      enum: ["discovery", "bridge", "booking_link_pending", "offering_slots", "confirming", "booked", "declined", "handoff"],
     },
     primary_pain: {
       type: ["string", "null"],
@@ -120,7 +121,8 @@ function buildRoiInstructions(
     meetingLengthMinutes: profile.meetingLengthMinutes,
     rules: [
       "One short SMS. At most one question.",
-      "Never invent a date, time, or availability — only offer times from offeredSlots below.",
+      "Never invent a date, time, or availability. Meetings are booked via a booking link sent by code — never offer, negotiate, or confirm SMS slot times.",
+      "If currentStage is booking_link_pending: answer FAQs, pricing, and objections only. Never start discovery, never send another bridge, never discuss availability. If they ask to book, they will be resent the link by code.",
       "Never require an exact confirmation phrase — treat any clear 'yes'/'sounds good'/'book it' as confirm_booking=true ONLY when the prospect is selecting one of the offered slots, never for a bare date/daypart preference like 'tomorrow', 'morning', or 'anytime'.",
       "When the prospect states a date or daypart preference, update your reply to the filtered offeredSlots list — do not confirm a booking until they pick a specific offered slot.",
       "An uncertain answer ('not sure', 'maybe', 'I guess', 'I don't know') is NOT agreement — ask ONE brief clarifying follow-up referencing the report's pain areas, stay in discovery, leave primary_pain null, and do NOT advance to bridge or offering_slots.",
@@ -218,7 +220,8 @@ function buildContactInstructions(
     schedulingKickoff: "What day works best for a quick 25-minute chat?",
     rules: [
       "One short SMS. At most one question.",
-      "Never invent dates, times, or URLs — only offer times from offeredSlots; use exampleLinkForTrade only when sharing a relevant example (code may append it).",
+      "Never invent dates, times, or URLs. Meetings are booked via a booking link sent by code — never offer or negotiate SMS slot times. Use exampleLinkForTrade only when sharing a relevant example (code may append it).",
+      "If currentStage is booking_link_pending: answer FAQs, pricing, and objections only. Never restart discovery or send another bridge.",
       "Once wants_meeting is true or discovery is closed, no more discovery questions — go to scheduling.",
       "Treat ANY cost or impact signal as sufficient to move toward bridge — including vague answers like 'few thousand', 'a couple thousand', 'a lot', 'not sure but it adds up', or qualitative impact. Do NOT re-ask the consequence question after they give one.",
       "If they truly give no cost signal at all, you may ask ONE consequence question once — vary the wording if you must re-ask; never repeat the exact same question verbatim.",
@@ -323,7 +326,8 @@ function buildDemoInstructions(
         : null,
     rules: [
       "One short SMS. At most one question.",
-      "Never invent dates, times, or availability — only offer times from offeredSlots.",
+      "Never invent dates, times, or availability. Meetings are booked via a booking link sent by code — never offer or negotiate SMS slot times.",
+      "If currentStage is booking_link_pending: answer FAQs, pricing, and objections only. Never restart discovery or send another bridge.",
       "appointmentBookedInDemo in demoSummary is Jessica's simulated booking ONLY — never confirm_booking=true based on that; real booking requires offeredSlots + prospect confirmation here.",
       "Once wants_meeting is true or discovery is closed, no more discovery — go to scheduling immediately.",
       "Direct meeting intent ('can we schedule', 'send times', 'worth a look', 'yes/sure/sounds good') → skip remaining discovery and enter scheduling.",

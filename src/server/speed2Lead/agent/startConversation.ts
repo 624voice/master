@@ -101,7 +101,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
 
     const firstName = input.firstName.trim() || undefined;
 
-    await registerLeadForLifecycle({
+    const lead = await registerLeadForLifecycle({
       phone,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -132,6 +132,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     });
 
     await sendSms(phone, opener);
+    session.leadRegisteredAt = lead.registeredAt;
     session = appendMessage(session, "assistant", opener);
     session = await schedulePainPrompt(session, profile);
     session = await scheduleNoResponseCampaign(session, profile);

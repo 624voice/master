@@ -89,16 +89,16 @@ async function getProviderAccessToken(): Promise<string> {
 
 export { getGoogleCalendarProviderAccessToken } from "~/server/appointmentLifecycle/googleCalendarAuth";
 
-export async function fetchCalendarEventsUpdatedSince(
+export async function tryFetchCalendarEventsUpdatedSince(
   updatedMin: string,
-): Promise<NormalizedCalendarEvent[]> {
+): Promise<{ ok: true; events: NormalizedCalendarEvent[] } | { ok: false }> {
   if (!(await isGoogleCalendarApiConfigured())) {
-    return [];
+    return { ok: false };
   }
 
   const calendarId = await resolveGoogleCalendarId();
   if (!calendarId) {
-    return [];
+    return { ok: false };
   }
 
   try {
@@ -122,7 +122,7 @@ export async function fetchCalendarEventsUpdatedSince(
         status: response.status,
         body: text.slice(0, 200),
       });
-      return [];
+      return { ok: false };
     }
 
     const data = (await response.json()) as { items?: GoogleCalendarApiEvent[] };
@@ -135,13 +135,63 @@ export async function fetchCalendarEventsUpdatedSince(
       }
     }
 
-    return events;
+    return { ok: true, events };
   } catch (error) {
     logAppointmentEvent("calendar_api_error", {
       action: "list_events",
       error: error instanceof Error ? error.message : String(error),
     });
-    return [];
+    return { ok: false };
+  }
+}
+
+export async function fetchCalendarEventsUpdatedSince(
+  updatedMin: string,
+): Promise<NormalizedCalendarEvent[]> {
+  const result = await tryFetchCalendarEventsUpdatedSince(updatedMin);
+  return result.ok ? result.events : [];
+}
+
+export async function patchCalendarEventDescription(
+  eventId: string,
+  description: string,
+): Promise<boolean> {
+  if (!(await isGoogleCalendarApiConfigured())) {
+    return false;
+  }
+
+  const calendarId = await resolveGoogleCalendarId();
+  if (!calendarId) {
+    return false;
+  }
+
+  try {
+    const token = await getProviderAccessToken();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description }),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      logAppointmentEvent("calendar_api_error", {
+        action: "patch_description",
+        status: response.status,
+        body: text.slice(0, 200),
+      });
+      return false;
+    }
+    return true;
+  } catch (error) {
+    logAppointmentEvent("calendar_api_error", {
+      action: "patch_description",
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
   }
 }
 

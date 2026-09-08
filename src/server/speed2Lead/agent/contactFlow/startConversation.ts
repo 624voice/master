@@ -69,7 +69,7 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
     const websiteStatus =
       input.websiteOption === "has" ? "has" : input.websiteOption === "none" ? "none" : undefined;
 
-    await registerLeadForLifecycle({
+    const lead = await registerLeadForLifecycle({
       phone,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -99,12 +99,19 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
       void resolveContactWebsite(input.websiteOption, input.website);
     }
 
+    session.leadRegisteredAt = lead.registeredAt;
+
     const opener = buildContactOpener(session);
     await sendSms(phone, opener);
     session = appendMessage(session, "assistant", opener);
 
     if (inquiryClarity === "already_clear") {
-      session = { ...session, discoveryClosed: true, stage: "bridge" };
+      session = {
+        ...session,
+        discoveryClosed: true,
+        stage: "bridge",
+        bridgeDeliveredAt: new Date().toISOString(),
+      };
     }
 
     session = await scheduleNoResponseCampaign(session, profile);

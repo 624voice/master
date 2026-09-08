@@ -139,7 +139,12 @@ export async function cancelPendingNoResponseCampaign(
 }
 
 function shouldSkipNoResponse(session: AgentSession): boolean {
-  return session.stage === "booked" || session.stage === "declined";
+  return (
+    session.stage === "booked" ||
+    session.stage === "declined" ||
+    session.stage === "booking_link_pending" ||
+    session.stage === "handoff"
+  );
 }
 
 /** Cron entrypoint: send the next due stage for each pending phone. */

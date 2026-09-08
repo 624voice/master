@@ -22,7 +22,7 @@ function leadPhoneKey(phone: string): string {
 }
 
 function leadEmailKey(email: string): string {
-  return `${LEAD_EMAIL_PREFIX}${email.trim().toLowerCase}`;
+  return `${LEAD_EMAIL_PREFIX}${email.trim().toLowerCase()}`;
 }
 
 function activePhoneKey(phone: string): string {

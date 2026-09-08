@@ -68,7 +68,7 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
 
     const profile = getActiveProfile();
 
-    await registerLeadForLifecycle({
+    const lead = await registerLeadForLifecycle({
       phone,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -88,6 +88,7 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
       websiteStatus: input.websiteStatus,
     });
 
+    session.leadRegisteredAt = lead.registeredAt;
     session = {
       ...session,
       vapiCallId: input.vapiCallId,

@@ -33,7 +33,7 @@ describe("isTerminalAgentSession", () => {
   });
 
   test("in-progress stages are not terminal", () => {
-    for (const stage of ["discovery", "bridge", "offering_slots", "confirming"] as const) {
+    for (const stage of ["discovery", "bridge", "booking_link_pending", "offering_slots", "confirming"] as const) {
       const session = createAgentSession({
         tenantId: "624voice",
         phone: PHONE,

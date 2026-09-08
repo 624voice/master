@@ -1,5 +1,10 @@
 export type S2LSource = "roi" | "contact" | "demo";
 
+/** Marketing credit for a specific meeting — never written into S2LSource or LeadIndexEntry.source. */
+export type BookingAttributionSource = "roi" | "contact" | "demo" | "multi_touch" | "unknown";
+
+export type BookingAttributionConfidence = "confident" | "ambiguous" | "unattributed";
+
 export type AppointmentLifecycleStatus =
   | "lead_active"
   | "booking_detected"
@@ -23,6 +28,7 @@ export type LeadIndexEntry = {
   source: S2LSource;
   smsConsent: boolean;
   registeredAt: string;
+  bookingLinkSentAt?: string;
   selfReportedBookingAt?: string;
   shortNeedSummary?: string;
 };
@@ -43,6 +49,7 @@ export type NormalizedCalendarEvent = {
   timezone: string;
   meetingLink?: string;
   rescheduleLink?: string;
+  createdAt?: string;
   updatedAt: string;
 };
 
@@ -68,6 +75,8 @@ export type AppointmentLifecycleRecord = {
   firstName?: string;
   businessName?: string;
   source?: S2LSource;
+  bookingAttributionSource?: BookingAttributionSource;
+  bookingAttributionConfidence?: BookingAttributionConfidence;
   appointmentStart: string;
   appointmentEnd: string;
   timezone: string;
