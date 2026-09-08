@@ -2,7 +2,7 @@
  * Per-tenant business profile for the Speed2Lead SMS agent.
  *
  * This is the ONLY place that should differ between customers. Everything
- * downstream (the LLM turn engine, the scheduling wrapper, the webhook) reads
+ * downstream (the LLM turn engine, booking-link handoff, the webhook) reads
  * from an `AgentProfile` instead of hardcoding a business's name, positioning,
  * or booking details. To sell this agent to a new home-services customer,
  * write a new profile object (or load one from env/config storage) — no
@@ -63,7 +63,7 @@ export type AgentProfile = {
    * Omit to drop the guarantee clause without changing the rest of the message.
    */
   resultsGuarantee?: string;
-  /** Phase A: "link" only. getActiveProfile() throws if anything else is configured. */
+  /** Booking-link only. getActiveProfile() throws if anything else is configured. */
   bookingMode: "link";
   bookingProvider: "google_calendar";
   bookingDetectionMode: "polling";
@@ -148,7 +148,7 @@ export function getActiveProfile(): AgentProfile {
   // once a second customer is onboarded onto the same codebase.
   const profile = DEFAULT_624VOICE_PROFILE;
   if (profile.bookingMode !== "link") {
-    throw new Error(`bookingMode must be "link" in Phase A (got ${String(profile.bookingMode)})`);
+    throw new Error(`bookingMode must be "link" (got ${String(profile.bookingMode)})`);
   }
   return profile;
 }

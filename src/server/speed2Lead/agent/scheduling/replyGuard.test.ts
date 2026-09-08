@@ -56,14 +56,14 @@ describe("scheduling replyGuard", () => {
       modelStage: "booked",
       bookingConfirmed: false,
     });
-    expect(result.stage).toBe("confirming");
-    expect(result.session.stage).toBe("confirming");
+    expect(result.stage).toBe("bridge");
+    expect(result.session.stage).toBe("bridge");
     expect(result.reply).toContain("trouble finalizing");
     expect(result.flaggedFailure).toBe(true);
     expect(result.session.schedulingFailureReason).toBeTruthy();
   });
 
-  test("rolls LLM booked-without-event back to confirming even if session.stage is already booked", () => {
+  test("rolls LLM booked-without-event back to bridge even if session.stage is already booked", () => {
     const session = {
       ...createAgentSession({
         tenantId: "624voice",
@@ -82,8 +82,8 @@ describe("scheduling replyGuard", () => {
       modelStage: "booked",
       bookingConfirmed: false,
     });
-    expect(result.stage).toBe("confirming");
-    expect(result.session.stage).toBe("confirming");
+    expect(result.stage).toBe("bridge");
+    expect(result.session.stage).toBe("bridge");
     expect(result.session.bookedEventId).toBeUndefined();
     expect(result.reply).toContain("trouble finalizing");
     expect(result.session.schedulingFailureReason).toBe("booked_stage_without_event");

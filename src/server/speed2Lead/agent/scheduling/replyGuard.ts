@@ -1,25 +1,10 @@
-import type { AgentProfile } from "~/server/speed2Lead/agent/profile";
-import type { AgentSession, OfferedSlot } from "~/server/speed2Lead/agent/state";
-import {
-  buildCalendarFetchFailureCopy,
-  buildNeedDateCopy,
-  buildNoAvailabilityCopy,
-  buildSchedulingHandoffCopy,
-  buildSlotOfferCopy,
-} from "~/server/speed2Lead/agent/scheduling/copy";
-import type { OfferPresentationType } from "~/server/speed2Lead/agent/scheduling/types";
-import { isSchedulingPreferenceOnly } from "~/server/speed2Lead/agent/slotPreferences";
+import type { AgentSession } from "~/server/speed2Lead/agent/state";
+import { buildSchedulingHandoffCopy } from "~/server/speed2Lead/agent/scheduling/copy";
 
 const UNAUTHORIZED_PLATFORM_RE = /\b(zoom|microsoft teams|teams meeting|webex)\b/i;
 const FABRICATED_BOOKING_RE =
   /\b(i('|')?ve|i have)\s+(booked|scheduled|set|got)\s+(you|us|that|it)\b/i;
 const CONFIRMED_YOU_RE = /\b(you'?re|you are)\s+(all set|confirmed|booked)\b/i;
-
-function presentationForTurn(session: AgentSession, offeredCount: number): OfferPresentationType {
-  if (offeredCount === 0) return "first_offer";
-  const hadPriorOffer = (session.offeredSlots?.length ?? 0) > 0;
-  return hadPriorOffer ? "changed_offer" : "first_offer";
-}
 
 export function looksLikeFabricatedBookingClaim(text: string): boolean {
   const lower = text.toLowerCase();
@@ -113,52 +98,6 @@ export function flagSchedulingFailure(session: AgentSession, reason: string): Ag
   };
 }
 
-function inDiscoveryFlowScheduling(session: AgentSession): boolean {
-  return (
-    session.stage === "offering_slots" ||
-    session.stage === "confirming" ||
-    (session.discoveryClosed && (session.stage === "bridge" || session.stage === "offering_slots"))
-  );
-}
-
-/** Shared scheduling reply builder for contact/demo discovery flows (ROI uses the same copy helpers). */
-export function buildDiscoverySchedulingTurnReply(args: {
-  session: AgentSession;
-  inboundBody: string;
-  offered: OfferedSlot[];
-  fetchFailed: boolean;
-  profile: AgentProfile;
-  llmReply: string;
-  now?: Date;
-}): string | null {
-  const now = args.now ?? new Date();
-  if (!inDiscoveryFlowScheduling(args.session)) return null;
-
-  if (args.fetchFailed) {
-    if (looksLikeFabricatedBookingClaim(args.llmReply)) {
-      return buildSchedulingHandoffCopy();
-    }
-  }
-
-  const prefOnly = isSchedulingPreferenceOnly(args.inboundBody, args.session, now);
-  if (!prefOnly) return null;
-
-  if (args.fetchFailed) {
-    return buildCalendarFetchFailureCopy();
-  }
-
-  if (args.offered.length > 0) {
-    const isos = args.offered.map((slot) => slot.startIso);
-    return buildSlotOfferCopy(isos, presentationForTurn(args.session, isos.length));
-  }
-
-  if (args.session.requestedDate) {
-    return buildNoAvailabilityCopy(true);
-  }
-
-  return buildNeedDateCopy();
-}
-
 export type GuardAgentReplyArgs = {
   reply: string;
   session: AgentSession;
@@ -174,7 +113,7 @@ export type GuardAgentReplyResult = {
   flaggedFailure: boolean;
 };
 
-/** True only after confirmBookSlot persisted a real calendar event. */
+/** True only after a real calendar event id was persisted on the session. */
 export function hasRealBooking(session: AgentSession): boolean {
   return Boolean(session.bookedEventId);
 }
@@ -193,14 +132,14 @@ export function shouldPreserveTerminalStage(session: AgentSession): boolean {
   );
 }
 
-function rollFakeBookedToConfirming(
+function rollFakeBookedToBridge(
   session: AgentSession,
   stage: AgentSession["stage"],
 ): { session: AgentSession; stage: AgentSession["stage"] } {
   if (stage !== "booked") {
     return { session, stage };
   }
-  return { session: { ...session, stage: "confirming" }, stage: "confirming" };
+  return { session: { ...session, stage: "bridge" }, stage: "bridge" };
 }
 
 /** Code-owned guardrails — never trust LLM booking language without a real event ID. */
@@ -214,20 +153,20 @@ export function guardAgentReply(args: GuardAgentReplyArgs): GuardAgentReplyResul
     reply = buildSchedulingHandoffCopy();
     session = flagSchedulingFailure(session, "unauthorized_meeting_platform");
     flaggedFailure = true;
-    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
+    ({ session, stage } = rollFakeBookedToBridge(session, stage));
   }
 
   if (looksLikeFabricatedBookingClaim(reply) && !args.bookingConfirmed) {
     reply = buildSchedulingHandoffCopy();
     session = flagSchedulingFailure(session, "fabricated_booking_claim");
     flaggedFailure = true;
-    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
+    ({ session, stage } = rollFakeBookedToBridge(session, stage));
   }
 
   if (stage === "booked" && !args.bookingConfirmed && !session.bookedEventId) {
-    // Keep the selected/offered slot and land in confirming so the next
-    // explicit "yes book it" can run confirmBookSlot for real.
-    ({ session, stage } = rollFakeBookedToConfirming(session, stage));
+    // Fake booked claims cannot become BOOKED. Roll to bridge; booking-link
+    // handoff is the only meeting-conversion path.
+    ({ session, stage } = rollFakeBookedToBridge(session, stage));
     if (!flaggedFailure) {
       reply = buildSchedulingHandoffCopy();
       session = flagSchedulingFailure(session, "booked_stage_without_event");

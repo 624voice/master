@@ -1,9 +1,10 @@
 /**
  * Session state for the rebuilt Speed2Lead agent.
  *
- * Deliberately flat and small: one object, no deprecated/legacy duplicate
- * fields, no separate "scheduling state machine" object nested inside it.
- * The LLM turn engine and the scheduling wrapper are the only writers.
+ * Deliberately flat and small. Meeting conversion writes booking-link /
+ * lifecycle fields only. `offering_slots` / `confirming` and slot-preference
+ * fields are DEAD FOR WRITES — retained so pre-Phase-B Redis sessions can
+ * still be read and continue through booking-link handoff.
  */
 import { getRedis } from "~/server/speed2Lead/redis";
 import { isOptedOut, setOptedOut } from "~/server/speed2Lead/session";
@@ -39,8 +40,7 @@ export type AgentMessage = {
   at: string;
 };
 
-/** A slot offered to the prospect in the most recent turn — the only slots a
- * `slot_choice_index` from the LLM is ever allowed to reference. */
+/** Persisted conversational-slot payload. Dead for writes; read-compat only. */
 export type OfferedSlot = {
   /** ISO start time, exactly as returned by getConsultationSlots. */
   startIso: string;
