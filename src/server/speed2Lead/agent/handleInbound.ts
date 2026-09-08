@@ -101,7 +101,8 @@ async function cancelPendingScheduledOutreach(session: AgentSession): Promise<Ag
   return updated;
 }
 
-async function persistSessionAfterTurn(session: AgentSession): Promise<void> {
+/** Persist after an inbound turn. Remaps leftover pre-Phase-B scheduling stages. */
+export async function persistSessionAfterTurn(session: AgentSession): Promise<void> {
   let next = session;
   // Read-compat: persisted pre-Phase-B scheduling stages cannot be written
   // back. New sessions never enter them; inbound continues via booking-link.
