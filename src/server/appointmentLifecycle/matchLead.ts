@@ -157,24 +157,39 @@ export async function matchCalendarEventToLead(
   };
 }
 
-export function extractPhoneFromText(text: string): string | undefined {
-  const patterns = [
-    /(?:phone|mobile|cell)(?:\s*(?:number|#))?\s*[:\-]?\s*(\+?1?\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})/i,
-    /(\+1\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})/,
-    /(\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})/,
-  ];
+const LABELED_PHONE_PATTERN =
+  /(?:phone|mobile|cell)(?:\s*(?:number|#))?\s*[:\-]?\s*(\+?1?\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})/i;
+const TEL_URI_PATTERN = /tel:(\+?[\d().\s-]+)/i;
+const STANDALONE_PHONE_PATTERN =
+  /(?<![A-Za-z0-9])(\+?1?\s*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})(?![A-Za-z0-9])/;
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match?.[1]) {
-      const normalized = tryNormalizePhone(match[1]);
-      if (normalized) {
-        return normalized;
-      }
-    }
+function stripNonPhoneTokens(text: string): string {
+  return text
+    .replace(/mailto:[^\s>]+/gi, " ")
+    .replace(/[\w.+-]+@[\w.-]+\.\w{2,}/g, " ")
+    .replace(/https?:\/\/\S+/gi, " ");
+}
+
+function firstNormalizedPhone(candidate: string | undefined): string | undefined {
+  if (!candidate) {
+    return undefined;
+  }
+  return tryNormalizePhone(candidate);
+}
+
+export function extractPhoneFromText(text: string): string | undefined {
+  const labeled = firstNormalizedPhone(text.match(LABELED_PHONE_PATTERN)?.[1]);
+  if (labeled) {
+    return labeled;
   }
 
-  return undefined;
+  const telUri = firstNormalizedPhone(text.match(TEL_URI_PATTERN)?.[1]);
+  if (telUri) {
+    return telUri;
+  }
+
+  const sanitized = stripNonPhoneTokens(text);
+  return firstNormalizedPhone(sanitized.match(STANDALONE_PHONE_PATTERN)?.[1]);
 }
 
 export function extractEmailFromText(text: string): string | undefined {
