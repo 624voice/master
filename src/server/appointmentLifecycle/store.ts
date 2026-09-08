@@ -70,6 +70,20 @@ export async function getLeadsByPhone(phone: string): Promise<LeadIndexEntry[]> 
   return ((await redis.get<LeadIndexEntry[]>(leadPhoneKey(normalized))) as LeadIndexEntry[] | null) ?? [];
 }
 
+/** Test-phone cleanup only — removes every LeadIndexEntry for one phone. */
+export async function clearLeadIndexForPhone(phone: string): Promise<number> {
+  const redis = getRedis();
+  const normalized = normalizePhone(phone);
+  const leads = await getLeadsByPhone(normalized);
+  for (const lead of leads) {
+    if (lead.email) {
+      await redis.del(leadEmailKey(lead.email));
+    }
+  }
+  await redis.del(leadPhoneKey(normalized));
+  return leads.length;
+}
+
 export async function getLeadByPhone(phone: string): Promise<LeadIndexEntry | null> {
   const leads = await getLeadsByPhone(phone);
   if (leads.length === 1) {
