@@ -6,8 +6,10 @@ import {
 
 installSpeed2LeadIntegrationMocks();
 
-const { createAgentSession } = await import("~/server/speed2Lead/agent/state");
+const { createAgentSession, getAgentSession, saveAgentSession, listPendingBookingLinkFollowUpPhones } =
+  await import("~/server/speed2Lead/agent/state");
 const {
+  executeBookingLinkTransition,
   isBridgeAgreement,
   shouldResendBookingLink,
   shouldTransitionToBookingLink,
@@ -124,5 +126,42 @@ describe("§5 precise lead write", () => {
     expect(contact.bookingLinkSentAt).toBe("2026-01-03T12:00:00.000Z");
     expect(roi.source).toBe("roi");
     expect(contact.source).toBe("contact");
+  });
+});
+
+describe("§4a persist booking_link_pending", () => {
+  beforeEach(() => {
+    resetSpeed2LeadIntegrationMocks();
+  });
+
+  test("does not let a stale Redis session clobber the in-memory pending transition", async () => {
+    const session = createAgentSession({
+      tenantId: "t",
+      phone: "+15550001111",
+      flow: "roi",
+      firstName: "PhaseA",
+    });
+    session.leadRegisteredAt = "2026-01-01T00:00:00.000Z";
+    await saveAgentSession(session);
+    await saveLeadIndex({
+      phone: session.phone,
+      email: "phasea@example.com",
+      firstName: "PhaseA",
+      source: "roi",
+      smsConsent: true,
+      registeredAt: "2026-01-01T00:00:00.000Z",
+    });
+
+    const returned = await executeBookingLinkTransition(session);
+    const persisted = await getAgentSession(session.phone);
+
+    expect(returned.stage).toBe("booking_link_pending");
+    expect(persisted?.stage).toBe("booking_link_pending");
+    expect(persisted?.bookingLinkSentAt).toBeTruthy();
+    expect(persisted?.bookingLinkFollowUpNextAt).toBeTruthy();
+    expect(await listPendingBookingLinkFollowUpPhones()).toContain(session.phone);
+    const leads = await getLeadsByPhone(session.phone);
+    expect(leads[0]?.bookingLinkSentAt).toBe(persisted?.bookingLinkSentAt);
+    expect(leads[0]?.source).toBe("roi");
   });
 });

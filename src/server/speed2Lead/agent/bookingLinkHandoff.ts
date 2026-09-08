@@ -167,13 +167,24 @@ export async function freshPreSendBookingCheck(session: AgentSession): Promise<{
     }
   }
 
-  const latest = (await getAgentSession(session.phone)) ?? session;
-  const active = await getActiveLifecycleForPhone(latest.phone);
+  const redisSession = await getAgentSession(session.phone);
+  const active = await getActiveLifecycleForPhone(session.phone);
   if (active) {
-    const booked = await enterBooked(latest);
-    return { alreadyBooked: true, session: booked };
+    const base =
+      redisSession?.stage === "booked" || redisSession?.stage === "handoff"
+        ? redisSession
+        : session;
+    return { alreadyBooked: true, session: await enterBooked(base) };
   }
-  return { alreadyBooked: false, session: latest };
+  if (redisSession?.stage === "booked") {
+    return { alreadyBooked: true, session: redisSession };
+  }
+  if (redisSession?.stage === "handoff") {
+    return { alreadyBooked: false, session: redisSession };
+  }
+  // Keep the in-memory transition (booking_link_pending + timestamps).
+  // Redis still has the pre-transition session and must not clobber it.
+  return { alreadyBooked: false, session };
 }
 
 export async function executeBookingLinkTransition(
