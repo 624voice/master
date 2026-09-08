@@ -63,7 +63,6 @@ import {
   isOptedOut,
   releaseAgentInboundLock,
   saveAgentSession,
-  setOptedOut,
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
 import { runAgentTurn, type AgentTurnOutput, type TurnContext } from "~/server/speed2Lead/agent/llmTurn";
@@ -80,6 +79,23 @@ import { resolveOfferedSlotSelectionCandidate } from "~/server/speed2Lead/agent/
 import { confirmBookSlot, offerSlots } from "~/server/speed2Lead/agent/scheduling";
 import { buildProviderConflictCopy } from "~/server/speed2Lead/agent/scheduling/copy";
 import {
+  executeBookingLinkResend,
+  executeBookingLinkTransition,
+  isExplicitHumanRequest,
+  isManualBookingRequest,
+  markBridgeDelivered,
+  maybeEscalateHumanFromPending,
+  shouldResendBookingLink,
+  shouldTransitionToBookingLink,
+} from "~/server/speed2Lead/agent/bookingLinkHandoff";
+import { handleAppointmentLifecycleInbound } from "~/server/appointmentLifecycle/handleInbound";
+import { classifyLifecycleIntent, isAmbiguousCancellation } from "~/server/appointmentLifecycle/intents";
+import { getActiveLifecycleForPhone } from "~/server/appointmentLifecycle/store";
+import { persistHumanFollowUp } from "~/server/speed2Lead/agent/humanFollowUp";
+import { sendHumanAlert } from "~/server/speed2Lead/agent/humanAlert";
+import { processGlobalOptOut } from "~/server/sms/optOut";
+import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
+import {
   buildPainClarifyingReply,
   containsPainHint,
   isAmbiguousDiscoveryReply,
@@ -91,16 +107,29 @@ import { buildBookingConfirmationMessage } from "~/server/speed2Lead/bookingConf
 import { sendSms } from "~/server/sms/twilio";
 import { normalizePhone } from "~/server/sms/phone";
 
-const STOP_KEYWORDS = new Set(["stop", "stopall", "unsubscribe", "cancel", "end", "quit"]);
-
-function isStopKeyword(body: string): boolean {
-  return STOP_KEYWORDS.has(body.trim().toLowerCase());
-}
-
 async function cancelPendingScheduledOutreach(session: AgentSession): Promise<AgentSession> {
   let updated = await cancelPendingPainPrompt(session);
   updated = await cancelPendingNoResponseCampaign(updated);
   return updated;
+}
+
+async function persistSessionAfterTurn(session: AgentSession): Promise<void> {
+  const bookingLinkMode = getActiveProfile().bookingMode === "link";
+  let next = session;
+  if (
+    bookingLinkMode &&
+    next.stage !== "booking_link_pending" &&
+    next.stage !== "booked" &&
+    next.stage !== "handoff" &&
+    next.stage !== "declined" &&
+    (next.stage === "offering_slots" || next.stage === "confirming")
+  ) {
+    next = { ...next, stage: "bridge" };
+  }
+  if (next.stage === "bridge") {
+    next = markBridgeDelivered(next);
+  }
+  await saveAgentSession(next);
 }
 
 async function sendAgentReplySms(
@@ -125,16 +154,6 @@ export async function handleAgentInboundSms(
   messageSid?: string,
 ): Promise<void> {
   const phone = normalizePhone(fromPhoneRaw);
-
-  if (isStopKeyword(body)) {
-    await setOptedOut(phone);
-    const stopSession = await getAgentSession(phone);
-    if (stopSession) {
-      const updated = await cancelPendingScheduledOutreach(stopSession);
-      await saveAgentSession(updated);
-    }
-    return; // Twilio/carrier sends the compliance confirmation; don't double-text.
-  }
 
   if (await isOptedOut(phone)) {
     return;
@@ -178,7 +197,63 @@ export async function handleAgentInboundSms(
     // out — cancel it rather than asking a question they've already answered.
     session = await cancelPendingScheduledOutreach(session);
 
+    if (session.stage === "handoff") {
+      logAppointmentEvent("handoff_inbound_logged", {
+        phone,
+        inbound: body.slice(0, 160),
+      });
+      await persistSessionAfterTurn(session);
+      return;
+    }
+
+    const activeLifecycle = await getActiveLifecycleForPhone(phone);
+    const lifecycleIntent = classifyLifecycleIntent(body);
+    if (activeLifecycle && lifecycleIntent !== "none") {
+      if (lifecycleIntent === "cancel" && isAmbiguousCancellation(body)) {
+        const escalated = await persistHumanFollowUp(session, "ambiguous_reschedule");
+        await sendHumanAlert({
+          reason: "ambiguous_reschedule",
+          subjectId: phone,
+          body: `S2L ambiguous reschedule/cancel from ${phone}: ${body.slice(0, 160)}`,
+        });
+        return;
+      }
+      const lifecycle = await handleAppointmentLifecycleInbound(phone, body, null);
+      if (lifecycle.handled) {
+        if (lifecycle.reply) {
+          session = appendMessage(session, "assistant", lifecycle.reply);
+        }
+        await persistSessionAfterTurn(session);
+        return;
+      }
+    }
+
+    const escalated = await maybeEscalateHumanFromPending(session, body);
+    if (escalated) {
+      return;
+    }
+    if (isExplicitHumanRequest(body) && session.stage !== "booking_link_pending") {
+      await persistHumanFollowUp(session, "explicit_human_request");
+      await sendHumanAlert({
+        reason: "explicit_human_request",
+        subjectId: phone,
+        body: `S2L explicit human request from ${phone} (${session.flow}).`,
+      });
+      return;
+    }
+
+    if (shouldTransitionToBookingLink(session, body)) {
+      await executeBookingLinkTransition(session, messageSid);
+      return;
+    }
+
+    if (shouldResendBookingLink(session, body) || (session.stage === "booking_link_pending" && isManualBookingRequest(body))) {
+      await executeBookingLinkResend(session);
+      return;
+    }
+
     const profile = getActiveProfile();
+    const bookingLinkMode = profile.bookingMode === "link";
     const isContact = session.flow === "contact";
     const isDemo = session.flow === "demo";
     const isDiscoveryFlow = isContact || isDemo;
@@ -189,7 +264,7 @@ export async function handleAgentInboundSms(
         await sendAgentReplySms(phone, declineAction.reply, messageSid);
         session = { ...session, ...declineAction.sessionPatch };
         session = appendMessage(session, "assistant", declineAction.reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -197,7 +272,7 @@ export async function handleAgentInboundSms(
         const reply = buildDemoInjectionRedirect();
         await sendAgentReplySms(phone, reply, messageSid);
         session = appendMessage(session, "assistant", reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -205,7 +280,7 @@ export async function handleAgentInboundSms(
         const reply = buildDemoOffTopicRedirect();
         await sendAgentReplySms(phone, reply, messageSid);
         session = appendMessage(session, "assistant", reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -214,7 +289,7 @@ export async function handleAgentInboundSms(
         session.pricingQuestionActive = true;
         await sendAgentReplySms(phone, DEMO_PRICING_RESPONSE_COPY, messageSid);
         session = appendMessage(session, "assistant", DEMO_PRICING_RESPONSE_COPY);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -250,7 +325,7 @@ export async function handleAgentInboundSms(
         await sendAgentReplySms(phone, declineAction.reply, messageSid);
         session = { ...session, ...declineAction.sessionPatch };
         session = appendMessage(session, "assistant", declineAction.reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -258,7 +333,7 @@ export async function handleAgentInboundSms(
         const reply = buildInjectionRedirect();
         await sendAgentReplySms(phone, reply, messageSid);
         session = appendMessage(session, "assistant", reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -266,7 +341,7 @@ export async function handleAgentInboundSms(
         const reply = buildOffTopicRedirect();
         await sendAgentReplySms(phone, reply, messageSid);
         session = appendMessage(session, "assistant", reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -275,7 +350,7 @@ export async function handleAgentInboundSms(
         session.pricingQuestionActive = true;
         await sendAgentReplySms(phone, PRICING_RESPONSE_COPY, messageSid);
         session = appendMessage(session, "assistant", PRICING_RESPONSE_COPY);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -315,7 +390,7 @@ export async function handleAgentInboundSms(
       const reply = buildPainClarifyingReply(profile);
       await sendAgentReplySms(phone, reply, messageSid);
       session = appendMessage(session, "assistant", reply);
-      await saveAgentSession(session);
+      await persistSessionAfterTurn(session);
       return;
     }
 
@@ -325,7 +400,7 @@ export async function handleAgentInboundSms(
         await sendAgentReplySms(phone, declineAction.reply, messageSid);
         session = { ...session, ...declineAction.sessionPatch };
         session = appendMessage(session, "assistant", declineAction.reply);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
     }
@@ -336,10 +411,12 @@ export async function handleAgentInboundSms(
       session.meetingDeclineCount = (session.meetingDeclineCount ?? 0) + 1;
     }
 
-    const slotResolution = await resolveSlotsForAgentTurn(session, body, profile);
+    const slotResolution = bookingLinkMode
+      ? { session, slots: [] as typeof session.offeredSlots, pool: [] as typeof session.offeredSlots, fetchFailed: false }
+      : await resolveSlotsForAgentTurn(session, body, profile);
     session = slotResolution.session;
-    const offered = slotResolution.slots;
-    const turnContext: TurnContext = { slotsUnavailable: slotResolution.fetchFailed };
+    const offered = bookingLinkMode ? [] : slotResolution.slots;
+    const turnContext: TurnContext = { slotsUnavailable: bookingLinkMode ? false : slotResolution.fetchFailed };
     const activeOffered = offered.length > 0 ? offered : (session.offeredSlots ?? []);
     const selectedOfferedIso =
       activeOffered.length > 0
@@ -358,16 +435,32 @@ export async function handleAgentInboundSms(
         "Sorry, hit a snag on my end — mind resending that? If it keeps happening, just let me know and I'll call you directly.";
       await sendAgentReplySms(phone, fallback, messageSid);
       session = appendMessage(session, "assistant", fallback);
-      await saveAgentSession(session);
+      await persistSessionAfterTurn(session);
       return;
     }
 
     if (output.opt_out) {
-      await setOptedOut(phone);
+      await processGlobalOptOut(phone);
       session.stage = "declined";
       session = await cancelPendingNoResponseCampaign(session);
-      await saveAgentSession(session);
+      await persistSessionAfterTurn(session);
       return;
+    }
+
+    if (output.stage === "handoff") {
+      output = { ...output, stage: session.stage === "booking_link_pending" ? "booking_link_pending" : session.stage };
+    }
+    if (bookingLinkMode) {
+      output = { ...output, confirm_booking: false, slot_choice_index: null };
+    }
+    if (session.stage === "booking_link_pending") {
+      output = {
+        ...output,
+        stage: "booking_link_pending",
+        wants_meeting: false,
+        confirm_booking: false,
+        slot_choice_index: null,
+      };
     }
 
     if (!isDiscoveryFlow) {
@@ -419,7 +512,7 @@ export async function handleAgentInboundSms(
 
     const chosenSlot = bookingValidation.proceed ? bookingValidation.slot : undefined;
 
-    if (output.confirm_booking && chosenSlot) {
+    if (!bookingLinkMode && output.confirm_booking && chosenSlot) {
       const booked = await confirmBookSlot({
         slot: chosenSlot,
         phone,
@@ -445,7 +538,7 @@ export async function handleAgentInboundSms(
         if (booked.confirmationSmsSent) {
           // Lifecycle sent the Meet-link confirmation and scheduled reminders.
           session = appendMessage(session, "assistant", `[booked ${booked.startIso}]`);
-          await saveAgentSession(session);
+          await persistSessionAfterTurn(session);
           return;
         }
 
@@ -458,7 +551,7 @@ export async function handleAgentInboundSms(
         );
         await sendAgentReplySms(phone, confirmation, messageSid);
         session = appendMessage(session, "assistant", confirmation);
-        await saveAgentSession(session);
+        await persistSessionAfterTurn(session);
         return;
       }
 
@@ -473,7 +566,7 @@ export async function handleAgentInboundSms(
       );
       await sendAgentReplySms(phone, text, messageSid);
       session = appendMessage(session, "assistant", text);
-      await saveAgentSession(session);
+      await persistSessionAfterTurn(session);
       return;
     }
 
@@ -581,14 +674,16 @@ export async function handleAgentInboundSms(
         output = { ...output, wants_meeting: false, stage: "discovery" };
       }
 
-      const schedulingReply = buildContactSchedulingTurnReply({
-        session,
-        inboundBody: body,
-        offered,
-        fetchFailed: slotResolution.fetchFailed,
-        profile,
-        llmReply: reply,
-      });
+      const schedulingReply = bookingLinkMode
+        ? null
+        : buildContactSchedulingTurnReply({
+            session,
+            inboundBody: body,
+            offered,
+            fetchFailed: slotResolution.fetchFailed,
+            profile,
+            llmReply: reply,
+          });
       if (schedulingReply) {
         reply = schedulingReply;
         if (session.stage === "bridge" && (offered.length > 0 || session.requestedDate)) {
@@ -596,10 +691,11 @@ export async function handleAgentInboundSms(
         }
       }
 
-      if (selectedOfferedIso && session.discoveryClosed) {
+      if (!bookingLinkMode && selectedOfferedIso && session.discoveryClosed) {
         session.stage = "confirming";
         output = { ...output, stage: "confirming", confirm_booking: false };
       } else if (
+        !bookingLinkMode &&
         isDirectMeetingIntent(body) &&
         session.discoveryClosed &&
         offered.length > 0
@@ -670,7 +766,7 @@ export async function handleAgentInboundSms(
 
       await sendAgentReplySms(phone, reply, messageSid);
       session = appendMessage(session, "assistant", reply);
-      await saveAgentSession(session);
+      await persistSessionAfterTurn(session);
       return;
     }
 
@@ -720,7 +816,7 @@ export async function handleAgentInboundSms(
 
     await sendAgentReplySms(phone, guarded.reply, messageSid);
     session = appendMessage(session, "assistant", guarded.reply);
-    await saveAgentSession(session);
+    await persistSessionAfterTurn(session);
   } finally {
     await releaseAgentInboundLock(phone, lockToken);
   }

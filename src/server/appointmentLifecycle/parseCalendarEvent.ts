@@ -15,6 +15,7 @@ type GoogleCalendarApiEvent = {
   summary?: string;
   description?: string;
   updated?: string;
+  created?: string;
   start?: { dateTime?: string; timeZone?: string; date?: string };
   end?: { dateTime?: string; timeZone?: string; date?: string };
   attendees?: Array<{ email?: string; displayName?: string; responseStatus?: string }>;
@@ -43,6 +44,7 @@ type WebhookCalendarEvent = {
   attendeePhone?: string;
   meetingLink?: string;
   rescheduleLink?: string;
+  createdAt?: string;
   updatedAt?: string;
 };
 
@@ -96,6 +98,7 @@ export function parseGoogleCalendarApiEvent(event: GoogleCalendarApiEvent): Norm
     appointmentEnd: new Date(endRaw).toISOString(),
     timezone: event.start?.timeZone ?? DEFAULT_TIMEZONE,
     meetingLink: extractGoogleMeetUrl(event),
+    createdAt: event.created ? new Date(event.created).toISOString() : undefined,
     updatedAt: event.updated ? new Date(event.updated).toISOString() : new Date().toISOString(),
   };
 }
@@ -118,6 +121,7 @@ export function parseWebhookCalendarEvent(event: WebhookCalendarEvent): Normaliz
     timezone: event.timezone ?? DEFAULT_TIMEZONE,
     meetingLink: event.meetingLink,
     rescheduleLink: event.rescheduleLink,
+    createdAt: event.createdAt,
     updatedAt: event.updatedAt ?? new Date().toISOString(),
   };
 }

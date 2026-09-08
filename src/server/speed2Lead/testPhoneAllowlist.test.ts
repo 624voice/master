@@ -136,11 +136,24 @@ describe("resetSpeed2LeadTestPhone", () => {
     capturedRedisStore.set("speed2lead:session:+15559998888", { flow: "demo" });
     capturedRedisStore.set("speed2lead:optout:+15551234567", true);
     capturedRedisStore.set("appointment:active:phone:+15551234567", "evt-1");
+    capturedRedisStore.set("appointment:lead:phone:+15551234567", [
+      {
+        phone: "+15551234567",
+        email: "phase-a-reset@example.com",
+        source: "roi",
+        registeredAt: "2026-09-08T00:00:00.000Z",
+        smsConsent: true,
+      },
+    ]);
+    capturedRedisStore.set("appointment:lead:email:phase-a-reset@example.com", "+15551234567");
     seedDemoFollowUpMember("+15551234567");
     seedNurtureMember("+15551234567");
 
     const result = await resetSpeed2LeadTestPhone("+15551234567");
     expect(result.phone).toBe("+15551234567");
+    expect(result.clearedLeadIndexCount).toBe(1);
+    expect(capturedRedisStore.has("appointment:lead:phone:+15551234567")).toBe(false);
+    expect(capturedRedisStore.has("appointment:lead:email:phase-a-reset@example.com")).toBe(false);
     expect(capturedRedisStore.has("speed2lead:session:+15551234567")).toBe(false);
     expect(capturedRedisStore.has("speed2lead:optout:+15551234567")).toBe(false);
     expect(capturedRedisStore.has("appointment:active:phone:+15551234567")).toBe(false);

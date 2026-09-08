@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { processPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noResponseCampaign";
+import { processPendingBookingLinkFollowUps } from "~/server/speed2Lead/agent/bookingLinkFollowUps";
 import { recordCronRun } from "~/server/speed2Lead/cronHeartbeat";
+
+export async function runAgentFollowUpCron(): Promise<{ sent: number; bookingLinkSent: number }> {
+  const sent = await processPendingNoResponseCampaign();
+  const bookingLinkSent = await processPendingBookingLinkFollowUps();
+  return { sent, bookingLinkSent };
+}
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -29,8 +36,8 @@ export const Route = createFileRoute("/api/cron/agent-no-response-followups")({
 
         try {
           await recordCronRun("agent-no-response-followups");
-          const sent = await processPendingNoResponseCampaign();
-          return new Response(JSON.stringify({ ok: true, sent }), {
+          const { sent, bookingLinkSent } = await runAgentFollowUpCron();
+          return new Response(JSON.stringify({ ok: true, sent, bookingLinkSent }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });

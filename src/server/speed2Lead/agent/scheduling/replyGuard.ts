@@ -185,7 +185,12 @@ export function hasRealBooking(session: AgentSession): boolean {
  * claim and is not protected.
  */
 export function shouldPreserveTerminalStage(session: AgentSession): boolean {
-  return session.stage === "declined" || (session.stage === "booked" && hasRealBooking(session));
+  return (
+    session.stage === "declined" ||
+    session.stage === "handoff" ||
+    session.stage === "booking_link_pending" ||
+    (session.stage === "booked" && hasRealBooking(session))
+  );
 }
 
 function rollFakeBookedToConfirming(

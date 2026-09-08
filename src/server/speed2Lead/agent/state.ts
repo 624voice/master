@@ -15,9 +15,18 @@ export type InquiryClarity = "clear" | "vague" | "already_clear";
 
 export type DeclineReason = "timing" | "skepticism";
 
+export type HumanFollowUpReason =
+  | "explicit_human_request"
+  | "manual_help_after_redirect"
+  | "identity_match_ambiguous"
+  | "provider_failure_exhausted"
+  | "ambiguous_reschedule"
+  | "out_of_band_request";
+
 export type AgentStage =
   | "discovery"
   | "bridge"
+  | "booking_link_pending"
   | "offering_slots"
   | "confirming"
   | "booked"
@@ -107,6 +116,23 @@ export type AgentSession = {
   /** Consecutive meeting declines in bridge/scheduling — terminal only at 2+. */
   meetingDeclineCount?: number;
 
+  /** Stable key to this session's LeadIndexEntry (captured at registerLeadForLifecycle). */
+  leadRegisteredAt?: string;
+  /** Set once on first booking-link send — never overwritten. */
+  bookingLinkSentAt?: string;
+  /** Updated on every booking-link send/resend. */
+  bookingLinkLastSentAt?: string;
+  bookingLinkFollowUpStage?: number;
+  /** Absolute due time from bookingLinkSentAt + profile offset — never a sequential delta. */
+  bookingLinkFollowUpNextAt?: string;
+  bookingLinkFollowUpResolved?: boolean;
+  /** Set when a bridge SMS is actually delivered. Required for Path B meeting-intent. */
+  bridgeDeliveredAt?: string;
+  humanFollowUpReason?: HumanFollowUpReason;
+  humanFollowUpAt?: string;
+  humanFollowUpPriorStage?: AgentStage;
+  humanFollowUpPriorFollowUpStage?: number;
+
   /** Full provider pool from the last fetch — offeredSlots is the filtered active set. */
   slotPool?: OfferedSlot[];
   requestedDate?: string;
@@ -185,6 +211,7 @@ export async function releaseAgentPhoneLock(phone: string, token: string): Promi
  * pain-prompt cron the same way speed2lead:nurture-followups is scanned. */
 const PAIN_PROMPT_INDEX_KEY = "speed2lead:agent:pain-prompt-pending";
 const NO_RESPONSE_INDEX_KEY = "speed2lead:agent:no-response-pending";
+const BOOKING_LINK_FOLLOWUP_INDEX_KEY = "speed2lead:agent:booking-link-followup-pending";
 
 function sessionKey(phone: string): string {
   return `speed2lead:agent:session:${normalizePhone(phone)}`;
@@ -222,6 +249,22 @@ export async function listPendingNoResponsePhones(): Promise<string[]> {
   return phones ?? [];
 }
 
+export async function enqueueBookingLinkFollowUp(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.sadd(BOOKING_LINK_FOLLOWUP_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function dequeueBookingLinkFollowUp(phone: string): Promise<void> {
+  const redis = getRedis();
+  await redis.srem(BOOKING_LINK_FOLLOWUP_INDEX_KEY, normalizePhone(phone));
+}
+
+export async function listPendingBookingLinkFollowUpPhones(): Promise<string[]> {
+  const redis = getRedis();
+  const phones = (await redis.smembers(BOOKING_LINK_FOLLOWUP_INDEX_KEY)) as string[] | null;
+  return phones ?? [];
+}
+
 export async function getAgentSession(phone: string): Promise<AgentSession | null> {
   const redis = getRedis();
   const raw = await redis.get<AgentSession>(sessionKey(phone));
@@ -243,6 +286,7 @@ export async function clearAgentSession(phone: string): Promise<void> {
   await redis.del(sessionKey(phone));
   await dequeuePainPrompt(phone);
   await dequeueNoResponseCampaign(phone);
+  await dequeueBookingLinkFollowUp(phone);
 }
 
 export function createAgentSession(input: {

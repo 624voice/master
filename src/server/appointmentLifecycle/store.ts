@@ -22,7 +22,7 @@ function leadPhoneKey(phone: string): string {
 }
 
 function leadEmailKey(email: string): string {
-  return `${LEAD_EMAIL_PREFIX}${email.trim().toLowerCase}`;
+  return `${LEAD_EMAIL_PREFIX}${email.trim().toLowerCase()}`;
 }
 
 function activePhoneKey(phone: string): string {
@@ -68,6 +68,20 @@ export async function getLeadsByPhone(phone: string): Promise<LeadIndexEntry[]> 
   const redis = getRedis();
   const normalized = normalizePhone(phone);
   return ((await redis.get<LeadIndexEntry[]>(leadPhoneKey(normalized))) as LeadIndexEntry[] | null) ?? [];
+}
+
+/** Test-phone cleanup only — removes every LeadIndexEntry for one phone. */
+export async function clearLeadIndexForPhone(phone: string): Promise<number> {
+  const redis = getRedis();
+  const normalized = normalizePhone(phone);
+  const leads = await getLeadsByPhone(normalized);
+  for (const lead of leads) {
+    if (lead.email) {
+      await redis.del(leadEmailKey(lead.email));
+    }
+  }
+  await redis.del(leadPhoneKey(normalized));
+  return leads.length;
 }
 
 export async function getLeadByPhone(phone: string): Promise<LeadIndexEntry | null> {

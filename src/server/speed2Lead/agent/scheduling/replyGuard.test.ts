@@ -101,6 +101,8 @@ describe("scheduling replyGuard", () => {
       shouldPreserveTerminalStage({ ...base, stage: "booked", bookedEventId: "evt-1" }),
     ).toBe(true);
     expect(shouldPreserveTerminalStage({ ...base, stage: "declined" })).toBe(true);
+    expect(shouldPreserveTerminalStage({ ...base, stage: "handoff" })).toBe(true);
+    expect(shouldPreserveTerminalStage({ ...base, stage: "booking_link_pending" })).toBe(true);
     expect(shouldPreserveTerminalStage({ ...base, stage: "confirming" })).toBe(false);
   });
 

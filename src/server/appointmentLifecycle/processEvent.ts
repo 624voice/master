@@ -5,7 +5,19 @@ import {
   bookingConfirmationMessage,
   rescheduleConfirmationMessage,
 } from "~/server/appointmentLifecycle/messages";
-import { matchCalendarEventToLead } from "~/server/appointmentLifecycle/matchLead";
+import {
+  attributeBooking,
+  pickRepresentativeLead,
+  resolveBookingIdentity,
+} from "~/server/appointmentLifecycle/bookingIdentity";
+import {
+  buildAttributionBlockForLead,
+  upsertAttributionBlock,
+} from "~/server/appointmentLifecycle/calendarMetadata";
+import { patchCalendarEventDescription } from "~/server/appointmentLifecycle/googleCalendar";
+import { persistHumanFollowUp } from "~/server/speed2Lead/agent/humanFollowUp";
+import { sendHumanAlert } from "~/server/speed2Lead/agent/humanAlert";
+import { getAgentSession } from "~/server/speed2Lead/agent/state";
 import {
   shouldSkip24hForLeadTime,
   shouldSkip2hForLeadTime,
@@ -39,6 +51,32 @@ function messageContext(record: AppointmentLifecycleRecord) {
     rescheduleLink: record.rescheduleLink,
     calendarLink: getBookingCalendarLink(),
   };
+}
+
+async function patchAttributionMetadata(
+  event: NormalizedCalendarEvent,
+  lead: LeadIndexEntry,
+  attributionSource: NonNullable<AppointmentLifecycleRecord["bookingAttributionSource"]>,
+): Promise<void> {
+  try {
+    const block = buildAttributionBlockForLead({
+      lead,
+      attributionSource,
+      context: lead.shortNeedSummary,
+    });
+    const upserted = upsertAttributionBlock(event.description, block);
+    if (upserted.malformed) {
+      logAppointmentEvent("calendar_metadata_malformed_markers", {
+        eventId: event.calendarEventId,
+      });
+    }
+    const ok = await patchCalendarEventDescription(event.calendarEventId, upserted.description);
+    if (!ok) {
+      logAppointmentEvent("calendar_metadata_patch_failed", { eventId: event.calendarEventId });
+    }
+  } catch {
+    logAppointmentEvent("calendar_metadata_patch_failed", { eventId: event.calendarEventId });
+  }
 }
 
 function buildRecordFromEvent(
@@ -202,8 +240,41 @@ export async function processCalendarEvent(
     return { eventId: event.calendarEventId, action: "no_action" };
   }
 
-  const match = await matchCalendarEventToLead(event);
-  if (!match.matched) {
+  const identity = await resolveBookingIdentity(event);
+  if (identity.status === "ambiguous") {
+    for (const phone of [...identity.emailPhones, ...identity.phonePhones]) {
+      const agentSession = await getAgentSession(phone);
+      if (agentSession && agentSession.stage !== "handoff") {
+        await persistHumanFollowUp(agentSession, "identity_match_ambiguous");
+      }
+    }
+    await sendHumanAlert({
+      reason: "identity_match_ambiguous",
+      subjectId: event.calendarEventId,
+      body: `S2L identity_match_ambiguous for calendar event ${event.calendarEventId}. Email phones: ${identity.emailPhones.join(",")} / phone phones: ${identity.phonePhones.join(",")}.`,
+    });
+    const now = new Date().toISOString();
+    const unmatched: AppointmentLifecycleRecord = {
+      calendarEventId: event.calendarEventId,
+      appointmentStart: event.appointmentStart,
+      appointmentEnd: event.appointmentEnd,
+      timezone: event.timezone,
+      eventStatus: event.status,
+      lifecycleStatus: "unmatched_booking",
+      email: event.attendeeEmail,
+      meetingLink: event.meetingLink,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await saveLifecycleRecord(unmatched);
+    logAppointmentEvent("booking_unmatched", {
+      eventId: event.calendarEventId,
+      reason: "identity_match_ambiguous",
+    });
+    return { eventId: event.calendarEventId, action: "unmatched" };
+  }
+
+  if (identity.status === "unmatched") {
     const now = new Date().toISOString();
     const unmatched: AppointmentLifecycleRecord = {
       calendarEventId: event.calendarEventId,
@@ -220,44 +291,64 @@ export async function processCalendarEvent(
     await saveLifecycleRecord(unmatched);
     logAppointmentEvent("unmatched_booking", {
       eventId: event.calendarEventId,
-      reason: match.reason,
-      ...match.diagnostic,
+      reason: "no_confident_match",
     });
+    logAppointmentEvent("booking_unmatched", { eventId: event.calendarEventId, reason: "no_confident_match" });
     return { eventId: event.calendarEventId, action: "unmatched" };
   }
 
+  const candidates = identity.candidates;
+
+  const attribution = attributeBooking(candidates, event);
+  const lead = pickRepresentativeLead(candidates, attribution);
+  const matchMethod =
+    identity.status === "confirmed" && identity.method === "both"
+      ? "phone"
+      : identity.status === "confirmed" && identity.method === "correlation"
+        ? "correlation"
+        : identity.status === "confirmed"
+          ? identity.method
+          : "phone";
+
   logAppointmentEvent("booking_matched", {
     eventId: event.calendarEventId,
-    phone: match.lead.phone,
-    method: match.method,
+    phone: lead.phone,
+    method: matchMethod,
   });
 
   let messageType: "confirmation" | "reschedule_confirmation" = "confirmation";
   let rescheduledFromEventId: string | undefined;
 
-  const activeLifecycle = await getActiveLifecycleForPhone(match.lead.phone);
+  const activeLifecycle = await getActiveLifecycleForPhone(lead.phone);
   if (activeLifecycle && activeLifecycle.calendarEventId !== event.calendarEventId) {
     const { isReplacement, superseded } = await handleExistingActiveLifecycle(
       activeLifecycle,
       event,
-      match.lead,
+      lead,
     );
     if (superseded) {
       rescheduledFromEventId = superseded.calendarEventId;
+      logAppointmentEvent("booking_replacement_matched", {
+        eventId: event.calendarEventId,
+        oldEventId: superseded.calendarEventId,
+        phone: lead.phone,
+      });
       if (isReplacement) {
         messageType = "reschedule_confirmation";
       }
     }
   }
 
-  const record = buildRecordFromEvent(event, match.lead, match.method, {
+  const record = buildRecordFromEvent(event, lead, matchMethod, {
     lifecycleStatus: "booking_detected",
     rescheduledFromEventId,
     remindersSuppressed: false,
+    bookingAttributionSource: attribution.bookingAttributionSource,
+    bookingAttributionConfidence: attribution.bookingAttributionConfidence,
   });
 
   const confirmedAt = new Date();
-  const smsSent = await sendLifecycleMessageIfAllowed(record, match.lead, messageType);
+  const smsSent = await sendLifecycleMessageIfAllowed(record, lead, messageType);
 
   let finalRecord = record;
   if (smsSent) {
@@ -277,6 +368,7 @@ export async function processCalendarEvent(
 
   await saveLifecycleRecord(finalRecord);
   await suppressSalesFollowUps(finalRecord.phone!);
+  await patchAttributionMetadata(event, lead, attribution.bookingAttributionSource);
 
   logAppointmentEvent("booking_detected", {
     eventId: event.calendarEventId,
@@ -284,6 +376,12 @@ export async function processCalendarEvent(
     source: finalRecord.source,
     messageType,
   });
+  if (smsSent) {
+    logAppointmentEvent("booking_confirmed", {
+      eventId: event.calendarEventId,
+      phone: finalRecord.phone,
+    });
+  }
 
   return {
     eventId: event.calendarEventId,

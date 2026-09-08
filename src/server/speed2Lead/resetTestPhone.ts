@@ -1,4 +1,7 @@
-import { clearActiveLifecycleForPhone } from "~/server/appointmentLifecycle/store";
+import {
+  clearActiveLifecycleForPhone,
+  clearLeadIndexForPhone,
+} from "~/server/appointmentLifecycle/store";
 import { cancelAbandonedDemoRecovery } from "~/server/speed2Lead/agent/demoFlow/abandonedRecovery";
 import { clearAgentSession } from "~/server/speed2Lead/agent/state";
 import { removeDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
@@ -13,6 +16,7 @@ export type ResetSpeed2LeadTestPhoneResult = {
   clearedOptOut: boolean;
   clearedDemoFollowUp: boolean;
   clearedActiveLifecycle: boolean;
+  clearedLeadIndexCount: number;
 };
 
 export async function resetSpeed2LeadTestPhone(
@@ -32,6 +36,7 @@ export async function resetSpeed2LeadTestPhone(
   await removeDemoFollowUp(normalized);
   await removeNurtureFollowUp(normalized);
   const clearedActiveLifecycle = await clearActiveLifecycleForPhone(normalized);
+  const clearedLeadIndexCount = await clearLeadIndexForPhone(normalized);
 
   return {
     phone: normalized,
@@ -39,5 +44,6 @@ export async function resetSpeed2LeadTestPhone(
     clearedOptOut: true,
     clearedDemoFollowUp: true,
     clearedActiveLifecycle,
+    clearedLeadIndexCount,
   };
 }
