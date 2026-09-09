@@ -17,6 +17,19 @@ import { getSendStateRecord, sendStateKeys } from "~/server/sms/sendState";
 
 const OPENER_EPISODE_TTL_SECONDS = 60 * 60 * 24 * 14;
 
+function nextRegisteredAt(previous: string | null): string {
+  const now = new Date().toISOString();
+  if (!previous) {
+    return now;
+  }
+  const previousMs = Date.parse(previous);
+  const nowMs = Date.parse(now);
+  if (Number.isFinite(previousMs) && nowMs <= previousMs) {
+    return new Date(previousMs + 1).toISOString();
+  }
+  return now;
+}
+
 export function openerEpisodeRedisKey(
   phone: string,
   source: string,
@@ -37,7 +50,7 @@ async function getOrCreateRegisteredAt(openKey: string): Promise<string> {
     return existing;
   }
 
-  const registeredAt = new Date().toISOString();
+  const registeredAt = nextRegisteredAt(null);
   const claimed = await redis.set(openKey, registeredAt, {
     nx: true,
     ex: OPENER_EPISODE_TTL_SECONDS,
@@ -77,7 +90,7 @@ export async function establishOpenerEpisode(input: {
   const existing = (await getRedis().get<string>(openKey)) as string | null;
 
   if (session && isTerminalAgentSession(session)) {
-    const registeredAt = new Date().toISOString();
+    const registeredAt = nextRegisteredAt(existing);
     await getRedis().set(openKey, registeredAt, { ex: OPENER_EPISODE_TTL_SECONDS });
     return { registeredAt };
   }

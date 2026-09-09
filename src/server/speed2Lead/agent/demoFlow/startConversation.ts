@@ -108,7 +108,11 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
 
     const opener = buildDemoOpenerPart1(session);
     const sendResult = await sendSmsWithState({
-      key: sendStateKeys.agentOpener(phone, "demo", lead.registeredAt),
+      key: sendStateKeys.agentOpener(
+        phone,
+        "demo",
+        `${lead.registeredAt}:${input.vapiCallId.trim()}`,
+      ),
       to: phone,
       body: opener,
     });
