@@ -13,26 +13,18 @@ export const PAGE1_HERO_HEADLINE = "Where your revenue is quietly walking out.";
 export const PAGE1_SUPPORTING_LINE =
   "A tailored estimate of the recurring revenue leaking out of your business — calculated from your own call volume and trade benchmarks.";
 
-export const PAGE1_CTA_PREVIEW =
-  "See where it's going — and what it takes to recover it. →";
-
 export const SECTION_01_TITLE = "Where the money is going";
-export const SECTION_01_SUB =
-  "The moderate estimate, broken into its five independent revenue drivers. No double-counting — each is calculated against a separate pool.";
 
 export const SECTION_02_TITLE = "The money is leaking after the lead comes in";
-export const SECTION_02_SUB =
-  "You already paid to create the opportunity. These are the places revenue slips away before, during, and after the job.";
 
-export const SECTION_02_PARAGRAPHS = [
-  "The phone rings after hours. Nobody picks up. By morning, the homeowner already booked someone else.",
-  "The truck rolls to an appointment and the house is empty. That slot — and the marketing that filled it — is gone.",
-  "The tech finishes a solid job, closes the ticket, and never mentions the maintenance plan while trust is highest.",
-  "Past customers sit in your list while seasonal demand passes and a competitor sends the reminder first.",
-] as const;
+export const SECTION_02_REALIZATION_LEAD =
+  "None of these losses feels big when it happens.";
 
-export const SECTION_02_TURN =
-  "None of it feels dramatic. That's why it keeps happening. Added up, the moderate model puts it at {moderateTotal} a year.";
+export const SECTION_02_REALIZATION_BODY =
+  "A missed call. An empty appointment. An upsell nobody offered. A customer nobody followed up with. A little admin work here and there.";
+
+export const SECTION_02_REALIZATION_CLOSE =
+  "Together, they become {moderateTotal} a year.";
 
 export const SECTION_03_TITLE = "Five places revenue walks out";
 
@@ -44,12 +36,16 @@ export const SECTION_06_TITLE = "What happens next...";
 
 export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
 
-/** Page 2 pool-separation note — canonical outcome vocabulary, not legacy driver names. */
 export const NO_DOUBLE_COUNTING_NOTE =
   "Book More Jobs counts only calls currently going unanswered — a separate pool from your booked jobs.";
 
-export const METHODOLOGY_PARAGRAPH =
-  "Figures use scenario modeling against your entered call volume, trade assumptions listed below, and independent driver pools with no double-counting. Actual results vary by market, execution, and configuration.";
+export const MODEL_CARD_EYEBROW = "YOUR MODEL";
+export const MODEL_CARD_SUB =
+  "Built from your business inputs + trade benchmarks";
+export const MODEL_CARD_NO_DOUBLE =
+  "No double-counting. Each opportunity is modeled against a separate revenue pool.";
+export const MODEL_CARD_DISCLAIMER =
+  "Estimates use your entered call volume and industry benchmarks. Actual results vary by market, execution and configuration.";
 
 export const ROI_RECAP_HEADLINE =
   "Even the conservative model puts {conservativeTotal} a year on the table.";
@@ -71,29 +67,27 @@ export const CTA_HIGHLIGHTS = [
 export const CTA_BUTTON = "Book your demo →";
 export const CTA_FINE_PRINT = "No commitment. Just clarity.";
 
-export const ABOUT_POSITIONING =
-  "624Voice builds the AI systems that capture, convert, and recover revenue for home-service businesses.";
+export const WHAT_WE_BUILD_EYEBROW = "MORE THAN AN AI RECEPTIONIST";
+export const WHAT_WE_BUILD_LEAD =
+  "624Voice builds the AI systems that capture, convert and recover revenue for home-service businesses.";
 
-export const ABOUT_GROUPS = [
+export const WHAT_WE_BUILD_COLUMNS = [
   {
-    label: "Capture",
-    items:
-      "AI voice receptionists · AI chat · AI-optimized websites and redesigns",
+    label: "CAPTURE",
+    items: ["AI Receptionists", "AI Chat", "AI-optimized websites"],
   },
   {
-    label: "Convert",
-    items:
-      "instant lead response · estimate follow-up · SMS confirmations and reminders",
+    label: "CONVERT",
+    items: ["Instant lead response", "Estimate follow-up", "Confirmations + reminders"],
   },
   {
-    label: "Recover",
-    items:
-      "reactivation and upsell campaigns · automated review generation · outbound collections",
+    label: "RECOVER",
+    items: ["Reactivation + upsells", "Review automation", "Outbound collections"],
   },
 ] as const;
 
-export const ABOUT_FOOTNOTE =
-  "Backed by CRM integration, custom dashboards, and AI discoverability consulting.";
+export const WHAT_WE_BUILD_FOOTNOTE =
+  "CRM integrations · Custom dashboards · AI discoverability consulting";
 
 export type DriverCopyKey =
   | "missedCallRecovery"
@@ -104,32 +98,53 @@ export type DriverCopyKey =
 
 export const DRIVER_DISPLAY: Record<
   DriverCopyKey,
-  { headline: string; subline: (monthlyUnits: number) => string }
+  { headline: string; shortMechanism: string }
 > = {
   missedCallRecovery: {
     headline: "Book More Jobs",
-    subline: (n) =>
-      `Answer every call, day or night — and turn ${n} more of them into booked jobs a month.`,
+    shortMechanism: "Answer every call, book more jobs",
   },
   noShowReduction: {
     headline: "Cut Your No-Shows",
-    subline: (n) =>
-      `Automated confirmations and reminders that save ${n} appointments a month from the empty-slot pile.`,
+    shortMechanism: "Confirmations and reminders",
   },
   jobCloserUpsells: {
     headline: "Raise Your Average Ticket",
-    subline: (n) =>
-      `Post-job follow-up that turns ${n} more visits a month into plans, upgrades, and add-ons.`,
+    shortMechanism: "Post-job follow-up and upsells",
   },
   outboundSms: {
     headline: "Win More Repeat Revenue with Customers You Already Have",
-    subline: (n) =>
-      `Seasonal and win-back campaigns that pull ${n} more jobs a month out of your existing list — no new ad spend.`,
+    shortMechanism: "Seasonal and win-back campaigns",
   },
   timeSavings: {
     headline: "Get Your Time Back",
-    subline: (n) =>
-      `Automated scheduling and follow-up that hands ${n} admin hours a month back to your team.`,
+    shortMechanism: "Automated scheduling and follow-up",
+  },
+};
+
+export const LEAK_ROW_COPY: Record<
+  DriverCopyKey,
+  { consequence: string; response: string }
+> = {
+  missedCallRecovery: {
+    consequence: "Missed calls become missed jobs.",
+    response: "Answers, qualifies and books 24/7.",
+  },
+  noShowReduction: {
+    consequence: "Empty appointments burn capacity.",
+    response: "Confirms and reminds automatically.",
+  },
+  jobCloserUpsells: {
+    consequence: "Upsells left on the table after every job.",
+    response: "Post-job follow-up while trust is highest.",
+  },
+  outboundSms: {
+    consequence: "Existing customers never hear from you.",
+    response: "Seasonal and win-back campaigns on autopilot.",
+  },
+  timeSavings: {
+    consequence: "Admin work never reaches the revenue line.",
+    response: "Automates calls, scheduling and follow-up.",
   },
 };
 

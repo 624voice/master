@@ -150,14 +150,14 @@ body {
   flex: 0 0 auto;
 }
 
-/* —— Page 1: editorial top → centered opportunity centerpiece —— */
-.report-page--executive .report-page-body {
+/* —— Page 1: opportunity → range → breakdown —— */
+.report-page--opportunity .report-page-body {
   gap: 0;
 }
 
 .report-p1-editorial {
-  max-width: 6.2in;
-  margin-bottom: 14px;
+  max-width: 6.4in;
+  margin-bottom: 10px;
 }
 
 .report-badge {
@@ -173,8 +173,8 @@ body {
 }
 
 .report-hero-headline {
-  margin: 0 0 8px;
-  font-size: 26pt;
+  margin: 0 0 6px;
+  font-size: 22pt;
   font-weight: 800;
   line-height: 1.12;
   letter-spacing: -0.02em;
@@ -194,32 +194,43 @@ body {
 }
 
 .report-financial-line {
-  margin: 0 0 16px;
-  font-size: 10.5pt;
+  margin: 8px 0 10px;
+  font-size: 10pt;
   font-weight: 600;
   color: #162736;
 }
 
-.report-financial-line--center {
-  text-align: center;
-  max-width: 5.5in;
-  margin-left: auto;
-  margin-right: auto;
+.report-hero-card--inline {
+  max-width: 5.2in;
+  padding: 12px 16px;
+  text-align: left;
+  margin-bottom: 0;
 }
 
-.report-p1-centerpiece {
+.report-p1-range {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 18px;
+  justify-content: center;
+  margin: 10px 0 12px;
+}
+
+.report-p1-breakdown {
+  flex: 0 0 auto;
+}
+
+.report-p1-total {
+  margin: 8px 0 4px;
+  font-size: 10pt;
+  color: #162736;
+}
+
+.report-p1-total strong {
+  color: #10b981;
+  font-size: 11pt;
 }
 
 .report-hero-card {
   width: 100%;
-  max-width: 5.8in;
-  padding: 16px 18px;
+  padding: 14px 16px;
   text-align: center;
 }
 
@@ -231,7 +242,7 @@ body {
 }
 
 .report-hero-value {
-  font-size: 38pt;
+  font-size: 30pt;
   font-weight: 800;
   line-height: 1;
   color: #10b981;
@@ -246,7 +257,8 @@ body {
 
 .report-slider {
   width: 100%;
-  max-width: 6.4in;
+  max-width: 6.6in;
+  overflow: visible;
 }
 
 .report-slider-label {
@@ -259,60 +271,56 @@ body {
 
 .report-slider-track {
   width: 100%;
-  height: 72px;
+  height: 80px;
   display: block;
+  overflow: visible;
 }
 
-.report-scenario-grid {
+/* Compact driver rows — page 1 breakdown */
+.report-driver-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.report-driver-compact {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  width: 100%;
-  max-width: 6.4in;
-}
-
-.report-scenario-card {
-  padding: 10px;
-  text-align: center;
-}
-
-.report-scenario-card.is-moderate {
-  border-color: #10b981;
-  background: #ecfdf5;
-}
-
-.report-scenario-name {
+  grid-template-columns: 1.15fr 1fr 1.4fr auto;
+  gap: 8px;
+  align-items: center;
   font-size: 8.5pt;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+
+.report-driver-compact-headline {
+  font-weight: 700;
+  color: #162736;
+}
+
+.report-driver-compact-mechanism {
   color: #64748b;
+  font-size: 8pt;
 }
 
-.report-scenario-card.is-moderate .report-scenario-name {
-  color: #059669;
+.report-driver-compact-value {
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: right;
+  color: #162736;
 }
 
-.report-scenario-total {
-  font-size: 16pt;
-  font-weight: 800;
-  margin-top: 2px;
-}
-
-.report-scenario-range {
-  margin-top: 2px;
-  font-size: 8.5pt;
-  color: #64748b;
-}
-
-.report-cta-preview {
+.report-driver-bar-wrap--inline {
   margin: 0;
-  font-size: 9pt;
-  color: #94a3b8;
+  height: 5px;
+  min-width: 0;
 }
 
-.report-cta-preview--center {
-  text-align: center;
+.report-driver-bar {
+  height: 100%;
+  min-width: 4px;
+  background: #10b981;
+  border-radius: 999px;
 }
 
 /* —— Section headings —— */
@@ -362,39 +370,91 @@ body {
   line-height: 1.4;
 }
 
-/* —— Page 2: horizontal driver breakdown —— */
-.report-page--drivers .report-page-body {
-  gap: 0;
-}
-
-.report-drivers-card {
-  padding: 10px 14px;
-  margin-bottom: 12px;
-}
-
-.report-driver-block {
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.report-driver-block:last-of-type {
-  border-bottom: none;
-}
-
-.report-driver-row {
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  gap: 10px;
-  align-items: start;
-}
-
 .report-driver-bar-wrap {
-  margin-top: 6px;
-  margin-left: 42px;
   height: 5px;
   background: #f1f5f9;
   border-radius: 999px;
   overflow: hidden;
+}
+
+/* —— Page 2: realization + diagnostic rows —— */
+.report-page--problem .report-page-body {
+  gap: 0;
+}
+
+.report-realization {
+  max-width: 5in;
+  margin: 0 auto 16px;
+  text-align: center;
+}
+
+.report-realization-lead {
+  margin: 0 0 8px;
+  font-size: 10pt;
+  color: #162736;
+}
+
+.report-realization-body {
+  margin: 0 0 8px;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.report-realization-close {
+  margin: 0;
+  font-size: 10pt;
+  color: #162736;
+}
+
+.report-leak-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.report-leak-compact {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.report-leak-compact:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.report-leak-compact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 3px;
+}
+
+.report-leak-compact-name {
+  font-weight: 700;
+  font-size: 9.5pt;
+  color: #162736;
+}
+
+.report-leak-compact-value {
+  font-size: 14pt;
+  font-weight: 800;
+  color: #10b981;
+  white-space: nowrap;
+}
+
+.report-leak-compact-consequence {
+  margin: 0 0 2px;
+  font-size: 9pt;
+  color: #475569;
+}
+
+.report-leak-compact-response {
+  margin: 0;
+  font-size: 8.5pt;
+  color: #64748b;
 }
 
 .report-icon-wrap {
@@ -414,157 +474,86 @@ body {
   display: block;
 }
 
-.report-driver-headline {
-  font-size: 10pt;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.report-driver-subline {
-  margin-top: 2px;
-  font-size: 9pt;
-  color: #64748b;
-  line-height: 1.35;
-}
-
-.report-driver-annual {
-  font-size: 12pt;
-  font-weight: 700;
-  white-space: nowrap;
-  color: #162736;
-  text-align: right;
-  padding-top: 2px;
-}
-
-.report-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-top: 8px;
-  padding-top: 10px;
-  border-top: 2px solid #162736;
-}
-
-.report-total-row span:first-child {
-  font-size: 10pt;
-  font-weight: 600;
-}
-
-.report-total-row span:last-child {
-  font-size: 16pt;
-  font-weight: 800;
-  color: #10b981;
-}
-
-.report-p2-close {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.report-callout {
-  padding: 10px 14px;
-  border-left: 3px solid #10b981;
-  background: #f8fafc;
-  font-size: 9.5pt;
-  line-height: 1.4;
-}
-
-.report-callout--center {
-  border-left: none;
-  border-top: 3px solid #10b981;
-  text-align: center;
-  max-width: 6in;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .report-note {
   margin: 0;
-  font-size: 8.5pt;
+  font-size: 8pt;
   color: #64748b;
   line-height: 1.4;
 }
 
-.report-note--center {
-  text-align: center;
-  max-width: 5.5in;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* —— Page 3: centered narrative → structured rows —— */
-.report-page--leaks .report-page-body {
+/* —— Page 3: scenarios + model card + guarantee —— */
+.report-page--proof .report-page-body {
   gap: 0;
 }
 
-.report-narrative--editorial {
-  max-width: 4.8in;
-  margin: 0 auto 20px;
-  text-align: center;
-  padding: 0 8px;
-}
-
-.report-narrative p {
-  margin: 0 0 8px;
-  font-size: 9.5pt;
-  line-height: 1.5;
-  color: #334155;
-}
-
-.report-narrative-turn {
-  margin-top: 6px !important;
-  color: #162736 !important;
-  font-size: 10pt !important;
-}
-
-.report-leak-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+.report-model-card {
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  background: #f8fafc;
   flex: 0 0 auto;
 }
 
-.report-leak-row {
-  display: grid;
-  grid-template-columns: 1.2fr 1.5fr 0.65fr 1.5fr;
-  gap: 8px;
-  align-items: start;
-  padding: 9px 11px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 8.5pt;
-  line-height: 1.35;
+.report-model-card-header {
+  text-align: left;
+  margin-bottom: 10px;
 }
 
-.report-leak-name {
+.report-model-card-eyebrow {
+  font-size: 8pt;
   font-weight: 700;
-  color: #162736;
+  letter-spacing: 0.06em;
+  color: #059669;
+}
+
+.report-model-card-sub {
   font-size: 9pt;
+  font-style: italic;
+  color: #64748b;
+  margin-top: 2px;
 }
 
-.report-leak-label {
-  display: block;
-  font-size: 7pt;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.report-model-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  text-align: left;
+}
+
+.report-model-col-title {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   color: #94a3b8;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
 }
 
-.report-leak-impact {
-  font-size: 11pt;
-  font-weight: 800;
-  color: #10b981;
-  text-align: right;
-  align-self: center;
+.report-model-row {
+  font-size: 8.5pt;
+  color: #475569;
+  line-height: 1.45;
 }
 
-/* —— Page 4: symmetrical scenario comparison + guarantee —— */
-.report-page--methodology .report-page-body {
-  gap: 0;
+.report-model-row + .report-model-row {
+  margin-top: 3px;
+}
+
+.report-model-row strong {
+  color: #162736;
+}
+
+.report-model-no-double {
+  margin: 10px 0 6px;
+  font-size: 9pt;
+  color: #162736;
+  text-align: left;
+}
+
+.report-model-disclaimer {
+  margin: 0;
+  font-size: 7.5pt;
+  color: #94a3b8;
+  text-align: left;
+  line-height: 1.4;
 }
 
 .report-scenario-detail-grid {
@@ -615,47 +604,8 @@ body {
   margin-top: 2px;
 }
 
-.report-p4-support {
-  margin-bottom: 16px;
-  flex: 0 0 auto;
-}
-
-.report-methodology {
-  margin: 0 0 6px;
-  font-size: 8.5pt;
-  line-height: 1.45;
-  color: #475569;
-}
-
-.report-methodology--center {
-  text-align: center;
-  max-width: 6in;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.report-trade-assumptions {
-  margin: 0;
-  padding-left: 16px;
-  font-size: 8pt;
-  line-height: 1.4;
-  color: #64748b;
-}
-
-.report-trade-assumptions--center {
-  list-style: none;
-  padding: 0;
-  text-align: center;
-  max-width: 5.5in;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.report-trade-assumptions--center li + li {
-  margin-top: 2px;
-}
-
 .report-guarantee {
+  margin-top: 4px;
   padding: 16px 20px;
   border: 1px solid #10b981;
   background: #ecfdf5;
@@ -697,8 +647,8 @@ body {
   color: #64748b;
 }
 
-/* —— Page 5: closing stack, content-sized CTA —— */
-.report-page--closing .report-page-body {
+/* —— Page 4: recap, CTA, what we build —— */
+.report-page--action .report-page-body {
   align-items: center;
 }
 
@@ -823,24 +773,64 @@ body {
   color: #94a3b8;
 }
 
-.report-about {
+.report-what-we-build {
   width: 100%;
-  font-size: 8.5pt;
-  line-height: 1.45;
-  color: #475569;
+  padding: 14px 16px;
+  background: #ecfdf5;
+  border-color: #d1fae5;
   text-align: center;
-  padding-top: 4px;
 }
 
-.report-about-lead {
-  margin: 0 0 6px;
+.report-what-we-build-eyebrow {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #059669;
+  margin-bottom: 4px;
 }
 
-.report-about-group {
-  margin: 0 0 4px;
+.report-what-we-build-lead {
+  margin: 0 0 10px;
+  font-size: 9pt;
+  font-weight: 600;
+  color: #162736;
+  line-height: 1.4;
 }
 
-.report-about-foot {
-  margin: 6px 0 0;
+.report-what-we-build-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.report-what-we-build-col-title {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #059669;
+  margin-bottom: 4px;
+}
+
+.report-what-we-build-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-what-we-build-col li {
+  font-size: 8pt;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.report-what-we-build-col li + li {
+  margin-top: 2px;
+}
+
+.report-what-we-build-foot {
+  margin: 0;
+  font-size: 7.5pt;
   color: #64748b;
 }

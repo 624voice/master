@@ -8,8 +8,10 @@ import {
   GUARANTEE_CARD_TITLE,
   NO_DOUBLE_COUNTING_NOTE,
   PAGE1_HERO_HEADLINE,
+  SECTION_02_REALIZATION_LEAD,
   SECTION_05_TITLE,
   SECTION_06_TITLE,
+  WHAT_WE_BUILD_EYEBROW,
 } from "~/lib/report/reportCopy";
 import { renderReportPdf } from "~/server/report/renderReportPdf.server";
 
@@ -54,7 +56,7 @@ async function countAcroFormFields(pdf: Uint8Array): Promise<number> {
 
 describe("renderReportPdf", () => {
   test(
-    "generates a 5-page PDF with expected content and on-site booking link",
+    "generates a 4-page PDF with expected content and on-site booking link",
     async () => {
       const model = buildNorthstarReportViewModel();
       const { pdf, timing } = await renderReportPdf(model, {
@@ -63,7 +65,7 @@ describe("renderReportPdf", () => {
       });
 
       expect(pdf.byteLength).toBeGreaterThan(10_000);
-      expect(timing?.pageCount).toBe(5);
+      expect(timing?.pageCount).toBe(4);
       expect(await countAcroFormFields(pdf)).toBe(0);
 
       const text = await extractPdfText(pdf);
@@ -77,15 +79,19 @@ describe("renderReportPdf", () => {
       );
       expect(text).toContain("Book More Jobs");
       expect(text).toContain("Cut Your No-Shows");
-      expect(text).toContain("Total modeled annual opportunity");
+      expect(text).toContain("total modeled annual opportunity");
+      expect(text).toContain(SECTION_02_REALIZATION_LEAD);
+      expect(text).toContain("YOUR MODEL");
       expect(text).toContain(SECTION_05_TITLE);
       expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
       expect(text).toContain(SECTION_06_TITLE);
+      expect(text).toContain(WHAT_WE_BUILD_EYEBROW);
       expect(text.replace(/\s+/g, " ")).toContain(
         NO_DOUBLE_COUNTING_NOTE.replace(/\s+/g, " "),
       );
       expect(text).not.toContain("Missed-Call Recovery");
       expect(text).not.toContain("See it work on your calls");
+      expect(text).not.toContain("See where it's going");
       expect(text).toContain("See your AI front office work live in 25 minutes.");
       expect(await extractLinkUrls(pdf)).toContain(BOOKING_URL);
     },
