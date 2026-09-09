@@ -72,6 +72,18 @@ const cases = {
     monthlyCalls: 30,
     lead: NORTHSTAR_LEAD,
   }),
+  missingBusinessName: buildCase("missingBusinessName", {
+    trade: "PestControl",
+    truckCount: 15,
+    monthlyCalls: 525,
+    lead: { ...NORTHSTAR_LEAD, businessName: "" },
+  }),
+  oneCharBusinessName: buildCase("oneCharBusinessName", {
+    trade: "PestControl",
+    truckCount: 15,
+    monthlyCalls: 525,
+    lead: { ...NORTHSTAR_LEAD, businessName: "d" },
+  }),
 };
 
 const puppeteer = await import("puppeteer-core");
@@ -91,10 +103,29 @@ for (const [caseName, model] of Object.entries(cases)) {
   await page.evaluateHandle("document.fonts.ready");
 
   const pages = await page.$$(".report-page");
+  const fillReport = [];
   for (let i = 0; i < pages.length; i++) {
+    const fill = await pages[i].evaluate((el) => {
+      const body = el.querySelector(".report-page-body");
+      const bodyBottom = body
+        ? body.getBoundingClientRect().bottom - el.getBoundingClientRect().top
+        : 0;
+      const pageHeight = el.getBoundingClientRect().height;
+      const header = el.querySelector(".report-header");
+      const footer = el.querySelector(".report-footer");
+      const used =
+        (footer?.getBoundingClientRect().bottom ?? bodyBottom) -
+        (header?.getBoundingClientRect().top ?? 0);
+      return Math.round((used / pageHeight) * 100);
+    });
+    fillReport.push({ page: i + 1, fillPercent: fill });
     const png = await pages[i].screenshot({ type: "png" });
     writeFileSync(join(outDir, `${caseName}-page-${i + 1}.png`), png);
   }
+  writeFileSync(
+    join(outDir, `${caseName}-fill.json`),
+    JSON.stringify(fillReport, null, 2),
+  );
 
   const { pdf, timing } = await renderReportPdf(model, { mode: "warm", collectTiming: true });
   writeFileSync(join(outDir, `${caseName}.pdf`), pdf);

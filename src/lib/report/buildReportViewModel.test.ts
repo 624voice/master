@@ -77,6 +77,16 @@ describe("buildReportViewModel", () => {
     });
   });
 
+  test("preparedForLine uses personalization fallbacks", () => {
+    expect(model.prospect.preparedForLine).toBe(
+      "Prepared for Jordan Miller · Northstar Pest Control",
+    );
+  });
+
+  test("cta links to on-site booking page", () => {
+    expect(model.cta.url).toBe("https://624voice.com/book");
+  });
+
   test("trade content interpolates model values, not hardcoded benchmarks", () => {
     const t = TRADES[NORTHSTAR_TRADE];
     const content = TRADE_REPORT_CONTENT[NORTHSTAR_TRADE];

@@ -93,6 +93,9 @@ export type ReportViewModel = {
   cta: {
     headline: string;
     body: string;
+    buttonLabel: string;
+    finePrint: string;
+    highlights: string[];
     url: string;
   };
 };

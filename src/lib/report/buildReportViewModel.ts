@@ -1,5 +1,6 @@
 import type { LeadInfo } from "~/lib/lead/validateLead";
-import { BOOK_MEETING_URL } from "~/config/features";
+import { BOOK_MEETING_PATH, SITE_ORIGIN } from "~/config/features";
+import { formatPreparedForLine } from "~/lib/report/formatProspectLines";
 import type { RoiResult } from "~/lib/roi/computeRoi";
 import {
   getSlippingAwayAnnual,
@@ -11,8 +12,11 @@ import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { SCENARIO_LABELS, SCENARIOS } from "~/lib/roi/scenarioDisplay";
 import { SHARED, TRADES, type TradeKey } from "~/lib/roi/roiModel";
 import {
-  CTA_BODY,
+  CTA_BUTTON,
+  CTA_FINE_PRINT,
   CTA_HEADLINE,
+  CTA_HIGHLIGHTS,
+  CTA_SUB,
   GUARANTEE_BODY,
   GUARANTEE_FOOTNOTE,
   REPORT_FOOTER_EMAIL,
@@ -126,7 +130,7 @@ export function buildReportViewModel(input: {
       businessName: lead.businessName,
       email: lead.email,
       phone: lead.phone,
-      preparedForLine: `Prepared for ${lead.firstName} ${lead.lastName} · ${lead.businessName}`,
+      preparedForLine: formatPreparedForLine(lead),
     },
     operation: {
       trade,
@@ -158,8 +162,11 @@ export function buildReportViewModel(input: {
     },
     cta: {
       headline: CTA_HEADLINE,
-      body: CTA_BODY,
-      url: BOOK_MEETING_URL,
+      body: CTA_SUB,
+      buttonLabel: CTA_BUTTON,
+      finePrint: CTA_FINE_PRINT,
+      highlights: [...CTA_HIGHLIGHTS],
+      url: `${SITE_ORIGIN}${BOOK_MEETING_PATH}`,
     },
   };
 }

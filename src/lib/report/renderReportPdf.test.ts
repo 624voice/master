@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { PDFParse } from "pdf-parse";
 import { PDFDocument, PDFDict, PDFName, PDFString } from "pdf-lib";
+import { BOOK_MEETING_PATH, SITE_ORIGIN } from "~/config/features";
 import { buildNorthstarReportViewModel } from "~/lib/report/__fixtures__/northstar";
-import { GUARANTEE_BODY } from "~/lib/report/reportCopy";
-import { BOOK_MEETING_URL } from "~/config/features";
+import { GUARANTEE_BODY, PAGE1_HERO_HEADLINE } from "~/lib/report/reportCopy";
 import { renderReportPdf } from "~/server/report/renderReportPdf.server";
+
+const BOOKING_URL = `${SITE_ORIGIN}${BOOK_MEETING_PATH}`;
 
 async function extractPdfText(pdf: Uint8Array): Promise<string> {
   const parser = new PDFParse({ data: Buffer.from(pdf) });
@@ -45,7 +47,7 @@ async function countAcroFormFields(pdf: Uint8Array): Promise<number> {
 
 describe("renderReportPdf", () => {
   test(
-    "generates a 4-page PDF with expected content and no AcroForm fields",
+    "generates a 5-page PDF with expected content and on-site booking link",
     async () => {
       const model = buildNorthstarReportViewModel();
       const { pdf, timing } = await renderReportPdf(model, {
@@ -54,19 +56,22 @@ describe("renderReportPdf", () => {
       });
 
       expect(pdf.byteLength).toBeGreaterThan(10_000);
-      expect(timing?.pageCount).toBe(4);
+      expect(timing?.pageCount).toBe(5);
       expect(await countAcroFormFields(pdf)).toBe(0);
 
       const text = await extractPdfText(pdf);
+      expect(text.replace(/\s+/g, " ")).toContain(
+        PAGE1_HERO_HEADLINE.replace(/\s+/g, " "),
+      );
       expect(text).toContain(model.moderateHeroTotalFormatted);
+      expect(text).toContain("Prepared for Jordan Miller · Northstar Pest Control");
       expect(text.replace(/\s+/g, " ")).toContain(
         GUARANTEE_BODY.replace(/\s+/g, " "),
       );
-      for (const driver of model.drivers) {
-        expect(text).toContain(driver.label);
-      }
+      expect(text).toContain("Book More Jobs");
       expect(text).toContain("Total modeled annual opportunity");
-      expect(await extractLinkUrls(pdf)).toContain(BOOK_MEETING_URL);
+      expect(text).toContain("See your AI front office work live in 25 minutes.");
+      expect(await extractLinkUrls(pdf)).toContain(BOOKING_URL);
     },
     { timeout: 120_000 },
   );
