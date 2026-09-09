@@ -1,20 +1,10 @@
-import { describe, expect, test, mock, beforeEach } from "bun:test";
+import { describe, expect, test, beforeEach } from "bun:test";
 import {
   installSpeed2LeadIntegrationMocks,
   resetSpeed2LeadIntegrationMocks,
 } from "~/server/speed2Lead/testSupport/integrationMocks";
 
 installSpeed2LeadIntegrationMocks();
-
-mock.module("~/server/speed2Lead/conversationSms", () => ({
-  sendConversationSms: async () => {},
-}));
-mock.module("~/server/demoSpeed2Lead/processFollowUps", () => ({
-  removeDemoFollowUp: async () => {},
-}));
-mock.module("~/server/speed2Lead/nurtureFollowUp", () => ({
-  removeNurtureFollowUp: async () => {},
-}));
 
 const { handleIngressCompliance, STANDARD_START_KEYWORDS, STANDARD_STOP_KEYWORDS } = await import(
   "~/server/sms/optOut"

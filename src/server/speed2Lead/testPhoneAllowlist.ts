@@ -2,6 +2,7 @@ import { normalizePhone } from "~/server/sms/phone";
 import { isSpeed2LeadLlmEnabled } from "~/server/speed2Lead/config";
 
 let cachedTestPhones: string[] | null = null;
+let cachedTestPhonesRaw: string | undefined;
 
 export function parseSpeed2LeadTestPhones(raw?: string): string[] {
   if (!raw?.trim()) {
@@ -23,11 +24,14 @@ export function parseSpeed2LeadTestPhones(raw?: string): string[] {
 
 export function resetSpeed2LeadTestPhonesCacheForTests(): void {
   cachedTestPhones = null;
+  cachedTestPhonesRaw = undefined;
 }
 
 export function getSpeed2LeadTestPhones(): string[] {
-  if (cachedTestPhones === null) {
-    cachedTestPhones = parseSpeed2LeadTestPhones(process.env.SPEED2LEAD_TEST_PHONES);
+  const raw = process.env.SPEED2LEAD_TEST_PHONES;
+  if (cachedTestPhones === null || cachedTestPhonesRaw !== raw) {
+    cachedTestPhonesRaw = raw;
+    cachedTestPhones = parseSpeed2LeadTestPhones(raw);
   }
   return cachedTestPhones;
 }

@@ -38,14 +38,14 @@ const handleInboundSource = readFileSync(
 
 beforeEach(() => {
   delete process.env.SPEED2LEAD_LLM_ENABLED;
-  delete process.env.SPEED2LEAD_TEST_PHONES;
+  process.env.SPEED2LEAD_TEST_PHONES = "";
   resetSpeed2LeadTestPhonesCacheForTests();
   resetSpeed2LeadIntegrationMocks();
 });
 
 afterEach(() => {
   delete process.env.SPEED2LEAD_LLM_ENABLED;
-  delete process.env.SPEED2LEAD_TEST_PHONES;
+  process.env.SPEED2LEAD_TEST_PHONES = "";
   resetSpeed2LeadTestPhonesCacheForTests();
 });
 
@@ -196,7 +196,7 @@ function roiNurtureSession(
 
 describe("nurture follow-up cron safety", () => {
   beforeEach(() => {
-    delete process.env.SPEED2LEAD_TEST_PHONES;
+    process.env.SPEED2LEAD_TEST_PHONES = "";
     resetSpeed2LeadTestPhonesCacheForTests();
   });
 

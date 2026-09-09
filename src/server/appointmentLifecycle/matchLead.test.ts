@@ -1,30 +1,11 @@
-import { describe, expect, test, mock, beforeEach } from "bun:test";
+import { describe, expect, test, beforeEach } from "bun:test";
 import type { LeadIndexEntry, NormalizedCalendarEvent } from "~/server/appointmentLifecycle/types";
+import {
+  installSpeed2LeadIntegrationMocks,
+  resetSpeed2LeadIntegrationMocks,
+} from "~/server/speed2Lead/testSupport/integrationMocks";
 
-const redisStore = new Map<string, unknown>();
-const redisSets = new Map<string, Set<string>>();
-
-mock.module("~/server/speed2Lead/redis", () => ({
-  getRedis: () => ({
-    get: async <T>(key: string) => (redisStore.get(key) as T | undefined) ?? null,
-    set: async (key: string, value: unknown) => {
-      redisStore.set(key, value);
-      return "OK";
-    },
-    del: async (key: string) => {
-      redisStore.delete(key);
-    },
-    sadd: async (key: string, member: string) => {
-      const set = redisSets.get(key) ?? new Set<string>();
-      set.add(member);
-      redisSets.set(key, set);
-    },
-    srem: async (key: string, member: string) => {
-      redisSets.get(key)?.delete(member);
-    },
-    smembers: async (key: string) => [...(redisSets.get(key) ?? [])],
-  }),
-}));
+installSpeed2LeadIntegrationMocks();
 
 const { saveLeadIndex } = await import("~/server/appointmentLifecycle/store");
 const { extractEmailFromText, extractPhoneFromText, matchCalendarEventToLead } = await import(
@@ -63,8 +44,7 @@ async function seedLead(entry: LeadIndexEntry): Promise<void> {
 
 describe("matchLead production safety", () => {
   beforeEach(() => {
-    redisStore.clear();
-    redisSets.clear();
+    resetSpeed2LeadIntegrationMocks();
   });
 
   test("phone exact match with consent-eligible lead", async () => {

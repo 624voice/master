@@ -1,4 +1,4 @@
-import { mock } from "bun:test";
+import { beforeEach, mock } from "bun:test";
 
 /** Shared outbound SMS capture for integration tests — one mock, many consumers. */
 export const capturedOutboundSms: string[] = [];
@@ -81,3 +81,9 @@ export function resetSpeed2LeadIntegrationMocks(): void {
 export function resetCapturedOutboundSms(): void {
   capturedOutboundSms.length = 0;
 }
+
+beforeEach(() => {
+  if (installed) {
+    resetSpeed2LeadIntegrationMocks();
+  }
+});
