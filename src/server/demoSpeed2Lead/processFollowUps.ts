@@ -14,6 +14,7 @@ import { getSession, isOptedOut, saveSession } from "~/server/speed2Lead/session
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
+import { sendStateKeys } from "~/server/sms/sendState";
 
 const FOLLOW_UP_INDEX_KEY = "speed2lead:demo-followups";
 
@@ -80,8 +81,13 @@ export async function processDemoFollowUps(now = new Date()): Promise<number> {
       updatedAt: now.toISOString(),
     };
 
-    const persisted = await sendConversationSms(phone, message, beforeSend);
-    await saveSession(persisted ?? beforeSend);
+    const persisted = await sendConversationSms(phone, message, beforeSend, {
+      sendStateKey: sendStateKeys.demoFollowUp(phone, session.demoCompletedAt, nextStage),
+    });
+    if (!persisted) {
+      continue;
+    }
+    await saveSession(persisted);
 
     if (nextStage === 3) {
       await removeDemoFollowUp(phone);

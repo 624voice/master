@@ -20,7 +20,13 @@ import {
 } from "~/server/speed2Lead/agent/state";
 import { buildContactNoResponseMessage } from "~/server/speed2Lead/agent/contactFlow/noResponseCampaign";
 import { buildDemoNoResponseMessage } from "~/server/speed2Lead/agent/demoFlow/noResponseCampaign";
-import { sendSms } from "~/server/sms/twilio";
+import {
+  outboundWasAccepted,
+  releaseCronOverlapLock,
+  sendSmsWithState,
+  sendStateKeys,
+  tryAcquireCronOverlapLock,
+} from "~/server/sms/sendState";
 
 export const NO_RESPONSE_STAGE_COUNT = 5;
 
@@ -149,6 +155,15 @@ function shouldSkipNoResponse(session: AgentSession): boolean {
 
 /** Cron entrypoint: send the next due stage for each pending phone. */
 export async function processPendingNoResponseCampaign(now = new Date()): Promise<number> {
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. The per-touch send-state record (session.createdAt + stageIndex)
+  // prevents duplicate customer-visible campaign SMS if this worker overlaps.
+  const overlap = await tryAcquireCronOverlapLock("no-response-campaign");
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const profile = getActiveProfile();
   const phones = await listPendingNoResponsePhones();
   let sent = 0;
@@ -175,8 +190,15 @@ export async function processPendingNoResponseCampaign(now = new Date()): Promis
     }
 
     const message = buildNoResponseMessage(profile, session, stageIndex);
-    await sendSms(phone, message);
-    let updated = appendMessage(session, "assistant", message);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.noResponse(phone, session.createdAt, stageIndex),
+      to: phone,
+      body: message,
+    });
+    if (!outboundWasAccepted(sendResult)) {
+      continue;
+    }
+    let updated = sendResult.outcome === "sent" ? appendMessage(session, "assistant", message) : session;
 
     const nextStage = stageIndex + 1;
     if (nextStage >= NO_RESPONSE_STAGE_COUNT) {
@@ -202,4 +224,7 @@ export async function processPendingNoResponseCampaign(now = new Date()): Promis
   }
 
   return sent;
+  } finally {
+    await releaseCronOverlapLock("no-response-campaign", overlap);
+  }
 }

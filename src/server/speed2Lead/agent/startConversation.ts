@@ -14,7 +14,8 @@ import {
   releaseAgentPhoneLock,
   saveAgentSession,
 } from "~/server/speed2Lead/agent/state";
-import { sendSms } from "~/server/sms/twilio";
+import { establishOpenerEpisode } from "~/server/speed2Lead/openerEpisode";
+import { sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
 export type StartAgentInput = {
@@ -75,6 +76,8 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     return;
   }
 
+  const episode = await establishOpenerEpisode({ phone, source: "roi" });
+
   const lockToken = await acquireAgentPhoneLock(phone);
   if (!lockToken) {
     console.warn("startAgentConversation skipped: phone lock busy", {
@@ -109,6 +112,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
       email: input.email,
       source: "roi",
       smsConsent: true,
+      registeredAt: episode.registeredAt,
     });
 
     const profile = getActiveProfile();
@@ -131,9 +135,22 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
       annualOpportunity: input.annualOpportunity,
     });
 
-    await sendSms(phone, opener);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.agentOpener(phone, "roi", lead.registeredAt),
+      to: phone,
+      body: opener,
+    });
+    if (sendResult.outcome === "failed_retryable" || sendResult.outcome === "skipped_in_progress") {
+      return;
+    }
+    if (sendResult.outcome === "failed_terminal") {
+      return;
+    }
+
     session.leadRegisteredAt = lead.registeredAt;
-    session = appendMessage(session, "assistant", opener);
+    if (sendResult.outcome === "sent") {
+      session = appendMessage(session, "assistant", opener);
+    }
     session = await schedulePainPrompt(session, profile);
     session = await scheduleNoResponseCampaign(session, profile);
     await saveAgentSession(session);

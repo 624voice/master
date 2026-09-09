@@ -17,7 +17,13 @@ import { cancelPendingNoResponseCampaign } from "~/server/speed2Lead/agent/noRes
 import { cancelPendingPainPrompt } from "~/server/speed2Lead/agent/painPrompt";
 import { bookingLinkFollowUpCopy, bookingLinkUrl } from "~/server/speed2Lead/agent/bookingLinkCopy";
 import { logAppointmentEvent } from "~/server/appointmentLifecycle/log";
-import { sendSms } from "~/server/sms/twilio";
+import {
+  outboundWasAccepted,
+  releaseCronOverlapLock,
+  sendSmsWithState,
+  sendStateKeys,
+  tryAcquireCronOverlapLock,
+} from "~/server/sms/sendState";
 
 export const BOOKING_LINK_FOLLOWUP_STAGE_COUNT = 3;
 
@@ -104,6 +110,15 @@ export function nextValidBookingLinkFollowUp(args: {
 }
 
 export async function processPendingBookingLinkFollowUps(now = new Date()): Promise<number> {
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. The per-touch send-state record (session.createdAt + stageIndex)
+  // prevents duplicate customer-visible follow-up SMS if this 5-minute worker overlaps.
+  const overlap = await tryAcquireCronOverlapLock("booking-link-followups");
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const profile = getActiveProfile();
   const phones = await listPendingBookingLinkFollowUpPhones();
   let sent = 0;
@@ -134,8 +149,15 @@ export async function processPendingBookingLinkFollowUps(now = new Date()): Prom
 
     const link = bookingLinkUrl();
     const message = bookingLinkFollowUpCopy(session.flow, stageIndex, session.firstName, link);
-    await sendSms(phone, message);
-    let updated = appendMessage(session, "assistant", message);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.bookingLinkFollowUp(phone, session.createdAt, stageIndex),
+      to: phone,
+      body: message,
+    });
+    if (!outboundWasAccepted(sendResult)) {
+      continue;
+    }
+    let updated = sendResult.outcome === "sent" ? appendMessage(session, "assistant", message) : session;
     updated = {
       ...updated,
       bookingLinkLastSentAt: stageIndex < 2 ? new Date().toISOString() : updated.bookingLinkLastSentAt,
@@ -161,12 +183,17 @@ export async function processPendingBookingLinkFollowUps(now = new Date()): Prom
       await saveAgentSession(updated);
     }
 
-    logAppointmentEvent("booking_link_followup_sent", {
-      phone,
-      stage: stageIndex,
-    });
+    if (sendResult.outcome === "sent") {
+      logAppointmentEvent("booking_link_followup_sent", {
+        phone,
+        stage: stageIndex,
+      });
+    }
     sent += 1;
   }
 
   return sent;
+  } finally {
+    await releaseCronOverlapLock("booking-link-followups", overlap);
+  }
 }

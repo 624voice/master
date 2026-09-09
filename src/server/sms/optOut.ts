@@ -20,6 +20,7 @@ import {
 import { optOutConfirmationMessage } from "~/server/speed2Lead/messages";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
+import { sendStateKeys } from "~/server/sms/sendState";
 
 export type TwilioOptOutType = "STOP" | "START" | "HELP";
 
@@ -124,6 +125,11 @@ export async function handleIngressCompliance(args: {
   return { handled: false };
 }
 
-export async function sendLegacyOptOutConfirmation(phone: string): Promise<void> {
-  await sendConversationSms(normalizePhone(phone), optOutConfirmationMessage());
+export async function sendLegacyOptOutConfirmation(phone: string, messageSid?: string): Promise<void> {
+  await sendConversationSms(
+    normalizePhone(phone),
+    optOutConfirmationMessage(),
+    null,
+    messageSid ? { sendStateKey: sendStateKeys.legacyOptOut(messageSid) } : undefined,
+  );
 }

@@ -27,7 +27,13 @@ import {
   saveAgentSession,
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
-import { sendSms } from "~/server/sms/twilio";
+import {
+  outboundWasAccepted,
+  releaseCronOverlapLock,
+  sendSmsWithState,
+  sendStateKeys,
+  tryAcquireCronOverlapLock,
+} from "~/server/sms/sendState";
 
 export function buildOpenerMessage1(
   profile: AgentProfile,
@@ -79,6 +85,15 @@ export async function cancelPendingPainPrompt(session: AgentSession): Promise<Ag
 /** Cron entrypoint: send message 2 for every session whose delay has
  * elapsed and who hasn't already replied or opted out. */
 export async function processPendingPainPrompts(now = new Date()): Promise<number> {
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. The per-session send-state record (phone + session.createdAt)
+  // prevents a duplicate pain-prompt SMS if this worker overlaps.
+  const overlap = await tryAcquireCronOverlapLock("pain-prompts");
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const profile = getActiveProfile();
   const phones = await listPendingPainPromptPhones();
   let sent = 0;
@@ -98,8 +113,15 @@ export async function processPendingPainPrompts(now = new Date()): Promise<numbe
     }
 
     const message = buildPainPromptMessage(profile);
-    await sendSms(phone, message);
-    let updated = appendMessage(session, "assistant", message);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.painPrompt(phone, session.createdAt),
+      to: phone,
+      body: message,
+    });
+    if (!outboundWasAccepted(sendResult)) {
+      continue;
+    }
+    let updated = sendResult.outcome === "sent" ? appendMessage(session, "assistant", message) : session;
     updated = { ...updated, painPromptResolved: true, painPromptDueAt: undefined };
     await saveAgentSession(updated);
     await dequeuePainPrompt(phone);
@@ -107,4 +129,7 @@ export async function processPendingPainPrompts(now = new Date()): Promise<numbe
   }
 
   return sent;
+  } finally {
+    await releaseCronOverlapLock("pain-prompts", overlap);
+  }
 }

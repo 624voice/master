@@ -17,7 +17,8 @@ import {
   releaseAgentPhoneLock,
   saveAgentSession,
 } from "~/server/speed2Lead/agent/state";
-import { sendSms } from "~/server/sms/twilio";
+import { establishOpenerEpisode } from "~/server/speed2Lead/openerEpisode";
+import { sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
 export type StartContactAgentInput = {
@@ -52,6 +53,8 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
     return;
   }
 
+  const episode = await establishOpenerEpisode({ phone, source: "contact" });
+
   const lockToken = await acquireAgentPhoneLock(phone);
   if (!lockToken) {
     return;
@@ -78,6 +81,7 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
       source: "contact",
       smsConsent: true,
       shortNeedSummary: helpTextSummary,
+      registeredAt: episode.registeredAt,
     });
 
     let session = createAgentSession({
@@ -102,8 +106,21 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
     session.leadRegisteredAt = lead.registeredAt;
 
     const opener = buildContactOpener(session);
-    await sendSms(phone, opener);
-    session = appendMessage(session, "assistant", opener);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.agentOpener(phone, "contact", lead.registeredAt),
+      to: phone,
+      body: opener,
+    });
+    if (
+      sendResult.outcome === "failed_retryable" ||
+      sendResult.outcome === "skipped_in_progress" ||
+      sendResult.outcome === "failed_terminal"
+    ) {
+      return;
+    }
+    if (sendResult.outcome === "sent") {
+      session = appendMessage(session, "assistant", opener);
+    }
 
     if (inquiryClarity === "already_clear") {
       session = {

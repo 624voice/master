@@ -21,13 +21,14 @@ function getFromNumber(): string {
   return normalizePhone(from);
 }
 
-export async function sendSms(to: string, body: string): Promise<void> {
+export async function sendSms(to: string, body: string): Promise<{ sid: string }> {
   const client = getTwilioClient();
-  await client.messages.create({
+  const message = await client.messages.create({
     to: normalizePhone(to),
     from: getFromNumber(),
     body,
   });
+  return { sid: message.sid };
 }
 
 export function validateTwilioRequest(

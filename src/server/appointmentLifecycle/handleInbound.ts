@@ -20,6 +20,7 @@ import { classifyGlobalIntent } from "~/server/speed2Lead/globalIntents";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { saveSession } from "~/server/speed2Lead/session";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
+import { sendStateKeys } from "~/server/sms/sendState";
 
 export type LifecycleInboundResult = {
   handled: boolean;
@@ -32,6 +33,7 @@ export async function handleAppointmentLifecycleInbound(
   phone: string,
   body: string,
   session: AnyConversationContext | null,
+  messageSid?: string,
 ): Promise<LifecycleInboundResult> {
   const globalIntent = classifyGlobalIntent(body);
   const lifecycleIntent = classifyLifecycleIntent(body);
@@ -53,7 +55,12 @@ export async function handleAppointmentLifecycleInbound(
             updatedAt: now,
           }
         : { ...session, state: "completed" as const, updatedAt: now };
-    const updated = await sendConversationSms(phone, reply, completed);
+    const updated = await sendConversationSms(
+      phone,
+      reply,
+      completed,
+      { sendStateKey: sendStateKeys.meetingBookedAck(phone, messageSid ?? "once") },
+    );
     await saveSession(updated ?? completed);
     return { handled: true, reply, sessionPersisted: true };
   }

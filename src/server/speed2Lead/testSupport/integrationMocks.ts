@@ -3,6 +3,20 @@ import { beforeEach, mock } from "bun:test";
 /** Shared outbound SMS capture for integration tests — one mock, many consumers. */
 export const capturedOutboundSms: string[] = [];
 
+export type FakeSendSms = (to: string, body: string) => Promise<{ sid: string }>;
+
+const defaultFakeSendSms: FakeSendSms = async (_to, body) => {
+  capturedOutboundSms.push(body);
+  return { sid: `SM-mock-${capturedOutboundSms.length}` };
+};
+
+let fakeSendSms: FakeSendSms = defaultFakeSendSms;
+
+/** Controlled provider fake for deterministic crash/timeout tests. Test-only. */
+export function setFakeSendSms(fn: FakeSendSms | null): void {
+  fakeSendSms = fn ?? defaultFakeSendSms;
+}
+
 /** Shared in-memory Redis backing store for integration tests. */
 export const capturedRedisStore = new Map<string, unknown>();
 
@@ -44,9 +58,7 @@ export function installSpeed2LeadIntegrationMocks(): void {
   installed = true;
 
   mock.module("~/server/sms/twilio", () => ({
-    sendSms: async (_to: string, body: string) => {
-      capturedOutboundSms.push(body);
-    },
+    sendSms: async (to: string, body: string) => fakeSendSms(to, body),
   }));
 
   mock.module("~/server/speed2Lead/redis", () => ({
@@ -76,6 +88,7 @@ export function installSpeed2LeadIntegrationMocks(): void {
 export function resetSpeed2LeadIntegrationMocks(): void {
   capturedOutboundSms.length = 0;
   capturedRedisStore.clear();
+  fakeSendSms = defaultFakeSendSms;
 }
 
 export function resetCapturedOutboundSms(): void {

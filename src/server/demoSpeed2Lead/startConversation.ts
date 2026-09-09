@@ -7,6 +7,8 @@ import {
 import { isOptedOut, saveSession } from "~/server/speed2Lead/session";
 import { sendConversationSms } from "~/server/speed2Lead/conversationSms";
 import { normalizePhone } from "~/server/sms/phone";
+import { establishLegacyDemoEpisode } from "~/server/speed2Lead/openerEpisode";
+import { sendStateKeys } from "~/server/sms/sendState";
 import { initialMessage } from "~/server/demoSpeed2Lead/messages";
 import { registerDemoFollowUp } from "~/server/demoSpeed2Lead/processFollowUps";
 import {
@@ -62,6 +64,8 @@ export async function startDemoSpeed2Lead(input: {
   smsConsent: boolean;
   demoCompletedAt: string;
   durationSeconds?: number;
+  /** Durable Vapi call id — required for replay-stable opener idempotency. */
+  vapiCallId?: string;
 }): Promise<void> {
   if (!isSpeed2LeadEnabled()) {
     return;
@@ -81,6 +85,9 @@ export async function startDemoSpeed2Lead(input: {
     return;
   }
 
+  const episodeId =
+    input.vapiCallId?.trim() || (await establishLegacyDemoEpisode(phone));
+
   const context = createDemoSession({
     ...input,
     phone,
@@ -98,7 +105,9 @@ export async function startDemoSpeed2Lead(input: {
   });
 
   const opening = initialMessage(context);
-  const updated = await sendConversationSms(phone, opening, context);
+  const updated = await sendConversationSms(phone, opening, context, {
+    sendStateKey: sendStateKeys.legacyDemoOpener(phone, episodeId),
+  });
   await saveSession(updated ?? context);
   await registerDemoFollowUp(updated ?? context);
 }

@@ -22,6 +22,8 @@ export async function registerLeadForLifecycle(input: {
   source: S2LSource;
   smsConsent: boolean;
   shortNeedSummary?: string;
+  /** Stable episode time from establishOpenerEpisode — do not pass Date.now() per retry. */
+  registeredAt?: string;
 }): Promise<LeadIndexEntry> {
   const entry: LeadIndexEntry = {
     phone: normalizePhone(input.phone),
@@ -31,7 +33,7 @@ export async function registerLeadForLifecycle(input: {
     businessName: input.businessName,
     source: input.source,
     smsConsent: input.smsConsent,
-    registeredAt: new Date().toISOString(),
+    registeredAt: input.registeredAt ?? new Date().toISOString(),
     shortNeedSummary: input.shortNeedSummary,
   };
   await saveLeadIndex(entry);

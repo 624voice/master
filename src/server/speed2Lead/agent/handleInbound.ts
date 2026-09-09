@@ -55,7 +55,6 @@ import { resolveRoiDeclineAction } from "~/server/speed2Lead/agent/roiDeclineHan
 import {
   acquireAgentInboundLock,
   appendMessage,
-  claimAgentOutboundForInbound,
   claimInboundMessageSid,
   getAgentSession,
   isOptedOut,
@@ -93,6 +92,7 @@ import {
   sessionAwaitingPainAnswer,
 } from "~/server/speed2Lead/agent/turnGuards";
 import { sendSms } from "~/server/sms/twilio";
+import { outboundWasAccepted, sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
 async function cancelPendingScheduledOutreach(session: AgentSession): Promise<AgentSession> {
@@ -126,15 +126,24 @@ async function sendAgentReplySms(
   body: string,
   messageSid: string | undefined,
 ): Promise<boolean> {
-  if (!(await claimAgentOutboundForInbound(messageSid))) {
-    console.warn("handleAgentInboundSms skipped duplicate outbound", {
+  if (!messageSid?.trim()) {
+    await sendSms(phone, body);
+    return true;
+  }
+  const result = await sendSmsWithState({
+    key: sendStateKeys.agentInboundReply(messageSid.trim()),
+    to: phone,
+    body,
+  });
+  if (!outboundWasAccepted(result)) {
+    console.warn("handleAgentInboundSms skipped outbound", {
       phoneSuffix: phone.slice(-4),
       messageSid,
+      outcome: result.outcome,
     });
     return false;
   }
-  await sendSms(phone, body);
-  return true;
+  return result.outcome === "sent";
 }
 
 export async function handleAgentInboundSms(
@@ -207,7 +216,7 @@ export async function handleAgentInboundSms(
         });
         return;
       }
-      const lifecycle = await handleAppointmentLifecycleInbound(phone, body, null);
+      const lifecycle = await handleAppointmentLifecycleInbound(phone, body, null, messageSid);
       if (lifecycle.handled) {
         if (lifecycle.reply) {
           session = appendMessage(session, "assistant", lifecycle.reply);
@@ -237,7 +246,7 @@ export async function handleAgentInboundSms(
     }
 
     if (shouldResendBookingLink(session, body) || (session.stage === "booking_link_pending" && isManualBookingRequest(body))) {
-      await executeBookingLinkResend(session);
+      await executeBookingLinkResend(session, messageSid);
       return;
     }
 
