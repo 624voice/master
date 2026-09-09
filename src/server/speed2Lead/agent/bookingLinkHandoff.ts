@@ -23,6 +23,7 @@ import {
   type AgentSession,
 } from "~/server/speed2Lead/agent/state";
 import { getRedis } from "~/server/speed2Lead/redis";
+import { outboundWasAccepted, sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { sendSms } from "~/server/sms/twilio";
 
 const BRIDGE_AGREEMENT_RE =
@@ -211,19 +212,37 @@ export async function executeBookingLinkTransition(
 
   const link = bookingLinkUrl();
   const body = bookingLinkHandoffCopy(next.flow, link);
-  await sendSms(next.phone, body);
-  next = appendMessage(next, "assistant", body);
+  const sendResult = await sendSmsWithState({
+    key: sendStateKeys.bookingLinkInitial(next.phone, next.createdAt),
+    to: next.phone,
+    body,
+  });
+  if (
+    sendResult.outcome === "failed_retryable" ||
+    sendResult.outcome === "skipped_in_progress" ||
+    sendResult.outcome === "failed_terminal"
+  ) {
+    return session;
+  }
+  if (sendResult.outcome === "sent") {
+    next = appendMessage(next, "assistant", body);
+  }
   next = await enterBookingLinkPending(next);
-  if (firstSend) {
+  if (firstSend && outboundWasAccepted(sendResult)) {
     await updateLeadBookingLinkSentAt(next, next.bookingLinkSentAt ?? now);
   }
   await saveAgentSession(next);
-  logAppointmentEvent("booking_link_sent", { phone: next.phone, flow: next.flow });
+  if (sendResult.outcome === "sent") {
+    logAppointmentEvent("booking_link_sent", { phone: next.phone, flow: next.flow });
+  }
   void messageSid;
   return next;
 }
 
-export async function executeBookingLinkResend(session: AgentSession): Promise<AgentSession> {
+export async function executeBookingLinkResend(
+  session: AgentSession,
+  messageSid?: string,
+): Promise<AgentSession> {
   const now = new Date().toISOString();
   const check = await freshPreSendBookingCheck(session);
   let next = check.session;
@@ -234,10 +253,29 @@ export async function executeBookingLinkResend(session: AgentSession): Promise<A
 
   const link = bookingLinkUrl();
   const body = bookingLinkResendCopy(link);
-  await sendSms(next.phone, body);
-  next = appendMessage(next, "assistant", body);
-  next = { ...next, bookingLinkLastSentAt: now };
-  await saveAgentSession(next);
+
+  if (messageSid) {
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.bookingLinkResend(next.phone, next.createdAt, messageSid),
+      to: next.phone,
+      body,
+    });
+    if (sendResult.outcome === "sent") {
+      next = appendMessage(next, "assistant", body);
+      next = { ...next, bookingLinkLastSentAt: now };
+      await saveAgentSession(next);
+    } else if (sendResult.outcome === "already_sent" || sendResult.outcome === "indeterminate") {
+      await saveAgentSession(next);
+      return next;
+    } else {
+      return next;
+    }
+  } else {
+    await sendSms(next.phone, body);
+    next = appendMessage(next, "assistant", body);
+    next = { ...next, bookingLinkLastSentAt: now };
+    await saveAgentSession(next);
+  }
 
   const exhausted = Boolean(next.bookingLinkFollowUpResolved);
   logAppointmentEvent(exhausted ? "booking_link_resent_after_campaign_exhausted" : "booking_link_resent", {

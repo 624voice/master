@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/sms/inbound")({
             });
             if (compliance.handled) {
               if (compliance.sendLegacyConfirmation) {
-                await sendLegacyOptOutConfirmation(from);
+                await sendLegacyOptOutConfirmation(from, params.MessageSid);
               }
             } else {
               await maybeCancelAbandonedDemoRecoveryOnInbound(normalizePhone(from));
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/api/sms/inbound")({
               if (agentSession) {
                 await handleAgentInboundSms(from, body, params.MessageSid);
               } else {
-                await handleInboundSms(from, body);
+                await handleInboundSms(from, body, params.MessageSid);
               }
             }
           } catch (error) {

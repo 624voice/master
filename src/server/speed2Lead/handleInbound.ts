@@ -35,6 +35,7 @@ import {
 import { removeNurtureFollowUp } from "~/server/speed2Lead/nurtureFollowUp";
 import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
+import { sendStateKeys } from "~/server/sms/sendState";
 
 function isDemoSession(
   session: AnyConversationContext | null,
@@ -42,7 +43,11 @@ function isDemoSession(
   return session?.flow === "demo";
 }
 
-export async function handleInboundSms(from: string, body: string): Promise<void> {
+export async function handleInboundSms(
+  from: string,
+  body: string,
+  messageSid?: string,
+): Promise<void> {
   const phone = normalizePhone(from);
   let session = await getSession(phone);
   const intent = classifyGlobalIntent(body);
@@ -54,7 +59,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     await clearSession(phone);
     await removeDemoFollowUp(phone);
     await removeNurtureFollowUp(phone);
-    await sendConversationSms(phone, optOutConfirmationMessage());
+    await sendConversationSms(
+      phone,
+      optOutConfirmationMessage(),
+      null,
+      messageSid ? { sendStateKey: sendStateKeys.legacyOptOut(messageSid) } : undefined,
+    );
     return;
   }
 
@@ -69,7 +79,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     await removeNurtureFollowUp(phone);
   }
 
-  const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session);
+  const lifecycle = await handleAppointmentLifecycleInbound(phone, body, session, messageSid);
   if (lifecycle.handled) {
     if (session && !lifecycle.sessionPersisted) {
       await saveSession(session);
@@ -78,7 +88,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
   }
 
   if (!session) {
-    await sendConversationSms(phone, unknownInboundMessage());
+    await sendConversationSms(
+      phone,
+      unknownInboundMessage(),
+      null,
+      messageSid ? { sendStateKey: sendStateKeys.legacyUnknown(messageSid) } : undefined,
+    );
     return;
   }
 
@@ -92,6 +107,7 @@ export async function handleInboundSms(from: string, body: string): Promise<void
       phone,
       isDemoSession(session) ? demoDeclineMessage() : declineMessage(),
       completed,
+      messageSid ? { sendStateKey: sendStateKeys.agentInboundReply(messageSid) } : undefined,
     );
     await saveSession(updated ?? completed);
     if (isDemoSession(session)) {
@@ -110,7 +126,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
     !isSubstantiveReengagement(body)
   ) {
     const ack = softCloseAckMessage();
-    const updated = await sendConversationSms(phone, ack, session);
+    const updated = await sendConversationSms(
+      phone,
+      ack,
+      session,
+      messageSid ? { sendStateKey: sendStateKeys.agentInboundReply(messageSid) } : undefined,
+    );
     await saveSession(updated ?? session);
     return;
   }
@@ -126,7 +147,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   if (isDemoSession(session)) {
     const result = advanceDemoConversation(session, body);
-    const updated = await sendConversationSms(phone, result.reply, result.context);
+    const updated = await sendConversationSms(
+      phone,
+      result.reply,
+      result.context,
+      messageSid ? { sendStateKey: sendStateKeys.agentInboundReply(messageSid) } : undefined,
+    );
     await saveSession(updated ?? result.context);
     if (result.context.meetingBooked) {
       await removeDemoFollowUp(phone);
@@ -136,7 +162,12 @@ export async function handleInboundSms(from: string, body: string): Promise<void
 
   // Legacy ROI/contact sessions in the old store are no longer serviced — v2 uses agent/state.ts.
   await saveSession(session);
-  await sendConversationSms(phone, unknownInboundMessage(), session);
+  await sendConversationSms(
+    phone,
+    unknownInboundMessage(),
+    session,
+    messageSid ? { sendStateKey: sendStateKeys.legacyUnknown(messageSid) } : undefined,
+  );
 }
 
 export { demoUnknownInboundMessage };

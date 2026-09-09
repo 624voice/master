@@ -36,10 +36,22 @@ export async function sendHumanAlert(args: {
     return true;
   }
 
-  await sendSms(dest, args.body);
-  logAppointmentEvent("human_alert_sent", {
-    reason: args.reason,
-    subjectId: args.subjectId,
-  });
-  return true;
+  // Event-level NX dedupe only — not the prospect-facing lease machine.
+  // A duplicate HUMAN_FOLLOW_UP alert can cause two humans to act on the
+  // same prospect. The NX claim is the deterministic identity of this event.
+  try {
+    await sendSms(dest, args.body);
+    logAppointmentEvent("human_alert_sent", {
+      reason: args.reason,
+      subjectId: args.subjectId,
+    });
+    return true;
+  } catch (error) {
+    logAppointmentEvent("human_alert_send_failed", {
+      reason: args.reason,
+      subjectId: args.subjectId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
 }

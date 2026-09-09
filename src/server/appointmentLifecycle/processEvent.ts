@@ -188,11 +188,11 @@ async function sendLifecycleMessageIfAllowed(
       ? rescheduleConfirmationMessage(ctx)
       : bookingConfirmationMessage(ctx);
 
-  await sendLifecycleSms(record.phone, body, {
+  const accepted = await sendLifecycleSms(record.phone, body, {
     messageType,
     eventId: record.calendarEventId,
   });
-  return true;
+  return accepted !== false;
 }
 
 function applyConfirmationState(

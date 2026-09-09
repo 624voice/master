@@ -7,6 +7,7 @@ import type { AnyConversationContext } from "~/server/speed2Lead/types";
 import type { ContactConversationContext } from "~/server/speed2Lead/types";
 import type { ConversationContext } from "~/server/speed2Lead/types";
 import { normalizePhone } from "~/server/sms/phone";
+import { sendStateKeys } from "~/server/sms/sendState";
 
 const NURTURE_INDEX_KEY = "speed2lead:nurture-followups";
 const FIRST_DELAY_MS = 45 * 60 * 1000;
@@ -137,8 +138,13 @@ export async function processNurtureFollowUps(now = new Date()): Promise<number>
           : computeNextNurtureAt({ ...session, nurtureStage: nextStage }, followingStage),
       updatedAt: now.toISOString(),
     };
-    await sendConversationSms(phone, message, updated);
-    await saveSession(updated);
+    const persisted = await sendConversationSms(phone, message, updated, {
+      sendStateKey: sendStateKeys.nurture(phone, session.nurtureStartedAt ?? "episode", nextStage),
+    });
+    if (!persisted) {
+      continue;
+    }
+    await saveSession(persisted);
     sent += 1;
 
     if (nextStage === 3) {

@@ -6,6 +6,7 @@ import {
   type WebhookCalendarEvent,
 } from "~/server/appointmentLifecycle/parseCalendarEvent";
 import { getSyncCursor, setSyncCursor } from "~/server/appointmentLifecycle/store";
+import { releaseCronOverlapLock, tryAcquireCronOverlapLock } from "~/server/sms/sendState";
 
 const DEFAULT_LOOKBACK_MS = 15 * 60 * 1000;
 
@@ -14,6 +15,15 @@ export async function syncCalendarFromGoogleApi(now = new Date()): Promise<numbe
     return 0;
   }
 
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. Confirmation SMS is keyed on Google calendarEventId + message
+  // type; this lock only avoids redundant overlapping 10-minute sync work.
+  const overlap = await tryAcquireCronOverlapLock("appointment-calendar-sync", 180);
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const cursor = await getSyncCursor();
   const updatedMin =
     cursor ??
@@ -33,6 +43,9 @@ export async function syncCalendarFromGoogleApi(now = new Date()): Promise<numbe
 
   await setSyncCursor(latestUpdated);
   return events.length;
+  } finally {
+    await releaseCronOverlapLock("appointment-calendar-sync", overlap);
+  }
 }
 
 export async function ingestCalendarWebhookEvents(

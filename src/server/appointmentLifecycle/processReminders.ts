@@ -11,6 +11,10 @@ import {
 import { sendLifecycleSms } from "~/server/appointmentLifecycle/sms";
 import { canSendLifecycleSms } from "~/server/appointmentLifecycle/smsEligibility";
 import {
+  releaseCronOverlapLock,
+  tryAcquireCronOverlapLock,
+} from "~/server/sms/sendState";
+import {
   expireReschedulePendingIfStale,
   getLeadForLifecycle,
   getLifecycleRecord,
@@ -48,10 +52,13 @@ async function sendReminder(
   const ctx = messageContext(record);
   const body = kind === "24h" ? reminder24hMessage(ctx) : reminder2hMessage(ctx);
 
-  await sendLifecycleSms(record.phone, body, {
+  const accepted = await sendLifecycleSms(record.phone, body, {
     messageType: `${kind}_reminder`,
     eventId: record.calendarEventId,
   });
+  if (!accepted) {
+    return false;
+  }
 
   const updated: AppointmentLifecycleRecord = {
     ...record,
@@ -80,6 +87,15 @@ async function sendReminder(
 }
 
 export async function processAppointmentReminders(now = new Date()): Promise<number> {
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. The per-event send-state record (calendarEventId + reminder kind)
+  // prevents duplicate customer-visible reminder SMS if this worker overlaps.
+  const overlap = await tryAcquireCronOverlapLock("appointment-reminders");
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const eventIds = await getReminderIndexEventIds();
   let sent = 0;
 
@@ -131,4 +147,7 @@ export async function processAppointmentReminders(now = new Date()): Promise<num
   }
 
   return sent;
+  } finally {
+    await releaseCronOverlapLock("appointment-reminders", overlap);
+  }
 }

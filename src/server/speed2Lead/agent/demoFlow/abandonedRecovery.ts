@@ -7,7 +7,13 @@ import {
   saveDemoFormEntry,
   type DemoFormEntry,
 } from "~/server/vapi/demoUsage";
-import { sendSms } from "~/server/sms/twilio";
+import {
+  outboundWasAccepted,
+  releaseCronOverlapLock,
+  sendSmsWithState,
+  sendStateKeys,
+  tryAcquireCronOverlapLock,
+} from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 import { usableGreetingName } from "~/server/speed2Lead/agent/greetingName";
 
@@ -115,6 +121,15 @@ export async function maybeCancelAbandonedDemoRecoveryOnInbound(phone: string): 
 }
 
 export async function processAbandonedDemoRecovery(now = new Date()): Promise<number> {
+  // Defense-in-depth / operational-efficiency only — not the correctness
+  // boundary. The per-touch send-state record (formSubmittedAt + stage)
+  // prevents a duplicate recovery SMS if this worker overlaps.
+  const overlap = await tryAcquireCronOverlapLock("abandoned-demo-recovery");
+  if (!overlap) {
+    return 0;
+  }
+
+  try {
   const phones = await listPendingAbandonedRecoveryPhones();
   let sent = 0;
 
@@ -141,7 +156,14 @@ export async function processAbandonedDemoRecovery(now = new Date()): Promise<nu
     }
 
     const message = buildAbandonedRecoveryMessage(entry, stageIndex);
-    await sendSms(phone, message);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.abandonedDemo(phone, entry.formSubmittedAt, stageIndex),
+      to: phone,
+      body: message,
+    });
+    if (!outboundWasAccepted(sendResult)) {
+      continue;
+    }
 
     const nextStage = stageIndex + 1;
     if (nextStage >= RECOVERY_STAGE_COUNT) {
@@ -165,6 +187,9 @@ export async function processAbandonedDemoRecovery(now = new Date()): Promise<nu
   }
 
   return sent;
+  } finally {
+    await releaseCronOverlapLock("abandoned-demo-recovery", overlap);
+  }
 }
 
 export { demoFormKeys };

@@ -7,7 +7,6 @@ import {
 import { isSpeed2LeadDemoAgentV2Enabled } from "~/server/speed2Lead/agent/rollout";
 import { startDemoSpeed2Lead } from "~/server/demoSpeed2Lead/startConversation";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
-import { getRedis } from "~/server/speed2Lead/redis";
 import { parseEndOfCallReport } from "~/server/vapi/parseEndOfCallReport";
 import { markVoiceDemoUsed } from "~/server/vapi/demoUsage";
 import { logVoiceTranscriptSafely } from "~/server/vapi/transcript";
@@ -20,15 +19,6 @@ function hasWebsiteFromMetadata(website: string | undefined): boolean {
   if (!website) return false;
   const normalized = website.trim().toLowerCase();
   return normalized !== "" && !normalized.includes("don't have a website");
-}
-
-async function claimVapiCallId(callId: string): Promise<boolean> {
-  const redis = getRedis();
-  const claimed = await redis.set(`speed2lead:vapi:call-claimed:${callId}`, "1", {
-    nx: true,
-    ex: 60 * 60 * 24,
-  });
-  return Boolean(claimed);
 }
 
 export const Route = createFileRoute("/api/vapi/webhook")({
@@ -91,7 +81,7 @@ export const Route = createFileRoute("/api/vapi/webhook")({
               if (isSpeed2LeadDemoAgentV2Enabled()) {
                 if (!callId) {
                   console.warn("Vapi end-of-call-report missing call.id — skipping demo agent handoff");
-                } else if (await claimVapiCallId(callId)) {
+                } else {
                   const callOutcome = computeDemoCallOutcome(durationSeconds);
                   const demoSummary = await resolveDemoSummary({
                     structuredData: analysisStructuredData,

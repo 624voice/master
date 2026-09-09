@@ -17,7 +17,7 @@ import {
   releaseAgentPhoneLock,
   saveAgentSession,
 } from "~/server/speed2Lead/agent/state";
-import { sendSms } from "~/server/sms/twilio";
+import { sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
 export type StartContactAgentInput = {
@@ -102,8 +102,21 @@ export async function startContactAgentConversation(input: StartContactAgentInpu
     session.leadRegisteredAt = lead.registeredAt;
 
     const opener = buildContactOpener(session);
-    await sendSms(phone, opener);
-    session = appendMessage(session, "assistant", opener);
+    const sendResult = await sendSmsWithState({
+      key: sendStateKeys.agentOpener(phone),
+      to: phone,
+      body: opener,
+    });
+    if (
+      sendResult.outcome === "failed_retryable" ||
+      sendResult.outcome === "skipped_in_progress" ||
+      sendResult.outcome === "failed_terminal"
+    ) {
+      return;
+    }
+    if (sendResult.outcome === "sent") {
+      session = appendMessage(session, "assistant", opener);
+    }
 
     if (inquiryClarity === "already_clear") {
       session = {
