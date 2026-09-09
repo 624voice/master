@@ -117,7 +117,10 @@ function installFetchMock() {
       return new Response(JSON.stringify({ items: calendarEvents }), { status: 200 });
     }
 
-    return originalFetch(input, init);
+    return new Response(JSON.stringify({ error: "offline_suite_unmocked_url", url }), {
+      status: 503,
+      headers: { "Content-Type": "application/json" },
+    });
   }) as typeof fetch;
 }
 

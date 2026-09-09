@@ -9,7 +9,7 @@ describe("probeHandsetEquivalentBookProviderSlot", () => {
   let bookProviderSlotSpy: ReturnType<typeof spyOn>;
 
   beforeEach(async () => {
-    delete process.env.SPEED2LEAD_TEST_PHONES;
+    process.env.SPEED2LEAD_TEST_PHONES = "";
     resetSpeed2LeadTestPhonesCacheForTests();
     const provider = await import("~/server/speed2Lead/agent/scheduling/provider");
     bookProviderSlotSpy = spyOn(provider, "bookProviderSlot").mockResolvedValue({
@@ -44,7 +44,7 @@ describe("probeHandsetEquivalentBookProviderSlot", () => {
 
   afterEach(() => {
     mock.restore();
-    delete process.env.SPEED2LEAD_TEST_PHONES;
+    process.env.SPEED2LEAD_TEST_PHONES = "";
     resetSpeed2LeadTestPhonesCacheForTests();
   });
 

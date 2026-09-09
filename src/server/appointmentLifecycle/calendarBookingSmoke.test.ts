@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import {
   handleCalendarBookingSmokeRequest,
   parseBookingSmokeMode,
 } from "~/server/appointmentLifecycle/calendarBookingSmoke";
+import * as bookingProbe from "~/server/appointmentLifecycle/googleBookingProviderProbe";
 
 const probeCreatePath = mock(async () => ({
   ok: true,
@@ -52,14 +53,6 @@ const describePayload = mock(async () => ({
   hasAttendeesField: false,
 }));
 
-mock.module("~/server/appointmentLifecycle/googleBookingProviderProbe", () => ({
-  compareConsultationBookingVariants: probeCompare,
-  describeConsultationInsertPayload: describePayload,
-  probeConsultationBookingCreatePath: probeCreatePath,
-  probeConsultationBookingFullPath: probeCreatePath,
-  probeHandsetEquivalentBookProviderSlot: probeHandset,
-}));
-
 describe("parseBookingSmokeMode", () => {
   test("accepts handset mode", () => {
     expect(parseBookingSmokeMode("handset")).toBe("handset");
@@ -94,9 +87,15 @@ describe("handleCalendarBookingSmokeRequest mode routing", () => {
     probeCompare.mockClear();
     probeHandset.mockClear();
     describePayload.mockClear();
+    spyOn(bookingProbe, "compareConsultationBookingVariants").mockImplementation(probeCompare);
+    spyOn(bookingProbe, "describeConsultationInsertPayload").mockImplementation(describePayload);
+    spyOn(bookingProbe, "probeConsultationBookingCreatePath").mockImplementation(probeCreatePath);
+    spyOn(bookingProbe, "probeConsultationBookingFullPath").mockImplementation(probeCreatePath);
+    spyOn(bookingProbe, "probeHandsetEquivalentBookProviderSlot").mockImplementation(probeHandset);
   });
 
   afterEach(() => {
+    mock.restore();
     process.env.CRON_SECRET = originalCronSecret;
     process.env.CONTEXT = originalContext;
     process.env.NODE_ENV = originalNodeEnv;

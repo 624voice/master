@@ -19,7 +19,7 @@ describe("resetTestPhoneHandler", () => {
 
   afterEach(() => {
     delete process.env.SPEED2LEAD_TEST_RESET_SECRET;
-    delete process.env.SPEED2LEAD_TEST_PHONES;
+    process.env.SPEED2LEAD_TEST_PHONES = "";
     resetSpeed2LeadTestPhonesCacheForTests();
   });
 
