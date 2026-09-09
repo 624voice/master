@@ -26,11 +26,12 @@ enrolling new leads onto legacy nurture. It did not prove non-reachability.
 
 Until inbound routing never calls `handleInboundSms`, deletion would change
 recovery behavior for expired/missing sessions — an undecided product question
-(see Gate 1C).
+(see Gate 1C and `docs/phase-c-recovery-cases.md`).
 
 ## What "retired" would require (future sprint)
 
-1. Product decision on expired / missing AgentSession (open question 1C.1).
+1. Product decision on expired / missing AgentSession (open question 1C.1 /
+   recovery-cases question 1).
 2. Inbound router no longer imports `handleInboundSms`.
 3. Characterization suite proving no production phone can hit legacy replies.
 4. Only then delete or stub legacy send paths.
