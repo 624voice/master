@@ -1,0 +1,381 @@
+@font-face {
+  font-family: "Inter Report";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/fonts/inter/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Report";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("/fonts/inter/Inter-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Report";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url("/fonts/inter/Inter-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Report";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url("/fonts/inter/Inter-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Report";
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url("/fonts/inter/Inter-ExtraBold.woff2") format("woff2");
+}
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.report-root {
+  font-family: "Inter Report", Inter, system-ui, sans-serif;
+  color: var(--report-text, #162736);
+  background: #ffffff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.report-page {
+  width: 8.5in;
+  min-height: 11in;
+  padding: 0.55in 0.6in 0.5in;
+  page-break-after: always;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-page:last-child {
+  page-break-after: auto;
+}
+
+.report-muted {
+  color: #64748b;
+}
+
+.report-badge {
+  display: inline-block;
+  border-radius: 999px;
+  background: #d1fae5;
+  color: #059669;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 10px;
+}
+
+.report-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.report-card-dark {
+  border-radius: 12px;
+  background: #162736;
+  color: #ffffff;
+}
+
+.report-hero-value {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  color: #10b981;
+  letter-spacing: -0.02em;
+}
+
+.report-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.report-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.report-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-brand img {
+  width: 30px;
+  height: 30px;
+}
+
+.report-brand-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.report-brand-name span {
+  color: #10b981;
+}
+
+.report-meta {
+  text-align: right;
+  font-size: 9px;
+  color: #64748b;
+}
+
+.report-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.report-scenario-card {
+  padding: 12px;
+}
+
+.report-scenario-card.is-moderate {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.report-scenario-name {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.report-scenario-card.is-moderate .report-scenario-name {
+  color: #059669;
+}
+
+.report-scenario-total {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.report-driver-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.report-driver-row:last-child {
+  border-bottom: none;
+}
+
+.report-driver-bar-wrap {
+  margin-top: 4px;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.report-driver-bar {
+  height: 100%;
+  background: #10b981;
+  border-radius: 999px;
+}
+
+.report-driver-annual {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.report-diagnostic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.report-diagnostic-block {
+  padding: 10px 12px;
+}
+
+.report-diagnostic-block h3 {
+  font-size: 11px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.report-diagnostic-block p {
+  font-size: 9.5px;
+  line-height: 1.45;
+  margin: 0 0 6px;
+  color: #334155;
+}
+
+.report-diagnostic-block p strong {
+  color: #162736;
+  font-weight: 600;
+}
+
+.report-assumption-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.report-assumption-card {
+  padding: 10px;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.report-guarantee {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid #10b981;
+  background: #ecfdf5;
+  border-radius: 12px;
+}
+
+.report-guarantee p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.report-guarantee small {
+  display: block;
+  margin-top: 6px;
+  font-size: 8.5px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.report-cta {
+  margin-top: auto;
+  padding: 16px 18px;
+}
+
+.report-cta h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.report-cta p {
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.report-cta a {
+  display: inline-block;
+  background: #10b981;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+
+.report-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #94a3b8;
+}
+
+.report-callout {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-left: 3px solid #10b981;
+  background: #f8fafc;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.report-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 2px solid #162736;
+}
+
+.report-total-row span:first-child {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.report-total-row span:last-child {
+  font-size: 18px;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.report-closing-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.report-closing-item {
+  text-align: center;
+  font-size: 10px;
+}
+
+.report-closing-item strong {
+  display: block;
+  font-size: 14px;
+  color: #10b981;
+  margin-bottom: 2px;
+}
+
+.report-continue {
+  margin-top: auto;
+  font-size: 9px;
+  color: #94a3b8;
+  text-align: right;
+}

@@ -1,23 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  normalizeLeadInfo,
-  resolveContactWebsite,
-  validateLeadInfo,
-  validateWebsiteFields,
-  type LeadInfo,
-} from "~/lib/lead/validateLead";
-import { fillRoiPdfTemplate } from "~/lib/roi/fillRoiPdfTemplate";
-import { computeAllScenarios } from "~/lib/roi/computeRoi";
-import { formatCurrency } from "~/lib/roi/formatCurrency";
-import { TRADES, tradeToSlug, type TradeKey } from "~/lib/roi/roiModel";
-import { saveLead } from "~/server/leads";
-import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
-import {
-  buildReportUrl,
-  createReportToken,
-} from "~/server/speed2Lead/reportTokens";
-import { getPrimaryOpportunity } from "~/server/speed2Lead/roiOpportunity";
-import { startAgentConversation } from "~/server/speed2Lead/agent/startConversation";
+import type { LeadInfo } from "~/lib/lead/validateLead";
+import type { TradeKey } from "~/lib/roi/roiModel";
 
 export type PdfRequest = {
   trade: TradeKey;
@@ -32,78 +15,8 @@ export type PdfRequest = {
 export const generateRoiPdf = createServerFn({ method: "POST" })
   .validator((data: PdfRequest) => data)
   .handler(async ({ data }) => {
-    const { trade, truckCount, monthlyCalls, lead, websiteOption, website, smsConsent } =
-      data;
-
-    const leadError = validateLeadInfo(lead);
-    if (leadError) {
-      throw new Error(leadError);
-    }
-
-    const websiteError = validateWebsiteFields(websiteOption, website);
-    if (websiteError) {
-      throw new Error(websiteError);
-    }
-
-    const normalizedLead = normalizeLeadInfo(lead);
-
-    if (!TRADES[trade]) {
-      throw new Error("Invalid trade");
-    }
-
-    const scenarios = computeAllScenarios(trade, monthlyCalls);
-    const moderateRoi = formatCurrency(scenarios[1]!.totalAnnualBenefit);
-    const primaryOpportunity = getPrimaryOpportunity(scenarios);
-
-    await saveLead({
-      ...normalizedLead,
-      trade: TRADES[trade].label,
-      monthlyCalls,
-      truckCount,
-      fleetSize: String(truckCount),
-      website: resolveContactWebsite(websiteOption, website),
-      moderateRoi,
-      smsConsent,
-      source: "missing_money_pdf",
-    });
-
-    const pdfBytes = await fillRoiPdfTemplate({
-      trade,
-      truckCount,
-      monthlyCalls,
-      lead: normalizedLead,
-      scenarios,
-    });
-
-    if (smsConsent && isSpeed2LeadEnabled()) {
-      try {
-        const reportToken = await createReportToken({
-          trade,
-          truckCount,
-          monthlyCalls,
-          lead: normalizedLead,
-          websiteOption,
-          website: websiteOption === "has" ? website : undefined,
-        });
-        const reportUrl = buildReportUrl(reportToken);
-
-        await startAgentConversation({
-          phone: normalizedLead.phone,
-          firstName: normalizedLead.firstName,
-          lastName: normalizedLead.lastName,
-          businessName: normalizedLead.businessName,
-          email: normalizedLead.email,
-          annualOpportunity: moderateRoi,
-          primaryOpportunity,
-          reportUrl,
-        });
-      } catch (error) {
-        console.error("Speed2Lead initial SMS failed:", error);
-      }
-    }
-
-    const base64 = Buffer.from(pdfBytes).toString("base64");
-    const filename = `624-voice-missing-revenue-${tradeToSlug(trade)}.pdf`;
-
-    return { base64, filename };
+    const { generateRoiPdfHandler } = await import(
+      "~/server/generateRoiPdfHandler.server"
+    );
+    return generateRoiPdfHandler(data);
   });
