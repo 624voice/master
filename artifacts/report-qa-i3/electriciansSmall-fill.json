@@ -1,0 +1,69 @@
+{
+  "pages": [
+    {
+      "page": 1,
+      "contentFillPercent": 96,
+      "mainContentBottomPercent": 45,
+      "deadBandAboveFooterPercent": 28,
+      "lastContentRow": 2029,
+      "mainContentBottomRow": 949,
+      "footerTopRow": 2029,
+      "imageHeightPx": 2112,
+      "imageWidthPx": 1632,
+      "method": "screenshot-row-scan-v2",
+      "note": "QA-only metric; uniform solid fills excluded. Not a design target."
+    },
+    {
+      "page": 2,
+      "contentFillPercent": 96,
+      "mainContentBottomPercent": 45,
+      "deadBandAboveFooterPercent": 26,
+      "lastContentRow": 2029,
+      "mainContentBottomRow": 939,
+      "footerTopRow": 2029,
+      "imageHeightPx": 2112,
+      "imageWidthPx": 1632,
+      "method": "screenshot-row-scan-v2",
+      "note": "QA-only metric; uniform solid fills excluded. Not a design target."
+    },
+    {
+      "page": 3,
+      "contentFillPercent": 100,
+      "mainContentBottomPercent": 45,
+      "deadBandAboveFooterPercent": 1,
+      "lastContentRow": 2111,
+      "mainContentBottomRow": 949,
+      "footerTopRow": 2111,
+      "imageHeightPx": 2112,
+      "imageWidthPx": 1632,
+      "method": "screenshot-row-scan-v2",
+      "note": "QA-only metric; uniform solid fills excluded. Not a design target."
+    },
+    {
+      "page": 4,
+      "contentFillPercent": 96,
+      "mainContentBottomPercent": 45,
+      "deadBandAboveFooterPercent": 18,
+      "lastContentRow": 2029,
+      "mainContentBottomRow": 949,
+      "footerTopRow": 2029,
+      "imageHeightPx": 2112,
+      "imageWidthPx": 1632,
+      "method": "screenshot-row-scan-v2",
+      "note": "QA-only metric; uniform solid fills excluded. Not a design target."
+    },
+    {
+      "page": 5,
+      "contentFillPercent": 96,
+      "mainContentBottomPercent": 44,
+      "deadBandAboveFooterPercent": 21,
+      "lastContentRow": 2029,
+      "mainContentBottomRow": 925,
+      "footerTopRow": 2029,
+      "imageHeightPx": 2112,
+      "imageWidthPx": 1632,
+      "method": "screenshot-row-scan-v2",
+      "note": "QA-only metric; uniform solid fills excluded. Not a design target."
+    }
+  ]
+}
