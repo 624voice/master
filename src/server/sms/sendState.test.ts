@@ -14,6 +14,7 @@ const {
   getSendStateRecord,
   saveSendStateRecord,
   sendSmsWithState,
+  sendStateKeys,
   sendStateRedisKey,
 } = await import("~/server/sms/sendState");
 
@@ -24,6 +25,33 @@ function expiredLeaseIso(): string {
 function futureLeaseIso(): string {
   return new Date(Date.now() + 60_000).toISOString();
 }
+
+describe("opener send-state key scope", () => {
+  test("agent opener is phone + flow + episode, not phone-only", () => {
+    const key = sendStateKeys.agentOpener("+15550001999", "roi", "2026-01-01T00:00:00.000Z");
+    expect(key).toBe("agent-opener:+15550001999:roi:2026-01-01T00:00:00.000Z");
+    expect(key).not.toBe(sendStateKeys.agentOpener("+15550001999", "contact", "2026-01-01T00:00:00.000Z"));
+    expect(key).not.toBe(
+      sendStateKeys.agentOpener("+15550001999", "roi", "2026-02-01T00:00:00.000Z"),
+    );
+  });
+
+  test("legacy demo opener is phone + episode, not phone-only", () => {
+    const key = sendStateKeys.legacyDemoOpener("+15550001998", "vapi-call-1");
+    expect(key).toBe("legacy-demo-opener:+15550001998:vapi-call-1");
+    expect(key).not.toBe(sendStateKeys.legacyDemoOpener("+15550001998", "vapi-call-2"));
+  });
+
+  test("booking-link and lifecycle keys are unchanged", () => {
+    expect(sendStateKeys.bookingLinkInitial("+15550001997", "created")).toBe(
+      "booking-link:+15550001997:created:initial",
+    );
+    expect(sendStateKeys.lifecycle("evt-1", "confirmation")).toBe("lifecycle:evt-1:confirmation");
+    expect(sendStateKeys.noResponse("+15550001997", "created", 0)).toBe(
+      "no-response:+15550001997:created:0",
+    );
+  });
+});
 
 describe("classifyProviderSendError", () => {
   test("timeouts and connection resets are indeterminate", () => {

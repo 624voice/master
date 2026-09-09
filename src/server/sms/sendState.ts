@@ -69,7 +69,12 @@ export function sendStateRedisKey(logicalKey: string): string {
 }
 
 export const sendStateKeys = {
-  agentOpener: (phone: string) => `agent-opener:${normalizePhone(phone)}`,
+  agentOpener: (phone: string, source: string, leadRegisteredAt: string) => {
+    if (!source.trim() || !leadRegisteredAt.trim()) {
+      throw new Error("agentOpener key requires source and leadRegisteredAt");
+    }
+    return `agent-opener:${normalizePhone(phone)}:${source}:${leadRegisteredAt}`;
+  },
   bookingLinkInitial: (phone: string, sessionCreatedAt: string) =>
     `booking-link:${normalizePhone(phone)}:${sessionCreatedAt}:initial`,
   bookingLinkResend: (phone: string, sessionCreatedAt: string, messageSid: string) =>
@@ -93,7 +98,12 @@ export const sendStateKeys = {
     `nurture:${normalizePhone(phone)}:${sessionCreatedAt}:${stage}`,
   demoFollowUp: (phone: string, sessionCreatedAt: string, stage: number) =>
     `demo-fu:${normalizePhone(phone)}:${sessionCreatedAt}:${stage}`,
-  legacyDemoOpener: (phone: string) => `legacy-demo-opener:${normalizePhone(phone)}`,
+  legacyDemoOpener: (phone: string, episodeId: string) => {
+    if (!episodeId.trim()) {
+      throw new Error("legacyDemoOpener key requires a stable episode id");
+    }
+    return `legacy-demo-opener:${normalizePhone(phone)}:${episodeId}`;
+  },
 };
 
 export function outboundWasAccepted(result: SendSmsWithStateResult): boolean {

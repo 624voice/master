@@ -14,6 +14,7 @@ import {
   saveAgentSession,
 } from "~/server/speed2Lead/agent/state";
 import { isSpeed2LeadEnabled } from "~/server/speed2Lead/config";
+import { establishOpenerEpisode } from "~/server/speed2Lead/openerEpisode";
 import { sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -53,6 +54,12 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
     return;
   }
 
+  const episode = await establishOpenerEpisode({
+    phone,
+    source: "demo",
+    triggerId: input.vapiCallId,
+  });
+
   const lockToken = await acquireAgentPhoneLock(phone);
   if (!lockToken) {
     return;
@@ -76,6 +83,7 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
       email: input.email,
       source: "demo",
       smsConsent: true,
+      registeredAt: episode.registeredAt,
     });
 
     let session = createAgentSession({
@@ -100,7 +108,7 @@ export async function startDemoAgentConversation(input: StartDemoAgentInput): Pr
 
     const opener = buildDemoOpenerPart1(session);
     const sendResult = await sendSmsWithState({
-      key: sendStateKeys.agentOpener(phone),
+      key: sendStateKeys.agentOpener(phone, "demo", lead.registeredAt),
       to: phone,
       body: opener,
     });

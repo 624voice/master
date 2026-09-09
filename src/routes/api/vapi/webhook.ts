@@ -117,6 +117,7 @@ export const Route = createFileRoute("/api/vapi/webhook")({
                   smsConsent: true,
                   demoCompletedAt: new Date().toISOString(),
                   durationSeconds,
+                  vapiCallId: callId,
                 });
               }
             } catch (error) {

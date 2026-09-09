@@ -14,6 +14,7 @@ import {
   releaseAgentPhoneLock,
   saveAgentSession,
 } from "~/server/speed2Lead/agent/state";
+import { establishOpenerEpisode } from "~/server/speed2Lead/openerEpisode";
 import { sendSmsWithState, sendStateKeys } from "~/server/sms/sendState";
 import { normalizePhone } from "~/server/sms/phone";
 
@@ -75,6 +76,8 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     return;
   }
 
+  const episode = await establishOpenerEpisode({ phone, source: "roi" });
+
   const lockToken = await acquireAgentPhoneLock(phone);
   if (!lockToken) {
     console.warn("startAgentConversation skipped: phone lock busy", {
@@ -109,6 +112,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
       email: input.email,
       source: "roi",
       smsConsent: true,
+      registeredAt: episode.registeredAt,
     });
 
     const profile = getActiveProfile();
@@ -132,7 +136,7 @@ export async function startAgentConversation(input: StartAgentInput): Promise<vo
     });
 
     const sendResult = await sendSmsWithState({
-      key: sendStateKeys.agentOpener(phone),
+      key: sendStateKeys.agentOpener(phone, "roi", lead.registeredAt),
       to: phone,
       body: opener,
     });
