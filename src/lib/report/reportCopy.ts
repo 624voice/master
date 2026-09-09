@@ -40,6 +40,14 @@ export const SECTION_04_TITLE = "How your numbers were calculated";
 
 export const SECTION_05_TITLE = "Our risk, not yours";
 
+export const SECTION_06_TITLE = "What happens next...";
+
+export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
+
+/** Page 2 pool-separation note — canonical outcome vocabulary, not legacy driver names. */
+export const NO_DOUBLE_COUNTING_NOTE =
+  "Book More Jobs counts only calls currently going unanswered — a separate pool from your booked jobs.";
+
 export const METHODOLOGY_PARAGRAPH =
   "Figures use scenario modeling against your entered call volume, trade assumptions listed below, and independent driver pools with no double-counting. Actual results vary by market, execution, and configuration.";
 

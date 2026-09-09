@@ -1,6 +1,9 @@
 #!/usr/bin/env bun
 /**
- * Render report HTML pages to PNG for visual QA artifacts.
+ * Render report HTML pages to PNG/PDF for visual QA artifacts.
+ * Fill measurement analyzes page screenshots — not DOM box heights — so
+ * stretched solid-color containers do not inflate the metric.
+ *
  * Usage: bun scripts/generate-report-qa-artifacts.mjs [outputDir]
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -50,15 +53,17 @@ const cases = {
       email: `${"verylongemailaddress".repeat(3)}@northstarpest.example`,
     },
   }),
-  longContactName: buildCase("longContactName", {
+  missingBusinessName: buildCase("missingBusinessName", {
     trade: "PestControl",
     truckCount: 15,
     monthlyCalls: 525,
-    lead: {
-      ...NORTHSTAR_LEAD,
-      firstName: "Christopher-Alexander",
-      lastName: "Montgomery-Wellington",
-    },
+    lead: { ...NORTHSTAR_LEAD, businessName: "" },
+  }),
+  oneCharBusinessName: buildCase("oneCharBusinessName", {
+    trade: "PestControl",
+    truckCount: 15,
+    monthlyCalls: 525,
+    lead: { ...NORTHSTAR_LEAD, businessName: "d" },
   }),
   roofersHighVolume: buildCase("roofersHighVolume", {
     trade: "Roofers",
@@ -72,19 +77,164 @@ const cases = {
     monthlyCalls: 30,
     lead: NORTHSTAR_LEAD,
   }),
-  missingBusinessName: buildCase("missingBusinessName", {
-    trade: "PestControl",
-    truckCount: 15,
-    monthlyCalls: 525,
-    lead: { ...NORTHSTAR_LEAD, businessName: "" },
-  }),
-  oneCharBusinessName: buildCase("oneCharBusinessName", {
-    trade: "PestControl",
-    truckCount: 15,
-    monthlyCalls: 525,
-    lead: { ...NORTHSTAR_LEAD, businessName: "d" },
-  }),
 };
+
+/**
+ * Analyze a page screenshot in-browser: scan rows bottom-up for meaningful
+ * content using local contrast / color variance. Uniform solid fills (e.g.
+ * stretched card backgrounds) score as non-content.
+ */
+async function measurePageFillFromScreenshot(page, pngBase64) {
+  return page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    function bucket(r, g, b) {
+      return `${(r >> 4) * 16},${(g >> 4) * 16},${(b >> 4) * 16}`;
+    }
+
+    function rowMetrics(y) {
+      const buckets = new Map();
+      let edgeCount = 0;
+      let samples = 0;
+
+      for (let x = 1; x < width - 1; x++) {
+        const i = (y * width + x) * 4;
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        buckets.set(bucket(r, g, b), (buckets.get(bucket(r, g, b)) ?? 0) + 1);
+
+        const left = (y * width + (x - 1)) * 4;
+        const right = (y * width + (x + 1)) * 4;
+        const up = ((y - 1) * width + x) * 4;
+        const down = ((y + 1) * width + x) * 4;
+
+        const lum =
+          0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        const lumL =
+          0.299 * data[left] + 0.587 * data[left + 1] + 0.114 * data[left + 2];
+        const lumR =
+          0.299 * data[right] + 0.587 * data[right + 1] + 0.114 * data[right + 2];
+        const lumU =
+          0.299 * data[up] + 0.587 * data[up + 1] + 0.114 * data[up + 2];
+        const lumD =
+          0.299 * data[down] + 0.587 * data[down + 1] + 0.114 * data[down + 2];
+
+        const localContrast = Math.max(
+          Math.abs(lum - lumL),
+          Math.abs(lum - lumR),
+          Math.abs(lum - lumU),
+          Math.abs(lum - lumD),
+        );
+        if (localContrast > 18) edgeCount++;
+        samples++;
+      }
+
+      const maxBucket = Math.max(...buckets.values());
+      const uniformFillRatio = maxBucket / Math.max(samples, 1);
+      const edgeDensity = edgeCount / Math.max(samples, 1);
+      const distinctBuckets = buckets.size;
+
+      return { uniformFillRatio, edgeDensity, distinctBuckets };
+    }
+
+    function rowIsMeaningful(m) {
+      const isUniformFill = m.uniformFillRatio > 0.985 && m.distinctBuckets <= 4;
+      const hasTextOrEdges = m.edgeDensity > 0.012;
+      const hasVariedColor = m.distinctBuckets >= 8 && m.uniformFillRatio < 0.92;
+      return !isUniformFill && (hasTextOrEdges || hasVariedColor);
+    }
+
+    function rowIsBlank(m) {
+      return m.uniformFillRatio > 0.97 && m.edgeDensity < 0.008;
+    }
+
+    let lastContentRow = 0;
+    for (let y = height - 1; y >= 0; y--) {
+      if (rowIsMeaningful(rowMetrics(y))) {
+        lastContentRow = y;
+        break;
+      }
+    }
+
+    // Footer band: bottom ~4% with text edges (page number, email).
+    const footerScanStart = Math.floor(height * 0.96);
+    let footerTopRow = height - 1;
+    for (let y = height - 1; y >= footerScanStart; y--) {
+      if (rowIsMeaningful(rowMetrics(y))) {
+        footerTopRow = y;
+        break;
+      }
+    }
+
+    // Longest blank/uniform band in lower half above footer (detects intentional whitespace).
+    const scanStart = Math.floor(height * 0.45);
+    let longestBlankRun = 0;
+    let currentBlankRun = 0;
+    let mainContentBottomRow = footerTopRow;
+    for (let y = scanStart; y < footerTopRow; y++) {
+      const m = rowMetrics(y);
+      if (rowIsBlank(m)) {
+        currentBlankRun++;
+        if (currentBlankRun > longestBlankRun) longestBlankRun = currentBlankRun;
+      } else {
+        if (rowIsMeaningful(m)) mainContentBottomRow = y;
+        currentBlankRun = 0;
+      }
+    }
+    for (let y = scanStart - 1; y >= 0; y--) {
+      if (rowIsMeaningful(rowMetrics(y))) {
+        mainContentBottomRow = y;
+        break;
+      }
+    }
+
+    const contentFillPercent = Math.round(((lastContentRow + 1) / height) * 100);
+    const mainContentBottomPercent = Math.round(((mainContentBottomRow + 1) / height) * 100);
+    const deadBandAboveFooterPercent = Math.round((longestBlankRun / height) * 100);
+
+    return {
+      contentFillPercent,
+      mainContentBottomPercent,
+      deadBandAboveFooterPercent,
+      lastContentRow,
+      mainContentBottomRow,
+      footerTopRow,
+      imageHeightPx: height,
+      imageWidthPx: width,
+      method: "screenshot-row-scan-v2",
+      note: "QA-only metric; uniform solid fills excluded. Not a design target.",
+    };
+  }, pngBase64);
+}
+
+function flagIdenticalFillAcrossPages(fillReport) {
+  const values = fillReport.map((r) => r.contentFillPercent);
+  const rows = fillReport.map((r) => r.lastContentRow);
+  const allSame = values.length > 1 && values.every((v) => v === values[0]);
+  const allSameRow = rows.length > 1 && rows.every((r) => r === rows[0]);
+  const clustered =
+    values.filter((v) => v === values[0]).length >= 4 && values.length >= 5;
+
+  if (allSame || (clustered && allSameRow)) {
+    return {
+      warning:
+        "Multiple pages share identical contentFillPercent/lastContentRow — likely footer-anchored; use deadBandAboveFooterPercent for spacing QA; not an approval gate.",
+      identicalValue: values[0],
+      identicalLastContentRow: rows[0],
+    };
+  }
+  return null;
+}
 
 const puppeteer = await import("puppeteer-core");
 const chromium = await import("@sparticuz/chromium");
@@ -94,6 +244,8 @@ const browser = await puppeteer.default.launch({
   headless: true,
   defaultViewport: { width: 816, height: 1056, deviceScaleFactor: 2 },
 });
+
+const allFillSummaries = {};
 
 for (const [caseName, model] of Object.entries(cases)) {
   const html = renderReportHtml(model);
@@ -105,27 +257,17 @@ for (const [caseName, model] of Object.entries(cases)) {
   const pages = await page.$$(".report-page");
   const fillReport = [];
   for (let i = 0; i < pages.length; i++) {
-    const fill = await pages[i].evaluate((el) => {
-      const body = el.querySelector(".report-page-body");
-      const bodyBottom = body
-        ? body.getBoundingClientRect().bottom - el.getBoundingClientRect().top
-        : 0;
-      const pageHeight = el.getBoundingClientRect().height;
-      const header = el.querySelector(".report-header");
-      const footer = el.querySelector(".report-footer");
-      const used =
-        (footer?.getBoundingClientRect().bottom ?? bodyBottom) -
-        (header?.getBoundingClientRect().top ?? 0);
-      return Math.round((used / pageHeight) * 100);
-    });
-    fillReport.push({ page: i + 1, fillPercent: fill });
-    const png = await pages[i].screenshot({ type: "png" });
-    writeFileSync(join(outDir, `${caseName}-page-${i + 1}.png`), png);
+    const png = await pages[i].screenshot({ type: "png", encoding: "base64" });
+    const fill = await measurePageFillFromScreenshot(page, png);
+    fillReport.push({ page: i + 1, ...fill });
+    writeFileSync(join(outDir, `${caseName}-page-${i + 1}.png`), Buffer.from(png, "base64"));
   }
-  writeFileSync(
-    join(outDir, `${caseName}-fill.json`),
-    JSON.stringify(fillReport, null, 2),
-  );
+
+  const identicalWarning = flagIdenticalFillAcrossPages(fillReport);
+  const payload = identicalWarning ? { pages: fillReport, ...identicalWarning } : { pages: fillReport };
+  allFillSummaries[caseName] = payload;
+
+  writeFileSync(join(outDir, `${caseName}-fill.json`), JSON.stringify(payload, null, 2));
 
   const { pdf, timing } = await renderReportPdf(model, { mode: "warm", collectTiming: true });
   writeFileSync(join(outDir, `${caseName}.pdf`), pdf);
@@ -136,6 +278,8 @@ for (const [caseName, model] of Object.entries(cases)) {
 
   await page.close();
 }
+
+writeFileSync(join(outDir, "fill-summary.json"), JSON.stringify(allFillSummaries, null, 2));
 
 await browser.close();
 console.log(`Wrote QA artifacts to ${outDir}`);

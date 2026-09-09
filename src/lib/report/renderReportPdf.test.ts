@@ -3,7 +3,14 @@ import { PDFParse } from "pdf-parse";
 import { PDFDocument, PDFDict, PDFName, PDFString } from "pdf-lib";
 import { BOOK_MEETING_PATH, SITE_ORIGIN } from "~/config/features";
 import { buildNorthstarReportViewModel } from "~/lib/report/__fixtures__/northstar";
-import { GUARANTEE_BODY, PAGE1_HERO_HEADLINE } from "~/lib/report/reportCopy";
+import {
+  GUARANTEE_BODY,
+  GUARANTEE_CARD_TITLE,
+  NO_DOUBLE_COUNTING_NOTE,
+  PAGE1_HERO_HEADLINE,
+  SECTION_05_TITLE,
+  SECTION_06_TITLE,
+} from "~/lib/report/reportCopy";
 import { renderReportPdf } from "~/server/report/renderReportPdf.server";
 
 const BOOKING_URL = `${SITE_ORIGIN}${BOOK_MEETING_PATH}`;
@@ -69,7 +76,16 @@ describe("renderReportPdf", () => {
         GUARANTEE_BODY.replace(/\s+/g, " "),
       );
       expect(text).toContain("Book More Jobs");
+      expect(text).toContain("Cut Your No-Shows");
       expect(text).toContain("Total modeled annual opportunity");
+      expect(text).toContain(SECTION_05_TITLE);
+      expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
+      expect(text).toContain(SECTION_06_TITLE);
+      expect(text.replace(/\s+/g, " ")).toContain(
+        NO_DOUBLE_COUNTING_NOTE.replace(/\s+/g, " "),
+      );
+      expect(text).not.toContain("Missed-Call Recovery");
+      expect(text).not.toContain("See it work on your calls");
       expect(text).toContain("See your AI front office work live in 25 minutes.");
       expect(await extractLinkUrls(pdf)).toContain(BOOKING_URL);
     },
