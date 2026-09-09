@@ -105,6 +105,7 @@ async function measurePageFillFromScreenshot(page, pngBase64) {
       const buckets = new Map();
       let edgeCount = 0;
       let samples = 0;
+      let lumSum = 0;
 
       for (let x = 1; x < width - 1; x++) {
         const i = (y * width + x) * 4;
@@ -120,6 +121,7 @@ async function measurePageFillFromScreenshot(page, pngBase64) {
 
         const lum =
           0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        lumSum += lum;
         const lumL =
           0.299 * data[left] + 0.587 * data[left + 1] + 0.114 * data[left + 2];
         const lumR =
@@ -143,8 +145,9 @@ async function measurePageFillFromScreenshot(page, pngBase64) {
       const uniformFillRatio = maxBucket / Math.max(samples, 1);
       const edgeDensity = edgeCount / Math.max(samples, 1);
       const distinctBuckets = buckets.size;
+      const avgLum = lumSum / Math.max(samples, 1);
 
-      return { uniformFillRatio, edgeDensity, distinctBuckets };
+      return { uniformFillRatio, edgeDensity, distinctBuckets, avgLum };
     }
 
     function rowIsMeaningful(m) {
@@ -155,7 +158,9 @@ async function measurePageFillFromScreenshot(page, pngBase64) {
     }
 
     function rowIsBlank(m) {
-      return m.uniformFillRatio > 0.97 && m.edgeDensity < 0.008;
+      const nearWhite = m.avgLum > 248;
+      const lowEdge = m.edgeDensity < 0.022;
+      return nearWhite && lowEdge;
     }
 
     let lastContentRow = 0;
@@ -176,42 +181,49 @@ async function measurePageFillFromScreenshot(page, pngBase64) {
       }
     }
 
-    // Longest blank/uniform band in lower half above footer (detects intentional whitespace).
-    const scanStart = Math.floor(height * 0.45);
-    let longestBlankRun = 0;
-    let currentBlankRun = 0;
-    let mainContentBottomRow = footerTopRow;
-    for (let y = scanStart; y < footerTopRow; y++) {
-      const m = rowMetrics(y);
-      if (rowIsBlank(m)) {
-        currentBlankRun++;
-        if (currentBlankRun > longestBlankRun) longestBlankRun = currentBlankRun;
-      } else {
-        if (rowIsMeaningful(m)) mainContentBottomRow = y;
-        currentBlankRun = 0;
-      }
+    // Skip footer separator, then count blank dead band, then find content bottom.
+    let scanY = footerTopRow - 1;
+    while (scanY >= 0 && !rowIsBlank(rowMetrics(scanY)) && !rowIsMeaningful(rowMetrics(scanY))) {
+      scanY--;
     }
-    for (let y = scanStart - 1; y >= 0; y--) {
+    let deadBandRows = 0;
+    while (scanY >= 0 && rowIsBlank(rowMetrics(scanY))) {
+      deadBandRows++;
+      scanY--;
+    }
+    let mainContentBottomRow = scanY;
+    while (scanY >= 0 && !rowIsMeaningful(rowMetrics(scanY))) {
+      scanY--;
+    }
+    if (scanY >= 0) mainContentBottomRow = scanY;
+
+    // Content top = first meaningful row below header (~10% skip).
+    const headerSkip = Math.floor(height * 0.1);
+    let mainContentTopRow = headerSkip;
+    for (let y = headerSkip; y < height; y++) {
       if (rowIsMeaningful(rowMetrics(y))) {
-        mainContentBottomRow = y;
+        mainContentTopRow = y;
         break;
       }
     }
 
     const contentFillPercent = Math.round(((lastContentRow + 1) / height) * 100);
     const mainContentBottomPercent = Math.round(((mainContentBottomRow + 1) / height) * 100);
-    const deadBandAboveFooterPercent = Math.round((longestBlankRun / height) * 100);
+    const mainContentTopPercent = Math.round(((mainContentTopRow + 1) / height) * 100);
+    const deadBandAboveFooterPercent = Math.round((deadBandRows / height) * 100);
 
     return {
       contentFillPercent,
+      mainContentTopPercent,
       mainContentBottomPercent,
       deadBandAboveFooterPercent,
       lastContentRow,
       mainContentBottomRow,
+      mainContentTopRow,
       footerTopRow,
       imageHeightPx: height,
       imageWidthPx: width,
-      method: "screenshot-row-scan-v2",
+      method: "screenshot-row-scan-v3",
       note: "QA-only metric; uniform solid fills excluded. Not a design target.",
     };
   }, pngBase64);
@@ -223,7 +235,7 @@ function flagIdenticalFillAcrossPages(fillReport) {
   const allSame = values.length > 1 && values.every((v) => v === values[0]);
   const allSameRow = rows.length > 1 && rows.every((r) => r === rows[0]);
   const clustered =
-    values.filter((v) => v === values[0]).length >= 4 && values.length >= 5;
+    values.filter((v) => v === values[0]).length >= 3 && values.length >= 4;
 
   if (allSame || (clustered && allSameRow)) {
     return {
@@ -258,7 +270,47 @@ for (const [caseName, model] of Object.entries(cases)) {
   const fillReport = [];
   for (let i = 0; i < pages.length; i++) {
     const png = await pages[i].screenshot({ type: "png", encoding: "base64" });
-    const fill = await measurePageFillFromScreenshot(page, png);
+    const imageFill = await measurePageFillFromScreenshot(page, png);
+    const domFill = await pages[i].evaluate((el) => {
+      const pageRect = el.getBoundingClientRect();
+      const footer = el.querySelector(".report-footer");
+      const footerTop = footer
+        ? footer.getBoundingClientRect().top - pageRect.top
+        : pageRect.height;
+      let contentTop = pageRect.height;
+      let contentBottom = 0;
+      const body = el.querySelector(".report-page-body");
+      if (!body) {
+        return { mainContentTopPercent: 0, mainContentBottomPercent: 0, deadBandAboveFooterPercent: 0 };
+      }
+      const nodes = body.querySelectorAll(
+        "h1,h2,h3,p,li,div,span,svg,img,a,header,footer,ul",
+      );
+      nodes.forEach((node) => {
+        const style = window.getComputedStyle(node);
+        if (style.display === "none" || style.visibility === "hidden") return;
+        const rect = node.getBoundingClientRect();
+        if (rect.height < 2 || rect.width < 2) return;
+        const top = rect.top - pageRect.top;
+        const bottom = rect.bottom - pageRect.top;
+        if (bottom <= footerTop - 4) {
+          contentTop = Math.min(contentTop, top);
+          contentBottom = Math.max(contentBottom, bottom);
+        }
+      });
+      const pageHeight = pageRect.height;
+      const deadBandPx = Math.max(0, footerTop - contentBottom);
+      return {
+        mainContentTopPercent: Math.round((contentTop / pageHeight) * 100),
+        mainContentBottomPercent: Math.round((contentBottom / pageHeight) * 100),
+        deadBandAboveFooterPercent: Math.round((deadBandPx / pageHeight) * 100),
+      };
+    });
+    const fill = {
+      ...imageFill,
+      ...domFill,
+      method: "screenshot-row-scan-v3+dom-bounds",
+    };
     fillReport.push({ page: i + 1, ...fill });
     writeFileSync(join(outDir, `${caseName}-page-${i + 1}.png`), Buffer.from(png, "base64"));
   }

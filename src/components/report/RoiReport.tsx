@@ -1,4 +1,21 @@
-import { CheckCircleIcon, ShieldIcon } from "~/components/report/ReportIcons";
+import {
+  CalendarCheckIcon,
+  CapturePillarIcon,
+  CheckCircleIcon,
+  ConversionIcon,
+  ConvertPillarIcon,
+  DollarIcon,
+  DriverIcon,
+  PhoneIcon,
+  PhoneMissedIcon,
+  RecoverPillarIcon,
+  RevenueIcon,
+  ShieldIcon,
+  TradeIcon,
+  TrendUpIcon,
+  TruckIcon,
+  ModelInputIcon,
+} from "~/components/report/ReportIcons";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { TRADES } from "~/lib/roi/roiModel";
 import type { ReportViewModel } from "~/lib/report/types";
@@ -11,8 +28,12 @@ import {
   MODEL_CARD_EYEBROW,
   MODEL_CARD_SUB,
   NO_DOUBLE_COUNTING_NOTE,
+  ORCHESTRATION_COLUMNS,
+  ORCHESTRATION_FOOTNOTE,
+  ORCHESTRATION_TITLE,
   PAGE1_HERO_HEADLINE,
   PAGE1_SUPPORTING_LINE,
+  RECAP_SCENARIO_SUB,
   ROI_RECAP_BODY,
   ROI_RECAP_HEADLINE,
   SECTION_01_TITLE,
@@ -24,14 +45,16 @@ import {
   SECTION_04_TITLE,
   SECTION_05_TITLE,
   SECTION_06_TITLE,
-  WHAT_WE_BUILD_COLUMNS,
-  WHAT_WE_BUILD_EYEBROW,
-  WHAT_WE_BUILD_FOOTNOTE,
-  WHAT_WE_BUILD_LEAD,
   type DriverCopyKey,
 } from "~/lib/report/reportCopy";
 
 const TOTAL_PAGES = 4;
+
+const PILLAR_ICONS = {
+  CAPTURE: CapturePillarIcon,
+  CONVERT: ConvertPillarIcon,
+  RECOVER: RecoverPillarIcon,
+} as const;
 
 type RoiReportProps = {
   model: ReportViewModel;
@@ -118,9 +141,7 @@ function ScenarioSlider({ model }: { model: ReportViewModel }) {
           const isFirst = index === 0;
           const isLast = index === model.scenarios.length - 1;
           const labelAnchor = isFirst ? "start" : isLast ? "end" : "middle";
-          const valueAnchor = labelAnchor;
           const labelX = isFirst ? trackLeft : isLast ? trackRight : x;
-          const valueX = labelX;
           return (
             <g key={scenario.name}>
               <circle
@@ -142,9 +163,9 @@ function ScenarioSlider({ model }: { model: ReportViewModel }) {
                 {scenario.name}
               </text>
               <text
-                x={valueX}
+                x={labelX}
                 y="64"
-                textAnchor={valueAnchor}
+                textAnchor={labelAnchor}
                 fontSize="11"
                 fontWeight={isModerate ? "800" : "700"}
                 fill={isModerate ? "#162736" : "#475569"}
@@ -190,8 +211,7 @@ function CompactDriverRow({
 function ModelInputsCard({ model }: { model: ReportViewModel }) {
   const trade = TRADES[model.operation.trade];
   const fmtPct = (rate: number) => `${Math.round(rate * 1000) / 10}%`.replace(/\.0%$/, "%");
-  const fmtMoney = (n: number) =>
-    formatCurrency(n).replace(/\.00$/, "");
+  const fmtMoney = (n: number) => formatCurrency(n).replace(/\.00$/, "");
 
   return (
     <div className="report-card report-model-card">
@@ -202,39 +222,79 @@ function ModelInputsCard({ model }: { model: ReportViewModel }) {
       <div className="report-model-grid">
         <div className="report-model-col">
           <div className="report-model-col-title">YOUR BUSINESS</div>
-          <div className="report-model-row">
-            <strong>{model.operation.truckCount}</strong> Trucks
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <TruckIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{model.operation.truckCount}</strong> Trucks
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{model.operation.monthlyCalls.toLocaleString("en-US")}</strong> Calls / month
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <PhoneIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{model.operation.monthlyCalls.toLocaleString("en-US")}</strong> Calls / month
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{model.operation.tradeLabel}</strong> Trade
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <TradeIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{model.operation.tradeLabel}</strong> Trade
+            </span>
           </div>
         </div>
         <div className="report-model-col">
           <div className="report-model-col-title">TRADE BENCHMARKS</div>
-          <div className="report-model-row">
-            <strong>{fmtMoney(trade.avgJobValue)}</strong> Average job
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <DollarIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{fmtMoney(trade.avgJobValue)}</strong> Average job
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{fmtPct(trade.missedCallRate)}</strong> Missed call rate
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <PhoneMissedIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{fmtPct(trade.missedCallRate)}</strong> Missed call rate
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{fmtPct(trade.noShowRate)}</strong> No-show rate
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <CalendarCheckIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{fmtPct(trade.noShowRate)}</strong> No-show rate
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{fmtPct(trade.baseBookingConv)}</strong> Booking conversion
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <ConversionIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{fmtPct(trade.baseBookingConv)}</strong> Booking conversion
+            </span>
           </div>
-          <div className="report-model-row">
-            <strong>{fmtMoney(trade.avgUpsellValue)}</strong> Average upsell
+          <div className="report-model-row report-model-row--icon">
+            <ModelInputIcon>
+              <TrendUpIcon className="report-icon-svg report-icon-svg--sm" />
+            </ModelInputIcon>
+            <span>
+              <strong>{fmtMoney(trade.avgUpsellValue)}</strong> Average upsell
+            </span>
           </div>
         </div>
       </div>
-      <p className="report-model-no-double">
+      <div className="report-model-strip">
         <strong>No double-counting.</strong> Each opportunity is modeled against a separate revenue
         pool.
-      </p>
+      </div>
       <p className="report-model-disclaimer">{MODEL_CARD_DISCLAIMER}</p>
     </div>
   );
@@ -247,15 +307,18 @@ function OpportunityPage({ model, logoSrc }: RoiReportProps) {
     <section className="report-page report-page--opportunity">
       <ReportHeader model={model} logoSrc={logoSrc} />
       <div className="report-page-body">
-        <div className="report-p1-editorial">
+        <div className="report-p1-top">
           <span className="report-badge">PERSONALIZED ANALYSIS</span>
           <h1 className="report-hero-headline">{PAGE1_HERO_HEADLINE}</h1>
           <p className="report-lead">{PAGE1_SUPPORTING_LINE}</p>
           {model.prospect.preparedForLine ? (
             <p className="report-personalization">{model.prospect.preparedForLine}</p>
           ) : null}
-          <p className="report-financial-line">{financialLine}</p>
-          <div className="report-card-dark report-hero-card report-hero-card--inline">
+        </div>
+        <div className="report-p1-middle">
+          <p className="report-financial-line report-financial-line--center">{financialLine}</p>
+          <div className="report-card-dark report-hero-card report-hero-card--billboard">
+            <RevenueIcon className="report-hero-card-icon" />
             <div className="report-hero-label">Moderate modeled annual opportunity</div>
             <div className="report-hero-value">{model.moderateHeroTotalFormatted}</div>
             <div className="report-hero-context">{model.operation.contextLine}</div>
@@ -292,35 +355,40 @@ function ProblemPage({ model, logoSrc }: RoiReportProps) {
     <section className="report-page report-page--problem">
       <ReportHeader model={model} logoSrc={logoSrc} />
       <div className="report-page-body">
-        <SectionHeading number="02" title={SECTION_02_TITLE} align="center" />
-        <div className="report-realization">
-          <p className="report-realization-lead">
-            <strong>{SECTION_02_REALIZATION_LEAD}</strong>
-          </p>
-          <p className="report-realization-body">{SECTION_02_REALIZATION_BODY}</p>
-          <p className="report-realization-close">
-            <strong>{closeLine}</strong>
-          </p>
+        <div className="report-p2-top">
+          <SectionHeading number="02" title={SECTION_02_TITLE} align="center" />
+          <div className="report-realization">
+            <p className="report-realization-lead">
+              <strong>{SECTION_02_REALIZATION_LEAD}</strong>
+            </p>
+            <p className="report-realization-body">{SECTION_02_REALIZATION_BODY}</p>
+            <p className="report-realization-close">
+              <strong>{closeLine}</strong>
+            </p>
+          </div>
         </div>
-        <SectionHeading number="03" title={SECTION_03_TITLE} align="left" />
-        <div className="report-leak-compact-list">
-          {DRIVER_DISPLAY_ORDER.map((driverKey) => {
-            const driver = getDriverByKey(model, driverKey);
-            const label = DRIVER_DISPLAY[driverKey].headline;
-            const copy = LEAK_ROW_COPY[driverKey];
-            return (
-              <div key={driverKey} className="report-leak-compact">
-                <div className="report-leak-compact-header">
-                  <span className="report-leak-compact-name">{label}</span>
-                  <span className="report-leak-compact-value">{driver.annualValueFormatted}</span>
+        <div className="report-p2-diagnostic">
+          <SectionHeading number="03" title={SECTION_03_TITLE} align="left" />
+          <div className="report-leak-card-list">
+            {DRIVER_DISPLAY_ORDER.map((driverKey) => {
+              const driver = getDriverByKey(model, driverKey);
+              const label = DRIVER_DISPLAY[driverKey].headline;
+              const copy = LEAK_ROW_COPY[driverKey];
+              return (
+                <div key={driverKey} className="report-leak-card">
+                  <DriverIcon driverKey={driverKey} />
+                  <div className="report-leak-card-body">
+                    <div className="report-leak-card-name">{label}</div>
+                    <p className="report-leak-card-consequence">{copy.consequence}</p>
+                    <p className="report-leak-card-response">
+                      <strong>624Voice:</strong> {copy.response}
+                    </p>
+                  </div>
+                  <div className="report-leak-card-value">{driver.annualValueFormatted}</div>
                 </div>
-                <p className="report-leak-compact-consequence">{copy.consequence}</p>
-                <p className="report-leak-compact-response">
-                  <strong>624Voice:</strong> {copy.response}
-                </p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
       <ReportFooter model={model} page={2} />
@@ -355,12 +423,14 @@ function ProofPage({ model, logoSrc }: RoiReportProps) {
           ))}
         </div>
         <ModelInputsCard model={model} />
-        <SectionHeading number="05" title={SECTION_05_TITLE} align="center" />
-        <div className="report-guarantee">
-          <ShieldIcon className="report-guarantee-icon" />
-          <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
-          <p>{model.guarantee.body}</p>
-          <small>{model.guarantee.footnote}</small>
+        <div className="report-p3-guarantee-block">
+          <SectionHeading number="05" title={SECTION_05_TITLE} align="center" />
+          <div className="report-guarantee">
+            <ShieldIcon className="report-guarantee-icon" />
+            <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
+            <p>{model.guarantee.body}</p>
+            <small>{model.guarantee.footnote}</small>
+          </div>
         </div>
       </div>
       <ReportFooter model={model} page={3} />
@@ -379,17 +449,21 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
       <ReportHeader model={model} logoSrc={logoSrc} />
       <div className="report-page-body">
         <div className="report-closing-stack">
-          <div className="report-recap-band">
+          <div className="report-recap-intro">
             <p className="report-recap-headline">{recapHeadline}</p>
             <p className="report-recap-body">{ROI_RECAP_BODY}</p>
-            <div className="report-closing-strip">
-              {model.scenarios.map((scenario) => (
-                <div key={scenario.name} className="report-closing-item">
-                  <strong>{scenario.totalFormatted}</strong>
-                  {scenario.name}
-                </div>
-              ))}
-            </div>
+          </div>
+          <div className="report-recap-scenarios">
+            {model.scenarios.map((scenario, index) => (
+              <div
+                key={scenario.name}
+                className={`report-card report-recap-scenario${index === 1 ? " is-moderate" : ""}`}
+              >
+                <div className="report-recap-scenario-name">{scenario.name}</div>
+                <div className="report-recap-scenario-total">{scenario.totalFormatted}</div>
+                <div className="report-recap-scenario-sub">{RECAP_SCENARIO_SUB}</div>
+              </div>
+            ))}
           </div>
           <SectionHeading number="06" title={SECTION_06_TITLE} align="center" />
           <div className="report-card-dark report-cta">
@@ -409,22 +483,32 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
             </a>
             <p className="report-cta-fine">{model.cta.finePrint}</p>
           </div>
-          <div className="report-card report-what-we-build">
-            <div className="report-what-we-build-eyebrow">{WHAT_WE_BUILD_EYEBROW}</div>
-            <p className="report-what-we-build-lead">{WHAT_WE_BUILD_LEAD}</p>
-            <div className="report-what-we-build-grid">
-              {WHAT_WE_BUILD_COLUMNS.map((col) => (
-                <div key={col.label} className="report-what-we-build-col">
-                  <div className="report-what-we-build-col-title">{col.label}</div>
-                  <ul>
-                    {col.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+          <div className="report-card report-orchestration">
+            {logoSrc ? <img src={logoSrc} alt="" className="report-orchestration-logo" /> : null}
+            <h3 className="report-orchestration-title">{ORCHESTRATION_TITLE}</h3>
+            <div className="report-orchestration-grid">
+              {ORCHESTRATION_COLUMNS.map((col) => {
+                const PillarIcon = PILLAR_ICONS[col.label];
+                return (
+                  <div key={col.label} className="report-orchestration-col">
+                    <div className="report-orchestration-col-head">
+                      <ModelInputIcon>
+                        <PillarIcon className="report-icon-svg report-icon-svg--sm" />
+                      </ModelInputIcon>
+                      <span>{col.label}</span>
+                    </div>
+                    <ul>
+                      {col.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
             </div>
-            <p className="report-what-we-build-foot">{WHAT_WE_BUILD_FOOTNOTE}</p>
+            <p className="report-orchestration-foot">
+              <strong>{ORCHESTRATION_FOOTNOTE}</strong>
+            </p>
           </div>
         </div>
       </div>

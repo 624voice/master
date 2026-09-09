@@ -67,14 +67,12 @@ export const CTA_HIGHLIGHTS = [
 export const CTA_BUTTON = "Book your demo →";
 export const CTA_FINE_PRINT = "No commitment. Just clarity.";
 
-export const WHAT_WE_BUILD_EYEBROW = "MORE THAN AN AI RECEPTIONIST";
-export const WHAT_WE_BUILD_LEAD =
-  "624Voice builds the AI systems that capture, convert and recover revenue for home-service businesses.";
+export const ORCHESTRATION_TITLE = "624Voice: Home Services AI Orchestration System";
 
-export const WHAT_WE_BUILD_COLUMNS = [
+export const ORCHESTRATION_COLUMNS = [
   {
     label: "CAPTURE",
-    items: ["AI Receptionists", "AI Chat", "AI-optimized websites"],
+    items: ["AI Voice Receptionists", "AI Chat", "AI-optimized websites"],
   },
   {
     label: "CONVERT",
@@ -86,8 +84,10 @@ export const WHAT_WE_BUILD_COLUMNS = [
   },
 ] as const;
 
-export const WHAT_WE_BUILD_FOOTNOTE =
-  "CRM integrations · Custom dashboards · AI discoverability consulting";
+export const ORCHESTRATION_FOOTNOTE =
+  "Connected by CRM integrations, custom dashboards, and AI discoverability consulting.";
+
+export const RECAP_SCENARIO_SUB = "Modeled annual opportunity";
 
 export type DriverCopyKey =
   | "missedCallRecovery"
@@ -118,7 +118,7 @@ export const DRIVER_DISPLAY: Record<
   },
   timeSavings: {
     headline: "Get Your Time Back",
-    shortMechanism: "Automated scheduling and follow-up",
+    shortMechanism: "Admin and follow-up automation",
   },
 };
 

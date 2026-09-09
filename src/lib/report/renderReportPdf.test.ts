@@ -11,7 +11,7 @@ import {
   SECTION_02_REALIZATION_LEAD,
   SECTION_05_TITLE,
   SECTION_06_TITLE,
-  WHAT_WE_BUILD_EYEBROW,
+  ORCHESTRATION_TITLE,
 } from "~/lib/report/reportCopy";
 import { renderReportPdf } from "~/server/report/renderReportPdf.server";
 
@@ -85,7 +85,8 @@ describe("renderReportPdf", () => {
       expect(text).toContain(SECTION_05_TITLE);
       expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
       expect(text).toContain(SECTION_06_TITLE);
-      expect(text).toContain(WHAT_WE_BUILD_EYEBROW);
+      expect(text).toContain(ORCHESTRATION_TITLE);
+      expect(text).not.toContain("MORE THAN AN AI RECEPTIONIST");
       expect(text.replace(/\s+/g, " ")).toContain(
         NO_DOUBLE_COUNTING_NOTE.replace(/\s+/g, " "),
       );
