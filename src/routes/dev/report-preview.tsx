@@ -1,10 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RoiReport } from "~/components/report/RoiReport";
+import { isReportDevEnabled } from "~/lib/report/isReportDevEnabled";
 import reportPrintCss from "~/styles/report-print.css?url";
-
-function isPreviewEnabled(): boolean {
-  return process.env.ROI_REPORT_PREVIEW_ENABLED === "true";
-}
 
 export const Route = createFileRoute("/dev/report-preview")({
   component: ReportPreviewPage,
@@ -12,7 +9,7 @@ export const Route = createFileRoute("/dev/report-preview")({
     links: [{ rel: "stylesheet", href: reportPrintCss }],
   }),
   loader: async () => {
-    if (!isPreviewEnabled()) {
+    if (!isReportDevEnabled()) {
       throw new Response("Not found", { status: 404 });
     }
     const { buildNorthstarReportViewModel } = await import(

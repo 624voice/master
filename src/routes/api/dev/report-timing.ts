@@ -1,14 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-function isTimingEnabled(): boolean {
-  return process.env.ROI_REPORT_PREVIEW_ENABLED === "true";
-}
+import { isReportDevEnabled } from "~/lib/report/isReportDevEnabled";
 
 export const Route = createFileRoute("/api/dev/report-timing")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        if (!isTimingEnabled()) {
+        if (!isReportDevEnabled()) {
           return new Response("Not found", { status: 404 });
         }
 
