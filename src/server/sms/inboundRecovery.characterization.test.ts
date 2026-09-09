@@ -32,7 +32,7 @@ describe("inbound ownership (current, not redesigned)", () => {
   test("ingress routes to the rebuilt agent only when an AgentSession exists", () => {
     expect(inboundRoute).toContain("const agentSession = await getAgentSession(normalizePhone(from))");
     expect(inboundRoute).toContain("await handleAgentInboundSms(from, body, params.MessageSid)");
-    expect(inboundRoute).toContain("await handleInboundSms(from, body)");
+    expect(inboundRoute).toContain("await handleInboundSms(from, body, params.MessageSid)");
     expect(inboundRoute.indexOf("handleAgentInboundSms")).toBeLessThan(inboundRoute.indexOf("await handleInboundSms"));
   });
 
