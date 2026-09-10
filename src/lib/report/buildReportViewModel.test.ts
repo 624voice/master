@@ -9,7 +9,7 @@ import {
   NORTHSTAR_TRUCK_COUNT,
 } from "~/lib/report/__fixtures__/northstar";
 import { formatReportDate, formatReportId } from "~/lib/report/formatReportMeta";
-import { SHARED, TRADES } from "~/lib/roi/roiModel";
+import { effectiveRecoveredBookingRate, SHARED, TRADES } from "~/lib/roi/roiModel";
 import { SCENARIO_LABELS, SCENARIOS } from "~/lib/roi/scenarioDisplay";
 import { TRADE_REPORT_CONTENT } from "~/lib/report/tradeReportContent";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
@@ -61,9 +61,12 @@ describe("buildReportViewModel", () => {
 
   test("scenario assumptions match SHARED and TRADES by index", () => {
     model.scenarioAssumptions.forEach((assumption, index) => {
-      expect(assumption.recoveredBookingRate).toBe(
-        `${Math.round(SHARED.recoveredBookingRate[index]! * 100)}%`,
-      );
+      const effectiveRate = effectiveRecoveredBookingRate(NORTHSTAR_TRADE, index);
+      const formatted = `${Math.round(effectiveRate * 1000) / 10}%`.replace(/\.0%$/, "%");
+      expect(assumption.recoveredBookingRate).toBe(formatted);
+      expect(assumption.recoveredBookingRate).not.toBe("15%");
+      expect(assumption.recoveredBookingRate).not.toBe("25%");
+      expect(assumption.recoveredBookingRate).not.toBe("35%");
       expect(assumption.noShowReduction).toBe(
         `${Math.round(SHARED.noShowReduction[index]! * 100)}%`,
       );

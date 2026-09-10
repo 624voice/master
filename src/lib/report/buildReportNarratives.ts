@@ -55,9 +55,8 @@ export function buildLeakNarratives(trade: TradeKey): Record<DriverCopyKey, Leak
         {
           before:
             "Every call you don't answer is a job you didn't book — and a competitor who did. ",
-          highlight: `Industry benchmarks put the missed-call rate for ${tradeLabel} at ${missedCallRateFormatted}. At a ${avgJobValueFormatted} average job value, that's not a rounding error.`,
-          after:
-            " It's a predictable, recurring loss that compounds every month.",
+          highlight: `Industry benchmarks put the missed-call rate for ${tradeLabel} at ${missedCallRateFormatted}.`,
+          after: ` At a ${avgJobValueFormatted} average job value, that's not a rounding error. It's a predictable, recurring loss that compounds every month.`,
         },
         {
           before:
@@ -72,8 +71,9 @@ export function buildLeakNarratives(trade: TradeKey): Record<DriverCopyKey, Leak
         {
           before:
             "You paid for the lead. You answered the call. You scheduled the job. Your tech drove to the address — and the customer wasn't there. ",
-          highlight: `Your modeled no-show rate is ${noShowRateFormatted}. Each one costs a blocked slot, a truck roll, and a job that could have gone to a paying customer.`,
-          after: "",
+          highlight: `Your modeled no-show rate is ${noShowRateFormatted}.`,
+          after:
+            " Each one costs a blocked slot, a truck roll, and a job that could have gone to a paying customer.",
         },
         {
           before: noShowClose,

@@ -20,7 +20,7 @@ export function getUntappedUpsideAnnual(drivers: RoiResult["drivers"]): number {
 }
 
 export const AUDIT_NOTES = [
-  "Driver 1 (Missed-Call Recovery) applies only to currently-unanswered calls.",
+  "Driver 1 (Missed-Call Recovery) applies only to currently-unanswered calls; recovered opportunities convert at a share of the trade's normal booking rate.",
   "Drivers 2 & 4 share the baseline answered-job pool but measure different outcomes (saved no-shows vs. higher ticket).",
   "Driver 3 (Outbound SMS) is independent new demand.",
   "Driver 5 (Time Savings) is admin cost reduction, not revenue.",

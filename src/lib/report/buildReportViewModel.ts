@@ -10,7 +10,12 @@ import {
 } from "~/lib/roi/formatAssumptions";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { SCENARIO_LABELS, SCENARIOS } from "~/lib/roi/scenarioDisplay";
-import { SHARED, TRADES, type TradeKey } from "~/lib/roi/roiModel";
+import {
+  effectiveRecoveredBookingRate,
+  SHARED,
+  TRADES,
+  type TradeKey,
+} from "~/lib/roi/roiModel";
 import {
   CTA_BUTTON,
   CTA_FINE_PRINT,
@@ -62,7 +67,9 @@ function buildScenarioAssumption(
 ): ScenarioAssumptionView {
   return {
     name: SCENARIOS[index]!,
-    recoveredBookingRate: formatPercent(SHARED.recoveredBookingRate[index]),
+    recoveredBookingRate: formatPercent(
+      effectiveRecoveredBookingRate(trade, index),
+    ),
     noShowReduction: formatPercent(SHARED.noShowReduction[index]),
     upsellRate: formatPercent(SHARED.upsellRate[index]),
     adminHoursSaved: `${SHARED.adminHoursSaved[index]} hrs / mo`,

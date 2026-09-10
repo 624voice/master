@@ -176,7 +176,7 @@ body {
 /* —— Page 1 —— */
 .report-p1-hero {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 
@@ -217,15 +217,15 @@ body {
 .report-p1-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 20px;
+  margin-bottom: 22px;
   flex-shrink: 0;
 }
 
 .report-hero-card {
-  padding: 0.42in 0.52in 0.38in;
+  padding: 0.48in 0.52in 0.44in;
   text-align: center;
-  min-height: 1.55in;
+  min-height: 1.72in;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -257,7 +257,7 @@ body {
 }
 
 .report-range-label {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 9pt;
   font-weight: 500;
   color: var(--report-body);
@@ -346,7 +346,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -381,14 +381,14 @@ body {
 .report-driver-row-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .report-driver-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 11px;
+  padding: 10px 14px;
   border: 1px solid var(--report-border);
   border-radius: 10px;
 }
@@ -674,11 +674,12 @@ body {
 /* —— Page 4 —— */
 .report-page--action .report-page-body {
   justify-content: space-between;
-  gap: 8px;
+  gap: 0;
 }
 
 .report-p4-cta-block {
   flex-shrink: 0;
+  margin-bottom: 0;
 }
 
 .report-guarantee {
@@ -688,6 +689,7 @@ body {
   border-radius: 13px;
   text-align: center;
   flex-shrink: 0;
+  margin-top: 0;
 }
 
 .report-guarantee-icon {
@@ -714,7 +716,7 @@ body {
 }
 
 .report-cta {
-  padding: 16px 28px;
+  padding: 14px 28px;
   text-align: center;
 }
 
@@ -787,6 +789,7 @@ body {
 
 .report-orchestration {
   flex-shrink: 0;
+  margin-bottom: 0;
 }
 
 .report-orchestration-head {
@@ -794,7 +797,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .report-orchestration-logo {
@@ -813,7 +816,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .report-orchestration-col {

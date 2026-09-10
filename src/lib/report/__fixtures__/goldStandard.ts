@@ -37,14 +37,17 @@ export function buildGoldStandardReportViewModel() {
   });
 }
 
-/** Expected moderate-scenario driver values for the gold-standard fixture. */
+/** Instruction #9 expected values for the gold-standard Plumbers fixture. */
 export const GOLD_STANDARD_EXPECTED = {
-  moderateTotal: "$468,783",
-  conservativeTotal: "$274,840",
-  aggressiveTotal: "$662,726",
-  missedCallRecovery: "$297,675",
+  moderateTotal: "$455,983",
+  conservativeTotal: "$267,160",
+  aggressiveTotal: "$644,806",
+  missedCallRecoveryConservative: "$170,925",
+  missedCallRecoveryModerate: "$284,875",
+  missedCallRecoveryAggressive: "$398,825",
   noShowReduction: "$85,447",
   jobCloserUpsells: "$50,861",
   outboundSms: "$16,800",
   timeSavings: "$18,000",
+  recoveredBookingRates: ["14.4%", "23.9%", "33.5%"],
 } as const;

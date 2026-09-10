@@ -1,0 +1,13 @@
+{
+  "mode": "warm",
+  "runtimeInitMs": 0,
+  "chromiumPrepMs": 0,
+  "browserLaunchMs": 47,
+  "htmlRenderMs": 23,
+  "pageLoadMs": 976,
+  "fontReadyMs": 1,
+  "pdfRenderMs": 34,
+  "handlerTotalMs": 1167,
+  "pdfBytes": 174795,
+  "pageCount": 4
+}

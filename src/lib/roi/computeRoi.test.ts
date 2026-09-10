@@ -34,9 +34,11 @@ describe("computeAllScenarios", () => {
 });
 
 describe("computeRoi spot-check", () => {
-  test("HVAC conservative at 700 calls/mo", () => {
+  test("HVAC conservative at 700 calls/mo uses trade-relative missed-call recovery", () => {
     const result = computeRoi("HVAC", 700, 0);
-    expect(result.netAnnualROI).toBe(368_640);
+    expect(result.drivers.missedCallRecovery.annualValue).toBe(217_048);
+    expect(result.totalAnnualBenefit).toBe(395_788);
+    expect(result.netAnnualROI).toBe(377_788);
   });
 });
 

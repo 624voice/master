@@ -120,9 +120,12 @@ describe("renderReportPdf", () => {
       expect(model.moderateHeroTotalFormatted).toBe(GOLD_STANDARD_EXPECTED.moderateTotal);
       expect(model.scenarios[0]!.totalFormatted).toBe(GOLD_STANDARD_EXPECTED.conservativeTotal);
       expect(model.scenarios[2]!.totalFormatted).toBe(GOLD_STANDARD_EXPECTED.aggressiveTotal);
+      expect(model.scenarioAssumptions.map((a) => a.recoveredBookingRate)).toEqual([
+        ...GOLD_STANDARD_EXPECTED.recoveredBookingRates,
+      ]);
 
       const byKey = Object.fromEntries(model.drivers.map((d) => [d.key, d.annualValueFormatted]));
-      expect(byKey.missedCallRecovery).toBe(GOLD_STANDARD_EXPECTED.missedCallRecovery);
+      expect(byKey.missedCallRecovery).toBe(GOLD_STANDARD_EXPECTED.missedCallRecoveryModerate);
       expect(byKey.noShowReduction).toBe(GOLD_STANDARD_EXPECTED.noShowReduction);
       expect(byKey.jobCloserUpsells).toBe(GOLD_STANDARD_EXPECTED.jobCloserUpsells);
       expect(byKey.outboundSms).toBe(GOLD_STANDARD_EXPECTED.outboundSms);
