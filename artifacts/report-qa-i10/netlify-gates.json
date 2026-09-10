@@ -1,0 +1,52 @@
+{
+  "deployPreviewUrl": "https://6aa22b3e8915a600082e3100--624voice.netlify.app",
+  "deployPreviewAlias": "https://deploy-preview-96--624voice.netlify.app",
+  "gitCommitSha": "b05fcd5",
+  "measuredAt": "2026-09-10T04:02:00.000Z",
+  "trueColdRenderer": {
+    "endpoint": "GET /api/dev/report-timing?mode=cold&action=render",
+    "deployUrl": "https://6aa22b3e8915a600082e3100--624voice.netlify.app",
+    "firstRequestOnDeploy": true,
+    "clientTtfbMs": 9060,
+    "timing": {
+      "runtimeInitMs": 502,
+      "chromiumPrepMs": 4653,
+      "browserLaunchMs": 204,
+      "htmlRenderMs": 135,
+      "pageLoadMs": 1759,
+      "fontReadyMs": 4,
+      "pdfRenderMs": 120,
+      "handlerTotalMs": 8633,
+      "pdfBytes": 174220,
+      "pageCount": 4
+    },
+    "gateCold20s": "PASS"
+  },
+  "warmRenderer": {
+    "endpoint": "GET /api/dev/report-timing?mode=warm&action=render",
+    "clientTtfbMs": 2815,
+    "handlerTotalMs": 2442,
+    "chromiumPrepMs": 0,
+    "gateWarm3s": "PASS"
+  },
+  "reportTokenGet": {
+    "endpoint": "GET /report/{token}",
+    "independentColdDeployUrl": "https://6aa226da9e46f60008e9a097--624voice.netlify.app",
+    "firstRequestOnDeploy": true,
+    "clientTtfbMs": 3091,
+    "pdfBytes": 175019,
+    "pageCount": 4,
+    "gateCold20s": "PASS"
+  },
+  "bundleUnzippedMb": 78.12,
+  "bundleGate150Mb": "PASS",
+  "clientBundleIsolation": {
+    "puppeteerInDistClient": 0,
+    "chromiumInDistClient": 0,
+    "pass": true
+  },
+  "pdfOutput": {
+    "pdfBytes": 174173,
+    "pageCount": 4
+  }
+}

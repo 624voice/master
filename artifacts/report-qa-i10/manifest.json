@@ -1,0 +1,31 @@
+{
+  "goldPdfPath": "/workspace/design-reference-v3/ROI-Doc-Gold-Standard-Final.pdf",
+  "goldPdfValidated": true,
+  "aeBeforeVisualFixes": {
+    "1": "538103",
+    "2": "418229",
+    "3": "575643",
+    "4": "1.28384e+06"
+  },
+  "aeAfterVisualFixesHtml": {
+    "1": "483670",
+    "2": "418229",
+    "3": "575643",
+    "4": "525824"
+  },
+  "aeAfterVisualFixesPdf": {
+    "1": "495372",
+    "2": "359817",
+    "3": "522511",
+    "4": "505785"
+  },
+  "pdfBytes": 174173,
+  "pageCount": 4,
+  "hvacPdfBytes": 174432,
+  "moderateTotal": "$455,983",
+  "recoveredBookingRates": [
+    "14.4%",
+    "23.9%",
+    "33.5%"
+  ]
+}
