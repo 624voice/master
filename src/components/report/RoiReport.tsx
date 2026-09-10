@@ -1,6 +1,5 @@
 import {
   CapturePillarIcon,
-  CheckCircleIcon,
   ConvertPillarIcon,
   DriverIcon,
   RecoverPillarIcon,
@@ -370,7 +369,9 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
             <ul className="report-cta-highlights">
               {model.cta.highlights.map((line) => (
                 <li key={line}>
-                  <CheckCircleIcon className="report-cta-check" />
+                  <span className="report-cta-check" aria-hidden="true">
+                    ✓
+                  </span>
                   <span>{line}</span>
                 </li>
               ))}

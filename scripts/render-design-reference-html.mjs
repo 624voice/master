@@ -80,5 +80,18 @@ for (let i = 0; i < pages.length; i++) {
   writeFileSync(join(outDir, `gold-${String(i + 1).padStart(2, "0")}.png`), png);
 }
 
+const pdfOutArg = process.argv[3];
+if (pdfOutArg) {
+  const pdfBuffer = await page.pdf({
+    printBackground: true,
+    width: "8.5in",
+    height: "11in",
+    margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    pageRanges: "1-4",
+  });
+  writeFileSync(pdfOutArg, pdfBuffer);
+  console.log(`Wrote gold-standard PDF to ${pdfOutArg}`);
+}
+
 await browser.close();
 console.log(`Rendered ${pages.length} reference pages to ${outDir}`);
