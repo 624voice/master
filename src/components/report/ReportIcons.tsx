@@ -2,67 +2,69 @@ import type { ReactNode } from "react";
 
 type IconProps = { className?: string };
 
+/** Gold-standard v3 handset glyph — solid fill, not diagonal stroke. */
 export function PhoneMissedIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path
-        d="M6.5 4.5h3l1.2 2.8a1 1 0 0 0 .95.65h2.1a1 1 0 0 1 .98 1.2l-.7 3.5a12 12 0 0 0 5.97 5.97l3.5-.7a1 1 0 0 1 1.2.98v2.1a1 1 0 0 0 .65.95L19.5 21.5v-2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d="M3 2.5h3l1.5 4-2 1.5a10 10 0 004.5 4.5L11.5 11l4 1.5V15a1.5 1.5 0 01-1.5 1.5A13 13 0 011.5 4 1.5 1.5 0 013 2.5z"
+        fill="currentColor"
       />
-      <path d="M4 4l16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
 
 export function CalendarCheckIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path
-        d="M9.5 14.5l1.8 1.8 3.7-3.7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <rect x="2" y="4" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <line x1="2" y1="8" x2="16" y2="8" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="6" y1="2" x2="6" y2="5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="12" y1="2" x2="12" y2="5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
 
 export function TrendUpIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path
-        d="M7 14l3-3 3 2 5-6"
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <polyline
+        points="2,13 7,7 11,10 16,3"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
-      <path
-        d="M18 7h-3v3"
+      <polyline
+        points="12,3 16,3 16,7"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
     </svg>
   );
 }
 
-export function MessageIcon({ className = "report-icon-svg" }: IconProps) {
+export function RefreshIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path
-        d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5V14a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3V6.5Z"
+        d="M15 7A6 6 0 103 11"
         stroke="currentColor"
         strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <polyline
+        points="15,3 15,7 11,7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
     </svg>
   );
@@ -70,14 +72,15 @@ export function MessageIcon({ className = "report-icon-svg" }: IconProps) {
 
 export function ClockIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M12 8v4l3 2"
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <polyline
+        points="9,5 9,9 12,11"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
     </svg>
   );
@@ -85,19 +88,20 @@ export function ClockIcon({ className = "report-icon-svg" }: IconProps) {
 
 export function ShieldIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg className={className} viewBox="0 0 44 44" fill="none" aria-hidden="true">
       <path
-        d="M12 3.5 5 6.5v5.8c0 4.2 2.9 8.1 7 9.2 4.1-1.1 7-5 7-9.2V6.5L12 3.5Z"
+        d="M22 4L8 10v12c0 8.5 6 16.5 14 19 8-2.5 14-10.5 14-19V10L22 4z"
         stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
+        strokeWidth="2"
+        fill="none"
       />
-      <path
-        d="M9.5 12.2 11.2 14l3.8-4"
+      <polyline
+        points="16,22 20,26 28,18"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       />
     </svg>
   );
@@ -121,7 +125,7 @@ export function CheckCircleIcon({ className = "report-icon-svg" }: IconProps) {
 const DRIVER_ICONS = {
   missedCallRecovery: PhoneMissedIcon,
   noShowReduction: CalendarCheckIcon,
-  outboundSms: MessageIcon,
+  outboundSms: RefreshIcon,
   jobCloserUpsells: TrendUpIcon,
   timeSavings: ClockIcon,
 } as const;
@@ -147,104 +151,44 @@ export function DriverIcon({
   );
 }
 
-export function TruckIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M3 8h11v8H3V8Zm11 2h3l2 2v4h-5v-6Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <circle cx="7" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="17" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
-
-export function PhoneIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M8.5 4.5h3l1.2 2.8a1 1 0 0 0 .95.65h2.1a1 1 0 0 1 .98 1.2l-.7 3.5a12 12 0 0 0 5.97 5.97l3.5-.7a1 1 0 0 1 1.2.98v2.1a1 1 0 0 0 .65.95L19.5 21.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-export function TradeIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M4 9.5 12 4l8 5.5V19a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1V9.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-export function DollarIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 4v16M9.5 7.5c0-1.2 1.1-2 2.5-2s2.5.8 2.5 2-1.1 2-2.5 2.2-2.5 2.8-2.5 4 0 2 1.1 2 2.5 2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function ConversionIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M5 12.5 9.5 17 19 7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-export function RevenueIcon({ className = "report-icon-svg" }: IconProps) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M12 8v8M9.5 10.5h4a1.5 1.5 0 0 1 0 3h-3"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function CapturePillarIcon({ className = "report-icon-svg" }: IconProps) {
-  return <PhoneIcon className={className} />;
+  return (
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path
+        d="M9 2a4 4 0 014 4v3a4 4 0 01-8 0V6a4 4 0 014-4z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M3 9a6 6 0 0012 0"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <line x1="9" y1="15" x2="9" y2="17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 export function ConvertPillarIcon({ className = "report-icon-svg" }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg className={className} viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <polyline
+        points="3,9 7,13 15,5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   );
 }
 
 export function RecoverPillarIcon({ className = "report-icon-svg" }: IconProps) {
-  return <TrendUpIcon className={className} />;
+  return <RefreshIcon className={className} />;
 }
 
 export function ModelInputIcon({ children }: { children: ReactNode }) {

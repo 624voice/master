@@ -8,6 +8,12 @@ import {
 } from "~/components/report/ReportIcons";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { TRADES } from "~/lib/roi/roiModel";
+import {
+  buildLeakNarratives,
+  PAGE2_NARRATIVE_PARAGRAPHS,
+  type LeakNarrativeView,
+  type NarrativeParagraph,
+} from "~/lib/report/buildReportNarratives";
 import type { ReportViewModel } from "~/lib/report/types";
 import {
   DRIVER_DISPLAY,
@@ -29,8 +35,6 @@ import {
   SECTION_02_TITLE,
   SECTION_03_TITLE,
   SECTION_04_TITLE,
-  SECTION_05_TITLE,
-  SECTION_06_TITLE,
   type DriverCopyKey,
 } from "~/lib/report/reportCopy";
 
@@ -140,17 +144,12 @@ function DriverRow({
   const driver = getDriverByKey(model, driverKey);
   const copy = DRIVER_DISPLAY[driverKey];
   const leak = LEAK_ROW_COPY[driverKey];
-  const isLongLabel = driverKey === "outboundSms";
 
   return (
     <div className="report-driver-row">
       <DriverIcon driverKey={driverKey} tone="inverse" />
       <div className="report-driver-row-body">
-        <div
-          className={`report-driver-row-title${isLongLabel ? " report-driver-row-title--long" : ""}`}
-        >
-          {copy.headline}
-        </div>
+        <div className="report-driver-row-title">{copy.headline}</div>
         <div className="report-driver-row-sub">{leak.consequence}</div>
       </div>
       <div className="report-driver-row-value">{driver.annualValueFormatted}</div>
@@ -158,35 +157,34 @@ function DriverRow({
   );
 }
 
-function LeakBlock({
-  model,
-  driverKey,
-}: {
-  model: ReportViewModel;
-  driverKey: DriverCopyKey;
-}) {
-  const driver = getDriverByKey(model, driverKey);
-  const copy = DRIVER_DISPLAY[driverKey];
-  const leak = LEAK_ROW_COPY[driverKey];
-  const isLongLabel = driverKey === "outboundSms";
-
+function NarrativeParagraphBlock({ paragraph }: { paragraph: NarrativeParagraph }) {
   return (
-    <div className="report-leak-block">
-      <div className="report-leak-block-top">
-        <DriverIcon driverKey={driverKey} tone="inverse" />
-        <div className="report-leak-block-head">
-          <div
-            className={`report-leak-block-title${isLongLabel ? " report-leak-block-title--long" : ""}`}
-          >
-            {copy.headline}
-          </div>
-          <div className="report-leak-block-value">{driver.annualValueFormatted}</div>
-        </div>
+    <p className="report-leak-narrative-p">
+      {paragraph.before}
+      {paragraph.highlight ? (
+        <strong className="report-emphasis">{paragraph.highlight}</strong>
+      ) : null}
+      {paragraph.after}
+    </p>
+  );
+}
+
+function LeakNarrative({
+  driverKey,
+  narrative,
+}: {
+  driverKey: DriverCopyKey;
+  narrative: LeakNarrativeView;
+}) {
+  return (
+    <div className="report-leak-narrative">
+      <div className="report-leak-narrative-head">
+        <DriverIcon driverKey={driverKey} size="sm" tone="inverse" />
+        <span className="report-leak-narrative-title">{narrative.title}</span>
       </div>
-      <p className="report-leak-block-consequence">{leak.consequence}</p>
-      <p className="report-leak-block-response">
-        <strong>624Voice:</strong> {leak.response}
-      </p>
+      {narrative.paragraphs.map((paragraph, index) => (
+        <NarrativeParagraphBlock key={index} paragraph={paragraph} />
+      ))}
     </div>
   );
 }
@@ -271,7 +269,9 @@ function OpportunityPage({ model, logoSrc }: RoiReportProps) {
   );
 }
 
-function ProblemPage({ model, logoSrc }: RoiReportProps) {
+function ProblemPage({ model, logoSrc, narratives }: RoiReportProps & {
+  narratives: ReturnType<typeof buildLeakNarratives>;
+}) {
   const closeLine = SECTION_02_REALIZATION_CLOSE.replace(
     "{moderateTotal}",
     model.moderateHeroTotalFormatted,
@@ -294,47 +294,62 @@ function ProblemPage({ model, logoSrc }: RoiReportProps) {
           </div>
         </div>
 
-        <div className="report-p2-leaks">
-          <SectionHeading number="03" title={SECTION_03_TITLE} align="left" />
-          <div className="report-leak-block-list">
-            {DRIVER_DISPLAY_ORDER.map((key) => (
-              <LeakBlock key={key} model={model} driverKey={key} />
-            ))}
-          </div>
+        <div className="report-p2-narratives">
+          {PAGE2_NARRATIVE_PARAGRAPHS.map((paragraph) => (
+            <p key={paragraph.slice(0, 32)} className="report-narrative-p">
+              {paragraph}
+            </p>
+          ))}
         </div>
+
+        <LeakNarrative
+          driverKey="missedCallRecovery"
+          narrative={narratives.missedCallRecovery}
+        />
+        <LeakNarrative driverKey="noShowReduction" narrative={narratives.noShowReduction} />
       </div>
       <ReportFooter model={model} page={2} />
     </section>
   );
 }
 
-function MethodologyPage({ model, logoSrc }: RoiReportProps) {
+function MethodologyPage({ model, logoSrc, narratives }: RoiReportProps & {
+  narratives: ReturnType<typeof buildLeakNarratives>;
+}) {
   return (
     <section className="report-page report-page--methodology">
       <ReportHeader model={model} logoSrc={logoSrc} />
       <div className="report-page-body">
-        <SectionHeading number="04" title={SECTION_04_TITLE} align="center" />
-        <div className="report-scenario-detail-grid">
-          {model.scenarioAssumptions.map((assumption, index) => (
-            <div
-              key={assumption.name}
-              className={`report-card report-scenario-detail${index === 1 ? " is-moderate" : ""}`}
-            >
-              <div className="report-scenario-detail-name">{assumption.name}</div>
-              <div className="report-scenario-detail-total">
-                {model.scenarios[index]!.totalFormatted}
-              </div>
-              <div className="report-scenario-detail-lines">
-                <div>Recovered booking: {assumption.recoveredBookingRate}</div>
-                <div>No-show reduction: {assumption.noShowReduction}</div>
-                <div>Upsell rate: {assumption.upsellRate}</div>
-                <div>Admin hours saved: {assumption.adminHoursSaved}</div>
-                <div>Campaign jobs: {assumption.campaignJobsPerMonth}</div>
-              </div>
-            </div>
-          ))}
+        <div className="report-p3-narratives">
+          <LeakNarrative driverKey="jobCloserUpsells" narrative={narratives.jobCloserUpsells} />
+          <LeakNarrative driverKey="outboundSms" narrative={narratives.outboundSms} />
+          <LeakNarrative driverKey="timeSavings" narrative={narratives.timeSavings} />
         </div>
-        <ModelInputsCard model={model} />
+
+        <div className="report-p3-methodology">
+          <SectionHeading number="03" title={SECTION_03_TITLE} align="center" />
+          <div className="report-scenario-detail-grid">
+            {model.scenarioAssumptions.map((assumption, index) => (
+              <div
+                key={assumption.name}
+                className={`report-card report-scenario-detail${index === 1 ? " is-moderate" : ""}`}
+              >
+                <div className="report-scenario-detail-name">{assumption.name}</div>
+                <div className="report-scenario-detail-total">
+                  {model.scenarios[index]!.totalFormatted}
+                </div>
+                <div className="report-scenario-detail-lines">
+                  <div>Recovered booking: {assumption.recoveredBookingRate}</div>
+                  <div>No-show reduction: {assumption.noShowReduction}</div>
+                  <div>Upsell rate: {assumption.upsellRate}</div>
+                  <div>Admin hours saved: {assumption.adminHoursSaved}</div>
+                  <div>Campaign jobs: {assumption.campaignJobsPerMonth}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <ModelInputsCard model={model} />
+        </div>
       </div>
       <ReportFooter model={model} page={3} />
     </section>
@@ -346,18 +361,8 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
     <section className="report-page report-page--action">
       <ReportHeader model={model} logoSrc={logoSrc} />
       <div className="report-page-body">
-        <div className="report-p4-guarantee">
-          <SectionHeading number="05" title={SECTION_05_TITLE} align="center" />
-          <div className="report-guarantee">
-            <ShieldIcon className="report-guarantee-icon" />
-            <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
-            <p>{model.guarantee.body}</p>
-            <small>{model.guarantee.footnote}</small>
-          </div>
-        </div>
-
         <div className="report-p4-cta-block">
-          <SectionHeading number="06" title={SECTION_06_TITLE} align="center" />
+          <SectionHeading number="04" title={SECTION_04_TITLE} align="center" />
           <div className="report-card-dark report-cta">
             {logoSrc ? <img src={logoSrc} alt="" className="report-cta-logo" /> : null}
             <h2>{model.cta.headline}</h2>
@@ -406,18 +411,28 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
           </div>
           <div className="report-orchestration-foot">{ORCHESTRATION_FOOTNOTE}</div>
         </div>
+
+        <div className="report-guarantee">
+          <ShieldIcon className="report-guarantee-icon" />
+          <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
+          <p>
+            {model.guarantee.body} {model.guarantee.footnote}
+          </p>
+        </div>
       </div>
       <ReportFooter model={model} page={4} />
     </section>
   );
 }
 
-export function RoiReport({ model, logoSrc = "/logo.png" }: RoiReportProps) {
+export function RoiReport({ model, logoSrc = "/report-logo.png" }: RoiReportProps) {
+  const narratives = buildLeakNarratives(model.operation.trade);
+
   return (
     <div className="report-root">
       <OpportunityPage model={model} logoSrc={logoSrc} />
-      <ProblemPage model={model} logoSrc={logoSrc} />
-      <MethodologyPage model={model} logoSrc={logoSrc} />
+      <ProblemPage model={model} logoSrc={logoSrc} narratives={narratives} />
+      <MethodologyPage model={model} logoSrc={logoSrc} narratives={narratives} />
       <ActionPage model={model} logoSrc={logoSrc} />
     </div>
   );

@@ -1,0 +1,37 @@
+{
+  "fixture": "Chris Hutson · 624 Plumbing · Plumbers · 15 trucks · 900 calls/month",
+  "reportId": "624-20260909-PLU-900",
+  "reportDate": "Prepared September 9, 2026",
+  "moderateTotal": "$468,783",
+  "dpi": 192,
+  "pageCount": 4,
+  "pdfBytes": 174498,
+  "artifacts": {
+    "goldPages": [
+      "gold-01.png",
+      "gold-02.png",
+      "gold-03.png",
+      "gold-04.png"
+    ],
+    "productionPages": [
+      "production-01.png",
+      "production-02.png",
+      "production-03.png",
+      "production-04.png"
+    ],
+    "comparisons": [
+      "compare-page-1-side-by-side.png",
+      "compare-page-1-overlay.png",
+      "compare-page-1-diff.png",
+      "compare-page-2-side-by-side.png",
+      "compare-page-2-overlay.png",
+      "compare-page-2-diff.png",
+      "compare-page-3-side-by-side.png",
+      "compare-page-3-overlay.png",
+      "compare-page-3-diff.png",
+      "compare-page-4-side-by-side.png",
+      "compare-page-4-overlay.png",
+      "compare-page-4-diff.png"
+    ]
+  }
+}

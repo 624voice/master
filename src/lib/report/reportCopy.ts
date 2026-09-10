@@ -26,15 +26,28 @@ export const SECTION_02_REALIZATION_BODY =
 export const SECTION_02_REALIZATION_CLOSE =
   "Together, they become {moderateTotal} a year.";
 
-export const SECTION_03_TITLE = "Five places revenue walks out";
+export const SECTION_03_TITLE = "How your numbers were calculated";
 
-export const SECTION_04_TITLE = "How your numbers were calculated";
-
-export const SECTION_05_TITLE = "Our risk, not yours";
-
-export const SECTION_06_TITLE = "What happens next...";
+export const SECTION_04_TITLE = "What happens next...";
 
 export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
+
+export const PAGE2_NARRATIVE_PARAGRAPHS = [
+  "Most home-service businesses aren't losing money because they lack customers. They're losing it because the system they're running has holes in it — and those holes have become so routine, they've stopped being noticed.",
+  "The phone rings after hours. Nobody answers. The customer moves on. A job gets booked, the truck shows up, and the customer doesn't. The technician finishes, shakes hands, walks out — and never mentions the maintenance plan, the upgrade, or the next service.",
+  "None of this feels dramatic. But at scale, it quietly bleeds thousands of dollars a month out of businesses that are otherwise running well. This report breaks down exactly where that money is going — and what it's worth to stop the leak.",
+] as const;
+
+export const LEAK_NARRATIVE_TITLES = {
+  missedCallRecovery: "Missed Calls",
+  noShowReduction: "No-Shows",
+  jobCloserUpsells: "Upsell Revenue Left on the Table",
+  outboundSms: "A Customer List You're Not Using",
+  timeSavings: "Your Time",
+} as const;
+
+export const NO_SHOW_NARRATIVE_CLOSE =
+  "Automated SMS confirmations and reminders, sent at the right intervals, cut no-show rates by {noShowReductionRange} against your full booking volume.";
 
 export const MODEL_CARD_EYEBROW = "Your Input Data";
 export const MODEL_CARD_NO_DOUBLE =
@@ -100,7 +113,7 @@ export const DRIVER_DISPLAY: Record<
     shortMechanism: "Post-job follow-up and upsells",
   },
   outboundSms: {
-    headline: "Win More Repeat Revenue with Customers You Already Have",
+    headline: "Win More Repeat Revenue",
     shortMechanism: "Existing customers never hear from you.",
   },
   timeSavings: {

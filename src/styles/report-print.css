@@ -44,16 +44,22 @@
 }
 
 :root {
-  --report-navy: #162736;
-  --report-green: #10b981;
-  --report-green-dark: #059669;
-  --report-body: #475569;
-  --report-muted: #94a3b8;
-  --report-border: #e2e8f0;
-  --report-surface: #f8fafc;
-  --report-surface-green: #ecfdf5;
-  --report-green-tint: #d1fae5;
-  --report-section-num: #e2e8f0;
+  --report-green: #1dbf9a;
+  --report-navy: #0d1e2c;
+  --report-body: #4e5f6e;
+  --report-muted: #9aabb7;
+  --report-border: #e8eef3;
+  --report-surface: #f3f6f8;
+  --report-surface-alt: #edf1f5;
+  --report-surface-green: #f2fcf9;
+  --report-green-tint: #d0f5ec;
+  --report-green-tint-mid: #e8f9f3;
+  --report-green-tint-border: #b0e8d4;
+  --report-green-dark: #0a8f72;
+  --report-section-num: #dde5ec;
+  --report-section-num-center: #edf1f5;
+  --report-range-track: #e4eaf0;
+  --report-range-dot-border: #c8d6de;
   --report-white: #ffffff;
   --report-footer-height: 0.34in;
 }
@@ -81,7 +87,7 @@ body {
 .report-page {
   width: 8.5in;
   height: 11in;
-  padding: 0.48in 0.625in 0.36in;
+  padding: 0.5in 0.625in 0.36in;
   page-break-after: always;
   display: flex;
   flex-direction: column;
@@ -233,7 +239,7 @@ body {
 }
 
 .report-hero-value {
-  font-size: 42pt;
+  font-size: 39pt;
   font-weight: 800;
   line-height: 1;
   color: var(--report-green);
@@ -274,7 +280,7 @@ body {
 .report-range-track {
   position: relative;
   height: 5px;
-  background: var(--report-border);
+  background: var(--report-range-track);
   border-radius: 3px;
   margin-bottom: 6px;
 }
@@ -294,7 +300,7 @@ body {
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: var(--report-white);
-  border: 2px solid #cbd5e1;
+  border: 2px solid var(--report-range-dot-border);
   z-index: 1;
 }
 
@@ -352,6 +358,7 @@ body {
 
 .report-section-heading--center .report-section-num {
   margin-bottom: 3px;
+  color: var(--report-section-num-center);
 }
 
 .report-section-num {
@@ -396,11 +403,6 @@ body {
   font-weight: 700;
   color: var(--report-navy);
   line-height: 1.2;
-}
-
-.report-driver-row-title--long {
-  font-size: 8.25pt;
-  line-height: 1.25;
 }
 
 .report-driver-row-sub {
@@ -452,7 +454,7 @@ body {
 
 /* —— Page 2 —— */
 .report-page--problem .report-page-body {
-  gap: 10px;
+  gap: 14px;
 }
 
 .report-p2-intro {
@@ -463,117 +465,91 @@ body {
   max-width: 5.5in;
   margin: 0 auto;
   text-align: center;
+  padding: 0 0.375in;
 }
 
 .report-realization-lead {
   margin: 0 0 5px;
-  font-size: 10pt;
+  font-size: 10.125pt;
   color: var(--report-navy);
 }
 
 .report-realization-body {
   margin: 0 0 5px;
-  font-size: 9.75pt;
-  line-height: 1.55;
+  font-size: 10.125pt;
+  line-height: 1.62;
   color: var(--report-body);
 }
 
 .report-realization-close {
   margin: 0;
-  font-size: 10pt;
+  font-size: 10.125pt;
   color: var(--report-green);
 }
 
-.report-p2-leaks {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.report-leak-block-list {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1 1 auto;
-  gap: 7px;
-  min-height: 0;
-}
-
-.report-leak-block {
-  padding: 8px 10px;
-  border: 1px solid var(--report-border);
-  border-radius: 10px;
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 0;
-}
-
-.report-leak-block-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-bottom: 3px;
-}
-
-.report-leak-block-head {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.report-leak-block-title {
-  font-size: 9.5pt;
-  font-weight: 800;
-  color: var(--report-navy);
-  line-height: 1.2;
-  flex: 1;
-  min-width: 0;
-}
-
-.report-leak-block-title--long {
-  font-size: 8.25pt;
-  line-height: 1.25;
-}
-
-.report-leak-block-value {
-  font-size: 13pt;
-  font-weight: 800;
-  color: var(--report-green);
-  white-space: nowrap;
+.report-p2-narratives {
   flex-shrink: 0;
-  letter-spacing: -0.02em;
 }
 
-.report-leak-block-consequence {
-  margin: 0 0 2px;
-  padding-left: 41px;
-  font-size: 8.75pt;
-  line-height: 1.35;
+.report-narrative-p {
+  margin: 0 0 5px;
+  font-size: 9.75pt;
+  line-height: 1.68;
   color: var(--report-body);
 }
 
-.report-leak-block-response {
-  margin: 0;
-  padding-left: 41px;
-  font-size: 8.25pt;
-  line-height: 1.35;
-  color: var(--report-muted);
+.report-narrative-p:last-child {
+  margin-bottom: 0;
 }
 
-.report-leak-block-response strong {
+.report-leak-narrative {
+  flex-shrink: 0;
+}
+
+.report-leak-narrative-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.report-leak-narrative-title {
+  font-size: 9.75pt;
+  font-weight: 800;
   color: var(--report-navy);
+}
+
+.report-leak-narrative-p {
+  margin: 0 0 3px;
+  font-size: 9.75pt;
+  line-height: 1.68;
+  color: var(--report-body);
+}
+
+.report-leak-narrative-p:last-child {
+  margin-bottom: 0;
+}
+
+.report-emphasis {
+  color: var(--report-green);
   font-weight: 700;
 }
 
 /* —— Page 3 —— */
 .report-page--methodology .report-page-body {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.report-p3-narratives {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  flex-shrink: 0;
+}
+
+.report-p3-methodology {
+  flex-shrink: 0;
 }
 
 .report-scenario-detail-grid {
@@ -697,24 +673,26 @@ body {
 
 /* —— Page 4 —— */
 .report-page--action .report-page-body {
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.report-p4-guarantee {
+.report-p4-cta-block {
   flex-shrink: 0;
 }
 
 .report-guarantee {
-  padding: 12px 20px;
-  border: 1px solid #a7f3d0;
-  background: var(--report-surface-green);
+  padding: 12px 0.29in;
+  border: 1px solid var(--report-green-tint-border);
+  background: var(--report-green-tint-mid);
   border-radius: 13px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .report-guarantee-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   color: var(--report-green);
   margin: 0 auto 5px;
   display: block;
@@ -722,7 +700,7 @@ body {
 
 .report-guarantee-title {
   margin: 0 0 4px;
-  font-size: 9.5pt;
+  font-size: 9.75pt;
   font-weight: 800;
   color: var(--report-navy);
   letter-spacing: -0.01em;
@@ -730,20 +708,9 @@ body {
 
 .report-guarantee p {
   margin: 0;
-  font-size: 8.75pt;
-  line-height: 1.45;
+  font-size: 9pt;
+  line-height: 1.5;
   color: var(--report-body);
-}
-
-.report-guarantee small {
-  display: block;
-  margin-top: 4px;
-  font-size: 8.5pt;
-  color: var(--report-body);
-}
-
-.report-p4-cta-block {
-  flex-shrink: 0;
 }
 
 .report-cta {

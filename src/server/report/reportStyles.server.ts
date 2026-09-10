@@ -57,6 +57,6 @@ export function buildReportPrintCssForPdf(): string {
 }
 
 export function loadReportLogoDataUri(): string {
-  const bytes = readAsset("logo.png");
+  const bytes = readAsset("report-logo.png");
   return toDataUri(bytes, "image/png");
 }

@@ -2,6 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { PDFParse } from "pdf-parse";
 import { PDFDocument, PDFDict, PDFName, PDFString } from "pdf-lib";
 import { BOOK_MEETING_PATH, SITE_ORIGIN } from "~/config/features";
+import {
+  buildGoldStandardReportViewModel,
+  GOLD_STANDARD_EXPECTED,
+} from "~/lib/report/__fixtures__/goldStandard";
 import { buildNorthstarReportViewModel } from "~/lib/report/__fixtures__/northstar";
 import {
   GUARANTEE_CARD_TITLE,
@@ -10,8 +14,7 @@ import {
   PAGE1_HERO_HEADLINE,
   SECTION_02_REALIZATION_LEAD,
   SECTION_03_TITLE,
-  SECTION_05_TITLE,
-  SECTION_06_TITLE,
+  SECTION_04_TITLE,
   ORCHESTRATION_TITLE,
 } from "~/lib/report/reportCopy";
 import { renderReportPdf } from "~/server/report/renderReportPdf.server";
@@ -57,7 +60,7 @@ async function countAcroFormFields(pdf: Uint8Array): Promise<number> {
 
 describe("renderReportPdf", () => {
   test(
-    "generates a 4-page PDF with expected content and on-site booking link",
+    "generates a 4-page PDF with gold-standard structure and on-site booking link",
     async () => {
       const model = buildNorthstarReportViewModel();
       const { pdf, timing } = await renderReportPdf(model, {
@@ -82,20 +85,22 @@ describe("renderReportPdf", () => {
       expect(normalizedText).toContain(GUARANTEE_FOOTNOTE);
       expect(text).toContain("Book More Jobs");
       expect(text).toContain("Cut Your No-Shows");
-      expect(text).toContain("Win More Repeat Revenue with Customers You Already Have");
-      expect(text).not.toContain("Most home-service businesses aren't losing money");
-      expect(text).not.toContain("Missed Calls");
-      expect(text).not.toContain("Upsell Revenue Left on the Table");
+      expect(text).toContain("Win More Repeat Revenue");
+      expect(text).not.toContain("Win More Repeat Revenue with Customers You Already Have");
+      expect(text).toContain("Most home-service businesses aren't losing money");
+      expect(text).toContain("Missed Calls");
+      expect(text).toContain("Upsell Revenue Left on the Table");
       expect(text).toContain(SECTION_02_REALIZATION_LEAD);
       expect(text).toContain(SECTION_03_TITLE);
-      const guaranteeIdx = normalizedText.indexOf("Our risk, not yours");
+      expect(text).toContain(SECTION_04_TITLE);
+      expect(text).not.toContain("Five places revenue walks out");
+      expect(text).not.toContain("Our risk, not yours");
       const ctaIdx = normalizedText.indexOf("What happens next");
-      expect(guaranteeIdx).toBeGreaterThan(-1);
-      expect(ctaIdx).toBeGreaterThan(guaranteeIdx);
+      const guaranteeIdx = normalizedText.search(/90.{0,4}Day Results Guarantee/);
+      expect(ctaIdx).toBeGreaterThan(-1);
+      expect(guaranteeIdx).toBeGreaterThan(ctaIdx);
       expect(text.toUpperCase()).toContain(MODEL_CARD_EYEBROW.toUpperCase());
-      expect(text).toContain(SECTION_05_TITLE);
       expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
-      expect(text).toContain(SECTION_06_TITLE);
       expect(text).toContain(ORCHESTRATION_TITLE);
       expect(text).not.toContain("MORE THAN AN AI RECEPTIONIST");
       expect(text.replace(/\s+/g, " ")).toContain("No double-counting");
@@ -104,6 +109,28 @@ describe("renderReportPdf", () => {
       expect(text).not.toContain("See where it's going");
       expect(text).toContain("See your AI front office work live in 25 minutes.");
       expect(await extractLinkUrls(pdf)).toContain(BOOKING_URL);
+    },
+    { timeout: 120_000 },
+  );
+
+  test(
+    "gold-standard fixture reproduces reference totals through the real engine",
+    async () => {
+      const model = buildGoldStandardReportViewModel();
+      expect(model.moderateHeroTotalFormatted).toBe(GOLD_STANDARD_EXPECTED.moderateTotal);
+      expect(model.scenarios[0]!.totalFormatted).toBe(GOLD_STANDARD_EXPECTED.conservativeTotal);
+      expect(model.scenarios[2]!.totalFormatted).toBe(GOLD_STANDARD_EXPECTED.aggressiveTotal);
+
+      const byKey = Object.fromEntries(model.drivers.map((d) => [d.key, d.annualValueFormatted]));
+      expect(byKey.missedCallRecovery).toBe(GOLD_STANDARD_EXPECTED.missedCallRecovery);
+      expect(byKey.noShowReduction).toBe(GOLD_STANDARD_EXPECTED.noShowReduction);
+      expect(byKey.jobCloserUpsells).toBe(GOLD_STANDARD_EXPECTED.jobCloserUpsells);
+      expect(byKey.outboundSms).toBe(GOLD_STANDARD_EXPECTED.outboundSms);
+      expect(byKey.timeSavings).toBe(GOLD_STANDARD_EXPECTED.timeSavings);
+
+      const { pdf, timing } = await renderReportPdf(model, { mode: "warm", collectTiming: true });
+      expect(timing?.pageCount).toBe(4);
+      expect(pdf.byteLength).toBeGreaterThan(10_000);
     },
     { timeout: 120_000 },
   );
