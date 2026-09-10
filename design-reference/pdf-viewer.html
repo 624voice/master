@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>* { margin: 0; padding: 0; } body { background: #fff; } canvas { display: block; margin-bottom: 20px; }</style>
+</head>
+<body>
+<div id="pages"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let currentPage = 1;
+let totalPages = 0;
+let pdfDoc = null;
+
+function renderPage(num) {
+  return pdfDoc.getPage(num).then(page => {
+    const vp = page.getViewport({scale: 1.5});
+    const canvas = document.createElement('canvas');
+    canvas.id = 'page' + num;
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    document.getElementById('pages').appendChild(canvas);
+    return page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
+  });
+}
+
+pdfjsLib.getDocument('uploads/report.pdf').promise.then(async pdf => {
+  pdfDoc = pdf;
+  totalPages = pdf.numPages;
+  document.title = 'pages:' + totalPages;
+  for (let i = 1; i <= totalPages; i++) {
+    await renderPage(i);
+  }
+  document.title = 'ready';
+});
+</script>
+</body>
+</html>

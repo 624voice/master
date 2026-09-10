@@ -1,0 +1,80 @@
+{
+  "deployPreview": "https://deploy-preview-96--624voice.netlify.app",
+  "gitCommitSha": "c087a24128145b9dcd7cca47870a6f3e705c0473",
+  "measuredAt": "2026-09-09T19:30:00.000Z",
+  "bundleUnzippedEstimateMb": 91.06,
+  "bundleNote": "Sum of @sparticuz/chromium (66 MB) + puppeteer-core (5.7 MB) + pdf-lib (18.6 MB) + dist/server (0.8 MB). Aligns with Phase 0 ~101 MB on Netlify; under 150 MB STOP.",
+  "clientBundleCheck": {
+    "puppeteerCoreInDistClient": 0,
+    "sparticuzChromiumInDistClient": 0,
+    "pass": true
+  },
+  "pdfOutput": {
+    "pdfBytes": 193892,
+    "pageCount": 5
+  },
+  "a1RenderTimingEndpoint": {
+    "cold": {
+      "clientTtfbMs": 3702,
+      "timing": {
+        "runtimeInitMs": 0,
+        "chromiumPrepMs": 0,
+        "browserLaunchMs": 374,
+        "htmlRenderMs": 185,
+        "pageLoadMs": 1798,
+        "fontReadyMs": 1,
+        "pdfRenderMs": 138,
+        "handlerTotalMs": 3220,
+        "pdfBytes": 193872,
+        "pageCount": 5
+      },
+      "note": "Instance already warm from prior traffic; chromiumPrepMs 0"
+    },
+    "warm": {
+      "clientTtfbMs": 2679,
+      "timing": {
+        "runtimeInitMs": 0,
+        "chromiumPrepMs": 0,
+        "browserLaunchMs": 127,
+        "htmlRenderMs": 77,
+        "pageLoadMs": 1917,
+        "fontReadyMs": 1,
+        "pdfRenderMs": 136,
+        "handlerTotalMs": 2545,
+        "pdfBytes": 193872,
+        "pageCount": 5
+      }
+    }
+  },
+  "generateRoiPdf": {
+    "endpoint": "POST /_serverFn/b9ad525a4a59bfa6cdca3af9523ef48d1e75612500100dd23261b2f650c264a4",
+    "includesSaveLeadWebhookAndFullWorkflow": true,
+    "isolatedColdTtfbMs": 13892,
+    "sequentialRunsMs": [21371, 6007, 4337, 3504],
+    "responseBytesSeroval": 258775,
+    "stopThresholdCold20s": {
+      "isolatedColdPass": true,
+      "sequentialRun1Fail": true,
+      "note": "Run 1 on fresh sequential batch measured 21.4 s; isolated earlier cold was 13.9 s. Variance likely from saveLead/webhook + instance state."
+    },
+    "stopThresholdWarm3s": {
+      "renderOnlyWarmHandlerMs": 2545,
+      "renderOnlyPass": true,
+      "fullWorkflowWarmRun4Ms": 3504,
+      "fullWorkflowMarginalFail": true
+    }
+  },
+  "reportTokenGet": {
+    "endpoint": "GET /report/{token}",
+    "runsMs": [1784, 1899],
+    "pdfBytes": 193892,
+    "stopThresholdCold20s": "pass (warm instance)",
+    "stopThresholdWarm3s": "pass"
+  },
+  "stopSummary": {
+    "bundle150Mb": "PASS (~91–101 MB est.)",
+    "coldGenerateRoiPdf20s": "MARGINAL — 13.9 s isolated PASS; 21.4 s sequential run 1 FAIL",
+    "coldReportToken20s": "PASS (1.8 s warm instance)",
+    "warmRender3s": "PASS render-only (2.55 s handler); MARGINAL full workflow (3.5 s run 4)"
+  }
+}

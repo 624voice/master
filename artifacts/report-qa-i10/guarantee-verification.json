@@ -1,0 +1,10 @@
+{
+  "canonicalRepoString": "We guarantee you recover at least our service investment in booked service-visit revenue within 90 days of go-live - or we keep working, for free, until you do.",
+  "canonicalUsesHyphenMinus": true,
+  "goldStandardUsesEmDash": true,
+  "note": "Gold PDF uses em dash; canonical repo copy uses hyphen-minus per Instruction #6 policy. Not a visual-gate failure.",
+  "htmlContainsCanonicalByteForByte": true,
+  "htmlGoLiveSnippet": "go-live - or we keep wor",
+  "pdftotextNote": "pdftotext line-wrap may show 'golive - or' without hyphen in go-live; visual PDF renders go-live - or per audit Instruction #9.",
+  "renderedPdfContainsHyphenMinusBeforeOr": true
+}

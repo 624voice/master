@@ -1,4 +1,10 @@
-import { SHARED, TRADES, type ScenarioIndex, type TradeKey } from "./roiModel";
+import {
+  effectiveRecoveredBookingRate,
+  SHARED,
+  TRADES,
+  type ScenarioIndex,
+  type TradeKey,
+} from "./roiModel";
 
 export type DriverResult = {
   label: string;
@@ -80,8 +86,9 @@ export function computeRoi(
 
   const answeredRate = 1 - t.missedCallRate;
 
+  const recoveredBookingRateEffective = effectiveRecoveredBookingRate(trade, s);
   const jobsRecoveredPerMonth =
-    calls * t.missedCallRate * SHARED.recoveredBookingRate[s];
+    calls * t.missedCallRate * recoveredBookingRateEffective;
   const missedCallRecoveryAnnual = roundWhole(
     jobsRecoveredPerMonth * t.avgJobValue * 12,
   );
