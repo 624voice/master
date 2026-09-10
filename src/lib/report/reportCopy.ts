@@ -26,6 +26,12 @@ export const SECTION_02_REALIZATION_BODY =
 export const SECTION_02_REALIZATION_CLOSE =
   "Together, they become {moderateTotal} a year.";
 
+export const SECTION_02_NARRATIVE = [
+  "Most home-service businesses aren't losing money because they lack customers. They're losing it because the system they're running has holes in it — and those holes have become so routine, they've stopped being noticed.",
+  "The phone rings after hours. Nobody answers. The customer moves on. A job gets booked, the truck shows up, and the customer doesn't. The technician finishes, shakes hands, walks out — and never mentions the maintenance plan, the upgrade, or the next service.",
+  "None of this feels dramatic. But at scale, it quietly bleeds thousands of dollars a month out of businesses that are otherwise running well. This report breaks down exactly where that money is going — and what it's worth to stop the leak.",
+] as const;
+
 export const SECTION_03_TITLE = "Five places revenue walks out";
 
 export const SECTION_04_TITLE = "How your numbers were calculated";
@@ -36,22 +42,11 @@ export const SECTION_06_TITLE = "What happens next...";
 
 export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
 
-export const NO_DOUBLE_COUNTING_NOTE =
-  "Book More Jobs counts only calls currently going unanswered — a separate pool from your booked jobs.";
-
-export const MODEL_CARD_EYEBROW = "YOUR MODEL";
-export const MODEL_CARD_SUB =
-  "Built from your business inputs + trade benchmarks";
+export const MODEL_CARD_EYEBROW = "Your Input Data";
 export const MODEL_CARD_NO_DOUBLE =
   "No double-counting. Each opportunity is modeled against a separate revenue pool.";
 export const MODEL_CARD_DISCLAIMER =
-  "Estimates use your entered call volume and industry benchmarks. Actual results vary by market, execution and configuration.";
-
-export const ROI_RECAP_HEADLINE =
-  "Even the conservative model puts {conservativeTotal} a year on the table.";
-
-export const ROI_RECAP_BODY =
-  "Not from finding a whole new market — from capturing more of the opportunities already moving through your business.";
+  "Actual results vary by market, execution and configuration.";
 
 export const CTA_HEADLINE = "See your AI front office work live in 25 minutes.";
 export const CTA_SUB =
@@ -87,8 +82,6 @@ export const ORCHESTRATION_COLUMNS = [
 export const ORCHESTRATION_FOOTNOTE =
   "Connected by CRM integrations, custom dashboards, and AI discoverability consulting.";
 
-export const RECAP_SCENARIO_SUB = "Modeled annual opportunity";
-
 export type DriverCopyKey =
   | "missedCallRecovery"
   | "noShowReduction"
@@ -113,8 +106,8 @@ export const DRIVER_DISPLAY: Record<
     shortMechanism: "Post-job follow-up and upsells",
   },
   outboundSms: {
-    headline: "Win More Repeat Revenue with Customers You Already Have",
-    shortMechanism: "Seasonal and win-back campaigns",
+    headline: "Win More Repeat Revenue",
+    shortMechanism: "Existing customers never hear from you.",
   },
   timeSavings: {
     headline: "Get Your Time Back",

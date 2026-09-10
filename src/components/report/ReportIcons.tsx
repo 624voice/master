@@ -129,13 +129,19 @@ const DRIVER_ICONS = {
 export function DriverIcon({
   driverKey,
   size = "md",
+  tone = "brand",
 }: {
   driverKey: string;
   size?: "sm" | "md";
+  tone?: "brand" | "inverse";
 }) {
   const Icon = DRIVER_ICONS[driverKey as keyof typeof DRIVER_ICONS] ?? TrendUpIcon;
   return (
-    <div className={`report-icon-wrap${size === "sm" ? " report-icon-wrap--sm" : ""}`}>
+    <div
+      className={`report-icon-wrap${size === "sm" ? " report-icon-wrap--sm" : ""}${
+        tone === "inverse" ? " report-icon-wrap--inverse" : ""
+      }`}
+    >
       <Icon className={size === "sm" ? "report-icon-svg report-icon-svg--sm" : "report-icon-svg"} />
     </div>
   );

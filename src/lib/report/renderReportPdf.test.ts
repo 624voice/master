@@ -4,11 +4,12 @@ import { PDFDocument, PDFDict, PDFName, PDFString } from "pdf-lib";
 import { BOOK_MEETING_PATH, SITE_ORIGIN } from "~/config/features";
 import { buildNorthstarReportViewModel } from "~/lib/report/__fixtures__/northstar";
 import {
-  GUARANTEE_BODY,
   GUARANTEE_CARD_TITLE,
-  NO_DOUBLE_COUNTING_NOTE,
+  GUARANTEE_FOOTNOTE,
+  MODEL_CARD_EYEBROW,
   PAGE1_HERO_HEADLINE,
   SECTION_02_REALIZATION_LEAD,
+  SECTION_03_TITLE,
   SECTION_05_TITLE,
   SECTION_06_TITLE,
   ORCHESTRATION_TITLE,
@@ -74,22 +75,22 @@ describe("renderReportPdf", () => {
       );
       expect(text).toContain(model.moderateHeroTotalFormatted);
       expect(text).toContain("Prepared for Jordan Miller · Northstar Pest Control");
-      expect(text.replace(/\s+/g, " ")).toContain(
-        GUARANTEE_BODY.replace(/\s+/g, " "),
+      const normalizedText = text.replace(/\s+/g, " ").replace(/-\s+/g, "-");
+      expect(normalizedText).toContain(
+        "recover at least our service investment in booked service-visit revenue within 90 days of go-live",
       );
+      expect(normalizedText).toContain(GUARANTEE_FOOTNOTE);
       expect(text).toContain("Book More Jobs");
       expect(text).toContain("Cut Your No-Shows");
-      expect(text).toContain("total modeled annual opportunity");
       expect(text).toContain(SECTION_02_REALIZATION_LEAD);
-      expect(text).toContain("YOUR MODEL");
+      expect(text).toContain(SECTION_03_TITLE);
+      expect(text.toUpperCase()).toContain(MODEL_CARD_EYEBROW.toUpperCase());
       expect(text).toContain(SECTION_05_TITLE);
       expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
       expect(text).toContain(SECTION_06_TITLE);
       expect(text).toContain(ORCHESTRATION_TITLE);
       expect(text).not.toContain("MORE THAN AN AI RECEPTIONIST");
-      expect(text.replace(/\s+/g, " ")).toContain(
-        NO_DOUBLE_COUNTING_NOTE.replace(/\s+/g, " "),
-      );
+      expect(text.replace(/\s+/g, " ")).toContain("No double-counting");
       expect(text).not.toContain("Missed-Call Recovery");
       expect(text).not.toContain("See it work on your calls");
       expect(text).not.toContain("See where it's going");
