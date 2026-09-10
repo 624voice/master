@@ -82,8 +82,16 @@ describe("renderReportPdf", () => {
       expect(normalizedText).toContain(GUARANTEE_FOOTNOTE);
       expect(text).toContain("Book More Jobs");
       expect(text).toContain("Cut Your No-Shows");
+      expect(text).toContain("Win More Repeat Revenue with Customers You Already Have");
+      expect(text).not.toContain("Most home-service businesses aren't losing money");
+      expect(text).not.toContain("Missed Calls");
+      expect(text).not.toContain("Upsell Revenue Left on the Table");
       expect(text).toContain(SECTION_02_REALIZATION_LEAD);
       expect(text).toContain(SECTION_03_TITLE);
+      const guaranteeIdx = normalizedText.indexOf("Our risk, not yours");
+      const ctaIdx = normalizedText.indexOf("What happens next");
+      expect(guaranteeIdx).toBeGreaterThan(-1);
+      expect(ctaIdx).toBeGreaterThan(guaranteeIdx);
       expect(text.toUpperCase()).toContain(MODEL_CARD_EYEBROW.toUpperCase());
       expect(text).toContain(SECTION_05_TITLE);
       expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);

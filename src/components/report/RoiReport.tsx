@@ -23,7 +23,6 @@ import {
   PAGE1_HERO_HEADLINE,
   PAGE1_SUPPORTING_LINE,
   SECTION_01_TITLE,
-  SECTION_02_NARRATIVE,
   SECTION_02_REALIZATION_BODY,
   SECTION_02_REALIZATION_CLOSE,
   SECTION_02_REALIZATION_LEAD,
@@ -42,14 +41,6 @@ const PILLAR_ICONS = {
   CONVERT: ConvertPillarIcon,
   RECOVER: RecoverPillarIcon,
 } as const;
-
-const BLOCK_DRIVER_KEYS: DriverCopyKey[] = [
-  "missedCallRecovery",
-  "noShowReduction",
-  "jobCloserUpsells",
-  "outboundSms",
-  "timeSavings",
-];
 
 type RoiReportProps = {
   model: ReportViewModel;
@@ -149,12 +140,17 @@ function DriverRow({
   const driver = getDriverByKey(model, driverKey);
   const copy = DRIVER_DISPLAY[driverKey];
   const leak = LEAK_ROW_COPY[driverKey];
+  const isLongLabel = driverKey === "outboundSms";
 
   return (
     <div className="report-driver-row">
       <DriverIcon driverKey={driverKey} tone="inverse" />
       <div className="report-driver-row-body">
-        <div className="report-driver-row-title">{copy.headline}</div>
+        <div
+          className={`report-driver-row-title${isLongLabel ? " report-driver-row-title--long" : ""}`}
+        >
+          {copy.headline}
+        </div>
         <div className="report-driver-row-sub">{leak.consequence}</div>
       </div>
       <div className="report-driver-row-value">{driver.annualValueFormatted}</div>
@@ -162,29 +158,35 @@ function DriverRow({
   );
 }
 
-function TradeDiagnosticBlock({
-  title,
-  problem,
-  consequence,
-  response,
+function LeakBlock({
+  model,
   driverKey,
 }: {
-  title: string;
-  problem: string;
-  consequence: string;
-  response: string;
+  model: ReportViewModel;
   driverKey: DriverCopyKey;
 }) {
+  const driver = getDriverByKey(model, driverKey);
+  const copy = DRIVER_DISPLAY[driverKey];
+  const leak = LEAK_ROW_COPY[driverKey];
+  const isLongLabel = driverKey === "outboundSms";
+
   return (
-    <div className="report-trade-block">
-      <div className="report-trade-block-head">
-        <DriverIcon driverKey={driverKey} size="sm" tone="inverse" />
-        <span>{title}</span>
+    <div className="report-leak-block">
+      <div className="report-leak-block-top">
+        <DriverIcon driverKey={driverKey} tone="inverse" />
+        <div className="report-leak-block-head">
+          <div
+            className={`report-leak-block-title${isLongLabel ? " report-leak-block-title--long" : ""}`}
+          >
+            {copy.headline}
+          </div>
+          <div className="report-leak-block-value">{driver.annualValueFormatted}</div>
+        </div>
       </div>
-      <p className="report-trade-block-problem">
-        {problem} {consequence}
+      <p className="report-leak-block-consequence">{leak.consequence}</p>
+      <p className="report-leak-block-response">
+        <strong>624Voice:</strong> {leak.response}
       </p>
-      <p className="report-trade-block-response">{response}</p>
     </div>
   );
 }
@@ -274,7 +276,6 @@ function ProblemPage({ model, logoSrc }: RoiReportProps) {
     "{moderateTotal}",
     model.moderateHeroTotalFormatted,
   );
-  const blocks = model.tradeContent.blocks;
 
   return (
     <section className="report-page report-page--problem">
@@ -293,21 +294,13 @@ function ProblemPage({ model, logoSrc }: RoiReportProps) {
           </div>
         </div>
 
-        <div className="report-p2-narrative">
-          {SECTION_02_NARRATIVE.map((paragraph) => (
-            <p key={paragraph.slice(0, 32)}>{paragraph}</p>
-          ))}
-        </div>
-
-        <div className="report-p2-diagnostics">
+        <div className="report-p2-leaks">
           <SectionHeading number="03" title={SECTION_03_TITLE} align="left" />
-          {blocks.slice(0, 2).map((block, index) => (
-            <TradeDiagnosticBlock
-              key={block.title}
-              {...block}
-              driverKey={BLOCK_DRIVER_KEYS[index]!}
-            />
-          ))}
+          <div className="report-leak-block-list">
+            {DRIVER_DISPLAY_ORDER.map((key) => (
+              <LeakBlock key={key} model={model} driverKey={key} />
+            ))}
+          </div>
         </div>
       </div>
       <ReportFooter model={model} page={2} />
@@ -316,46 +309,32 @@ function ProblemPage({ model, logoSrc }: RoiReportProps) {
 }
 
 function MethodologyPage({ model, logoSrc }: RoiReportProps) {
-  const blocks = model.tradeContent.blocks;
-
   return (
     <section className="report-page report-page--methodology">
       <ReportHeader model={model} logoSrc={logoSrc} />
-      <div className="report-page-body report-page-body--spread">
-        <div className="report-p3-diagnostics">
-          {blocks.slice(2).map((block, index) => (
-            <TradeDiagnosticBlock
-              key={block.title}
-              {...block}
-              driverKey={BLOCK_DRIVER_KEYS[index + 2]!}
-            />
+      <div className="report-page-body">
+        <SectionHeading number="04" title={SECTION_04_TITLE} align="center" />
+        <div className="report-scenario-detail-grid">
+          {model.scenarioAssumptions.map((assumption, index) => (
+            <div
+              key={assumption.name}
+              className={`report-card report-scenario-detail${index === 1 ? " is-moderate" : ""}`}
+            >
+              <div className="report-scenario-detail-name">{assumption.name}</div>
+              <div className="report-scenario-detail-total">
+                {model.scenarios[index]!.totalFormatted}
+              </div>
+              <div className="report-scenario-detail-lines">
+                <div>Recovered booking: {assumption.recoveredBookingRate}</div>
+                <div>No-show reduction: {assumption.noShowReduction}</div>
+                <div>Upsell rate: {assumption.upsellRate}</div>
+                <div>Admin hours saved: {assumption.adminHoursSaved}</div>
+                <div>Campaign jobs: {assumption.campaignJobsPerMonth}</div>
+              </div>
+            </div>
           ))}
         </div>
-
-        <div className="report-p3-methodology">
-          <SectionHeading number="04" title={SECTION_04_TITLE} align="center" />
-          <div className="report-scenario-detail-grid">
-            {model.scenarioAssumptions.map((assumption, index) => (
-              <div
-                key={assumption.name}
-                className={`report-card report-scenario-detail${index === 1 ? " is-moderate" : ""}`}
-              >
-                <div className="report-scenario-detail-name">{assumption.name}</div>
-                <div className="report-scenario-detail-total">
-                  {model.scenarios[index]!.totalFormatted}
-                </div>
-                <div className="report-scenario-detail-lines">
-                  <div>Recovered booking: {assumption.recoveredBookingRate}</div>
-                  <div>No-show reduction: {assumption.noShowReduction}</div>
-                  <div>Upsell rate: {assumption.upsellRate}</div>
-                  <div>Admin hours saved: {assumption.adminHoursSaved}</div>
-                  <div>Campaign jobs: {assumption.campaignJobsPerMonth}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <ModelInputsCard model={model} />
-        </div>
+        <ModelInputsCard model={model} />
       </div>
       <ReportFooter model={model} page={3} />
     </section>
@@ -366,8 +345,18 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
   return (
     <section className="report-page report-page--action">
       <ReportHeader model={model} logoSrc={logoSrc} />
-      <div className="report-page-body report-page-body--spread">
-        <div className="report-p4-top">
+      <div className="report-page-body">
+        <div className="report-p4-guarantee">
+          <SectionHeading number="05" title={SECTION_05_TITLE} align="center" />
+          <div className="report-guarantee">
+            <ShieldIcon className="report-guarantee-icon" />
+            <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
+            <p>{model.guarantee.body}</p>
+            <small>{model.guarantee.footnote}</small>
+          </div>
+        </div>
+
+        <div className="report-p4-cta-block">
           <SectionHeading number="06" title={SECTION_06_TITLE} align="center" />
           <div className="report-card-dark report-cta">
             {logoSrc ? <img src={logoSrc} alt="" className="report-cta-logo" /> : null}
@@ -416,16 +405,6 @@ function ActionPage({ model, logoSrc }: RoiReportProps) {
             })}
           </div>
           <div className="report-orchestration-foot">{ORCHESTRATION_FOOTNOTE}</div>
-        </div>
-
-        <div className="report-p4-guarantee">
-          <SectionHeading number="05" title={SECTION_05_TITLE} align="center" />
-          <div className="report-guarantee">
-            <ShieldIcon className="report-guarantee-icon" />
-            <h3 className="report-guarantee-title">{GUARANTEE_CARD_TITLE}</h3>
-            <p>{model.guarantee.body}</p>
-            <small>{model.guarantee.footnote}</small>
-          </div>
         </div>
       </div>
       <ReportFooter model={model} page={4} />
