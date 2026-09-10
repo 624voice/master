@@ -40,10 +40,6 @@ describe("generateRoiPdf workflow ordering", () => {
       getPrimaryOpportunity: () => "Missed-Call Recovery",
     }));
 
-    mock.module("~/server/speed2Lead/agent/startConversation", () => ({
-      startAgentConversation: mock(async () => undefined),
-    }));
-
     const { generateRoiPdfHandler } = await import(
       "~/server/generateRoiPdfHandler.server"
     );
