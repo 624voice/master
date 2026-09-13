@@ -1,7 +1,15 @@
 export const FEATURE_FLAGS = {
   REQUIRE_LEAD_FOR_PDF: true,
   REQUIRE_LEAD_FOR_RESULTS: true,
+  ASSESSMENT_ENABLED: true,
+  ASSESSMENT_RATE_LIMIT_ENABLED: true,
+  ASSESSMENT_REPORT_TOKENS_ENABLED: true,
+  ASSESSMENT_ANALYTICS_ENABLED: true,
+  ASSESSMENT_SMS_PIPELINE_ENABLED: true,
 } as const;
+
+/** When false, assessment submissions skip live Speed2Lead ROI agent SMS. */
+export const ASSESSMENT_ROI_AGENT_LIVE_ENABLED = false;
 
 export const MAX_TRUCK_COUNT = 50;
 
