@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
+import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
@@ -190,6 +191,21 @@ function DemoPage() {
       </section>
 
       <section className="bg-white px-6 py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-center text-2xl font-bold text-brand-secondary sm:text-3xl">
+            How the Customer Journey Fits Together
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-gray-600">
+            Jessica supports the Respond dimension. The full system connects all
+            six lifecycle areas.
+          </p>
+          <div className="mt-10">
+            <CustomerLifecycleDiagram />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <DemoAgentOverview />
         </div>

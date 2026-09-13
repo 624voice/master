@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
 
 export const Route = createFileRoute("/what-we-do")({
   component: WhatWeDoPage,
@@ -23,11 +24,18 @@ function WhatWeDoPage() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-24 sm:py-32">
+      <section className="bg-white px-6 py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl">
+          <CustomerLifecycleDiagram
+            caption="Six connected dimensions of the home-services customer lifecycle."
+          />
+        </div>
+      </section>
+
+      <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
           <p className="text-center text-sm text-amber-700">
             Full Phase2Final Section 4 copy pending owner document availability.
-            Lifecycle diagram asset flagged N.
           </p>
         </div>
       </section>
