@@ -7,7 +7,7 @@ import {
 } from "~/config/rateLimits";
 import { getAssessmentSecurityHmacSecret } from "~/server/assessment/assessmentSecurity.server";
 import {
-  buildSourceFingerprint,
+  idempotencyFingerprintKey,
   phoneFingerprintKey,
   sourceFingerprintKey,
 } from "~/server/assessment/hmacKeys.server";
@@ -56,8 +56,8 @@ export async function checkAssessmentSourceRateLimit(input: {
   }
 
   const secret = requireSecret();
-  const canonical = buildSourceFingerprint(input);
-  const fingerprint = sourceFingerprintKey(canonical, secret);
+  const normalizedIp = input.clientIp?.trim() || "unknown";
+  const fingerprint = sourceFingerprintKey(normalizedIp, secret);
   const now = Date.now();
   const windowStart = now - ASSESSMENT_SOURCE_WINDOW_SECONDS * 1000;
   const member = input.requestId ?? `${now}:${crypto.randomUUID()}`;
@@ -131,5 +131,5 @@ export async function checkAssessmentPhoneIdempotency(input: {
 }
 
 export function buildAssessmentPayloadHash(payload: string): string {
-  return sourceFingerprintKey(payload, requireSecret());
+  return idempotencyFingerprintKey(payload, requireSecret());
 }

@@ -1,11 +1,11 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, test } from "bun:test";
 import {
+  HMAC_PREFIX_IDEMPOTENCY,
+  HMAC_PREFIX_PHONE,
+  HMAC_PREFIX_SOURCE,
   buildCanonicalFingerprint,
-  buildSourceFingerprint,
-  HMAC_DOMAIN_PHONE,
-  HMAC_DOMAIN_SOURCE,
-  HMAC_VERSION,
+  idempotencyFingerprintKey,
   normalizeAssessmentPhone,
   phoneFingerprintKey,
   sourceFingerprintKey,
@@ -26,27 +26,24 @@ describe("hmacKeys supplemental", () => {
     expect(normalizeAssessmentPhone("(555) 123-4567")).toBe("+15551234567");
   });
 
-  test("S-HMAC-03: sourceFingerprintKey uses v1 domain separation", () => {
+  test("S-HMAC-03: sourceFingerprintKey uses v1:source: domain separation", () => {
     const secret = "test-secret";
-    const canonical = buildSourceFingerprint({
-      clientIp: "203.0.113.1",
-      userAgent: "curl/8.0",
-    });
-    const key = sourceFingerprintKey(canonical, secret);
+    const key = sourceFingerprintKey("203.0.113.1", secret);
     expect(key).toHaveLength(64);
-    expect(key).not.toBe(sourceFingerprintKey("other", secret));
+    expect(key).not.toBe(sourceFingerprintKey("203.0.113.2", secret));
   });
 
-  test("S-HMAC-04: phoneFingerprintKey uses phone domain", () => {
+  test("S-HMAC-04: phoneFingerprintKey uses v1:phone: domain", () => {
     const secret = "test-secret";
     const phoneKey = phoneFingerprintKey("(555) 123-4567", secret);
     const otherKey = phoneFingerprintKey("+15559876543", secret);
     expect(phoneKey).not.toBe(otherKey);
   });
 
-  test("S-HMAC-05: domain constants are distinct", () => {
-    expect(HMAC_VERSION).toBe("v1");
-    expect(HMAC_DOMAIN_SOURCE).not.toBe(HMAC_DOMAIN_PHONE);
+  test("S-HMAC-05: domain prefixes are distinct", () => {
+    expect(HMAC_PREFIX_SOURCE).toBe("v1:source:");
+    expect(HMAC_PREFIX_PHONE).toBe("v1:phone:");
+    expect(HMAC_PREFIX_IDEMPOTENCY).toBe("v1:idempotency:");
   });
 
   test("S-HMAC-06: source and phone domains produce different digests", () => {
@@ -62,24 +59,38 @@ describe("hmacKeys supplemental", () => {
     const rawPhone = "(555) 123-4567";
     const rawIp = "203.0.113.50";
     const phoneKey = phoneFingerprintKey(rawPhone, secret);
-    const sourceKey = sourceFingerprintKey(
-      buildSourceFingerprint({ clientIp: rawIp, userAgent: "Mozilla/5.0" }),
-      secret,
-    );
+    const sourceKey = sourceFingerprintKey(rawIp, secret);
 
     expect(phoneKey).not.toContain("555");
     expect(phoneKey).not.toContain("123");
     expect(sourceKey).not.toContain(rawIp);
-    expect(sourceKey).not.toContain("Mozilla");
   });
 
-  test("S-HMAC-08: digest includes version prefix in HMAC message", () => {
+  test("S-HMAC-08: digest uses v1:source: prefix in HMAC message", () => {
     const secret = "test-secret";
-    const message = "clientIp=203.0.113.1\nuserAgent=curl/8.0";
+    const normalizedIp = "203.0.113.1";
     const expected = createHmac("sha256", secret)
-      .update(`${HMAC_VERSION}:${HMAC_DOMAIN_SOURCE}:${message}`)
+      .update(`${HMAC_PREFIX_SOURCE}${normalizedIp}`)
       .digest("hex");
 
-    expect(sourceFingerprintKey(message, secret)).toBe(expected);
+    expect(sourceFingerprintKey(normalizedIp, secret)).toBe(expected);
+  });
+
+  test("S-HMAC-09: idempotencyFingerprintKey uses v1:idempotency: prefix", () => {
+    const secret = "test-secret";
+    const canonical = '{"answers":{},"lead":{}}';
+    const expected = createHmac("sha256", secret)
+      .update(`${HMAC_PREFIX_IDEMPOTENCY}${canonical}`)
+      .digest("hex");
+
+    expect(idempotencyFingerprintKey(canonical, secret)).toBe(expected);
+  });
+
+  test("S-HMAC-10: idempotency and source digests differ for same payload string", () => {
+    const secret = "test-secret";
+    const payload = "203.0.113.1";
+    expect(idempotencyFingerprintKey(payload, secret)).not.toBe(
+      sourceFingerprintKey(payload, secret),
+    );
   });
 });
