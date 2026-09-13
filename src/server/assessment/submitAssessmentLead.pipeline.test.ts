@@ -1,4 +1,15 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { forceReinstallSpeed2LeadIntegrationMocks } from "~/server/speed2Lead/testSupport/integrationMocks";
+
+const ENV_KEYS = [
+  "ASSESSMENT_SECURITY_HMAC_SECRET",
+  "UPSTASH_REDIS_REST_URL",
+  "UPSTASH_REDIS_REST_TOKEN",
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_FROM_NUMBER",
+  "SPEED2LEAD_ENABLED",
+] as const;
 
 const baseAnswers = {
   BP1: "Plumbers",
@@ -27,28 +38,19 @@ const baseRequest = {
 };
 
 function mockPipeline() {
-  mock.module("~/server/assessment/assessmentSecurity.server", () => ({
-    isAssessmentSecurityConfigured: () => true,
-    getAssessmentSecurityHmacSecret: () => "a".repeat(64),
+  const evalMock = mock(async (_script: string, _keys: string[], args: string[]) => {
+    if (args.length <= 5) {
+      return [1, 1, "allowed"];
+    }
+    return ["a", "fresh", 1, 1, null];
+  });
+
+  mock.module("@tanstack/react-start/server", () => ({
+    getRequestIP: () => "203.0.113.10",
   }));
 
-  mock.module("~/server/assessment/getTrustedClientIp", () => ({
-    getTrustedClientIp: () => "203.0.113.10",
-  }));
-
-  mock.module("~/server/assessment/rateLimitSource", () => ({
-    checkAssessmentSourceRateLimit: mock(async () => ({
-      allowed: true,
-      count: 1,
-      status: "allowed",
-    })),
-    checkAssessmentPhoneIdempotency: mock(async () => ({
-      case: "a",
-      substate: "fresh",
-      allowed: true,
-      count: 1,
-    })),
-    buildAssessmentPayloadHash: (payload: string) => `hash:${payload.length}`,
+  mock.module("~/server/speed2Lead/redis", () => ({
+    getRedis: () => ({ eval: evalMock, get: mock(), set: mock() }),
   }));
 
   mock.module("~/server/assessment/reportTokens", () => ({
@@ -60,11 +62,38 @@ function mockPipeline() {
   mock.module("~/server/leads", () => ({
     saveLead: mock(async () => undefined),
   }));
+
+  return { evalMock };
 }
 
 describe("submitAssessmentLead pipeline", () => {
+  const savedEnv: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>> =
+    {};
+
+  beforeEach(() => {
+    for (const key of ENV_KEYS) {
+      savedEnv[key] = process.env[key];
+    }
+    process.env.ASSESSMENT_SECURITY_HMAC_SECRET = "a".repeat(64);
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+    process.env.TWILIO_ACCOUNT_SID = "ACtest";
+    process.env.TWILIO_AUTH_TOKEN = "test-auth";
+    process.env.TWILIO_FROM_NUMBER = "+15550001111";
+    process.env.SPEED2LEAD_ENABLED = "true";
+  });
+
   afterEach(() => {
     mock.restore();
+    forceReinstallSpeed2LeadIntegrationMocks();
+    for (const key of ENV_KEYS) {
+      const value = savedEnv[key];
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
   });
 
   test("L#30: invokes ROI agent with formatted annualOpportunity when eligible", async () => {
@@ -84,16 +113,12 @@ describe("submitAssessmentLead pipeline", () => {
       ASSESSMENT_ROI_AGENT_LIVE_ENABLED: true,
     }));
 
-    mock.module("~/server/speed2Lead/config", () => ({
-      isSpeed2LeadEnabled: () => true,
-    }));
-
     mock.module("~/server/speed2Lead/agent/startConversation", () => ({
       startAgentConversation: startAgent,
     }));
 
     const { submitAssessmentLeadHandler } = await import(
-      "~/server/submitAssessmentLead"
+      "~/server/submitAssessmentLead.server"
     );
 
     await submitAssessmentLeadHandler({
@@ -126,16 +151,12 @@ describe("submitAssessmentLead pipeline", () => {
       ASSESSMENT_ROI_AGENT_LIVE_ENABLED: true,
     }));
 
-    mock.module("~/server/speed2Lead/config", () => ({
-      isSpeed2LeadEnabled: () => true,
-    }));
-
     mock.module("~/server/speed2Lead/agent/startConversation", () => ({
       startAgentConversation: startAgent,
     }));
 
     const { submitAssessmentLeadHandler } = await import(
-      "~/server/submitAssessmentLead"
+      "~/server/submitAssessmentLead.server"
     );
 
     await submitAssessmentLeadHandler({
@@ -163,10 +184,6 @@ describe("submitAssessmentLead pipeline", () => {
       ASSESSMENT_ROI_AGENT_LIVE_ENABLED: true,
     }));
 
-    mock.module("~/server/speed2Lead/config", () => ({
-      isSpeed2LeadEnabled: () => true,
-    }));
-
     mock.module("~/server/speed2Lead/agent/startConversation", () => ({
       startAgentConversation: mock(async () => {
         throw new Error("twilio down");
@@ -174,7 +191,7 @@ describe("submitAssessmentLead pipeline", () => {
     }));
 
     const { submitAssessmentLeadHandler } = await import(
-      "~/server/submitAssessmentLead"
+      "~/server/submitAssessmentLead.server"
     );
 
     const result = await submitAssessmentLeadHandler({
@@ -205,16 +222,12 @@ describe("submitAssessmentLead pipeline", () => {
       ASSESSMENT_ROI_AGENT_LIVE_ENABLED: true,
     }));
 
-    mock.module("~/server/speed2Lead/config", () => ({
-      isSpeed2LeadEnabled: () => true,
-    }));
-
     mock.module("~/server/speed2Lead/agent/startConversation", () => ({
       startAgentConversation: startAgent,
     }));
 
     const { submitAssessmentLeadHandler } = await import(
-      "~/server/submitAssessmentLead"
+      "~/server/submitAssessmentLead.server"
     );
 
     await submitAssessmentLeadHandler({

@@ -1,4 +1,8 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import {
+  getAssessmentSecurityHmacSecret,
+  isAssessmentSecurityConfigured,
+} from "~/server/assessment/assessmentSecurity.server";
 
 const ENV_KEY = "ASSESSMENT_SECURITY_HMAC_SECRET";
 
@@ -13,43 +17,23 @@ describe("assessmentSecurity supplemental", () => {
     }
   });
 
-  test("S-SEC-01: returns null when secret env var is missing", async () => {
+  test("S-SEC-01: returns null when secret env var is missing", () => {
     delete process.env[ENV_KEY];
-
-    const { getAssessmentSecurityHmacSecret } = await import(
-      "~/server/assessment/assessmentSecurity.server"
-    );
-
     expect(getAssessmentSecurityHmacSecret()).toBeNull();
   });
 
-  test("S-SEC-02: returns null when secret is shorter than 32 chars", async () => {
+  test("S-SEC-02: returns null when secret is shorter than 32 chars", () => {
     process.env[ENV_KEY] = "short-secret";
-
-    const { getAssessmentSecurityHmacSecret } = await import(
-      "~/server/assessment/assessmentSecurity.server"
-    );
-
     expect(getAssessmentSecurityHmacSecret()).toBeNull();
   });
 
-  test("S-SEC-03: returns trimmed secret when configured", async () => {
+  test("S-SEC-03: returns trimmed secret when configured", () => {
     process.env[ENV_KEY] = `  ${"b".repeat(40)}  `;
-
-    const { getAssessmentSecurityHmacSecret } = await import(
-      "~/server/assessment/assessmentSecurity.server"
-    );
-
     expect(getAssessmentSecurityHmacSecret()).toBe("b".repeat(40));
   });
 
-  test("S-SEC-04: isAssessmentSecurityConfigured fails closed without secret", async () => {
+  test("S-SEC-04: isAssessmentSecurityConfigured fails closed without secret", () => {
     delete process.env[ENV_KEY];
-
-    const { isAssessmentSecurityConfigured } = await import(
-      "~/server/assessment/assessmentSecurity.server"
-    );
-
     expect(isAssessmentSecurityConfigured()).toBe(false);
   });
 });

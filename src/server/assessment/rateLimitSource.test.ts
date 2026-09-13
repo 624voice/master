@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
+import { forceReinstallSpeed2LeadIntegrationMocks } from "~/server/speed2Lead/testSupport/integrationMocks";
 import {
   ASSESSMENT_RATE_LIMIT_KEY_PREFIX,
   ASSESSMENT_SOURCE_RATE_LIMIT,
@@ -8,6 +9,16 @@ import { RATE_LIMIT_SOURCE_LUA } from "~/server/assessment/rateLimitSourceLua.se
 
 const TEST_SECRET = "a".repeat(64);
 const ENV_KEY = "ASSESSMENT_SECURITY_HMAC_SECRET";
+
+function setRedisEnv(configured: boolean): void {
+  if (configured) {
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+  } else {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  }
+}
 
 function mockRedisPipeline(options?: { redisConfigured?: boolean; secret?: string | null }) {
   const redisConfigured = options?.redisConfigured ?? true;
@@ -20,9 +31,7 @@ function mockRedisPipeline(options?: { redisConfigured?: boolean; secret?: strin
     process.env[ENV_KEY] = secret;
   }
 
-  mock.module("~/server/speed2Lead/config", () => ({
-    isRedisConfigured: () => redisConfigured,
-  }));
+  setRedisEnv(redisConfigured);
 
   mock.module("~/server/speed2Lead/redis", () => ({
     getRedis: () => ({ eval: evalMock }),
@@ -33,13 +42,26 @@ function mockRedisPipeline(options?: { redisConfigured?: boolean; secret?: strin
 
 describe("checkAssessmentSourceRateLimit supplemental", () => {
   const originalSecret = process.env[ENV_KEY];
+  const originalRedisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const originalRedisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   afterEach(() => {
     mock.restore();
+    forceReinstallSpeed2LeadIntegrationMocks();
     if (originalSecret === undefined) {
       delete process.env[ENV_KEY];
     } else {
       process.env[ENV_KEY] = originalSecret;
+    }
+    if (originalRedisUrl === undefined) {
+      delete process.env.UPSTASH_REDIS_REST_URL;
+    } else {
+      process.env.UPSTASH_REDIS_REST_URL = originalRedisUrl;
+    }
+    if (originalRedisToken === undefined) {
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    } else {
+      process.env.UPSTASH_REDIS_REST_TOKEN = originalRedisToken;
     }
   });
 
@@ -167,13 +189,26 @@ describe("checkAssessmentSourceRateLimit supplemental", () => {
 
 describe("checkAssessmentPhoneIdempotency supplemental", () => {
   const originalSecret = process.env[ENV_KEY];
+  const originalRedisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const originalRedisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   afterEach(() => {
     mock.restore();
+    forceReinstallSpeed2LeadIntegrationMocks();
     if (originalSecret === undefined) {
       delete process.env[ENV_KEY];
     } else {
       process.env[ENV_KEY] = originalSecret;
+    }
+    if (originalRedisUrl === undefined) {
+      delete process.env.UPSTASH_REDIS_REST_URL;
+    } else {
+      process.env.UPSTASH_REDIS_REST_URL = originalRedisUrl;
+    }
+    if (originalRedisToken === undefined) {
+      delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    } else {
+      process.env.UPSTASH_REDIS_REST_TOKEN = originalRedisToken;
     }
   });
 
