@@ -7,32 +7,32 @@ import {
 const ENV_KEY = "ASSESSMENT_SECURITY_HMAC_SECRET";
 
 describe("assessmentSecurity supplemental", () => {
-  const originalSecret = process.env[ENV_KEY];
+  const original = process.env[ENV_KEY];
 
   afterEach(() => {
-    if (originalSecret === undefined) {
+    if (original === undefined) {
       delete process.env[ENV_KEY];
     } else {
-      process.env[ENV_KEY] = originalSecret;
+      process.env[ENV_KEY] = original;
     }
   });
 
-  test("S-SEC-01: returns null when secret env var is missing", () => {
+  test("S-PL-04: returns null when secret env var is missing", () => {
     delete process.env[ENV_KEY];
     expect(getAssessmentSecurityHmacSecret()).toBeNull();
   });
 
-  test("S-SEC-02: returns null when secret is shorter than 32 chars", () => {
-    process.env[ENV_KEY] = "short-secret";
+  test("S-PL-05: returns null when secret is shorter than 32 chars", () => {
+    process.env[ENV_KEY] = "short";
     expect(getAssessmentSecurityHmacSecret()).toBeNull();
   });
 
-  test("S-SEC-03: returns trimmed secret when configured", () => {
-    process.env[ENV_KEY] = `  ${"b".repeat(40)}  `;
-    expect(getAssessmentSecurityHmacSecret()).toBe("b".repeat(40));
+  test("S-PL-06: returns trimmed secret when configured", () => {
+    process.env[ENV_KEY] = `  ${"a".repeat(64)}  `;
+    expect(getAssessmentSecurityHmacSecret()).toBe("a".repeat(64));
   });
 
-  test("S-SEC-04: isAssessmentSecurityConfigured fails closed without secret", () => {
+  test("S-PL-07: isAssessmentSecurityConfigured fails closed without secret", () => {
     delete process.env[ENV_KEY];
     expect(isAssessmentSecurityConfigured()).toBe(false);
   });

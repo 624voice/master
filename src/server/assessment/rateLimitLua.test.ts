@@ -22,7 +22,7 @@ describe("rate limit Lua supplemental", () => {
     );
   });
 
-  test("S-LUA-04: phone idempotency Lua contains idempotency and rate-limit commands", () => {
+  test("X-ADDITIONAL-LUA-01: phone idempotency Lua contains idempotency and rate-limit commands", () => {
     expect(RATE_LIMIT_PHONE_IDEMPOTENCY_LUA).toContain("GET");
     expect(RATE_LIMIT_PHONE_IDEMPOTENCY_LUA).toContain("ZREMRANGEBYSCORE");
     expect(RATE_LIMIT_PHONE_IDEMPOTENCY_LUA).toContain("ZADD");

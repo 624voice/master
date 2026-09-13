@@ -33,31 +33,31 @@ const FORBIDDEN_PATTERNS: Array<{ id: string; pattern: RegExp; label: string }> 
 
 const CLIENT_IMPORTABLE_PATHS: Array<{ id: string; relativePath: string }> = [
   {
-    id: "S-BND-06",
+    id: "X-ADDITIONAL-BND-06",
     relativePath: "components/report/AssessmentReport.tsx",
   },
   {
-    id: "S-BND-07",
+    id: "X-ADDITIONAL-BND-07",
     relativePath: "lib/assessment/buildAssessmentReportViewModel.ts",
   },
   {
-    id: "S-BND-08",
+    id: "X-ADDITIONAL-BND-08",
     relativePath: "lib/assessment/runAssessment.ts",
   },
   {
-    id: "S-BND-09",
+    id: "X-ADDITIONAL-BND-09",
     relativePath: "lib/assessment/engine.ts",
   },
   {
-    id: "S-BND-10",
+    id: "X-ADDITIONAL-BND-10",
     relativePath: "lib/assessment/questions.ts",
   },
   {
-    id: "S-BND-11",
+    id: "X-ADDITIONAL-BND-11",
     relativePath: "lib/assessment/validateAssessmentAnswers.ts",
   },
   {
-    id: "S-BND-12",
+    id: "X-ADDITIONAL-BND-12",
     relativePath: "lib/assessment/buildLeadSummary.ts",
   },
 ];
@@ -85,7 +85,7 @@ describe("assessment PDF bundle boundary", () => {
     }
   }
 
-  test("S-BND-13: assessment token route dynamically imports isolated server handler", async () => {
+  test("X-ADDITIONAL-BND-13: assessment token route dynamically imports isolated server handler", async () => {
     const routeSource = await readSource("routes/assessment-report/$token.ts");
     const serveSource = await readSource("server/report/serveAssessmentTokenPdf.server.ts");
     const tokenSource = await readSource("server/assessment/reportTokens.ts");
@@ -98,7 +98,7 @@ describe("assessment PDF bundle boundary", () => {
     expect(serveSource).not.toContain("renderReportPdf");
   });
 
-  test("S-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline", async () => {
+  test("X-ADDITIONAL-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline", async () => {
     const generateSource = await readSource(
       "server/report/generateAssessmentPdfBytes.server.ts",
     );
