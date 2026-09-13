@@ -18,12 +18,12 @@ export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
       {
-        title: "Talk to Jessica — Live AI Receptionist Demo | 624 Voice",
+        title: "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
       },
       {
         name: "description",
         content:
-          "Experience what your customers hear when they call your business. Talk to Jessica, our AI voice agent, live in your browser.",
+          "Call Jessica, a live AI receptionist built for home-service companies, and hear a fast, consistent response for yourself, in English or Spanish.",
       },
     ],
   }),

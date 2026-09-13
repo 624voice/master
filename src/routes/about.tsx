@@ -1,178 +1,132 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  AIIcon,
-  VoiceWaveIcon,
-  PhoneRingIcon,
-  CalendarIcon,
-  RevenueIcon,
-  StarIcon,
-} from "~/components/icons";
+import { FEATURE_FLAGS } from "~/config/features";
 
 export const Route = createFileRoute("/about")({
+  head: () => ({
+    meta: [
+      {
+        title: "About 624 Voice | AI Growth Systems for Home Services",
+      },
+      {
+        name: "description",
+        content:
+          "Learn how 624 Voice brings practical AI, disciplined implementation, and honest recommendations to growing home-service companies.",
+      },
+    ],
+  }),
   component: About,
 });
 
 function About() {
   return (
     <main className="pt-20">
-      {/* HERO */}
       <section className="bg-brand-secondary px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            Our Story
+            Why 624 Voice
           </span>
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Built to Help You Serve
-            <br />
-            <span className="text-brand-primary">What Matters Most</span>
+            Practical AI for the Work That{" "}
+            <span className="text-brand-primary">Keeps a Business Moving</span>
           </h1>
+          <p className="mt-6 text-lg leading-relaxed text-gray-300">
+            624 Voice helps growing home-service companies improve how they
+            attract, respond to, convert, and retain customers. The work
+            combines business diagnosis, customer-experience design,
+            implementation, integration, and ongoing measurement.
+          </p>
         </div>
       </section>
 
-      {/* THE VERSE */}
       <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="rounded-2xl border border-gray-100 bg-brand-accent-light p-12">
-            <p className="text-2xl font-medium italic leading-relaxed text-brand-secondary sm:text-3xl">
-              "No one can serve two masters. Either you will hate the one and
-              love the other, or you will be devoted to the one and despise the
-              other. You cannot serve both God and money."
-            </p>
-            <p className="mt-6 text-base text-gray-500">— Matthew 6:24 (NIV)</p>
-          </div>
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
+            Why the name 624
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-gray-700">
+            624 references Matthew 6:24: you can&apos;t serve two masters. For
+            us, that&apos;s a simple operating rule: technology should serve the
+            people using it, not the other way around. We&apos;d rather tell a
+            business no immediate change is needed than sell something that
+            doesn&apos;t actually help.
+          </p>
         </div>
       </section>
 
-      {/* THE MEANING */}
       <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Why "624"?
+            Why we look before we recommend
           </h2>
-          <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
-            <p>
-              The number in our name comes from Matthew 6:24 — a verse that
-              uses startling language on purpose. The original Greek word for
-              "serve" in this passage is <em>douleuō</em>, which literally means
-              "to be a slave to."
-            </p>
-            <p>
-              Jesus isn't being polite here. He's saying: you will be a slave to
-              something. The question is not{" "}
-              <em>if you will serve a master</em> — it's{" "}
-              <em>which master you will serve</em>.
-            </p>
-            <p>
-              We started 624 Voice because we saw too many home services
-              owners — good people, skilled tradesmen, family men and women —
-              who had become slaves to their own businesses. The business they
-              built to provide for their family was consuming their family. They
-              were missing dinner, missing games, missing vacations, missing
-              life.
-            </p>
-            <p>
-              We believe your business should serve you — not the other way
-              around. When your business runs on its own, you're free to serve
-              what matters most: your family, your faith, and your purpose.
-            </p>
-          </div>
+          <p className="mt-6 text-lg leading-relaxed text-gray-700">
+            We begin by understanding how the business works today, where the
+            customer journey slows down, which tools are already useful, and what
+            outcome matters. That context gives each recommendation a practical
+            reason to exist.
+          </p>
         </div>
       </section>
 
-      {/* THE MISSION */}
       <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Our Mission
+            Founder
           </h2>
+          {FEATURE_FLAGS.SHOW_FOUNDER_PARAGRAPH_UPDATE ? (
+            <p className="mt-6 text-lg leading-relaxed text-gray-700">
+              624 Voice was founded by Chris, who brings more than 18 years of
+              work across business communications, enterprise technology,
+              customer experience, contact centers, and modernization. His
+              current work focuses on enterprise AI agents and customer
+              operations. That experience spans multiple organizations and
+              roles over two decades; what&apos;s described here is the
+              throughline, not the complete list.
+            </p>
+          ) : (
+            <p className="mt-6 text-lg leading-relaxed text-gray-700">
+              624 Voice was founded by Chris.
+            </p>
+          )}
           <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            Every home services owner deserves a business that works for them,
-            not the other way around. We combine Voice AI, smart automation, and
-            proven revenue systems to make that happen.
+            Faith shapes how we work through stewardship, integrity, service, and
+            keeping commitments. It also means being honest when the right
+            recommendation is no change at all.
           </p>
-          <div className="mt-12 grid gap-8 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-100 p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-                <CalendarIcon className="h-6 w-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-brand-secondary">
-                Reclaim Your Time
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                Never answer another business call after hours. Never miss a
-                family dinner because the phone is ringing. Your AI handles it
-                all.
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-100 p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-                <RevenueIcon className="h-6 w-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-brand-secondary">
-                Never Miss Revenue
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                Every call answered, every job booked, every opportunity
-                captured — 24/7/365. Your business grows while you sleep.
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-100 p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-                <StarIcon className="h-6 w-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-brand-secondary">
-                Serve With Purpose
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                When your business runs without you, you're free to serve your
-                family, your church, and your community the way you were meant
-                to.
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-100 p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
-                <AIIcon className="h-6 w-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-brand-secondary">
-                Build Something That Lasts
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                A systemized, automated business has value beyond you. Build an
-                asset, not a job — and create a legacy for your family.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* CTA */}
+      <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
+            Why quarterly reviews matter to us
+          </h2>
+          <p className="mt-6 text-lg leading-relaxed text-gray-700">
+            Quarterly business reviews compare the work with the measures agreed
+            at the start. They show what is working, what needs attention, and
+            whether the next investment is justified.
+          </p>
+        </div>
+      </section>
+
       <section className="bg-brand-secondary px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-white">
-            Ready to Stop Serving Your Business?
-          </h2>
-          <p className="mt-4 text-lg text-gray-300">
-            Let's talk about what freedom looks like for you.
+          <p className="text-sm text-gray-400">
+            Bring the problem you want to solve. Leave with a clearer next step.
           </p>
-          <a
-            href="/contact"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-          >
-            Start the Conversation
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <a
+              href="/contact"
+              className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </a>
+              Book Your AI Growth Systems Consultation
+            </a>
+            <a
+              href="/assessment"
+              className="inline-flex rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
+            >
+              Get Your Free Assessment
+            </a>
+          </div>
         </div>
       </section>
     </main>
