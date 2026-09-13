@@ -5,7 +5,7 @@ import {
   ASSESSMENT_SOURCE_RATE_LIMIT,
   ASSESSMENT_SOURCE_WINDOW_SECONDS,
 } from "~/config/rateLimits";
-import { FEATURE_FLAGS } from "~/config/features";
+import { getAssessmentSecurityHmacSecret } from "~/server/assessment/assessmentSecurity.server";
 import {
   buildSourceFingerprint,
   phoneFingerprintKey,
@@ -20,12 +20,12 @@ import type {
 import { isRedisConfigured } from "~/server/speed2Lead/config";
 import { getRedis } from "~/server/speed2Lead/redis";
 
-function getHmacSecret(): string {
-  return (
-    process.env.ASSESSMENT_RATE_LIMIT_HMAC_SECRET ??
-    process.env.UPSTASH_REDIS_REST_TOKEN ??
-    "assessment-dev-hmac-secret"
-  );
+function requireSecret(): string {
+  const secret = getAssessmentSecurityHmacSecret();
+  if (!secret) {
+    throw new Error("Assessment security secret is not configured");
+  }
+  return secret;
 }
 
 function sourceRateKey(fingerprint: string): string {
@@ -51,16 +51,16 @@ export async function checkAssessmentSourceRateLimit(input: {
   userAgent?: string;
   requestId?: string;
 }): Promise<SourceRateLimitResult> {
-  if (!FEATURE_FLAGS.ASSESSMENT_RATE_LIMIT_ENABLED || !isRedisConfigured()) {
+  if (!isRedisConfigured()) {
     return { allowed: true, count: 0, status: "skipped" };
   }
 
-  const secret = getHmacSecret();
+  const secret = requireSecret();
   const canonical = buildSourceFingerprint(input);
   const fingerprint = sourceFingerprintKey(canonical, secret);
   const now = Date.now();
   const windowStart = now - ASSESSMENT_SOURCE_WINDOW_SECONDS * 1000;
-  const member = input.requestId ?? `${now}:${Math.random().toString(36).slice(2)}`;
+  const member = input.requestId ?? `${now}:${crypto.randomUUID()}`;
 
   const redis = getRedis();
   const result = (await redis.eval(
@@ -90,7 +90,7 @@ export async function checkAssessmentPhoneIdempotency(input: {
   cachedResponse: string;
   requestId?: string;
 }): Promise<AssessmentIdempotencyResult> {
-  if (!FEATURE_FLAGS.ASSESSMENT_RATE_LIMIT_ENABLED || !isRedisConfigured()) {
+  if (!isRedisConfigured()) {
     return {
       case: "a",
       substate: "fresh",
@@ -99,11 +99,11 @@ export async function checkAssessmentPhoneIdempotency(input: {
     };
   }
 
-  const secret = getHmacSecret();
+  const secret = requireSecret();
   const fingerprint = phoneFingerprintKey(input.phone, secret);
   const now = Date.now();
   const windowStart = now - ASSESSMENT_PHONE_WINDOW_SECONDS * 1000;
-  const member = input.requestId ?? `${now}:${Math.random().toString(36).slice(2)}`;
+  const member = input.requestId ?? `${now}:${crypto.randomUUID()}`;
 
   const redis = getRedis();
   const result = (await redis.eval(
@@ -131,5 +131,5 @@ export async function checkAssessmentPhoneIdempotency(input: {
 }
 
 export function buildAssessmentPayloadHash(payload: string): string {
-  return sourceFingerprintKey(payload, getHmacSecret());
+  return sourceFingerprintKey(payload, requireSecret());
 }

@@ -28,7 +28,7 @@ export async function createAssessmentReportToken(
 }
 
 export function buildAssessmentReportUrl(token: string): string {
-  return `${getSiteOrigin()}/assessment/report/${token}`;
+  return `${getSiteOrigin()}/assessment-report/${token}`;
 }
 
 export async function getAssessmentReportTokenData(

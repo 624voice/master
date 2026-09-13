@@ -1,4 +1,4 @@
-import type { TradeKey } from "~/lib/roi/roiModel";
+import { getTradeKeys, type TradeKey } from "~/lib/roi/roiModel";
 import {
   AssessmentEngine,
   getCalculatorDefaults,
@@ -66,9 +66,11 @@ function resolveTruckCount(raw: AssessmentAnswerMap): number | undefined {
   return undefined;
 }
 
+const VALID_TRADES = new Set<string>(getTradeKeys());
+
 function resolveTrade(raw: AssessmentAnswerMap): TradeKey | undefined {
   const trade = (raw.trade ?? raw.BP1) as string | undefined;
-  if (!trade) return undefined;
+  if (!trade || !VALID_TRADES.has(trade)) return undefined;
   return trade as TradeKey;
 }
 

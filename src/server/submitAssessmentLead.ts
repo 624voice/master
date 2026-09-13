@@ -1,23 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  ASSESSMENT_ROI_AGENT_LIVE_ENABLED,
-  FEATURE_FLAGS,
-} from "~/config/features";
-import {
-  ANALYTICS_EVENT_ASSESSMENT_RATE_LIMITED,
-  ANALYTICS_EVENT_ASSESSMENT_SUBMITTED,
-  trackEvent,
-} from "~/lib/analytics/trackEvent";
+import { ASSESSMENT_ROI_AGENT_LIVE_ENABLED } from "~/config/features";
+import { ANALYTICS_EVENTS, trackEvent } from "~/lib/analytics/trackEvent";
+import { buildAssessmentLeadMessage } from "~/lib/assessment/buildLeadSummary";
+import { runAssessment } from "~/lib/assessment/runAssessment";
+import { selectModerateScenarioValue } from "~/lib/assessment/selectModerateScenario";
+import { validateAssessmentAnswers } from "~/lib/assessment/validateAssessmentAnswers";
 import {
   normalizeLeadInfo,
-  resolveContactWebsite,
   validateLeadInfo,
-  validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
-import { computeAllScenarios } from "~/lib/roi/computeRoi";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
-import { TRADES, type TradeKey } from "~/lib/roi/roiModel";
+import { isAssessmentSecurityConfigured } from "~/server/assessment/assessmentSecurity.server";
 import { getTrustedClientIp } from "~/server/assessment/getTrustedClientIp";
 import {
   buildAssessmentPayloadHash,
@@ -35,27 +29,22 @@ import { getPrimaryOpportunity } from "~/server/speed2Lead/roiOpportunity";
 import { startAgentConversation } from "~/server/speed2Lead/agent/startConversation";
 
 export type AssessmentLeadRequest = {
-  trade: TradeKey;
-  truckCount: number;
-  monthlyCalls: number;
   lead: LeadInfo;
-  websiteOption: "has" | "none";
-  website?: string;
   smsConsent: boolean;
-  idempotencyKey?: string;
+  idempotencyKey: string;
+  answers: Record<string, unknown>;
 };
 
-export type AssessmentLeadResponse = {
+export type AssessmentLeadSuccess = {
   ok: true;
-  reportToken: string;
-  reportUrl: string;
-  snapshot: AssessmentReportSnapshot;
-  idempotencyCase: string;
-  replaySubstate: string;
-  replayed: boolean;
+  results: ReturnType<typeof runAssessment>;
+  reportToken?: string;
+  reportUrl?: string;
+  persistenceAvailable: boolean;
+  message?: string;
 };
 
-type StartAssessmentRoiAgentInput = {
+export type StartAssessmentRoiAgentInput = {
   phone: string;
   firstName: string;
   lastName: string;
@@ -72,154 +61,143 @@ export async function startAssessmentRoiAgent(
   await startAgentConversation(input);
 }
 
-async function submitAssessmentLeadHandler(
-  data: AssessmentLeadRequest,
-): Promise<AssessmentLeadResponse> {
-  if (!FEATURE_FLAGS.ASSESSMENT_ENABLED) {
-    throw new Error("Assessment submissions are disabled.");
-  }
+function buildSnapshot(
+  lead: LeadInfo,
+  assessment: ReturnType<typeof runAssessment>,
+): AssessmentReportSnapshot {
+  return {
+    ...assessment,
+    lead,
+    reportGeneratedAt: new Date().toISOString(),
+  };
+}
 
+export async function submitAssessmentLeadHandler(
+  data: AssessmentLeadRequest,
+): Promise<AssessmentLeadSuccess> {
   const leadError = validateLeadInfo(data.lead);
   if (leadError) {
     throw new Error(leadError);
   }
 
-  const websiteError = validateWebsiteFields(data.websiteOption, data.website);
-  if (websiteError) {
-    throw new Error(websiteError);
-  }
-
-  if (!TRADES[data.trade]) {
-    throw new Error("Invalid trade");
+  const validated = validateAssessmentAnswers(data.answers);
+  if ("error" in validated) {
+    throw new Error(validated.error);
   }
 
   const normalizedLead = normalizeLeadInfo(data.lead);
-  const clientIp = getTrustedClientIp();
-  const idempotencyKey =
-    data.idempotencyKey?.trim() ||
-    buildAssessmentPayloadHash(
-      JSON.stringify({
-        trade: data.trade,
-        truckCount: data.truckCount,
-        monthlyCalls: data.monthlyCalls,
-        lead: normalizedLead,
-        websiteOption: data.websiteOption,
-        website: data.website ?? "",
-      }),
-    );
+  const assessment = runAssessment(validated.answers);
 
-  const sourceLimit = await checkAssessmentSourceRateLimit({
-    clientIp,
+  trackEvent(ANALYTICS_EVENTS.assessment_complete, {
+    hasEstimate: assessment.dollarEstimate ? "true" : "false",
   });
+
+  if (!isAssessmentSecurityConfigured()) {
+    return {
+      ok: true,
+      results: assessment,
+      persistenceAvailable: false,
+      message:
+        "Your results are ready. Report download and lead save are temporarily unavailable.",
+    };
+  }
+
+  const clientIp = getTrustedClientIp();
+  const sourceLimit = await checkAssessmentSourceRateLimit({ clientIp });
   if (!sourceLimit.allowed) {
-    trackEvent(ANALYTICS_EVENT_ASSESSMENT_RATE_LIMITED, {
-      source: "assessment_form",
-      limitType: "source",
-      count: sourceLimit.count,
-    });
     throw new Error("Too many assessment requests. Please try again later.");
   }
 
-  const scenarios = computeAllScenarios(data.trade, data.monthlyCalls);
-  const moderateRoi = formatCurrency(scenarios[1]!.totalAnnualBenefit);
-  const primaryOpportunity = getPrimaryOpportunity(scenarios);
-  const reportGeneratedAt = new Date().toISOString();
+  const snapshot = buildSnapshot(normalizedLead, assessment);
+  const payloadHash = buildAssessmentPayloadHash(
+    JSON.stringify({ answers: validated.answers, lead: normalizedLead }),
+  );
 
-  const snapshot: AssessmentReportSnapshot = {
-    trade: data.trade,
-    truckCount: data.truckCount,
-    monthlyCalls: data.monthlyCalls,
-    lead: normalizedLead,
-    websiteOption: data.websiteOption,
-    website: data.websiteOption === "has" ? data.website : undefined,
-    scenarios,
-    moderateAnnualBenefit: scenarios[1]!.totalAnnualBenefit,
-    primaryOpportunity,
-    reportGeneratedAt,
-  };
-
-  const payloadHash = buildAssessmentPayloadHash(JSON.stringify(snapshot));
-  const cachedResponsePlaceholder = JSON.stringify({ ok: true });
-
+  const responsePlaceholder = JSON.stringify({ ok: true, snapshot: true });
   const phoneLimit = await checkAssessmentPhoneIdempotency({
     phone: normalizedLead.phone,
-    idempotencyKey,
+    idempotencyKey: data.idempotencyKey,
     payloadHash,
-    cachedResponse: cachedResponsePlaceholder,
+    cachedResponse: responsePlaceholder,
   });
 
   if (!phoneLimit.allowed) {
-    trackEvent(ANALYTICS_EVENT_ASSESSMENT_RATE_LIMITED, {
-      source: "assessment_form",
-      limitType: "phone",
-      count: phoneLimit.count,
-      idempotencyCase: phoneLimit.case,
-      replaySubstate: phoneLimit.substate,
-    });
+    if (phoneLimit.case === "c") {
+      throw new Error(
+        "This submission conflicts with a previous request. Please start a new assessment.",
+      );
+    }
     throw new Error("This phone number has reached the daily assessment limit.");
   }
 
   const replayed = phoneLimit.substate === "replay_exact";
 
   if (!replayed) {
+    const moderateValue =
+      assessment.dollarEstimate &&
+      selectModerateScenarioValue(assessment.dollarEstimate);
     await saveLead({
       ...normalizedLead,
-      trade: TRADES[data.trade].label,
-      monthlyCalls: data.monthlyCalls,
-      truckCount: data.truckCount,
-      fleetSize: String(data.truckCount),
-      website: resolveContactWebsite(data.websiteOption, data.website),
-      moderateRoi,
+      message: buildAssessmentLeadMessage(assessment),
+      moderateRoi: moderateValue ? formatCurrency(moderateValue) : undefined,
       smsConsent: data.smsConsent,
       source: "assessment",
     });
+    trackEvent(ANALYTICS_EVENTS.lead_gate_complete, { source: "assessment" });
+    if (data.smsConsent) {
+      trackEvent(ANALYTICS_EVENTS.sms_consent_opt_in, { source: "assessment" });
+    }
   }
 
   const reportToken = await createAssessmentReportToken({ snapshot });
   const reportUrl = buildAssessmentReportUrl(reportToken);
+  trackEvent(ANALYTICS_EVENTS.roi_document_generated, { source: "assessment" });
+
+  const moderateValue =
+    assessment.dollarEstimate &&
+    selectModerateScenarioValue(assessment.dollarEstimate);
+  const formattedAnnualOpportunity = moderateValue
+    ? formatCurrency(moderateValue)
+    : null;
 
   if (
     data.smsConsent &&
     ASSESSMENT_ROI_AGENT_LIVE_ENABLED &&
     isSpeed2LeadEnabled() &&
+    formattedAnnualOpportunity &&
+    reportUrl &&
     !replayed
   ) {
     try {
+      const primaryOpportunity =
+        assessment.priorityGroups[0]?.[0]?.label ?? "see full report";
       await startAssessmentRoiAgent({
         phone: normalizedLead.phone,
         firstName: normalizedLead.firstName,
         lastName: normalizedLead.lastName,
         businessName: normalizedLead.businessName,
         email: normalizedLead.email,
-        annualOpportunity: moderateRoi,
+        annualOpportunity: formattedAnnualOpportunity,
         primaryOpportunity,
         reportUrl,
+      });
+      trackEvent(ANALYTICS_EVENTS.roi_agent_triggered, {
+        source: "assessment",
       });
     } catch (error) {
       console.error("Assessment Speed2Lead initial SMS failed:", error);
     }
   }
 
-  trackEvent(ANALYTICS_EVENT_ASSESSMENT_SUBMITTED, {
-    source: "assessment_form",
-    trade: data.trade,
-    idempotencyCase: phoneLimit.case,
-    replaySubstate: phoneLimit.substate,
-  });
-
   return {
     ok: true,
+    results: assessment,
     reportToken,
     reportUrl,
-    snapshot,
-    idempotencyCase: phoneLimit.case,
-    replaySubstate: phoneLimit.substate,
-    replayed,
+    persistenceAvailable: true,
   };
 }
 
 export const submitAssessmentLead = createServerFn({ method: "POST" })
   .validator((data: AssessmentLeadRequest) => data)
   .handler(async ({ data }) => submitAssessmentLeadHandler(data));
-
-export { submitAssessmentLeadHandler };

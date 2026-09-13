@@ -1,17 +1,8 @@
+import type { RunAssessmentResult } from "~/lib/assessment/runAssessment";
 import type { LeadInfo } from "~/lib/lead/validateLead";
-import type { RoiResult } from "~/lib/roi/computeRoi";
-import type { TradeKey } from "~/lib/roi/roiModel";
 
-export type AssessmentReportSnapshot = {
-  trade: TradeKey;
-  truckCount: number;
-  monthlyCalls: number;
+export type AssessmentReportSnapshot = RunAssessmentResult & {
   lead: LeadInfo;
-  websiteOption: "has" | "none";
-  website?: string;
-  scenarios: RoiResult[];
-  moderateAnnualBenefit: number;
-  primaryOpportunity: string;
   reportGeneratedAt: string;
 };
 
@@ -21,7 +12,11 @@ export type AssessmentReplaySubstate =
   | "fresh"
   | "replay_exact"
   | "replay_stale"
-  | "replay_conflict";
+  | "replay_conflict"
+  | "in_progress"
+  | "completed"
+  | "retryable_failure"
+  | "stale_lease";
 
 export type AssessmentIdempotencyResult = {
   case: AssessmentIdempotencyCase;

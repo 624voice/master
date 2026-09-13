@@ -1,4 +1,4 @@
-import { ALL_QUESTION_IDS } from "./questions";
+import { ALL_QUESTION_IDS, QUESTION_BY_ID } from "./questions";
 import type { AnswerValue } from "./engine";
 
 const KNOWN_ANSWER_KEYS = new Set<string>([
@@ -43,6 +43,30 @@ export function validateAssessmentAnswers(
 
   for (const [key, value] of Object.entries(raw)) {
     if (ALL_QUESTION_IDS.includes(key)) {
+      const question = QUESTION_BY_ID[key];
+      if (question?.type === "business_profile") {
+        if (typeof value !== "string" || value.trim().length === 0) {
+          return {
+            error: `Invalid answer value for ${key}`,
+            unknownFields: [],
+          };
+        }
+        answers[key] = value;
+        continue;
+      }
+      if (question?.type === "respond") {
+        if (
+          value === "not_sure" ||
+          (typeof value === "number" && Number.isFinite(value) && value >= 0)
+        ) {
+          answers[key] = value;
+          continue;
+        }
+        return {
+          error: `Invalid answer value for ${key}`,
+          unknownFields: [],
+        };
+      }
       if (!isAnswerValue(value)) {
         return {
           error: `Invalid answer value for ${key}`,

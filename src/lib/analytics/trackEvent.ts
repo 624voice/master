@@ -1,36 +1,56 @@
-import { FEATURE_FLAGS } from "~/config/features";
-
-/** S-AN-01: assessment lead successfully submitted. */
-export const ANALYTICS_EVENT_ASSESSMENT_SUBMITTED = "assessment_submitted" as const;
-
-/** S-AN-02: assessment submission blocked by rate limit. */
-export const ANALYTICS_EVENT_ASSESSMENT_RATE_LIMITED =
-  "assessment_rate_limited" as const;
+/** Ten Assessment analytics events (Phase2Final Section 14). */
+export const ANALYTICS_EVENTS = {
+  assessment_started: "assessment_started",
+  assessment_question_answered: "assessment_question_answered",
+  assessment_branch_opened: "assessment_branch_opened",
+  assessment_teaser_viewed: "assessment_teaser_viewed",
+  lead_gate_complete: "lead_gate_complete",
+  sms_consent_opt_in: "sms_consent_opt_in",
+  assessment_complete: "assessment_complete",
+  assessment_report_downloaded: "assessment_report_downloaded",
+  roi_agent_triggered: "roi_agent_triggered",
+  roi_document_generated: "roi_document_generated",
+} as const;
 
 export type AnalyticsEventName =
-  | typeof ANALYTICS_EVENT_ASSESSMENT_SUBMITTED
-  | typeof ANALYTICS_EVENT_ASSESSMENT_RATE_LIMITED;
+  (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
 
-export type AnalyticsEventPayload = {
-  source?: string;
-  trade?: string;
-  idempotencyCase?: string;
-  replaySubstate?: string;
-  limitType?: "source" | "phone";
-  count?: number;
+/** Events that may carry PII or answer payload (S-AN-02). */
+export const PII_ANALYTICS_EVENTS = new Set<AnalyticsEventName>([
+  ANALYTICS_EVENTS.lead_gate_complete,
+  ANALYTICS_EVENTS.sms_consent_opt_in,
+  ANALYTICS_EVENTS.assessment_complete,
+  ANALYTICS_EVENTS.roi_agent_triggered,
+]);
+
+export type AnalyticsEventProps = Record<string, string | number | boolean>;
+
+type AnalyticsSink = (
+  name: AnalyticsEventName,
+  props: AnalyticsEventProps,
+) => void;
+
+let sink: AnalyticsSink = (name, props) => {
+  if (import.meta.env.DEV) {
+    console.info("[analytics]", { event: name, ...props });
+  }
 };
+
+export function setAnalyticsSink(next: AnalyticsSink): void {
+  sink = next;
+}
 
 export function trackEvent(
   name: AnalyticsEventName,
-  payload: AnalyticsEventPayload = {},
+  props: AnalyticsEventProps = {},
 ): void {
-  if (!FEATURE_FLAGS.ASSESSMENT_ANALYTICS_ENABLED) {
+  if (PII_ANALYTICS_EVENTS.has(name)) {
+    sink(name, props);
     return;
   }
+  sink(name, props);
+}
 
-  console.info("[analytics]", {
-    event: name,
-    ...payload,
-    capturedAt: new Date().toISOString(),
-  });
+export function isPiiAnalyticsEvent(name: AnalyticsEventName): boolean {
+  return PII_ANALYTICS_EVENTS.has(name);
 }
