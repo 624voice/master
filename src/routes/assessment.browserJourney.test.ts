@@ -9,31 +9,33 @@ import {
 } from "bun:test";
 import type { Browser, Page } from "puppeteer-core";
 import {
+  activateConditionalFollowUp,
   advanceThroughUniversalSteps,
   advanceToRespondReview,
   BROWSER_JOURNEY_BASE_URL,
   buildAssessmentBrowserServer,
   clickButtonMatching,
+  clickChoiceMatching,
+  attachSubmitAnswerKeyCapture,
+  clickDownloadReport,
+  continueToTeaserFromCurrent,
+  deleteReportToken,
   ensureAssessmentBrowserBuild,
   fastForwardToGate,
+  fastForwardToGateWithTieAnswers,
   fastForwardToTeaser,
+  fillValidLead,
   launchAssessmentBrowser,
   stopAssessmentBrowserServer,
+  stopRedisStub,
+  submitLeadToResults,
   waitForServer,
 } from "./assessmentBrowserJourneySupport";
 
 let browser: Browser;
 let page: Page;
 
-async function fillValidLead(formPage: Page): Promise<void> {
-  await formPage.type("#gate-first-name", "Pat");
-  await formPage.type("#gate-last-name", "Lee");
-  await formPage.type("#gate-business", "Pat Plumbing");
-  await formPage.type("#gate-email", "pat.browser@example.com");
-  await formPage.type("#gate-phone", "5555550199");
-}
-
-describe("Assessment browser journey X-JRN-DOM", () => {
+describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
   beforeAll(async () => {
     stopAssessmentBrowserServer();
     ensureAssessmentBrowserBuild();
@@ -193,7 +195,7 @@ describe("Assessment browser journey X-JRN-DOM", () => {
     expect(checked).toBe(true);
   }, 120_000);
 
-  test("X-JRN-DOM-11: priority and tied presentation in results DOM", async () => {
+  test("X-JRN-DOM-11: priority ordering presentation in results DOM", async () => {
     await fastForwardToGate(page);
     await fillValidLead(page);
     await clickButtonMatching(page, "See My Full Results");
@@ -247,4 +249,186 @@ describe("Assessment browser journey X-JRN-DOM", () => {
     const persistenceMessage = await page.evaluate(() => document.body.innerText);
     expect(persistenceMessage).toMatch(/temporarily unavailable|Your priority areas/i);
   }, 120_000);
+});
+
+describe("Assessment browser journey X-JRN-DOM (safe backend)", () => {
+  beforeAll(async () => {
+    stopAssessmentBrowserServer();
+    stopRedisStub();
+    ensureAssessmentBrowserBuild();
+    buildAssessmentBrowserServer({ safeBackend: true });
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await waitForServer(`${BROWSER_JOURNEY_BASE_URL}/assessment`);
+    browser = await launchAssessmentBrowser();
+  }, 180_000);
+
+  beforeEach(async () => {
+    page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 900 });
+  });
+
+  afterEach(async () => {
+    await page.close();
+  });
+
+  afterAll(async () => {
+    await browser?.close();
+    stopAssessmentBrowserServer();
+    stopRedisStub();
+  });
+
+  test("X-JRN-DOM-15: rendered stale-answer removal after branch downgrade", async () => {
+    await activateConditionalFollowUp(page);
+    await clickButtonMatching(page, "^Continue$");
+    await clickButtonMatching(page, "^Back$");
+    await clickChoiceMatching(page, "Not at all / rarely");
+    await clickButtonMatching(page, "^Continue$");
+
+    const bodyAfterDowngrade = await page.evaluate(() => document.body.innerText);
+    expect(bodyAfterDowngrade).not.toMatch(/track where new leads come from/i);
+
+    const staleControls = await page.evaluate(() => {
+      const text = document.body.innerText;
+      const hidden = Array.from(document.querySelectorAll('input[type="hidden"]'));
+      return {
+        followUpVisible: /track where new leads come from/i.test(text),
+        hiddenNames: hidden.map((el) => el.getAttribute("name")).filter(Boolean),
+      };
+    });
+    expect(staleControls.followUpVisible).toBe(false);
+    expect(staleControls.hiddenNames.join(" ")).not.toMatch(/GF-F1/i);
+
+    await continueToTeaserFromCurrent(page);
+    await clickButtonMatching(page, "Unlock Full Results");
+    const submitCapture = attachSubmitAnswerKeyCapture(page);
+    await fillValidLead(page);
+    await clickButtonMatching(page, "See My Full Results");
+    const submitKeys = await submitCapture.waitForKeys();
+    await page.waitForFunction(() =>
+      /Your priority areas/i.test(document.body.innerText),
+    );
+    expect(submitKeys).not.toContain("GF-F1");
+  }, 180_000);
+
+  test("X-JRN-DOM-16: successful report access through visitor UI", async () => {
+    await fastForwardToGate(page);
+    await submitLeadToResults(page);
+    const hasDownload = await page.evaluate(() =>
+      /Download Assessment Report/i.test(document.body.innerText),
+    );
+    expect(hasDownload).toBe(true);
+
+    const { access } = await clickDownloadReport(page);
+    expect(access.contentType).toContain("application/pdf");
+    expect(access.pdfBytes).toBeGreaterThan(1000);
+  }, 180_000);
+
+  test("X-JRN-DOM-17: repeat report access through same visitor link", async () => {
+    await fastForwardToGate(page);
+    await submitLeadToResults(page);
+    const first = await clickDownloadReport(page);
+    expect(first.access.contentType).toContain("application/pdf");
+
+    const second = await clickDownloadReport(page);
+    expect(second.access.contentType).toContain("application/pdf");
+    expect(second.reportUrl).toBe(first.reportUrl);
+  }, 180_000);
+
+  test("X-JRN-DOM-18: invalid report-link UI state", async () => {
+    const response = await page.goto(
+      `${BROWSER_JOURNEY_BASE_URL}/assessment-report/not-a-valid-token-abc123`,
+      { waitUntil: "networkidle0" },
+    );
+    const body = await page.evaluate(() => document.body.innerText);
+    expect(response?.status()).toBe(404);
+    expect(body).toBe("This assessment report link has expired or is invalid.");
+    expect(body).not.toMatch(/stack|Error:|UPSTASH|Redis/i);
+  }, 60_000);
+
+  test("X-JRN-DOM-19: expired report-link UI state", async () => {
+    await fastForwardToGate(page);
+    await submitLeadToResults(page);
+    const reportUrl = await page.evaluate(() => {
+      const open = window.open;
+      let captured = "";
+      window.open = (url) => {
+        captured = String(url ?? "");
+        return null;
+      };
+      const btn = Array.from(document.querySelectorAll("button")).find((b) =>
+        /Download Assessment Report/i.test(b.textContent ?? ""),
+      );
+      btn?.click();
+      window.open = open;
+      return captured;
+    });
+    const token = reportUrl.split("/assessment-report/")[1] ?? "";
+    expect(token.length).toBeGreaterThan(10);
+    await deleteReportToken(token);
+
+    const expired = await page.goto(
+      `${BROWSER_JOURNEY_BASE_URL}/assessment-report/${token}`,
+      { waitUntil: "networkidle0" },
+    );
+    const body = await page.evaluate(() => document.body.innerText);
+    expect(expired?.status()).toBe(404);
+    expect(body).toBe("This assessment report link has expired or is invalid.");
+  }, 180_000);
+
+  test("X-JRN-DOM-20: retryable report failure and visitor recovery", async () => {
+    await fastForwardToGate(page);
+    await submitLeadToResults(page);
+
+    const failed = await clickDownloadReport(page, {
+      failFirstWith503: true,
+    });
+    expect(failed.access.bodyText).toMatch(/temporarily unavailable|expired or is invalid/i);
+    expect(failed.access.status).toBe(503);
+    expect(failed.access.attempts).toBe(1);
+
+    expect(await page.evaluate(() => /Your priority areas/i.test(document.body.innerText))).toBe(
+      true,
+    );
+
+    const recovered = await clickDownloadReport(page);
+    expect(recovered.access.contentType).toContain("application/pdf");
+    expect(recovered.access.pdfBytes).toBeGreaterThan(1000);
+  }, 180_000);
+
+  test("X-JRN-DOM-21: PDF access without SMS consent through rendered route", async () => {
+    await fastForwardToGate(page);
+    const consentDefault = await page.$eval('input[type="checkbox"]', (el) => {
+      return (el as HTMLInputElement).checked;
+    });
+    expect(consentDefault).toBe(false);
+    await submitLeadToResults(page, { smsConsent: false });
+    expect(await page.evaluate(() => /Download Assessment Report/i.test(document.body.innerText))).toBe(
+      true,
+    );
+    const { access } = await clickDownloadReport(page);
+    expect(access.contentType).toContain("application/pdf");
+    expect(access.pdfBytes).toBeGreaterThan(1000);
+  }, 180_000);
+
+  test("X-JRN-DOM-22: tied-priority presentation in rendered results", async () => {
+    await fastForwardToGateWithTieAnswers(page);
+    await submitLeadToResults(page);
+    await page.waitForFunction(() => /Priority 1/i.test(document.body.innerText));
+    const tieEvidence = await page.evaluate(() => {
+      const tiedBadge = Array.from(document.querySelectorAll("span")).some((el) =>
+        /^Tied$/i.test(el.textContent?.trim() ?? ""),
+      );
+      const priorityBlock = Array.from(document.querySelectorAll("ol > li")).find((li) =>
+        /Priority 1/i.test(li.textContent ?? ""),
+      );
+      const labels = priorityBlock
+        ? Array.from(priorityBlock.querySelectorAll("li span.font-semibold")).map(
+            (el) => el.textContent?.trim() ?? "",
+          )
+        : [];
+      return { tiedBadge, labels, labelCount: labels.length };
+    });
+    expect(tieEvidence.tiedBadge).toBe(true);
+    expect(tieEvidence.labelCount).toBeGreaterThanOrEqual(2);
+  }, 180_000);
 });
