@@ -7,7 +7,7 @@
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
 | Prior abbreviated SHA | `fd4073f` |
-| Ending SHA (40-char) | `91376ee477409238eb533dd3dd8131ad97738049` |
+| Ending SHA (40-char) | `1fd46ac46ae37f4dab1d9c3bcd0d81eacf937775` |
 | PR | #97 (draft) |
 
 **Durable evidence root:** `review-artifacts/phase2/`
@@ -339,7 +339,7 @@ Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 |------|----------------|
 | Code-verification SHA | `cb377c43396e903cd950079a9cfe0c43b54c49f8` |
 | Prior evidence-only SHA | `84c8e8792526d96f52c77d9cf1b5f007f8b540a0` |
-| Current PR HEAD (code) | `91376ee477409238eb533dd3dd8131ad97738049` |
+| Current PR HEAD (code) | `1fd46ac46ae37f4dab1d9c3bcd0d81eacf937775` |
 | Diff `cb377c4..84c8e87` | `M	docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md; A	review-artifacts/phase2/ending-sha.txt; A	review-artifacts/phase2/final-verification-run.log; M	review-artifacts/phase2/final-verification.json; M	review-artifacts/phase2/stability-five-full-suite-runs.json; M	review-artifacts/phase2/stability-messagesid-three-runs.json` |
 | Evidence-only limited to docs/artifacts? | **YES** for prior evidence commit; current HEAD includes executable corrections listed in git history after `cb377c4` |
 | Protected-file hashes at HEAD | **zero diff** (`review-artifacts/phase2/protected-manifest-table.json`) |
@@ -365,7 +365,7 @@ Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 
 ## Item 9 — Final verification at ending SHA
 
-**Ending SHA:** `91376ee477409238eb533dd3dd8131ad97738049`
+**Ending SHA:** `1fd46ac46ae37f4dab1d9c3bcd0d81eacf937775`
 
 ### Five consecutive full suites
 
