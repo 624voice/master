@@ -63,6 +63,7 @@ describe("Phase 2 safe QA harness production isolation", () => {
       cwd: REPO_ROOT,
       stdio: "pipe",
       timeout: 120_000,
+      env: { ...process.env, PHASE2_SAFE_QA_HARNESS: "1" },
     });
     const clientBundleDir = join(REPO_ROOT, "dist/client/assets");
     const bundleFiles = readdirSync(clientBundleDir).filter((f) =>

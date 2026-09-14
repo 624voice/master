@@ -78,7 +78,7 @@ add({
   sourceSectionAndField: "Assessment intro hero",
   destinationFile: "src/routes/assessment.tsx",
   featureFlagOrGate: "none",
-  verificationEvidence: "S-JRN-01, safe-qa assessment-01-start.png",
+  verificationEvidence: "X-JRN-01, safe-qa assessment-01-start.png",
 });
 
 for (const question of ASSESSMENT_QUESTIONS) {
@@ -150,7 +150,7 @@ add({
   sourceSectionAndField: "AssessmentGate smsConsent span",
   destinationFile: "src/components/assessment/AssessmentGate.tsx",
   featureFlagOrGate: "ASSESSMENT_ROI_AGENT_LIVE_ENABLED (false in private impl)",
-  verificationEvidence: "S-CMP-08, S-JRN-PIPE-03",
+  verificationEvidence: "S-CMP-08, X-JRN-PIPE-03",
 });
 
 for (const [msg, gate] of [
@@ -166,7 +166,7 @@ for (const [msg, gate] of [
     sourceSectionAndField: gate,
     destinationFile: gate.includes("tsx") ? "src/routes/assessment.tsx" : "src/lib/lead/validateLead.ts",
     featureFlagOrGate: "none",
-    verificationEvidence: "S-JRN-PIPE-01, S-JRN-PIPE-07",
+    verificationEvidence: "X-JRN-PIPE-01, X-JRN-PIPE-07",
   });
 }
 
@@ -188,7 +188,7 @@ add({
   sourceSectionAndField: "serveAssessmentTokenPdf 404 body",
   destinationFile: "src/server/report/serveAssessmentTokenPdf.server.ts",
   featureFlagOrGate: "none",
-  verificationEvidence: "S-JRN-PIPE-06",
+  verificationEvidence: "X-JRN-PIPE-06",
 });
 
 add({
@@ -233,7 +233,7 @@ add({
   sourceSectionAndField: "engine.resolveRespondInputs label",
   destinationFile: "src/lib/assessment/engine.ts",
   featureFlagOrGate: "none",
-  verificationEvidence: "L#27, S-JRN-04",
+  verificationEvidence: "L#27, X-JRN-04",
 });
 
 add({

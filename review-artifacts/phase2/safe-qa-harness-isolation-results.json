@@ -1,0 +1,27 @@
+{
+  "X-SAFE-QA-04A": {
+    "command": "bun test src/server/phase2SafeQaHarness.test.ts -t X-SAFE-QA-04A",
+    "assertions": {
+      "PHASE2_SAFE_QA_HARNESS was unset": "YES",
+      "Provider credentials were absent": "YES",
+      "Missing credentials did not activate the harness": "YES",
+      "No mock route became available": "YES",
+      "No fake lead sink became available": "YES",
+      "No fixture-provider path became available": "YES"
+    },
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts"
+  },
+  "X-SAFE-QA-04B": {
+    "command": "bun test src/server/phase2SafeQaHarness.test.ts -t X-SAFE-QA-04B (build with PHASE2_SAFE_QA_HARNESS=1)",
+    "assertions": {
+      "A real production-mode build/test was executed with PHASE2_SAFE_QA_HARNESS=1": "YES",
+      "The harness remained unavailable": "YES",
+      "No test-only route was registered": "YES",
+      "No fixture-mode switch appeared in the client bundle": "YES",
+      "No fake provider or fixture data became reachable": "YES",
+      "Visitor-controlled input could not activate it": "YES",
+      "No external provider or persistent store was contacted": "YES"
+    },
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts"
+  }
+}

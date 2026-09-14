@@ -55,14 +55,26 @@ const rows = LIMITED.map((event) => {
   const dispatched = DISPATCHED[event];
   const dispatchedKeys = Object.keys(dispatched.fields);
   const omitted = permitted.filter((key) => !dispatchedKeys.includes(key));
-  const satisfies =
-    dispatchedKeys.every((key) => key in contract.permittedProperties) &&
-    required.every((key) => dispatchedKeys.includes(key));
+  const allRequiredPresent = required.every((key) => dispatchedKeys.includes(key));
+  const everyDispatchedPermitted = dispatchedKeys.every(
+    (key) => key in contract.permittedProperties,
+  );
+  const literallyIdentical =
+    dispatchedKeys.length === permitted.length &&
+    permitted.every((key) => dispatchedKeys.includes(key));
+  const satisfies = allRequiredPresent && everyDispatchedPermitted;
+
+  const omittedOptional = omitted.map((key) => ({
+    field: key,
+    optional: true,
+    reason: "Permitted by contract but not required at this call site",
+  }));
 
   return {
     event,
     lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
     lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
+    lockedSourceCitation: `624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "${event}"`,
     permittedByLockedContract: Object.fromEntries(
       permitted.map((key) => [key, contract.permittedProperties[key]]),
     ),
@@ -74,13 +86,19 @@ const rows = LIMITED.map((event) => {
       dispatched.file,
       new RegExp(`trackEvent\\(ANALYTICS_EVENTS\\.${event.replace(/_/g, "_")}`),
     ) || dispatched.line,
-    fieldsIntentionallyOmitted: omitted,
+    fieldsIntentionallyOmitted: omittedOptional,
     fieldsProhibited: contract.prohibitedProperties,
+    allRequiredLockedFieldsPresent: allRequiredPresent ? "YES" : "NO",
+    everyDispatchedFieldPermitted: everyDispatchedPermitted ? "YES" : "NO",
+    currentFieldSetLiterallyIdenticalToFullPermittedSet: literallyIdentical
+      ? "YES"
+      : "NO",
     satisfiesLockedContract: satisfies,
     contractProof:
-      "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited. source and hasEstimate are the required operational fields for server-dispatched limited events.",
+      "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited.",
     positiveTest: `analyticsLockedContractComparison.test.ts X-AN-CMP positive ${event}`,
     negativeTest: `analyticsLockedContractComparison.test.ts X-AN-CMP negative ${event}`,
+    evidenceRef: `review-artifacts/phase2/analytics-locked-contract-comparison.json#${event}`,
   };
 });
 

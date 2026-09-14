@@ -44,12 +44,12 @@ function walkForwardThroughQuestions(
   return visited;
 }
 
-describe("Assessment journey QA S-JRN", () => {
+describe("Assessment journey QA X-JRN", () => {
   afterEach(() => {
     mock.restore();
   });
 
-  test("S-JRN-01: forward navigation covers all universal steps", () => {
+  test("X-JRN-01: forward navigation covers all universal steps", () => {
     expect(UNIVERSAL_FORWARD_STEPS).toEqual([
       "bp1",
       "bp2",
@@ -61,7 +61,7 @@ describe("Assessment journey QA S-JRN", () => {
     ]);
   });
 
-  test("S-JRN-02: back navigation preserves valid answers", () => {
+  test("X-JRN-02: back navigation preserves valid answers", () => {
     const engine = new AssessmentEngine();
     engine.onScreeningAnswered("GF", 2);
     engine.setAnswer("GF-F1", 1);
@@ -78,7 +78,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(buildQuestionFlow(engine)).toEqual(flowBefore);
   });
 
-  test("S-JRN-03: upstream branch change deletes stale follow-up answers", () => {
+  test("X-JRN-03: upstream branch change deletes stale follow-up answers", () => {
     const engine = new AssessmentEngine();
     engine.onScreeningAnswered("GF", 3);
     engine.setAnswer("GF-F1", 3);
@@ -136,7 +136,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(JSON.stringify(vm)).not.toContain("GF-F1");
   });
 
-  test("S-JRN-04: respond assumptions review acceptance (modeled defaults)", () => {
+  test("X-JRN-04: respond assumptions review acceptance (modeled defaults)", () => {
     const engine = new AssessmentEngine();
     walkForwardThroughQuestions(engine, {
       "GF-S": 1,
@@ -159,7 +159,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(result.combinedLabel).toBe(inputs.label);
   });
 
-  test("S-JRN-05: respond assumptions review with visitor edits", () => {
+  test("X-JRN-05: respond assumptions review with visitor edits", () => {
     const result = runAssessment({
       BP1: "Plumbers",
       BP2: "8-20",
@@ -176,7 +176,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(result.respondFields.R1.source).toBe("visitor_provided");
   });
 
-  test("S-JRN-06: mixed R1/R2/R3 provenance label", () => {
+  test("X-JRN-06: mixed R1/R2/R3 provenance label", () => {
     const result = runAssessment({
       BP1: "Electricians",
       BP2: "3-7",
@@ -194,7 +194,7 @@ describe("Assessment journey QA S-JRN", () => {
     );
   });
 
-  test("S-JRN-07: Low, Moderate, and High Respond outcomes", () => {
+  test("X-JRN-07: Low, Moderate, and High Respond outcomes", () => {
     const low = runAssessment({
       BP1: "Roofers",
       BP2: "1-2",
@@ -245,7 +245,7 @@ describe("Assessment journey QA S-JRN", () => {
     }
   });
 
-  test("S-JRN-08: needs-clarification outcome", () => {
+  test("X-JRN-08: needs-clarification outcome", () => {
     const result = runAssessment({
       BP1: "HVAC",
       BP2: "3-7",
@@ -265,7 +265,7 @@ describe("Assessment journey QA S-JRN", () => {
     );
   });
 
-  test("S-JRN-09: missing-Moderate-scenario degradation", () => {
+  test("X-JRN-09: missing-Moderate-scenario degradation", () => {
     const result = runAssessment({
       BP1: "InvalidTrade",
       BP2: "3-7",
@@ -284,7 +284,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(() => selectModerateScenarioValue([])).toThrow(/Moderate scenario/);
   });
 
-  test("S-JRN-10: priority ordering and tied priorities", () => {
+  test("X-JRN-10: priority ordering and tied priorities", () => {
     const result = runAssessment({
       BP1: "HVAC",
       BP2: "3-7",
@@ -308,7 +308,7 @@ describe("Assessment journey QA S-JRN", () => {
     expect(result.priorityGroups[0]!.length).toBeGreaterThanOrEqual(1);
   });
 
-  test("S-JRN-11: back from teaser returns to last question", () => {
+  test("X-JRN-11: back from teaser returns to last question", () => {
     const engine = new AssessmentEngine();
     walkForwardThroughQuestions(engine, { "GF-S": 1, "CV-S": 1, "RG-S": 1, "RM-S": 1, "MI-S": 1 });
     const back = flowStepBack("teaser", 0);

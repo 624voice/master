@@ -1,42 +1,57 @@
 [
   {
     "run": 1,
-    "pass": 773,
+    "command": "bun test src",
+    "pass": 787,
     "fail": 0,
-    "tests": 773,
-    "files": 101,
+    "skip": 0,
+    "timeout": 0,
+    "files": 102,
+    "durationMs": 46828,
     "status": 0
   },
   {
     "run": 2,
-    "pass": 773,
+    "command": "bun test src",
+    "pass": 787,
     "fail": 0,
-    "tests": 773,
-    "files": 101,
+    "skip": 0,
+    "timeout": 0,
+    "files": 102,
+    "durationMs": 41778,
     "status": 0
   },
   {
     "run": 3,
-    "pass": 773,
+    "command": "bun test src",
+    "pass": 787,
     "fail": 0,
-    "tests": 773,
-    "files": 101,
+    "skip": 0,
+    "timeout": 0,
+    "files": 102,
+    "durationMs": 43093,
     "status": 0
   },
   {
     "run": 4,
-    "pass": 773,
+    "command": "bun test src",
+    "pass": 787,
     "fail": 0,
-    "tests": 773,
-    "files": 101,
+    "skip": 0,
+    "timeout": 0,
+    "files": 102,
+    "durationMs": 44965,
     "status": 0
   },
   {
     "run": 5,
-    "pass": 773,
+    "command": "bun test src",
+    "pass": 787,
     "fail": 0,
-    "tests": 773,
-    "files": 101,
+    "skip": 0,
+    "timeout": 0,
+    "files": 102,
+    "durationMs": 45441,
     "status": 0
   }
 ]

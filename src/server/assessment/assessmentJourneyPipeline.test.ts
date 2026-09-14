@@ -82,7 +82,7 @@ function mockPipeline(options?: {
   return { tokenStore, evalMock };
 }
 
-describe("Assessment journey pipeline S-JRN-PIPE", () => {
+describe("Assessment journey pipeline X-JRN-PIPE", () => {
   const savedEnv: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>> =
     {};
 
@@ -109,7 +109,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     }
   });
 
-  test("S-JRN-PIPE-01: lead-gate validation errors surface required fields", () => {
+  test("X-JRN-PIPE-01: lead-gate validation errors surface required fields", () => {
     expect(validateLeadInfo({
       firstName: "",
       lastName: "Lee",
@@ -127,7 +127,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     })).toBe("Enter a valid email address.");
   });
 
-  test("S-JRN-PIPE-02: corrected resubmission after validation failure succeeds", async () => {
+  test("X-JRN-PIPE-02: corrected resubmission after validation failure succeeds", async () => {
     mockPipeline();
     mock.module("~/config/features", () => ({
       FEATURE_FLAGS: {
@@ -181,7 +181,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     expect(result.reportUrl).toContain("/assessment-report/");
   });
 
-  test("S-JRN-PIPE-03: results and PDF access with SMS consent unchecked", async () => {
+  test("X-JRN-PIPE-03: results and PDF access with SMS consent unchecked", async () => {
     const startAgent = mock(async () => undefined);
     mockPipeline();
     mock.module("~/config/features", () => ({
@@ -230,7 +230,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     expect(analyticsEvents).not.toContain(ANALYTICS_EVENTS.roi_agent_triggered);
   });
 
-  test("S-JRN-PIPE-04: consent checked but agent flag false still returns report", async () => {
+  test("X-JRN-PIPE-04: consent checked but agent flag false still returns report", async () => {
     const startAgent = mock(async () => undefined);
     mockPipeline();
     mock.module("~/config/features", () => ({
@@ -271,7 +271,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     expect(startAgent).not.toHaveBeenCalled();
   });
 
-  test("S-JRN-PIPE-05: repeat report access under approved token contract", async () => {
+  test("X-JRN-PIPE-05: repeat report access under approved token contract", async () => {
     mockPipeline();
     mock.module("~/config/features", () => ({
       FEATURE_FLAGS: {
@@ -318,7 +318,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     expect(first.headers.get("Cache-Control")).toBe("private, no-store");
   });
 
-  test("S-JRN-PIPE-06: invalid and expired report tokens return 404 plain text", async () => {
+  test("X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text", async () => {
     mockPipeline({ tokenData: "expired" });
     const { serveAssessmentTokenPdf } = await import(
       "~/server/report/serveAssessmentTokenPdf.server"
@@ -329,7 +329,7 @@ describe("Assessment journey pipeline S-JRN-PIPE", () => {
     expect(await invalid.text()).toContain("expired or is invalid");
   });
 
-  test("S-JRN-PIPE-07: retryable report failure exposes visitor recovery message", async () => {
+  test("X-JRN-PIPE-07: retryable report failure exposes visitor recovery message", async () => {
     mockPipeline({ pdfThrows: true });
     mock.module("~/config/features", () => ({
       FEATURE_FLAGS: {

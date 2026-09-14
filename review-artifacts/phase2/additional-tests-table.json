@@ -1,28 +1,422 @@
 [
-  {"id": "X-LIFECYCLE-01", "file": "src/components/CustomerLifecycleDiagram.test.tsx", "test": "X-LIFECYCLE-01: six stage label pairs", "result": "pass"},
-  {"id": "X-LIFECYCLE-02", "file": "src/components/CustomerLifecycleDiagram.test.tsx", "test": "X-LIFECYCLE-02: headline and note are em-dash-free", "result": "pass"},
-  {"id": "X-LIFECYCLE-03", "file": "src/components/CustomerLifecycleDiagram.test.tsx", "test": "X-LIFECYCLE-03: reference PNG hash", "result": "pass"},
-  {"id": "X-LIFECYCLE-04", "file": "src/components/CustomerLifecycleDiagram.test.tsx", "test": "X-LIFECYCLE-04: semantic ol/li structure", "result": "pass"},
-  {"id": "X-LIFECYCLE-05", "file": "src/components/CustomerLifecycleDiagram.test.tsx", "test": "X-LIFECYCLE-05: RGBA alpha transparency", "result": "pass"},
-  {"id": "X-PII-01", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-01", "result": "pass"},
-  {"id": "X-PII-02", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-02", "result": "pass"},
-  {"id": "X-PII-03", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-03", "result": "pass"},
-  {"id": "X-PII-04", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-04", "result": "pass"},
-  {"id": "X-PII-05", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-05", "result": "pass"},
-  {"id": "X-PII-06", "file": "src/lib/assessment/browserPiiBoundaries.test.ts", "test": "X-PII-06", "result": "pass"},
-  {"id": "X-LUA-01", "file": "src/server/assessment/rateLimitLua.test.ts", "test": "X-LUA-01: phone idempotency Lua commands", "result": "pass"},
-  {"id": "X-BND-06", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-06: AssessmentReport.tsx", "result": "pass"},
-  {"id": "X-BND-07", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-07", "result": "pass"},
-  {"id": "X-BND-08", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-08", "result": "pass"},
-  {"id": "X-BND-09", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-09", "result": "pass"},
-  {"id": "X-BND-10", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-10", "result": "pass"},
-  {"id": "X-BND-11", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-11", "result": "pass"},
-  {"id": "X-BND-12", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-12", "result": "pass"},
-  {"id": "X-BND-13", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-13: token route isolated handler", "result": "pass"},
-  {"id": "X-BND-14", "file": "src/server/report/bundleBoundary.test.ts", "test": "X-BND-14: isolated PDF pipeline", "result": "pass"},
-  {"id": "X-AN-01", "file": "src/lib/analytics/analyticsContract.test.ts", "test": "X-AN-01", "result": "pass"},
-  {"id": "X-AN-02", "file": "src/lib/analytics/analyticsContract.test.ts", "test": "X-AN-02", "result": "pass"},
-  {"id": "X-SAFE-QA-01", "file": "src/server/phase2SafeQaHarness.test.ts", "test": "X-SAFE-QA-01", "result": "pass"},
-  {"id": "X-SAFE-QA-02", "file": "src/server/phase2SafeQaHarness.test.ts", "test": "X-SAFE-QA-02", "result": "pass"},
-  {"id": "X-SAFE-QA-03", "file": "src/server/phase2SafeQaHarness.test.ts", "test": "X-SAFE-QA-03", "result": "pass"}
+  {
+    "id": "X-LIFECYCLE-01",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "test": "X-LIFECYCLE-01: six stage label pairs",
+    "result": "pass"
+  },
+  {
+    "id": "X-LIFECYCLE-02",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "test": "X-LIFECYCLE-02: headline and note are em-dash-free",
+    "result": "pass"
+  },
+  {
+    "id": "X-LIFECYCLE-03",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "test": "X-LIFECYCLE-03: reference PNG hash",
+    "result": "pass"
+  },
+  {
+    "id": "X-LIFECYCLE-04",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "test": "X-LIFECYCLE-04: semantic ol/li structure",
+    "result": "pass"
+  },
+  {
+    "id": "X-LIFECYCLE-05",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "test": "X-LIFECYCLE-05: RGBA alpha transparency",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-01",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-02",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-03",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-03",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-04",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-04",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-05",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-05",
+    "result": "pass"
+  },
+  {
+    "id": "X-PII-06",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "test": "X-PII-06",
+    "result": "pass"
+  },
+  {
+    "id": "X-LUA-01",
+    "file": "src/server/assessment/rateLimitLua.test.ts",
+    "test": "X-LUA-01: phone idempotency Lua commands",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-06",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-06: AssessmentReport.tsx",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-07",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-07",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-08",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-08",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-09",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-09",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-10",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-10",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-11",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-11",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-12",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-12",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-13",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-13: token route isolated handler",
+    "result": "pass"
+  },
+  {
+    "id": "X-BND-14",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "test": "X-BND-14: isolated PDF pipeline",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-01",
+    "file": "src/lib/analytics/analyticsContract.test.ts",
+    "test": "X-AN-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-02",
+    "file": "src/lib/analytics/analyticsContract.test.ts",
+    "test": "X-AN-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-SAFE-QA-01",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "test": "X-SAFE-QA-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-SAFE-QA-02",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "test": "X-SAFE-QA-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-SAFE-QA-03",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "test": "X-SAFE-QA-03",
+    "result": "pass"
+  },
+  {
+    "id": "X-SAFE-QA-04A",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "test": "X-SAFE-QA-04A: missing credentials and unset harness do not enable fixture paths",
+    "result": "pass"
+  },
+  {
+    "id": "X-SAFE-QA-04B",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "test": "X-SAFE-QA-04B: production bundle ignores PHASE2_SAFE_QA_HARNESS",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-01",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-02",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-03",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-03",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-04",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-04",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-05",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-05",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-06",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-06",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-07",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-07",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-08",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-08",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-09",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-09",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-10",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-10",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-11",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "test": "X-JRN-11",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-01",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-02",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-03",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-03",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-04",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-04",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-05",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-05",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-06",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-06",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-PIPE-07",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "test": "X-JRN-PIPE-07",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-01",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-01",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-02",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-02",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-03",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-03",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-04",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-04",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-05",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-05",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-06",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-06",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-07",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-07",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-08",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-08",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-09",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-09",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-10",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-10",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-11",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-11",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-12",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-12",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-13",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-13",
+    "result": "pass"
+  },
+  {
+    "id": "X-JRN-DOM-14",
+    "file": "src/routes/assessment.browserJourney.test.ts",
+    "test": "X-JRN-DOM-14",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP positive lead_gate_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP positive lead_gate_complete: dispatched fields satisfy locked contract",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP negative lead_gate_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP negative lead_gate_complete: prohibited contact fields rejected",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP positive sms_consent_opt_in",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP positive sms_consent_opt_in: dispatched fields satisfy locked contract",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP negative sms_consent_opt_in",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP negative sms_consent_opt_in: prohibited contact fields rejected",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP positive assessment_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP positive assessment_complete: dispatched fields satisfy locked contract",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP negative assessment_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP negative assessment_complete: prohibited contact fields rejected",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP positive roi_agent_triggered",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP positive roi_agent_triggered: dispatched fields satisfy locked contract",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP negative roi_agent_triggered",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP negative roi_agent_triggered: prohibited contact fields rejected",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP-05",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP-05: durable comparison artifact exists for four limited events",
+    "result": "pass"
+  },
+  {
+    "id": "X-AN-CMP-06",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "test": "X-AN-CMP-06: submit handler call-site lines recorded",
+    "result": "pass"
+  }
 ]

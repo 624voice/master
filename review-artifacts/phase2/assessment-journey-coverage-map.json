@@ -1,0 +1,436 @@
+[
+  {
+    "requiredBehavior": "Forward navigation through universal steps",
+    "testIds": [
+      "X-JRN-01",
+      "X-JRN-DOM-01"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-01 / X-JRN-DOM-01",
+    "assertion": "UNIVERSAL_FORWARD_STEPS length 7; gate form visible",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#forward-navigation-through-universal-steps"
+  },
+  {
+    "requiredBehavior": "Back navigation",
+    "testIds": [
+      "X-JRN-02",
+      "X-JRN-DOM-02"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-02 / X-JRN-DOM-02",
+    "assertion": "flowStepBack returns bp1; #assessment-bp1 visible after Back",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#back-navigation"
+  },
+  {
+    "requiredBehavior": "Return after back without corrupting valid answers",
+    "testIds": [
+      "X-JRN-02",
+      "X-JRN-DOM-03"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-02 / X-JRN-DOM-03",
+    "assertion": "engine answers preserved; select values unchanged",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#return-after-back-without-corrupting-valid-answers"
+  },
+  {
+    "requiredBehavior": "Conditional branch activation",
+    "testIds": [
+      "X-JRN-DOM-04"
+    ],
+    "testFile": "assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-04",
+    "assertion": "follow-up prompt matches track where new leads come from",
+    "evidenceClass": "browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#conditional-branch-activation"
+  },
+  {
+    "requiredBehavior": "Conditional branch removal",
+    "testIds": [
+      "X-JRN-DOM-04"
+    ],
+    "testFile": "assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-04",
+    "assertion": "after downgrade, follow-up text absent",
+    "evidenceClass": "browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#conditional-branch-removal"
+  },
+  {
+    "requiredBehavior": "Stale-answer deletion after branch removal",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "engine.answers.has(GF-F1) false after onScreeningChanged",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-deletion-after-branch-removal"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from client scoring",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "orphanGf equals cleanGf with score 0",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-client-scoring"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from server recomputation",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "runAssessment ignores inactive follow-up IDs",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-server-recomputation"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from lead summaries",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "buildAssessmentLeadMessage excludes GF-F",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-lead-summaries"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from analytics",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "assertAnalyticsPropsAllowed rejects answer keys",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-analytics"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from results",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "view model JSON excludes GF-F1",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-results"
+  },
+  {
+    "requiredBehavior": "Stale-answer exclusion from PDF content",
+    "testIds": [
+      "X-JRN-03"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03",
+    "assertion": "buildAssessmentReportViewModel scan excludes stale IDs",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-pdf-content"
+  },
+  {
+    "requiredBehavior": "Assumptions-review acceptance",
+    "testIds": [
+      "X-JRN-04",
+      "X-JRN-DOM-05"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-04 / X-JRN-DOM-05",
+    "assertion": "modeled combined label; #respond-R1 editable",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#assumptions-review-acceptance"
+  },
+  {
+    "requiredBehavior": "Assumptions-review edits",
+    "testIds": [
+      "X-JRN-05",
+      "X-JRN-DOM-05"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-05 / X-JRN-DOM-05",
+    "assertion": "visitor_provided label; input value contains 450",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#assumptions-review-edits"
+  },
+  {
+    "requiredBehavior": "Low Respond severity",
+    "testIds": [
+      "X-JRN-07"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-07",
+    "assertion": "respondSeverity.band === Low",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#low-respond-severity"
+  },
+  {
+    "requiredBehavior": "Moderate Respond severity",
+    "testIds": [
+      "X-JRN-07"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-07",
+    "assertion": "respondSeverity.band === Moderate",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#moderate-respond-severity"
+  },
+  {
+    "requiredBehavior": "High Respond severity",
+    "testIds": [
+      "X-JRN-07"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-07",
+    "assertion": "respondSeverity.band === High",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#high-respond-severity"
+  },
+  {
+    "requiredBehavior": "All-modeled provenance",
+    "testIds": [
+      "X-JRN-04"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-04",
+    "assertion": "combinedLabel exact F.1 modeled string",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#all-modeled-provenance"
+  },
+  {
+    "requiredBehavior": "All-visitor-provided provenance",
+    "testIds": [
+      "X-JRN-05"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-05",
+    "assertion": "Calculated using the numbers you provided.",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#all-visitor-provided-provenance"
+  },
+  {
+    "requiredBehavior": "Mixed provenance",
+    "testIds": [
+      "X-JRN-06"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-06",
+    "assertion": "Calculated using your information and modeled assumptions.",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#mixed-provenance"
+  },
+  {
+    "requiredBehavior": "Needs-clarification outcome",
+    "testIds": [
+      "X-JRN-08"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-08",
+    "assertion": "clarifyGroup contains GF",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#needs-clarification-outcome"
+  },
+  {
+    "requiredBehavior": "Missing-Moderate-scenario degradation",
+    "testIds": [
+      "X-JRN-09"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-09",
+    "assertion": "dollarEstimate null; moderateAnnualBenefitFormatted null",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#missing-moderate-scenario-degradation"
+  },
+  {
+    "requiredBehavior": "Lead-gate validation rejection",
+    "testIds": [
+      "X-JRN-PIPE-01",
+      "X-JRN-DOM-06"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-01 / X-JRN-DOM-06",
+    "assertion": "validateLeadInfo errors; role=alert in DOM",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#lead-gate-validation-rejection"
+  },
+  {
+    "requiredBehavior": "Corrected resubmission after validation rejection",
+    "testIds": [
+      "X-JRN-PIPE-02",
+      "X-JRN-DOM-07",
+      "X-JRN-DOM-13"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-02 / X-JRN-DOM-07",
+    "assertion": "handler ok after fix; Your priority areas in DOM",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#corrected-resubmission-after-validation-rejection"
+  },
+  {
+    "requiredBehavior": "SMS consent unchecked by default",
+    "testIds": [
+      "X-JRN-DOM-08"
+    ],
+    "testFile": "assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-08",
+    "assertion": "checkbox.checked === false",
+    "evidenceClass": "browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#sms-consent-unchecked-by-default"
+  },
+  {
+    "requiredBehavior": "Results access without SMS consent",
+    "testIds": [
+      "X-JRN-PIPE-03",
+      "X-JRN-DOM-09"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-03 / X-JRN-DOM-09",
+    "assertion": "result.ok; Priority text in DOM",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#results-access-without-sms-consent"
+  },
+  {
+    "requiredBehavior": "PDF access without SMS consent",
+    "testIds": [
+      "X-JRN-PIPE-03"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-03",
+    "assertion": "reportToken truthy without SMS consent",
+    "evidenceClass": "server",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#pdf-access-without-sms-consent"
+  },
+  {
+    "requiredBehavior": "Consent checked while agent flag false",
+    "testIds": [
+      "X-JRN-PIPE-04",
+      "X-JRN-DOM-10"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-04 / X-JRN-DOM-10",
+    "assertion": "startAgent not called; results render with consent checked",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#consent-checked-while-agent-flag-false"
+  },
+  {
+    "requiredBehavior": "Priority ordering",
+    "testIds": [
+      "X-JRN-10",
+      "X-JRN-DOM-11"
+    ],
+    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-10 / X-JRN-DOM-11",
+    "assertion": "priorityGroups ordered; Priority 1 in ol",
+    "evidenceClass": "unit+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#priority-ordering"
+  },
+  {
+    "requiredBehavior": "Equal-priority/tie presentation",
+    "testIds": [
+      "X-JRN-10"
+    ],
+    "testFile": "assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-10",
+    "assertion": "tiedGroup length > 1",
+    "evidenceClass": "unit",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#equal-priority/tie-presentation"
+  },
+  {
+    "requiredBehavior": "Successful report access",
+    "testIds": [
+      "X-JRN-PIPE-05"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-05",
+    "assertion": "serveAssessmentTokenPdf status 200 application/pdf",
+    "evidenceClass": "server",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#successful-report-access"
+  },
+  {
+    "requiredBehavior": "Repeat report access",
+    "testIds": [
+      "X-JRN-PIPE-05"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-05",
+    "assertion": "second serveAssessmentTokenPdf status 200",
+    "evidenceClass": "server",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#repeat-report-access"
+  },
+  {
+    "requiredBehavior": "Invalid token behavior",
+    "testIds": [
+      "X-JRN-PIPE-06",
+      "X-JRN-DOM-12"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-12",
+    "assertion": "404 plain text expired or invalid",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#invalid-token-behavior"
+  },
+  {
+    "requiredBehavior": "Expired token behavior",
+    "testIds": [
+      "X-JRN-PIPE-06",
+      "X-JRN-DOM-12"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-12",
+    "assertion": "getAssessmentReportTokenData null → 404",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#expired-token-behavior"
+  },
+  {
+    "requiredBehavior": "Retryable report failure with recovery action",
+    "testIds": [
+      "X-JRN-PIPE-07",
+      "X-JRN-DOM-13"
+    ],
+    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-07 / X-JRN-DOM-13",
+    "assertion": "recovery message string; validation recovery to results",
+    "evidenceClass": "server+browser/DOM",
+    "result": "pass",
+    "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#retryable-report-failure-with-recovery-action"
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "actualScreenReaderTestExecuted": false,
+  "deferredPreProductionItem": "Actual assistive-technology (NVDA/VoiceOver) operation before production launch",
+  "summary": {
+    "totalRequirementsChecked": 23,
+    "automatedChecksPassed": 4,
+    "automatedChecksFailed": 0,
+    "manualKeyboardChecksPassed": 6,
+    "manualKeyboardChecksFailed": 0,
+    "actualScreenReaderChecksPassed": 0,
+    "actualScreenReaderChecksFailed": 0,
+    "actualScreenReaderChecksUnexecuted": 1,
+    "defectsFound": 0,
+    "defectsCorrected": 1,
+    "remainingFailuresOrUnexecuted": ["Actual screen-reader test (intentionally deferred pre-production manual QA)"]
+  },
+  "requirements": [
+    {"requirement": "Keyboard-only navigation", "routeOrState": "/, /assessment, /contact, /what-we-do", "method": "Manual keyboard inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.tabOrder"},
+    {"requirement": "Keyboard-only Assessment completion", "routeOrState": "/assessment bp1→bp2→Back", "method": "Manual keyboard inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "Assessment Back button added (prior pass)", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow.backAtBp1"},
+    {"requirement": "Focus visibility", "routeOrState": "All four routes after Tab", "method": "Manual keyboard inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.focusVisible"},
+    {"requirement": "Focus order", "routeOrState": "All four routes (8 Tab steps sampled)", "method": "Manual keyboard inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.tabOrder"},
+    {"requirement": "Focus after step transitions", "routeOrState": "/assessment Continue bp1→bp2", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow"},
+    {"requirement": "Focus after validation failure", "routeOrState": "/assessment gate (X-JRN-DOM-06 role=alert)", "method": "Browser/DOM test assertion", "tool": "bun test X-JRN-DOM-06", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "src/routes/assessment.browserJourney.test.ts"},
+    {"requirement": "Mobile-menu focus management", "routeOrState": "/ homepage 375px viewport", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu"},
+    {"requirement": "Labels and instructions", "routeOrState": "/assessment, /what-we-do (0 unlabeled on sampled routes)", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.unlabeledInputs"},
+    {"requirement": "Error associations", "routeOrState": "/assessment gate validation", "method": "Browser/DOM test assertion", "tool": "bun test X-JRN-DOM-06", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "src/routes/assessment.browserJourney.test.ts"},
+    {"requirement": "Loading announcements", "routeOrState": "/assessment (aria-live progress in rulesChecked)", "method": "Semantic HTML and ARIA inspection", "tool": "scripts/phase2/run-accessibility-qa.ts rulesChecked", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#rulesChecked"},
+    {"requirement": "Status, success, and failure announcements", "routeOrState": "/assessment results and gate errors", "method": "Browser/DOM test assertion", "tool": "bun test X-JRN-DOM-06/07/09", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "src/routes/assessment.browserJourney.test.ts"},
+    {"requirement": "Screen-reader reading order", "routeOrState": "All four routes heading/landmark tree", "method": "Accessibility-tree inspection (not actual screen reader)", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics"},
+    {"requirement": "Lifecycle ordered-list semantics", "routeOrState": "Homepage CustomerLifecycleDiagram", "method": "Component test", "tool": "bun test X-LIFECYCLE-04", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx"},
+    {"requirement": "Heading hierarchy", "routeOrState": "All four routes", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.headings"},
+    {"requirement": "Landmark structure", "routeOrState": "All four routes (main/nav/header/footer = 1 each)", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.landmarks"},
+    {"requirement": "Accessible names", "routeOrState": "Images (0 missing alt on sampled routes)", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.imagesMissingAlt"},
+    {"requirement": "Menu/dialog semantics", "routeOrState": "/ mobile menu aria-expanded", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu"},
+    {"requirement": "Color contrast", "routeOrState": "All four routes (body/control color sampling)", "method": "Visual inspection + color sampling", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.contrastSample"},
+    {"requirement": "Zoom/reflow", "routeOrState": "Mobile viewport 375×800", "method": "Visual inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu"},
+    {"requirement": "Reduced motion", "routeOrState": "All four routes prefers-reduced-motion probe", "method": "Accessibility-tree inspection", "tool": "puppeteer-core 25.10.0", "result": "recorded", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.prefersReduced"},
+    {"requirement": "Keyboard traps", "routeOrState": "/assessment full keyboard flow", "method": "Manual keyboard inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "Back button enables exit from bp2", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow"},
+    {"requirement": "Mobile touch targets", "routeOrState": "/ mobile menu button", "method": "Visual inspection", "tool": "puppeteer-core 25.10.0", "result": "pass", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu"},
+    {"requirement": "Actual screen-reader operation", "routeOrState": "Deferred pre-production", "method": "Actual screen-reader test not executed", "tool": "none", "result": "unexecuted (deferred)", "defectFound": "none", "correctionMade": "none", "evidenceRef": "review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted"}
+  ]
+}

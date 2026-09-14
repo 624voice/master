@@ -1,6 +1,6 @@
 {
-  "bunTest": "773 pass, 0 fail, 101 files",
-  "bunTestSrc": "773 pass, 0 fail, 101 files",
+  "bunTest": "787 pass, 0 fail, 102 files",
+  "bunTestSrc": "787 pass, 0 fail, 102 files",
   "identicalScope": true,
-  "note": "Both `bun test` and `bun test src` discover 773 tests across 101 files after Phase 2 completion pass."
+  "note": "Both `bun test` and `bun test src` discover 787 tests across 102 files after X-JRN namespace correction and X-JRN-DOM browser journey tests."
 }

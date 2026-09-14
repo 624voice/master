@@ -1,17 +1,32 @@
 [
   {
     "run": 1,
-    "status": 0,
-    "tail": " 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [87.00ms]\n"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts",
+    "pass": 13,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "durationMs": 65,
+    "status": 0
   },
   {
     "run": 2,
-    "status": 0,
-    "tail": " 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [98.00ms]\n"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts",
+    "pass": 13,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "durationMs": 67,
+    "status": 0
   },
   {
     "run": 3,
-    "status": 0,
-    "tail": " 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [104.00ms]\n"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts",
+    "pass": 13,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "durationMs": 67,
+    "status": 0
   }
 ]
