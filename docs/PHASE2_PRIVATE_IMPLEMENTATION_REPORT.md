@@ -6,7 +6,7 @@
 |------|-------|
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
-| Ending SHA | *(updated at commit push)* |
+| Ending SHA | `85a3781` *(report commit; tests at `cd71bf7`)* |
 | PR | #97 (draft) |
 
 ## 2. Actual completion status
