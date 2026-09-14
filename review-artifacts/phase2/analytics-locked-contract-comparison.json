@@ -3,7 +3,9 @@
     "event": "lead_gate_complete",
     "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
     "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
-    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event \"lead_gate_complete\"",
+    "lockedSourceTableRow": "Row 5 — event \"lead_gate_complete\"",
+    "lockedSourceFieldOrTableRow": "Permitted fields column: source (operational_metadata). Required fields column: source.",
+    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — Analytics privacy contract (ten events) — Row 5 — event \"lead_gate_complete\" — Permitted fields column: source (operational_metadata). Required fields column: source.",
     "permittedByLockedContract": {
       "source": "operational_metadata"
     },
@@ -47,7 +49,9 @@
     "event": "sms_consent_opt_in",
     "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
     "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
-    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event \"sms_consent_opt_in\"",
+    "lockedSourceTableRow": "Row 6 — event \"sms_consent_opt_in\"",
+    "lockedSourceFieldOrTableRow": "Permitted fields column: source (operational_metadata). Required fields column: source.",
+    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — Analytics privacy contract (ten events) — Row 6 — event \"sms_consent_opt_in\" — Permitted fields column: source (operational_metadata). Required fields column: source.",
     "permittedByLockedContract": {
       "source": "operational_metadata"
     },
@@ -89,7 +93,9 @@
     "event": "assessment_complete",
     "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
     "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
-    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event \"assessment_complete\"",
+    "lockedSourceTableRow": "Row 7 — event \"assessment_complete\"",
+    "lockedSourceFieldOrTableRow": "Permitted fields column: hasEstimate (non_identifying_analytics). Required fields column: hasEstimate.",
+    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — Analytics privacy contract (ten events) — Row 7 — event \"assessment_complete\" — Permitted fields column: hasEstimate (non_identifying_analytics). Required fields column: hasEstimate.",
     "permittedByLockedContract": {
       "hasEstimate": "non_identifying_analytics"
     },
@@ -131,7 +137,9 @@
     "event": "roi_agent_triggered",
     "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
     "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
-    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event \"roi_agent_triggered\"",
+    "lockedSourceTableRow": "Row 9 — event \"roi_agent_triggered\"",
+    "lockedSourceFieldOrTableRow": "Permitted fields column: source (operational_metadata). Required fields column: source.",
+    "lockedSourceCitation": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — Analytics privacy contract (ten events) — Row 9 — event \"roi_agent_triggered\" — Permitted fields column: source (operational_metadata). Required fields column: source.",
     "permittedByLockedContract": {
       "source": "operational_metadata"
     },

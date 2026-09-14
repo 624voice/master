@@ -277,85 +277,85 @@
   },
   {
     "id": "X-JRN-DOM-01",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-01",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-02",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-02",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-03",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-03",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-04",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-04",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-05",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-05",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-06",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-06",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-07",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-07",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-08",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-08",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-09",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-09",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-10",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-10",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-11",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-11",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-12",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-12",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-13",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-13",
     "result": "pass"
   },
   {
     "id": "X-JRN-DOM-14",
-    "file": "src/routes/assessment.browserJourney.test.ts",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
     "test": "X-JRN-DOM-14",
     "result": "pass"
   },

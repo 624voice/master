@@ -76,7 +76,10 @@ const harnessScan = distExistsAfterHarness
 const harnessRoutes = distExistsAfterHarness ? routeManifestScan() : { harnessRoutes: [], allRoutesSample: [] };
 
 rmSync(DIST, { recursive: true, force: true });
-const cleanEnv = { ...process.env, NODE_ENV: "production" };
+const cleanEnv: Record<string, string | undefined> = {
+  ...process.env,
+  NODE_ENV: "production",
+};
 delete cleanEnv.PHASE2_SAFE_QA_HARNESS;
 const cleanBuild = spawnSync("bun", ["run", "build"], {
   cwd: REPO_ROOT,

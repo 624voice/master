@@ -12,7 +12,7 @@
     "evidenceRef": "src/server/phase2SafeQaHarness.test.ts"
   },
   "X-SAFE-QA-04B": {
-    "command": "bun test src/server/phase2SafeQaHarness.test.ts -t X-SAFE-QA-04B (build with PHASE2_SAFE_QA_HARNESS=1)",
+    "command": "NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build (sanitized credentials absent); then NODE_ENV=production bun run build without harness flag",
     "assertions": {
       "A real production-mode build/test was executed with PHASE2_SAFE_QA_HARNESS=1": "YES",
       "The harness remained unavailable": "YES",
@@ -22,6 +22,36 @@
       "Visitor-controlled input could not activate it": "YES",
       "No external provider or persistent store was contacted": "YES"
     },
-    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts"
-  }
+    "evidenceRef": "review-artifacts/phase2/safe-qa-harness-isolation-results.json#X-SAFE-QA-04B"
+  },
+  "approvedDesign": "Production mode builds successfully while ignoring PHASE2_SAFE_QA_HARNESS (fail-closed rejection is not required).",
+  "harnessBuild": {
+    "command": "NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build",
+    "environmentVariablesSupplied": [
+      "NODE_ENV=production",
+      "PHASE2_SAFE_QA_HARNESS=1",
+      "production/provider credentials explicitly absent"
+    ],
+    "exitStatus": 0,
+    "sanitizedOutputTail": "  routeFileIgnorePattern: undefined\nWarning: Route file \"/workspace/src/routes/assessment.browserJourney.test.ts\" does not export a Route. This file will not be included in the route tree.\n\nIf this file is not intended to be a route, you can exclude it using one of these options:\n  1. Rename the file to \"/workspace/src/routes/-assessment.browserJourney.test.ts\" (prefix with \"-\")\n  2. Use 'routeFileIgnorePattern' in your config to match this file\n\nCurrent configuration:\n  routeFileIgnorePrefix: \"-\"\n  routeFileIgnorePattern: undefined\nWarning: Route file \"/workspace/src/routes/assessmentBrowserJourneySupport.ts\" does not export a Route. This file will not be included in the route tree.\n\nIf this file is not intended to be a route, you can exclude it using one of these options:\n  1. Rename the file to \"/workspace/src/routes/-assessmentBrowserJourneySupport.ts\" (prefix with \"-\")\n  2. Use 'routeFileIgnorePattern' in your config to match this file\n\nCurrent configuration:\n  routeFileIgnorePrefix: \"-\"\n  routeFileIgnorePattern: undefined\nWarning: Route file \"/workspace/src/routes/assessment.browserJourney.test.ts\" does not export a Route. This file will not be included in the route tree.\n\nIf this file is not intended to be a route, you can exclude it using one of these options:\n  1. Rename the file to \"/workspace/src/routes/-assessment.browserJourney.test.ts\" (prefix with \"-\")\n  2. Use 'routeFileIgnorePattern' in your config to match this file\n\nCurrent configuration:\n  routeFileIgnorePrefix: \"-\"\n  routeFileIgnorePattern: undefined\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "distProduced": true,
+    "clientBundleSearch": [],
+    "serverBundleSearch": [],
+    "harnessRouteMatches": [],
+    "fixtureDataBundled": false
+  },
+  "cleanProductionBuild": {
+    "command": "NODE_ENV=production bun run build (PHASE2_SAFE_QA_HARNESS absent)",
+    "exitStatus": 0,
+    "sanitizedOutputTail": "\nIf this file is not intended to be a route, you can exclude it using one of these options:\n  1. Rename the file to \"/workspace/src/routes/-assessment.browserJourney.test.ts\" (prefix with \"-\")\n  2. Use 'routeFileIgnorePattern' in your config to match this file\n\nCurrent configuration:\n  routeFileIgnorePrefix: \"-\"\n  routeFileIgnorePattern: undefined\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "serverBundleSha256": "ae74682115b40a5e11860d0fd707e24800a5be4cd1115f646e76a6943eb35466",
+    "clientBundleSearch": [],
+    "serverBundleSearch": [],
+    "harnessRouteMatches": [],
+    "visitorReachableHarnessMechanisms": 0
+  },
+  "expectedBehavior": "Harness flag must not bundle fixture routes, fake lead sinks, or harness switches into production artifacts.",
+  "actualBehavior": "Harness-flagged build completed; bundle scan recorded below.",
+  "evidencePath": "review-artifacts/phase2/safe-qa-harness-isolation-results.json",
+  "pass": true
 }

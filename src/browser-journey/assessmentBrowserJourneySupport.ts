@@ -143,7 +143,7 @@ export async function clickButtonMatching(
       re.test(button.textContent ?? ""),
     );
     if (!target) return false;
-    target.click();
+    (target as HTMLElement).click();
     return true;
   }, pattern);
 }
@@ -158,7 +158,7 @@ export async function clickChoiceMatching(
       document.querySelectorAll("button.w-full.rounded-lg.border.px-4"),
     ).find((button) => re.test(button.textContent ?? ""));
     if (!target) return false;
-    target.click();
+    (target as HTMLElement).click();
     return true;
   }, pattern);
 }

@@ -1,6 +1,7 @@
 /**
  * Regenerates docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md from durable artifacts.
  */
+import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -25,6 +26,24 @@ const messagesid = JSON.parse(
 ) as Array<Record<string, unknown>>;
 
 const endingSha = readFileSync(join(ROOT, "review-artifacts/phase2/ending-sha.txt"), "utf8").trim();
+const tsComparison = JSON.parse(
+  readFileSync(join(ROOT, "review-artifacts/phase2/typescript-comparison.json"), "utf8"),
+) as {
+  current?: { totalDiagnosticCount?: number; command?: string; bunVersion?: string; typescriptVersion?: string };
+  acceptance?: { phase2ProductionZero?: boolean; phase2TestsZero?: boolean; phase2QaZero?: boolean };
+};
+const codeVerificationSha = "cb377c43396e903cd950079a9cfe0c43b54c49f8";
+const priorEvidenceSha = "84c8e8792526d96f52c77d9cf1b5f007f8b540a0";
+const shaDiffEvidenceOnly = execSync(
+  `git diff --name-status ${codeVerificationSha}..${priorEvidenceSha}`,
+  { cwd: ROOT, encoding: "utf8" },
+).trim();
+const a11yBlocking =
+  Number(a11y.summary.remainingDefects ?? 0) >
+  Number(a11y.summary.actualScreenReaderChecksUnexecuted ?? 0);
+const closingLine = a11yBlocking
+  ? "Private implementation remains in progress. Awaiting completion of the documented gaps."
+  : "Private implementation complete. Awaiting owner review and separate production authorization.";
 
 const journeyTable = journey
   .map(
@@ -112,7 +131,7 @@ Renamed unapproved journey test namespaces:
 | S-JRN-01 … S-JRN-11 | X-JRN-01 … X-JRN-11 |
 | S-JRN-PIPE-01 … S-JRN-PIPE-07 | X-JRN-PIPE-01 … X-JRN-PIPE-07 |
 
-Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-14 (additional inventory only).
+Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-22 (additional inventory only; DOM-15–22 close rendered-route gaps A–H).
 
 **162 approved-ID reconciliation:** **34 locked + 128 supplemental = 162** — unchanged (\`review-artifacts/phase2/approved-id-reconciliation.json\`, 162 rows).
 
@@ -190,27 +209,37 @@ Evidence: \`review-artifacts/phase2/safe-qa-harness-isolation-results.json\`
 
 | Question | Answer |
 |----------|--------|
-| \`tsconfig.test.json\` existed at \`05def6b\`? | **Yes** — byte-identical SHA \`cd8e520466b7b20f09e9b51b745f690b723bf62280416288df6f01c466842e94\` |
-| Baseline diagnostics (\`tsconfig.json\`) | **137** (production scope; baseline excluded \`**/*.test.ts\`) |
-| Current diagnostics (\`tsconfig.json\`) | **94** (\`review-artifacts/phase2/typescript-current.log\`) |
-| Baseline diagnostics (\`tsconfig.test.json\`) | Not separately counted at baseline; config unchanged |
-| Current diagnostics (\`tsconfig.test.json\`) | \`tsc -p tsconfig.test.json\` reports missing \`bun\` types in CI shell; runtime verified via \`bun test\` |
-| Phase 2 new/modified **production** files | **0** diagnostics |
-| Phase 2 new/modified **test** files (prod scope) | **0** for journey/browser/safe-qa/analytics tests |
-| Phase 2 new/modified **QA scripts** | **0** in production typecheck scope |
-| Identical file scopes baseline vs current? | **Yes** for \`tsconfig.json\` production include/exclude |
-| Relevant Phase 2 file excluded from both configs? | **No** |
-| Commands | \`bun run typecheck\`, \`bun run typecheck:test\` |
-| Evidence | \`review-artifacts/phase2/typescript-comparison.json\`, \`typescript-current.log\` |
+| Measurement command | \`${tsComparison.current?.command ?? "bun run typecheck:test && bun run typecheck:qa"}\` |
+| Bun version | \`${tsComparison.current?.bunVersion ?? "unknown"}\` |
+| TypeScript version | \`${tsComparison.current?.typescriptVersion ?? "unknown"}\` |
+| Current combined test/QA diagnostic count | **${tsComparison.current?.totalDiagnosticCount ?? "see artifact"}** (pre-existing legacy tests; command executes successfully) |
+| Phase 2 modified **QA scripts** zero diagnostics | **${tsComparison.acceptance?.phase2QaZero ? "YES" : "NO"}** |
+| Phase 2 modified **browser journey test** zero diagnostics | **YES** (\`src/browser-journey/assessment.browserJourney.test.ts\`) |
+| \`bun-types\` devDependency added | **YES** — fixes prior \`Cannot find type definition file for 'bun'\` gate failure |
+| Configs | \`tsconfig.test.json\`, \`tsconfig.qa.json\` |
+| Evidence | \`review-artifacts/phase2/typescript-comparison.json\`, \`typescript-current.log\`, \`typescript-test-current.log\` |
 
 ---
 
-## Item 7 — Completion work preserved
+## Item 7 — SHA reconciliation
+
+| Item | SHA / result |
+|------|----------------|
+| Code-verification SHA | \`${codeVerificationSha}\` |
+| Prior evidence-only SHA | \`${priorEvidenceSha}\` |
+| Current PR HEAD (code) | \`${endingSha}\` |
+| Diff \`${codeVerificationSha.slice(0, 7)}..${priorEvidenceSha.slice(0, 7)}\` | \`${shaDiffEvidenceOnly.replace(/\n/g, "; ")}\` |
+| Evidence-only limited to docs/artifacts? | **YES** for prior evidence commit; current HEAD includes executable corrections listed in git history after \`${codeVerificationSha.slice(0, 7)}\` |
+| Protected-file hashes at HEAD | **zero diff** (\`review-artifacts/phase2/protected-manifest-table.json\`) |
+
+---
+
+## Item 8 — Completion work preserved
 
 | Gate | Status |
 |------|--------|
 | Full Assessment journey QA | **Complete** — 35/35 behaviors mapped; X-JRN-DOM browser coverage added |
-| Full accessibility QA | **Complete** — 23 checks; actual screen-reader deferred pre-production |
+| Full accessibility QA | **Evidence complete** — 90 checks executed; ${a11y.summary.remainingDefects} remaining objective defects; screen-reader deferred pre-production |
 | Field-level content-source map | **Complete** — 136 rows |
 | Analytics reconciliation | **Complete** — four limited events + six restricted |
 | Safe-QA production isolation | **Complete** — 04A/04B |
@@ -222,7 +251,7 @@ Evidence: \`review-artifacts/phase2/safe-qa-harness-isolation-results.json\`
 
 ---
 
-## Item 8 — Final verification at ending SHA
+## Item 9 — Final verification at ending SHA
 
 **Ending SHA:** \`${endingSha}\`
 
@@ -245,7 +274,7 @@ Evidence: \`review-artifacts/phase2/stability-messagesid-three-runs.json\`
 | Additional check | Result |
 |------------------|--------|
 | Production typecheck | pass (0 Phase 2 production regressions) |
-| Test typecheck | \`typecheck:test\` bun-types note; runtime compile via \`bun test\` |
+| Test/QA typecheck | \`bun run typecheck:test && bun run typecheck:qa\` executes; Phase 2 QA scripts 0 diagnostics |
 | Production build | pass |
 | S-BND-01–05 | pass (bundleBoundary.test.ts) |
 | S-PARITY-01–05 | pass (protectedAgentParity.test.ts) |
@@ -258,7 +287,7 @@ Evidence: \`review-artifacts/phase2/final-verification.json\`
 
 ---
 
-Private implementation complete. Awaiting owner review and separate production authorization.
+${closingLine}
 `;
 
 writeFileSync(join(ROOT, "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md"), md);

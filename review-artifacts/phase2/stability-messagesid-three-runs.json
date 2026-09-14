@@ -1,35 +1,20 @@
 [
   {
     "run": 1,
-    "command": "bun test src/server/sms/sendState.duplication.test.ts",
-    "pass": 13,
-    "fail": 0,
-    "skip": 0,
-    "timeout": 0,
-    "durationMs": 114,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [4.99ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [87.00ms]",
+    "status": 0
   },
   {
     "run": 2,
-    "command": "bun test src/server/sms/sendState.duplication.test.ts",
-    "pass": 13,
-    "fail": 0,
-    "skip": 0,
-    "timeout": 0,
-    "durationMs": 116,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.03ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [106.00ms]",
+    "status": 0
   },
   {
     "run": 3,
-    "command": "bun test src/server/sms/sendState.duplication.test.ts",
-    "pass": 13,
-    "fail": 0,
-    "skip": 0,
-    "timeout": 0,
-    "durationMs": 115,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [4.88ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [84.00ms]",
+    "status": 0
   }
 ]

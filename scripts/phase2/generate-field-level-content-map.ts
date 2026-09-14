@@ -22,7 +22,7 @@ type Row = {
 const rows: Row[] = [];
 
 function add(row: Omit<Row, "status"> & { status?: string }): void {
-  rows.push({ status: "implemented", ...row, status: row.status ?? "implemented" });
+  rows.push({ ...row, status: row.status ?? "implemented" });
 }
 
 function readRouteMeta(routeFile: string): { title: string; description: string } {

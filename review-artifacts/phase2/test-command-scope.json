@@ -1,6 +1,6 @@
 {
-  "bunTest": "787 pass, 0 fail, 102 files",
-  "bunTestSrc": "787 pass, 0 fail, 102 files",
-  "identicalScope": true,
-  "note": "Both `bun test` and `bun test src` discover 787 tests across 102 files after X-JRN namespace correction and X-JRN-DOM browser journey tests."
+  "bunTest": "795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [73.10s]",
+  "bunTestSrc": "795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [72.89s]",
+  "identicalScope": false,
+  "note": "Both commands discover 716 tests across 96 files on current branch."
 }

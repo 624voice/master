@@ -48,7 +48,7 @@ const rows: Row[] = [
   })),
   ...Array.from({ length: 14 }, (_, i) => ({
     id: `X-JRN-DOM-${String(i + 1).padStart(2, "0")}`,
-    file: "src/routes/assessment.browserJourney.test.ts",
+    file: "src/browser-journey/assessment.browserJourney.test.ts",
     test: `X-JRN-DOM-${String(i + 1).padStart(2, "0")}`,
     result: "pass" as const,
   })),

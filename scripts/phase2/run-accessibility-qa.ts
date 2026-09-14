@@ -25,7 +25,7 @@ import {
   stopRedisStub,
   submitLeadToResults,
   waitForServer,
-} from "../../src/routes/assessmentBrowserJourneySupport";
+} from "../../src/browser-journey/assessmentBrowserJourneySupport";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 const OUT_DIR = join(REPO_ROOT, "review-artifacts/phase2/accessibility-qa");
@@ -1022,7 +1022,7 @@ async function runAssessmentKeyboardJourney(page: Page) {
     supportingEvidence: KEYBOARD_EVIDENCE,
   });
 
-  await page.click("#respond-R1", { clickCount: 3 });
+  await page.click("#respond-R1", { count: 3 });
   await page.type("#respond-R1", "450");
   const assumptions = await page.$eval(
     "#respond-R1",
@@ -1055,7 +1055,10 @@ async function runAssessmentKeyboardJourney(page: Page) {
     requirement: "Assessment keyboard — conditional questions",
     routeOrState: "/assessment conditional branch",
     method: "Accessibility-tree inspection",
-    result: journey.conditionalQuestions.followUpActivated ? "pass" : "fail",
+    result: (journey.conditionalQuestions as { followUpActivated: boolean })
+      .followUpActivated
+      ? "pass"
+      : "fail",
     defectFound: "none",
     correctionMade: "none",
     evidenceRef: evidenceRef("assessmentJourney.conditionalQuestions"),
@@ -1162,7 +1165,9 @@ async function runAssessmentKeyboardJourney(page: Page) {
     requirement: "Assessment keyboard — results rendering",
     routeOrState: "/assessment results",
     method: "Accessibility-tree inspection",
-    result: journey.results.priorityVisible ? "pass" : "fail",
+    result: (journey.results as { priorityVisible: boolean }).priorityVisible
+      ? "pass"
+      : "fail",
     defectFound: "none",
     correctionMade: "none",
     evidenceRef: evidenceRef("assessmentJourney.results"),
@@ -1172,7 +1177,9 @@ async function runAssessmentKeyboardJourney(page: Page) {
     requirement: "Status announcements — results state",
     routeOrState: "/assessment results",
     method: "Accessibility-tree inspection",
-    result: journey.results.priorityVisible ? "pass" : "fail",
+    result: (journey.results as { priorityVisible: boolean }).priorityVisible
+      ? "pass"
+      : "fail",
     defectFound: "none",
     correctionMade: "none",
     evidenceRef: evidenceRef("liveRegions.results"),
@@ -1203,7 +1210,8 @@ async function runAssessmentKeyboardJourney(page: Page) {
     routeOrState: "/assessment results report 503 retry",
     method: "Accessibility-tree inspection",
     result:
-      reportFail.access.status === 503 && journey.reportAction.resultsStillVisible
+      reportFail.access.status === 503 &&
+      (journey.reportAction as { resultsStillVisible: boolean }).resultsStillVisible
         ? "pass"
         : "fail",
     defectFound: "none",

@@ -1,62 +1,52 @@
 [
   {
     "run": 1,
-    "command": "bun test src",
-    "pass": 787,
+    "command": "bun test",
+    "pass": 795,
     "fail": 0,
-    "skip": 0,
-    "timeout": 0,
+    "tests": 795,
     "files": 102,
-    "durationMs": 45225,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.13ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [72.17s]",
+    "status": 0
   },
   {
     "run": 2,
-    "command": "bun test src",
-    "pass": 787,
+    "command": "bun test",
+    "pass": 795,
     "fail": 0,
-    "skip": 0,
-    "timeout": 0,
+    "tests": 795,
     "files": 102,
-    "durationMs": 41946,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.12ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [72.15s]",
+    "status": 0
   },
   {
     "run": 3,
-    "command": "bun test src",
-    "pass": 787,
+    "command": "bun test",
+    "pass": 795,
     "fail": 0,
-    "skip": 0,
-    "timeout": 0,
+    "tests": 795,
     "files": 102,
-    "durationMs": 45324,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.13ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [70.94s]",
+    "status": 0
   },
   {
     "run": 4,
-    "command": "bun test src",
-    "pass": 787,
+    "command": "bun test",
+    "pass": 795,
     "fail": 0,
-    "skip": 0,
-    "timeout": 0,
+    "tests": 795,
     "files": 102,
-    "durationMs": 44857,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [72.05s]",
+    "status": 0
   },
   {
     "run": 5,
-    "command": "bun test src",
-    "pass": 787,
-    "fail": 0,
-    "skip": 0,
-    "timeout": 0,
+    "command": "bun test",
+    "pass": 794,
+    "fail": 1,
+    "tests": 795,
     "files": 102,
-    "durationMs": 45196,
-    "status": 0,
-    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
+    "tail": "1 tests failed:\n(fail) processEvent production safety > matching lead without consent sends no SMS [0.36ms]\n\n 794 pass\n 1 fail\n 2080 expect() calls\nRan 795 tests across 102 files. [72.07s]",
+    "status": 0
   }
 ]

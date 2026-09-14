@@ -5,7 +5,7 @@
       "X-JRN-01",
       "X-JRN-DOM-01"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-01 / X-JRN-DOM-01",
     "assertion": "UNIVERSAL_FORWARD_STEPS length 7; gate form visible",
     "evidenceClass": "unit+browser/DOM",
@@ -18,7 +18,7 @@
       "X-JRN-02",
       "X-JRN-DOM-02"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-02 / X-JRN-DOM-02",
     "assertion": "flowStepBack returns bp1; #assessment-bp1 visible after Back",
     "evidenceClass": "unit+browser/DOM",
@@ -31,7 +31,7 @@
       "X-JRN-02",
       "X-JRN-DOM-03"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-02 / X-JRN-DOM-03",
     "assertion": "engine answers preserved; select values unchanged",
     "evidenceClass": "unit+browser/DOM",
@@ -43,7 +43,7 @@
     "testIds": [
       "X-JRN-DOM-04"
     ],
-    "testFile": "assessment.browserJourney.test.ts",
+    "testFile": "browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-DOM-04",
     "assertion": "follow-up prompt matches track where new leads come from",
     "evidenceClass": "browser/DOM",
@@ -55,7 +55,7 @@
     "testIds": [
       "X-JRN-DOM-04"
     ],
-    "testFile": "assessment.browserJourney.test.ts",
+    "testFile": "browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-DOM-04",
     "assertion": "after downgrade, follow-up text absent",
     "evidenceClass": "browser/DOM",
@@ -65,12 +65,13 @@
   {
     "requiredBehavior": "Stale-answer deletion after branch removal",
     "testIds": [
-      "X-JRN-03"
+      "X-JRN-03",
+      "X-JRN-DOM-15"
     ],
-    "testFile": "assessmentJourney.test.ts",
-    "executableTestName": "X-JRN-03",
-    "assertion": "engine.answers.has(GF-F1) false after onScreeningChanged",
-    "evidenceClass": "unit",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-03 / X-JRN-DOM-15",
+    "assertion": "engine.answers.has(GF-F1) false; rendered DOM and submit payload exclude GF-F1",
+    "evidenceClass": "unit+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-deletion-after-branch-removal"
   },
@@ -152,7 +153,7 @@
       "X-JRN-04",
       "X-JRN-DOM-05"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-04 / X-JRN-DOM-05",
     "assertion": "modeled combined label; #respond-R1 editable",
     "evidenceClass": "unit+browser/DOM",
@@ -165,7 +166,7 @@
       "X-JRN-05",
       "X-JRN-DOM-05"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-05 / X-JRN-DOM-05",
     "assertion": "visitor_provided label; input value contains 450",
     "evidenceClass": "unit+browser/DOM",
@@ -274,7 +275,7 @@
       "X-JRN-PIPE-01",
       "X-JRN-DOM-06"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-PIPE-01 / X-JRN-DOM-06",
     "assertion": "validateLeadInfo errors; role=alert in DOM",
     "evidenceClass": "server+browser/DOM",
@@ -288,7 +289,7 @@
       "X-JRN-DOM-07",
       "X-JRN-DOM-13"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-PIPE-02 / X-JRN-DOM-07",
     "assertion": "handler ok after fix; Your priority areas in DOM",
     "evidenceClass": "server+browser/DOM",
@@ -300,7 +301,7 @@
     "testIds": [
       "X-JRN-DOM-08"
     ],
-    "testFile": "assessment.browserJourney.test.ts",
+    "testFile": "browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-DOM-08",
     "assertion": "checkbox.checked === false",
     "evidenceClass": "browser/DOM",
@@ -313,7 +314,7 @@
       "X-JRN-PIPE-03",
       "X-JRN-DOM-09"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-PIPE-03 / X-JRN-DOM-09",
     "assertion": "result.ok; Priority text in DOM",
     "evidenceClass": "server+browser/DOM",
@@ -323,12 +324,13 @@
   {
     "requiredBehavior": "PDF access without SMS consent",
     "testIds": [
-      "X-JRN-PIPE-03"
+      "X-JRN-PIPE-03",
+      "X-JRN-DOM-21"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts",
-    "executableTestName": "X-JRN-PIPE-03",
-    "assertion": "reportToken truthy without SMS consent",
-    "evidenceClass": "server",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-03 / X-JRN-DOM-21",
+    "assertion": "reportToken truthy; Download button fetch returns application/pdf",
+    "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#pdf-access-without-sms-consent"
   },
@@ -338,7 +340,7 @@
       "X-JRN-PIPE-04",
       "X-JRN-DOM-10"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-PIPE-04 / X-JRN-DOM-10",
     "assertion": "startAgent not called; results render with consent checked",
     "evidenceClass": "server+browser/DOM",
@@ -351,7 +353,7 @@
       "X-JRN-10",
       "X-JRN-DOM-11"
     ],
-    "testFile": "assessmentJourney.test.ts / assessment.browserJourney.test.ts",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
     "executableTestName": "X-JRN-10 / X-JRN-DOM-11",
     "assertion": "priorityGroups ordered; Priority 1 in ol",
     "evidenceClass": "unit+browser/DOM",
@@ -361,36 +363,39 @@
   {
     "requiredBehavior": "Equal-priority/tie presentation",
     "testIds": [
-      "X-JRN-10"
+      "X-JRN-10",
+      "X-JRN-DOM-22"
     ],
-    "testFile": "assessmentJourney.test.ts",
-    "executableTestName": "X-JRN-10",
-    "assertion": "tiedGroup length > 1",
-    "evidenceClass": "unit",
+    "testFile": "assessmentJourney.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-10 / X-JRN-DOM-22",
+    "assertion": "tiedGroup length > 1; rendered Tied badge with 2+ labels in Priority 1",
+    "evidenceClass": "unit+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#equal-priority/tie-presentation"
   },
   {
     "requiredBehavior": "Successful report access",
     "testIds": [
-      "X-JRN-PIPE-05"
+      "X-JRN-PIPE-05",
+      "X-JRN-DOM-16"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts",
-    "executableTestName": "X-JRN-PIPE-05",
-    "assertion": "serveAssessmentTokenPdf status 200 application/pdf",
-    "evidenceClass": "server",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-05 / X-JRN-DOM-16",
+    "assertion": "serveAssessmentTokenPdf 200; visitor Download fetch returns application/pdf",
+    "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#successful-report-access"
   },
   {
     "requiredBehavior": "Repeat report access",
     "testIds": [
-      "X-JRN-PIPE-05"
+      "X-JRN-PIPE-05",
+      "X-JRN-DOM-17"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts",
-    "executableTestName": "X-JRN-PIPE-05",
-    "assertion": "second serveAssessmentTokenPdf status 200",
-    "evidenceClass": "server",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-05 / X-JRN-DOM-17",
+    "assertion": "second access same reportUrl without replacement token",
+    "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#repeat-report-access"
   },
@@ -398,11 +403,11 @@
     "requiredBehavior": "Invalid token behavior",
     "testIds": [
       "X-JRN-PIPE-06",
-      "X-JRN-DOM-12"
+      "X-JRN-DOM-18"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
-    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-12",
-    "assertion": "404 plain text expired or invalid",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-18",
+    "assertion": "404 plain text expired or invalid in rendered route",
     "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#invalid-token-behavior"
@@ -411,11 +416,11 @@
     "requiredBehavior": "Expired token behavior",
     "testIds": [
       "X-JRN-PIPE-06",
-      "X-JRN-DOM-12"
+      "X-JRN-DOM-19"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
-    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-12",
-    "assertion": "getAssessmentReportTokenData null → 404",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-06 / X-JRN-DOM-19",
+    "assertion": "deleted token → 404 rendered message",
     "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#expired-token-behavior"
@@ -424,11 +429,11 @@
     "requiredBehavior": "Retryable report failure with recovery action",
     "testIds": [
       "X-JRN-PIPE-07",
-      "X-JRN-DOM-13"
+      "X-JRN-DOM-20"
     ],
-    "testFile": "assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts",
-    "executableTestName": "X-JRN-PIPE-07 / X-JRN-DOM-13",
-    "assertion": "recovery message string; validation recovery to results",
+    "testFile": "assessmentJourneyPipeline.test.ts / browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-PIPE-07 / X-JRN-DOM-20",
+    "assertion": "503 report access then recovery PDF; results remain visible",
     "evidenceClass": "server+browser/DOM",
     "result": "pass",
     "evidenceRef": "review-artifacts/phase2/assessment-journey-coverage-map.json#retryable-report-failure-with-recovery-action"
