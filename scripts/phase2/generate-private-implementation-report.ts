@@ -41,6 +41,10 @@ const analyticsBlocks = analytics
 |-------|-------|
 | Permitted (locked) | ${JSON.stringify(row.permittedByLockedContract)} |
 | Required (locked) | ${JSON.stringify(row.requiredByLockedContract)} |
+| Locked document | ${row.lockedSourceDocument} |
+| Locked section | ${row.lockedSourceSection} |
+| Locked table row | ${row.lockedSourceTableRow ?? row.lockedSourceCitation} |
+| Locked field/table cell | ${row.lockedSourceFieldOrTableRow ?? "see permitted/required columns"} |
 | Locked citation | ${row.lockedSourceCitation} |
 | Dispatched at call site | ${JSON.stringify(row.currentlyDispatchedFields)} |
 | Call site | \`${row.callSiteFile}:${row.callSiteLine}\` |
@@ -141,7 +145,9 @@ ${journeyTable}
 | Automated checks passed / failed | ${a11y.summary.automatedChecksPassed} / ${a11y.summary.automatedChecksFailed} |
 | Manual keyboard checks passed / failed | ${a11y.summary.manualKeyboardChecksPassed} / ${a11y.summary.manualKeyboardChecksFailed} |
 | Actual screen-reader passed / failed / unexecuted | ${a11y.summary.actualScreenReaderChecksPassed} / ${a11y.summary.actualScreenReaderChecksFailed} / ${a11y.summary.actualScreenReaderChecksUnexecuted} |
-| Defects found / corrected | ${a11y.summary.defectsFound} / ${a11y.summary.defectsCorrected} |
+| Defects found (final pass / earlier) | ${a11y.summary.defectsFoundFinalPass ?? a11y.summary.defectsFound} / ${a11y.summary.defectsFoundEarlierPasses ?? 0} |
+| Defects corrected (final pass / earlier) | ${a11y.summary.defectsCorrectedFinalPass ?? 0} / ${a11y.summary.defectsCorrectedEarlier ?? a11y.summary.defectsCorrected ?? 0} |
+| Remaining defects | ${a11y.summary.remainingDefects ?? a11y.summary.defectsFound} |
 | Remaining unexecuted | ${JSON.stringify(a11y.summary.remainingFailuresOrUnexecuted)} |
 
 | Requirement | Route/state | Method | Tool | Result | Defect | Correction | Evidence |

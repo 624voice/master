@@ -16,6 +16,46 @@ const LIMITED = [
   ANALYTICS_EVENTS.roi_agent_triggered,
 ] as const;
 
+/** Locked Phase2Final Section 14 ten-event table rows (authoritative field definitions). */
+const LOCKED_EVENT_SOURCE: Record<
+  (typeof LIMITED)[number],
+  {
+    lockedSourceDocument: string;
+    lockedSourceSection: string;
+    lockedSourceTableRow: string;
+    lockedSourceFieldOrTableRow: string;
+  }
+> = {
+  [ANALYTICS_EVENTS.lead_gate_complete]: {
+    lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
+    lockedSourceTableRow: 'Row 5 — event "lead_gate_complete"',
+    lockedSourceFieldOrTableRow:
+      'Permitted fields column: source (operational_metadata). Required fields column: source.',
+  },
+  [ANALYTICS_EVENTS.sms_consent_opt_in]: {
+    lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
+    lockedSourceTableRow: 'Row 6 — event "sms_consent_opt_in"',
+    lockedSourceFieldOrTableRow:
+      'Permitted fields column: source (operational_metadata). Required fields column: source.',
+  },
+  [ANALYTICS_EVENTS.assessment_complete]: {
+    lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
+    lockedSourceTableRow: 'Row 7 — event "assessment_complete"',
+    lockedSourceFieldOrTableRow:
+      'Permitted fields column: hasEstimate (non_identifying_analytics). Required fields column: hasEstimate.',
+  },
+  [ANALYTICS_EVENTS.roi_agent_triggered]: {
+    lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
+    lockedSourceTableRow: 'Row 9 — event "roi_agent_triggered"',
+    lockedSourceFieldOrTableRow:
+      'Permitted fields column: source (operational_metadata). Required fields column: source.',
+  },
+};
+
 const DISPATCHED: Record<
   (typeof LIMITED)[number],
   { fields: Record<string, string>; file: string; line: number }
@@ -70,11 +110,14 @@ const rows = LIMITED.map((event) => {
     reason: "Permitted by contract but not required at this call site",
   }));
 
+  const locked = LOCKED_EVENT_SOURCE[event];
   return {
     event,
-    lockedSourceDocument: "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
-    lockedSourceSection: "Section 14 — Analytics privacy contract (ten events)",
-    lockedSourceCitation: `624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "${event}"`,
+    lockedSourceDocument: locked.lockedSourceDocument,
+    lockedSourceSection: locked.lockedSourceSection,
+    lockedSourceTableRow: locked.lockedSourceTableRow,
+    lockedSourceFieldOrTableRow: locked.lockedSourceFieldOrTableRow,
+    lockedSourceCitation: `${locked.lockedSourceDocument} — ${locked.lockedSourceSection} — ${locked.lockedSourceTableRow} — ${locked.lockedSourceFieldOrTableRow}`,
     permittedByLockedContract: Object.fromEntries(
       permitted.map((key) => [key, contract.permittedProperties[key]]),
     ),
