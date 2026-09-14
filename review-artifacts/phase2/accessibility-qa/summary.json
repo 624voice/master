@@ -1,25 +1,22 @@
 {
-  "tooling": "puppeteer-core manual keyboard/semantic inspection (no axe substitute)",
-  "rulesChecked": [
-    "keyboard tab order",
-    "focus visibility",
-    "landmarks",
-    "heading hierarchy",
-    "image alt",
-    "form labels",
-    "aria-live progress",
-    "mobile menu aria-expanded",
-    "contrast color sampling",
-    "prefers-reduced-motion probe"
-  ],
-  "defectsFound": [],
-  "fixesMade": [
-    "Added Assessment Back button for keyboard/back navigation (assessment.tsx)"
+  "tooling": "puppeteer-core 25.10.0 + @sparticuz/chromium; production build on port 3000 with Redis stub backend for assessment/report flows",
+  "probedAt": "2026-09-14T22:59:02.189Z",
+  "publicRoutes": [
+    "/",
+    "/what-we-do",
+    "/how-we-work",
+    "/demo",
+    "/about",
+    "/contact",
+    "/assessment",
+    "/services",
+    "/does-not-exist-404"
   ],
   "routeResults": [
     {
       "route": "/",
       "semantics": {
+        "route": "/",
         "landmarks": {
           "main": 1,
           "nav": 1,
@@ -29,7 +26,7 @@
         "headings": [
           {
             "tag": "H1",
-            "text": "Turn More Leads Into Booked Work and Keep Customers Coming B"
+            "text": "Turn More Leads Into Booked Work and Keep Customers Coming Back"
           },
           {
             "tag": "H2",
@@ -141,7 +138,7 @@
           },
           {
             "tag": "H2",
-            "text": "More Than 18 Years Across Communications, Technology, and Cu"
+            "text": "More Than 18 Years Across Communications, Technology, and Customer Operations"
           },
           {
             "tag": "H2",
@@ -158,142 +155,183 @@
         ],
         "imagesMissingAlt": 0,
         "unlabeledInputs": 0,
-        "prefersReduced": false,
-        "animatedElements": 41
+        "h1Count": 1,
+        "title": "624 Voice: AI Growth Systems for Home Services"
       },
       "tabOrder": [
-        "A624 Voice",
-        "AWhat We Do",
-        "AHow We Work",
-        "ALive Demo",
-        "AFree Assessment",
-        "AAbout",
-        "ABook Your AI Growth ",
-        "ABook Your AI Growth "
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Get Your Free Assessment",
+        "A:See the System Work"
       ],
       "focusVisible": true,
-      "contrastSample": {
-        "bodyColor": "oklch(0.21 0.034 264.665)",
-        "bodyBackground": "rgb(255, 255, 255)",
-        "controlColor": "oklch(0.21 0.034 264.665)",
-        "controlBackground": "rgba(0, 0, 0, 0)"
-      }
-    },
-    {
-      "route": "/assessment",
-      "semantics": {
-        "landmarks": {
-          "main": 1,
-          "nav": 1,
-          "header": 1,
-          "footer": 1
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
         },
-        "headings": [
-          {
-            "tag": "H1",
-            "text": "Find Your Top Priorities"
-          },
-          {
-            "tag": "H4",
-            "text": "Pages"
-          },
-          {
-            "tag": "H4",
-            "text": "Contact"
-          }
-        ],
-        "imagesMissingAlt": 0,
-        "unlabeledInputs": 0,
-        "prefersReduced": false,
-        "animatedElements": 25
-      },
-      "tabOrder": [
-        "A624 Voice",
-        "AWhat We Do",
-        "AHow We Work",
-        "ALive Demo",
-        "AFree Assessment",
-        "AAbout",
-        "ABook Your AI Growth ",
-        "SELECT#assessment-bp1Choose a trade…\nPlum"
-      ],
-      "focusVisible": true,
-      "contrastSample": {
-        "bodyColor": "oklch(0.21 0.034 264.665)",
-        "bodyBackground": "rgb(255, 255, 255)",
-        "controlColor": "oklch(0.21 0.034 264.665)",
-        "controlBackground": "rgba(0, 0, 0, 0)"
-      }
-    },
-    {
-      "route": "/contact",
-      "semantics": {
-        "landmarks": {
-          "main": 1,
-          "nav": 1,
-          "header": 1,
-          "footer": 1
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
         },
-        "headings": [
-          {
-            "tag": "H1",
-            "text": "Ready to Answer Every Call?"
-          },
-          {
-            "tag": "H2",
-            "text": "Send Us a Message"
-          },
-          {
-            "tag": "H2",
-            "text": "Other Ways to Reach Us"
-          },
-          {
-            "tag": "H3",
-            "text": "Email"
-          },
-          {
-            "tag": "H3",
-            "text": "90-Day Results Guarantee"
-          },
-          {
-            "tag": "H2",
-            "text": "Not Ready Yet? No Problem."
-          },
-          {
-            "tag": "H4",
-            "text": "Pages"
-          },
-          {
-            "tag": "H4",
-            "text": "Contact"
-          }
-        ],
-        "imagesMissingAlt": 0,
-        "unlabeledInputs": 3,
-        "prefersReduced": false,
-        "animatedElements": 25
-      },
-      "tabOrder": [
-        "A624 Voice",
-        "AWhat We Do",
-        "AHow We Work",
-        "ALive Demo",
-        "AFree Assessment",
-        "AAbout",
-        "ABook Your AI Growth ",
-        "INPUT#firstName"
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No form labels on this route"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "rgb(16, 185, 129)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
       ],
-      "focusVisible": true,
-      "contrastSample": {
-        "bodyColor": "oklch(0.21 0.034 264.665)",
-        "bodyBackground": "rgb(255, 255, 255)",
-        "controlColor": "oklch(0.21 0.034 264.665)",
-        "controlBackground": "rgba(0, 0, 0, 0)"
+      "zoom": {
+        "route": "/",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 9684,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 41,
+        "reducedAnimatedOrTransitioningCount": 41,
+        "result": "FAIL"
       }
     },
     {
       "route": "/what-we-do",
       "semantics": {
+        "route": "/what-we-do",
         "landmarks": {
           "main": 1,
           "nav": 1,
@@ -307,7 +345,7 @@
           },
           {
             "tag": "H2",
-            "text": "Get Found: Can the right homeowners find you and trust what "
+            "text": "Get Found: Can the right homeowners find you and trust what they see?"
           },
           {
             "tag": "H3",
@@ -351,7 +389,7 @@
           },
           {
             "tag": "H2",
-            "text": "Retain and Grow: Do you keep and grow the customers you alre"
+            "text": "Retain and Grow: Do you keep and grow the customers you already have?"
           },
           {
             "tag": "H3",
@@ -371,7 +409,7 @@
           },
           {
             "tag": "H2",
-            "text": "Reduce Manual Work: Is the business still running on manual "
+            "text": "Reduce Manual Work: Is the business still running on manual effort?"
           },
           {
             "tag": "H3",
@@ -387,7 +425,7 @@
           },
           {
             "tag": "H2",
-            "text": "Measure and Improve: Can you see whether any of this is work"
+            "text": "Measure and Improve: Can you see whether any of this is working?"
           },
           {
             "tag": "H3",
@@ -416,34 +454,2645 @@
         ],
         "imagesMissingAlt": 0,
         "unlabeledInputs": 0,
-        "prefersReduced": false,
-        "animatedElements": 26
+        "h1Count": 1,
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice"
       },
       "tabOrder": [
-        "A624 Voice",
-        "AWhat We Do",
-        "AHow We Work",
-        "ALive Demo",
-        "AFree Assessment",
-        "AAbout",
-        "ABook Your AI Growth ",
-        "ASee How the Journey "
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:See How the Journey Fits Together",
+        "A:Try the Live Demo",
+        "A:See What a Consultation Covers"
       ],
       "focusVisible": true,
-      "contrastSample": {
-        "bodyColor": "oklch(0.21 0.034 264.665)",
-        "bodyBackground": "rgb(255, 255, 255)",
-        "controlColor": "oklch(0.21 0.034 264.665)",
-        "controlBackground": "rgba(0, 0, 0, 0)"
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(241, 245, 249)",
+          "ratio": 13.91,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "rgb(16, 185, 129)",
+          "background": "rgb(241, 245, 249)",
+          "ratio": 2.32,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No form labels on this route"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No severity badges on this route/state"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/what-we-do",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 6391,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/what-we-do",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 26,
+        "reducedAnimatedOrTransitioningCount": 26,
+        "result": "FAIL"
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "semantics": {
+        "route": "/how-we-work",
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Start With the Business Problem"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 1: AI Growth Systems Consultation"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 2: Paid Diagnostic, When a Deeper Look Is Warranted"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 3: Roadmap and Focused Scope"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 4: Modular Implementation"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 5: Ongoing Optimization"
+          },
+          {
+            "tag": "H2",
+            "text": "Step 6: Quarterly Review and Measurable Next Decisions"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "h1Count": 1,
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services"
+      },
+      "tabOrder": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Get Your Free Assessment",
+        "A:624 Voice"
+      ],
+      "focusVisible": true,
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No form labels on this route"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No severity badges on this route/state"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/how-we-work",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 2971,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/how-we-work",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 26,
+        "reducedAnimatedOrTransitioningCount": 26,
+        "result": "FAIL"
+      }
+    },
+    {
+      "route": "/demo",
+      "semantics": {
+        "route": "/demo",
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Talk toJessica"
+          },
+          {
+            "tag": "H2",
+            "text": "Jessica"
+          },
+          {
+            "tag": "H2",
+            "text": "How the Customer Journey Fits Together"
+          },
+          {
+            "tag": "H2",
+            "text": "Every Missed Call Is a Job You Didn't Book"
+          },
+          {
+            "tag": "H3",
+            "text": "90-Day Results Guarantee"
+          },
+          {
+            "tag": "H2",
+            "text": "Ready to Answer Every Call?"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "h1Count": 1,
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice"
+      },
+      "tabOrder": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "BUTTON:Start your demo with Jessica",
+        "BUTTON:Start live demo with Jessica",
+        "A:Schedule Your Demo"
+      ],
+      "focusVisible": true,
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(21, 34, 51)",
+          "ratio": 16.05,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(24, 34, 47)",
+          "background": "rgb(248, 250, 252)",
+          "ratio": 15.34,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+          "background": "rgba(21, 34, 51, 0.95)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No form labels on this route"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgba(21, 34, 51, 0.95)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "oklch(0.577 0.245 27.325)",
+          "background": "rgb(241, 245, 249)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "oklch(0.577 0.245 27.325)",
+          "background": "rgb(241, 245, 249)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/demo",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 3530,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": true
+      },
+      "reducedMotion": {
+        "route": "/demo",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 28,
+        "reducedAnimatedOrTransitioningCount": 25,
+        "result": "PASS"
+      }
+    },
+    {
+      "route": "/about",
+      "semantics": {
+        "route": "/about",
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Practical AI for the Work That Keeps a Business Moving"
+          },
+          {
+            "tag": "H2",
+            "text": "Why the name 624"
+          },
+          {
+            "tag": "H2",
+            "text": "Why we look before we recommend"
+          },
+          {
+            "tag": "H2",
+            "text": "Founder"
+          },
+          {
+            "tag": "H2",
+            "text": "Why quarterly reviews matter to us"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "h1Count": 1,
+        "title": "About 624 Voice | AI Growth Systems for Home Services"
+      },
+      "tabOrder": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Get Your Free Assessment",
+        "A:624 Voice"
+      ],
+      "focusVisible": true,
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No form labels on this route"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No severity badges on this route/state"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/about",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 3119,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/about",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 26,
+        "reducedAnimatedOrTransitioningCount": 26,
+        "result": "FAIL"
+      }
+    },
+    {
+      "route": "/contact",
+      "semantics": {
+        "route": "/contact",
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Ready to Answer Every Call?"
+          },
+          {
+            "tag": "H2",
+            "text": "Send Us a Message"
+          },
+          {
+            "tag": "H2",
+            "text": "Other Ways to Reach Us"
+          },
+          {
+            "tag": "H3",
+            "text": "Email"
+          },
+          {
+            "tag": "H3",
+            "text": "90-Day Results Guarantee"
+          },
+          {
+            "tag": "H2",
+            "text": "Not Ready Yet? No Problem."
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "h1Count": 1,
+        "title": "624 Voice — Voice AI for Home Services"
+      },
+      "tabOrder": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "INPUT#firstName:",
+        "INPUT#lastName:",
+        "INPUT#businessName:"
+      ],
+      "focusVisible": true,
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "oklch(0.373 0.034 259.733)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No severity badges on this route/state"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/contact",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 2713,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/contact",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 25,
+        "reducedAnimatedOrTransitioningCount": 25,
+        "result": "FAIL"
+      }
+    },
+    {
+      "route": "/assessment",
+      "semantics": {
+        "route": "/assessment",
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Find Your Top Priorities"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "h1Count": 1,
+        "title": "624 Voice — Voice AI for Home Services"
+      },
+      "tabOrder": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "SELECT#assessment-bp1:Choose a trade…PlumbersElectriciansHVACR",
+        "A:624 Voice",
+        "A:What We Do"
+      ],
+      "focusVisible": true,
+      "contrast": [
+        {
+          "category": "body text",
+          "selector": "body",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "heading h1",
+          "selector": "h1",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(22, 39, 54)",
+          "ratio": 15.24,
+          "required": 3,
+          "isLargeText": true,
+          "pass": true
+        },
+        {
+          "category": "heading h2",
+          "selector": "h2",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "nav link",
+          "selector": "header nav a, header nav + details a",
+          "foreground": "oklch(0.446 0.03 256.802)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "button",
+          "selector": "button",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        },
+        {
+          "category": "link",
+          "selector": "main a[href]",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Element not present on this route/state"
+        },
+        {
+          "category": "form label",
+          "selector": "label",
+          "foreground": "rgb(22, 39, 54)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 15.24,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true
+        },
+        {
+          "category": "placeholder",
+          "selector": "input::placeholder",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No text inputs on this route"
+        },
+        {
+          "category": "focus indicator",
+          "selector": ":focus",
+          "foreground": "oklch(0.21 0.034 264.665)",
+          "background": "rgb(255, 255, 255)",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Could not resolve opaque foreground/background colors"
+        },
+        {
+          "category": "error state",
+          "selector": "[role=\"alert\"], .text-red-600",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No error state visible on this route/state"
+        },
+        {
+          "category": "severity state",
+          "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "No severity badges on this route/state"
+        },
+        {
+          "category": "lifecycle card",
+          "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+          "foreground": "n/a",
+          "background": "n/a",
+          "ratio": 0,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": true,
+          "naReason": "Lifecycle section not on this route"
+        },
+        {
+          "category": "CTA",
+          "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+          "foreground": "rgb(255, 255, 255)",
+          "background": "rgb(16, 185, 129)",
+          "ratio": 2.54,
+          "required": 4.5,
+          "isLargeText": false,
+          "pass": false
+        }
+      ],
+      "zoom": {
+        "route": "/assessment",
+        "scaleFactor": 2,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 1391,
+        "clientHeight": 900,
+        "hasHorizontalScroll": false,
+        "hasClipping": false
+      },
+      "reducedMotion": {
+        "route": "/assessment",
+        "prefersReducedMatches": true,
+        "baselineAnimatedOrTransitioningCount": 25,
+        "reducedAnimatedOrTransitioningCount": 25,
+        "result": "FAIL"
+      }
+    },
+    {
+      "route": "/services",
+      "initialStatus": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "expected": "http://127.0.0.1:3000/what-we-do"
+    },
+    {
+      "route": "/does-not-exist-404",
+      "status": 404,
+      "body": {
+        "h1": "Page not found",
+        "hasMain": true
       }
     }
   ],
-  "assessmentKeyboardFlow": {
-    "continueFocused": false,
-    "backAtBp1": true
+  "assessmentJourney": {
+    "initialStep": {
+      "bp1Selected": true,
+      "continueReachable": true
+    },
+    "backNavigation": {
+      "backAtBp1": true
+    },
+    "loadingAnnouncements": {
+      "context": "assessment-loading",
+      "found": true,
+      "elements": [
+        {
+          "tag": "P",
+          "live": "polite",
+          "text": "Step 2 of six areas — Get Found"
+        }
+      ]
+    },
+    "universalQuestions": {
+      "reachedRespondReview": true
+    },
+    "assumptionsReview": {
+      "respondR1Value": "350450"
+    },
+    "conditionalQuestions": {
+      "followUpActivated": true
+    },
+    "leadGateValidation": {
+      "alertPresent": true,
+      "messages": [
+        {
+          "tag": "P",
+          "role": "alert",
+          "text": "First name is required."
+        }
+      ]
+    },
+    "correctedSubmission": {
+      "reachedResults": true
+    },
+    "smsConsent": {
+      "defaultUnchecked": true
+    },
+    "results": {
+      "priorityVisible": true,
+      "severityBadgesPresent": true,
+      "liveRegions": {
+        "context": "results",
+        "found": false,
+        "elements": []
+      }
+    },
+    "reportAction": {
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/966c1822d6258e255ed105271fcf2be86727347f4c591a7e",
+      "firstAttemptStatus": 503,
+      "alertOnFailure": false,
+      "resultsStillVisible": true
+    }
   },
-  "mobileMenu": {
-    "menuPresent": false
+  "reportTokenChecks": {
+    "invalid": {
+      "status": 404,
+      "body": "This assessment report link has expired or is invalid."
+    },
+    "success": {
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/eed20ec7dea605f502c85ac29a2a89053ab60bb905ee1b3e",
+      "status": 200,
+      "pdfBytes": 111035,
+      "contentType": "application/pdf",
+      "bodySample": "[pdf:111035]"
+    },
+    "expired": {
+      "status": 404,
+      "body": "This assessment report link has expired or is invalid."
+    }
   },
-  "result": "PASS"
+  "navChecks": {
+    "desktop": {
+      "navVisible": true,
+      "links": [
+        {
+          "href": "/what-we-do",
+          "text": "What We Do"
+        },
+        {
+          "href": "/how-we-work",
+          "text": "How We Work"
+        },
+        {
+          "href": "/demo",
+          "text": "Live Demo"
+        },
+        {
+          "href": "/assessment",
+          "text": "Free Assessment"
+        },
+        {
+          "href": "/about",
+          "text": "About"
+        },
+        {
+          "href": "/contact",
+          "text": "Book Your AI Growth Systems Consultation"
+        }
+      ],
+      "tabOrderSample": [
+        "A:624 Voice",
+        "A:What We Do",
+        "A:How We Work",
+        "A:Live Demo",
+        "A:Free Assessment",
+        "A:About",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Book Your AI Growth Systems Consultation",
+        "A:Get Your Free Assessment",
+        "A:See the System Work",
+        "A:See How the Customer Journey Fits Togeth",
+        "A:Explore What We Do"
+      ]
+    },
+    "mobile": {
+      "menuPresent": true,
+      "summaryTag": "SUMMARY",
+      "open": true,
+      "mobileLinks": [
+        "/what-we-do",
+        "/how-we-work",
+        "/demo",
+        "/assessment",
+        "/about",
+        "/contact"
+      ]
+    }
+  },
+  "contrastByRoute": {
+    "/": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No form labels on this route"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "rgb(16, 185, 129)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/what-we-do": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(241, 245, 249)",
+        "ratio": 13.91,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "rgb(16, 185, 129)",
+        "background": "rgb(241, 245, 249)",
+        "ratio": 2.32,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No form labels on this route"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No severity badges on this route/state"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/how-we-work": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No form labels on this route"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No severity badges on this route/state"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/demo": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(21, 34, 51)",
+        "ratio": 16.05,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(24, 34, 47)",
+        "background": "rgb(248, 250, 252)",
+        "ratio": 15.34,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+        "background": "rgba(21, 34, 51, 0.95)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No form labels on this route"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgba(21, 34, 51, 0.95)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "oklch(0.577 0.245 27.325)",
+        "background": "rgb(241, 245, 249)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "oklch(0.577 0.245 27.325)",
+        "background": "rgb(241, 245, 249)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/about": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No form labels on this route"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No severity badges on this route/state"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/contact": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "oklch(0.373 0.034 259.733)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No severity badges on this route/state"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ],
+    "/assessment": [
+      {
+        "category": "body text",
+        "selector": "body",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "heading h1",
+        "selector": "h1",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(22, 39, 54)",
+        "ratio": 15.24,
+        "required": 3,
+        "isLargeText": true,
+        "pass": true
+      },
+      {
+        "category": "heading h2",
+        "selector": "h2",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "nav link",
+        "selector": "header nav a, header nav + details a",
+        "foreground": "oklch(0.446 0.03 256.802)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "button",
+        "selector": "button",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      },
+      {
+        "category": "link",
+        "selector": "main a[href]",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Element not present on this route/state"
+      },
+      {
+        "category": "form label",
+        "selector": "label",
+        "foreground": "rgb(22, 39, 54)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 15.24,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true
+      },
+      {
+        "category": "placeholder",
+        "selector": "input::placeholder",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No text inputs on this route"
+      },
+      {
+        "category": "focus indicator",
+        "selector": ":focus",
+        "foreground": "oklch(0.21 0.034 264.665)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Could not resolve opaque foreground/background colors"
+      },
+      {
+        "category": "error state",
+        "selector": "[role=\"alert\"], .text-red-600",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No error state visible on this route/state"
+      },
+      {
+        "category": "severity state",
+        "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "No severity badges on this route/state"
+      },
+      {
+        "category": "lifecycle card",
+        "selector": "#customer-lifecycle h3, #customer-lifecycle .rounded-xl",
+        "foreground": "n/a",
+        "background": "n/a",
+        "ratio": 0,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": true,
+        "naReason": "Lifecycle section not on this route"
+      },
+      {
+        "category": "CTA",
+        "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(16, 185, 129)",
+        "ratio": 2.54,
+        "required": 4.5,
+        "isLargeText": false,
+        "pass": false
+      }
+    ]
+  },
+  "zoomReflowByRoute": {
+    "/": {
+      "route": "/",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 9684,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    },
+    "/what-we-do": {
+      "route": "/what-we-do",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 6391,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    },
+    "/how-we-work": {
+      "route": "/how-we-work",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 2971,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    },
+    "/demo": {
+      "route": "/demo",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 3530,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": true
+    },
+    "/about": {
+      "route": "/about",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 3119,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    },
+    "/contact": {
+      "route": "/contact",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 2713,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    },
+    "/assessment": {
+      "route": "/assessment",
+      "scaleFactor": 2,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "scrollHeight": 1391,
+      "clientHeight": 900,
+      "hasHorizontalScroll": false,
+      "hasClipping": false
+    }
+  },
+  "reducedMotionByRoute": {
+    "/": {
+      "route": "/",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 41,
+      "reducedAnimatedOrTransitioningCount": 41,
+      "result": "FAIL"
+    },
+    "/what-we-do": {
+      "route": "/what-we-do",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 26,
+      "reducedAnimatedOrTransitioningCount": 26,
+      "result": "FAIL"
+    },
+    "/how-we-work": {
+      "route": "/how-we-work",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 26,
+      "reducedAnimatedOrTransitioningCount": 26,
+      "result": "FAIL"
+    },
+    "/demo": {
+      "route": "/demo",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 28,
+      "reducedAnimatedOrTransitioningCount": 25,
+      "result": "PASS"
+    },
+    "/about": {
+      "route": "/about",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 26,
+      "reducedAnimatedOrTransitioningCount": 26,
+      "result": "FAIL"
+    },
+    "/contact": {
+      "route": "/contact",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 25,
+      "reducedAnimatedOrTransitioningCount": 25,
+      "result": "FAIL"
+    },
+    "/assessment": {
+      "route": "/assessment",
+      "prefersReducedMatches": true,
+      "baselineAnimatedOrTransitioningCount": 25,
+      "reducedAnimatedOrTransitioningCount": 25,
+      "result": "FAIL"
+    }
+  },
+  "touchTargets": {
+    "mobile-nav": [
+      {
+        "label": "mobile menu summary",
+        "selector": "header details summary",
+        "width": 24,
+        "height": 24,
+        "meetsMinimum": false
+      },
+      {
+        "label": "mobile nav link",
+        "selector": "header details a",
+        "width": 327,
+        "height": 20,
+        "meetsMinimum": false
+      },
+      {
+        "label": "mobile CTA",
+        "selector": "header details a[href=\"/contact\"]",
+        "width": 327,
+        "height": 60,
+        "meetsMinimum": true
+      }
+    ],
+    "assessment-mobile": [
+      {
+        "label": "assessment answer choice",
+        "selector": "button.w-full.rounded-lg.border.px-4",
+        "width": 277,
+        "height": 46,
+        "meetsMinimum": true
+      },
+      {
+        "label": "Back button",
+        "selector": "main button Back",
+        "width": 277,
+        "height": 46,
+        "meetsMinimum": true
+      },
+      {
+        "label": "Continue button",
+        "selector": "main button Continue",
+        "width": 277,
+        "height": 44,
+        "meetsMinimum": true
+      },
+      {
+        "label": "consent checkbox",
+        "selector": "input[type=\"checkbox\"]",
+        "width": 0,
+        "height": 0,
+        "meetsMinimum": true,
+        "naReason": "Not on gate step in this mobile sample"
+      },
+      {
+        "label": "report action",
+        "selector": "Download Assessment Report",
+        "width": 0,
+        "height": 0,
+        "meetsMinimum": true,
+        "naReason": "Not on results step in this mobile sample"
+      }
+    ]
+  },
+  "liveRegions": {
+    "assessment-loading": {
+      "context": "assessment-loading",
+      "found": true,
+      "elements": [
+        {
+          "tag": "P",
+          "live": "polite",
+          "text": "Step 2 of six areas — Get Found"
+        }
+      ]
+    },
+    "lead-gate-validation": {
+      "context": "lead-gate-validation",
+      "found": true,
+      "elements": [
+        {
+          "tag": "P",
+          "role": "alert",
+          "text": "First name is required."
+        }
+      ]
+    },
+    "results": {
+      "context": "results",
+      "found": false,
+      "elements": []
+    },
+    "report-failure": {
+      "context": "report-failure",
+      "found": false,
+      "elements": []
+    }
+  },
+  "defectsFoundFinalPass": [
+    "/: contrast failures — link, severity state, CTA",
+    "/: motion not reduced under prefers-reduced-motion (baseline=41, reduced=41)",
+    "/what-we-do: contrast failures — link, CTA",
+    "/what-we-do: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
+    "/how-we-work: contrast failures — link, CTA",
+    "/how-we-work: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
+    "/demo: contrast failures — button, link, CTA",
+    "/demo: zoom/reflow horizontal scroll or clipping at 200%",
+    "/about: contrast failures — link, CTA",
+    "/about: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
+    "/contact: contrast failures — button, CTA",
+    "/contact: motion not reduced under prefers-reduced-motion (baseline=25, reduced=25)",
+    "/assessment: contrast failures — button, CTA",
+    "/assessment: motion not reduced under prefers-reduced-motion (baseline=25, reduced=25)"
+  ],
+  "defectsFoundEarlierPasses": [
+    "Assessment bp2 lacked Back button for keyboard/back navigation (corrected in prior pass)"
+  ],
+  "defectsCorrectedFinalPass": [],
+  "defectsCorrectedEarlier": [
+    "Assessment Back button added for keyboard/back navigation (assessment.tsx)"
+  ],
+  "remainingDefects": [],
+  "requirementRowCount": 88
 }
