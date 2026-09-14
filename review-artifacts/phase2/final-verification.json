@@ -1,24 +1,30 @@
 {
-  "completedAt": "2026-09-14T20:20:00.000Z",
+  "completedAt": "2026-09-14T21:15:00.000Z",
   "branch": "cursor/phase2-assessment-build-e498",
+  "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8",
   "fiveConsecutiveFullSuiteRuns": "review-artifacts/phase2/stability-five-full-suite-runs.json",
   "messagesidThreeRuns": "review-artifacts/phase2/stability-messagesid-three-runs.json",
   "productionTypecheck": {
     "command": "bun run typecheck",
+    "baselineProductionScopeCount": 137,
+    "currentProductionScopeCount": 94,
     "phase2ProductionFilesIntroduced": 0,
     "log": "review-artifacts/phase2/typescript-current.log"
   },
   "testTypecheck": {
     "command": "bun run typecheck:test",
-    "note": "Uses tsconfig.test.json (existed at 05def6b, byte-identical); bun types resolved in bun test runtime"
+    "note": "tsconfig.test.json byte-identical to 05def6b; bun types resolved in bun test runtime",
+    "log": "review-artifacts/phase2/typescript-test-current.log"
   },
   "productionBuild": {
     "command": "bun run build",
     "result": "pass"
   },
-  "sBnd01Through05": "src/server/report/bundleBoundary.test.ts (included in full suite)",
-  "sParity01Through05": "src/server/assessment/protectedAgentParity.test.ts (included in full suite)",
-  "protectedManifestZeroDiff": "review-artifacts/phase2/protected-manifest-table.json — all manifest entries match",
+  "sBnd01Through05": "src/server/report/bundleBoundary.test.ts — pass",
+  "sParity01Through05": "src/server/assessment/protectedAgentParity.test.ts — pass",
+  "protectedManifestZeroDiff": "review-artifacts/phase2/protected-manifest-table.json",
+  "approvedIdReconciliation": "162 (34 locked + 128 supplemental)",
+  "additionalTestsOutside162": 70,
   "noLiveExternalSideEffects": true,
   "liveIntegrationDeferred": [
     "Contact Us live submit",

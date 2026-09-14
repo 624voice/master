@@ -1,189 +1,312 @@
-# Phase 2 Private Implementation Report (Final Targeted Completion Pass)
+# Phase 2 Private Implementation Report (Evidence-Substantiation Pass)
 
-## 1. Branch, SHAs, PR
+## Branch, SHAs, PR
 
 | Item | Value |
 |------|-------|
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
-| Prior ending SHA | `37b12c7cd27b2cfea8cd71159473fc6ed42c6175` |
+| Prior abbreviated SHA | `fd4073f` |
+| Ending SHA (40-char) | `cb377c43396e903cd950079a9cfe0c43b54c49f8` |
 | PR | #97 (draft) |
 
-**Durable evidence root:** `review-artifacts/phase2/` (committed; accessible from PR #97).
+**Durable evidence root:** `review-artifacts/phase2/`
 
 ---
 
-## 2. Gate status summary
+## Item 1 — Namespace correction (S-JRN → X-JRN)
 
-| Category | Status |
-|----------|--------|
-| 1. Private implementation automated gates | **Passed** (773/773 tests, 162-row reconciliation, S-PARITY, PDF checklist + visual inspection) |
-| 2. Safe QA gates (presentation/navigation/a11y) | **Passed** |
-| 3. Live integration checks | **Intentionally deferred** (not authorized) |
-| 4. Category B / C launch gates | **Closed** (not in scope) |
-| 5. Production-launch blockers | Owner review + production authorization remain |
-| 6. Live Assessment-SMS activation blockers | `ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false`; live SMS not exercised |
+Renamed unapproved journey test namespaces:
 
-**Final verification artifact:** `review-artifacts/phase2/final-verification.json`
+| Old ID | New ID |
+|--------|--------|
+| S-JRN-01 … S-JRN-11 | X-JRN-01 … X-JRN-11 |
+| S-JRN-PIPE-01 … S-JRN-PIPE-07 | X-JRN-PIPE-01 … X-JRN-PIPE-07 |
 
----
+Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-14 (additional inventory only).
 
-## 3. Item 1 — Assessment journey QA (complete)
+**162 approved-ID reconciliation:** **34 locked + 128 supplemental = 162** — unchanged (`review-artifacts/phase2/approved-id-reconciliation.json`, 162 rows).
 
-Provider-isolated executable tests cover the full Assessment journey without live SMS, CRM, or external stores.
+**Confirmations:**
 
-| Requirement | Evidence |
-|-------------|----------|
-| Forward navigation through universal steps | `S-JRN-01` (`assessmentJourney.test.ts`); `assessmentFlowController.ts` `UNIVERSAL_FORWARD_STEPS` |
-| Back navigation without corrupting valid answers | `S-JRN-02`, `S-JRN-11`; Back button in `src/routes/assessment.tsx` |
-| Upstream branch change clears stale follow-ups | `S-JRN-03` (engine + scoring + lead summary + analytics + PDF view model) |
-| Respond assumptions acceptance/edits | `S-JRN-04`, `S-JRN-05`, `S-JRN-06` |
-| Low / Moderate / High Respond | `S-JRN-07` |
-| Needs-clarification | `S-JRN-08` |
-| Missing-Moderate degradation | `S-JRN-09` |
-| Priority ordering and ties | `S-JRN-10` |
-| Lead-gate validation + corrected resubmit | `S-JRN-PIPE-01`, `S-JRN-PIPE-02` |
-| SMS consent unchecked by default | `S-CMP-08`, safe-qa `smsConsentDefaultUnchecked: true` (prior pass, not regenerated) |
-| Results/PDF without SMS consent | `S-JRN-PIPE-03` |
-| Results/PDF with consent but agent flag false | `S-JRN-PIPE-04` |
-| Report access + repeat token access | `S-JRN-PIPE-05` |
-| Invalid/expired report token | `S-JRN-PIPE-06` |
-| Retryable failure + visitor recovery | `S-JRN-PIPE-07` (`Could not submit your assessment. Please try again.`) |
-
-**Primary test files:** `src/lib/assessment/assessmentJourney.test.ts`, `src/server/assessment/assessmentJourneyPipeline.test.ts`
+- X-JRN-*, X-JRN-PIPE-*, X-JRN-DOM-* appear **only** in `review-artifacts/phase2/additional-tests-table.json` (70 X-* rows total).
+- **None** of the 32 journey/browser X-* tests counts toward 162.
+- **No** approved S-* ID was displaced, renamed, duplicated, or marked satisfied by this correction.
+- Cross-references updated in test files, content-source map, field-level map, and this report.
 
 ---
 
-## 4. Item 2 — Accessibility QA (complete)
+## Item 2 — Assessment journey requirement map (35 behaviors)
 
-**Artifact:** `review-artifacts/phase2/accessibility-qa/summary.json`
+| Required behavior | Test ID(s) | Test file | Executable test name | Assertion | Evidence class | Result | Evidence ref |
+|-------------------|------------|-----------|------------------------|-----------|----------------|--------|--------------|
+| Forward navigation through universal steps | X-JRN-01, X-JRN-DOM-01 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-01 / X-JRN-DOM-01 | UNIVERSAL_FORWARD_STEPS length 7; gate form visible | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#forward-navigation-through-universal-steps |
+| Back navigation | X-JRN-02, X-JRN-DOM-02 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-02 / X-JRN-DOM-02 | flowStepBack returns bp1; #assessment-bp1 visible after Back | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#back-navigation |
+| Return after back without corrupting valid answers | X-JRN-02, X-JRN-DOM-03 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-02 / X-JRN-DOM-03 | engine answers preserved; select values unchanged | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#return-after-back-without-corrupting-valid-answers |
+| Conditional branch activation | X-JRN-DOM-04 | assessment.browserJourney.test.ts | X-JRN-DOM-04 | follow-up prompt matches track where new leads come from | browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#conditional-branch-activation |
+| Conditional branch removal | X-JRN-DOM-04 | assessment.browserJourney.test.ts | X-JRN-DOM-04 | after downgrade, follow-up text absent | browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#conditional-branch-removal |
+| Stale-answer deletion after branch removal | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | engine.answers.has(GF-F1) false after onScreeningChanged | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-deletion-after-branch-removal |
+| Stale-answer exclusion from client scoring | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | orphanGf equals cleanGf with score 0 | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-client-scoring |
+| Stale-answer exclusion from server recomputation | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | runAssessment ignores inactive follow-up IDs | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-server-recomputation |
+| Stale-answer exclusion from lead summaries | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | buildAssessmentLeadMessage excludes GF-F | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-lead-summaries |
+| Stale-answer exclusion from analytics | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | assertAnalyticsPropsAllowed rejects answer keys | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-analytics |
+| Stale-answer exclusion from results | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | view model JSON excludes GF-F1 | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-results |
+| Stale-answer exclusion from PDF content | X-JRN-03 | assessmentJourney.test.ts | X-JRN-03 | buildAssessmentReportViewModel scan excludes stale IDs | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#stale-answer-exclusion-from-pdf-content |
+| Assumptions-review acceptance | X-JRN-04, X-JRN-DOM-05 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-04 / X-JRN-DOM-05 | modeled combined label; #respond-R1 editable | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#assumptions-review-acceptance |
+| Assumptions-review edits | X-JRN-05, X-JRN-DOM-05 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-05 / X-JRN-DOM-05 | visitor_provided label; input value contains 450 | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#assumptions-review-edits |
+| Low Respond severity | X-JRN-07 | assessmentJourney.test.ts | X-JRN-07 | respondSeverity.band === Low | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#low-respond-severity |
+| Moderate Respond severity | X-JRN-07 | assessmentJourney.test.ts | X-JRN-07 | respondSeverity.band === Moderate | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#moderate-respond-severity |
+| High Respond severity | X-JRN-07 | assessmentJourney.test.ts | X-JRN-07 | respondSeverity.band === High | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#high-respond-severity |
+| All-modeled provenance | X-JRN-04 | assessmentJourney.test.ts | X-JRN-04 | combinedLabel exact F.1 modeled string | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#all-modeled-provenance |
+| All-visitor-provided provenance | X-JRN-05 | assessmentJourney.test.ts | X-JRN-05 | Calculated using the numbers you provided. | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#all-visitor-provided-provenance |
+| Mixed provenance | X-JRN-06 | assessmentJourney.test.ts | X-JRN-06 | Calculated using your information and modeled assumptions. | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#mixed-provenance |
+| Needs-clarification outcome | X-JRN-08 | assessmentJourney.test.ts | X-JRN-08 | clarifyGroup contains GF | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#needs-clarification-outcome |
+| Missing-Moderate-scenario degradation | X-JRN-09 | assessmentJourney.test.ts | X-JRN-09 | dollarEstimate null; moderateAnnualBenefitFormatted null | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#missing-moderate-scenario-degradation |
+| Lead-gate validation rejection | X-JRN-PIPE-01, X-JRN-DOM-06 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-01 / X-JRN-DOM-06 | validateLeadInfo errors; role=alert in DOM | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#lead-gate-validation-rejection |
+| Corrected resubmission after validation rejection | X-JRN-PIPE-02, X-JRN-DOM-07, X-JRN-DOM-13 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-02 / X-JRN-DOM-07 | handler ok after fix; Your priority areas in DOM | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#corrected-resubmission-after-validation-rejection |
+| SMS consent unchecked by default | X-JRN-DOM-08 | assessment.browserJourney.test.ts | X-JRN-DOM-08 | checkbox.checked === false | browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#sms-consent-unchecked-by-default |
+| Results access without SMS consent | X-JRN-PIPE-03, X-JRN-DOM-09 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-03 / X-JRN-DOM-09 | result.ok; Priority text in DOM | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#results-access-without-sms-consent |
+| PDF access without SMS consent | X-JRN-PIPE-03 | assessmentJourneyPipeline.test.ts | X-JRN-PIPE-03 | reportToken truthy without SMS consent | server | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#pdf-access-without-sms-consent |
+| Consent checked while agent flag false | X-JRN-PIPE-04, X-JRN-DOM-10 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-04 / X-JRN-DOM-10 | startAgent not called; results render with consent checked | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#consent-checked-while-agent-flag-false |
+| Priority ordering | X-JRN-10, X-JRN-DOM-11 | assessmentJourney.test.ts / assessment.browserJourney.test.ts | X-JRN-10 / X-JRN-DOM-11 | priorityGroups ordered; Priority 1 in ol | unit+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#priority-ordering |
+| Equal-priority/tie presentation | X-JRN-10 | assessmentJourney.test.ts | X-JRN-10 | tiedGroup length > 1 | unit | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#equal-priority/tie-presentation |
+| Successful report access | X-JRN-PIPE-05 | assessmentJourneyPipeline.test.ts | X-JRN-PIPE-05 | serveAssessmentTokenPdf status 200 application/pdf | server | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#successful-report-access |
+| Repeat report access | X-JRN-PIPE-05 | assessmentJourneyPipeline.test.ts | X-JRN-PIPE-05 | second serveAssessmentTokenPdf status 200 | server | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#repeat-report-access |
+| Invalid token behavior | X-JRN-PIPE-06, X-JRN-DOM-12 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-06 / X-JRN-DOM-12 | 404 plain text expired or invalid | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#invalid-token-behavior |
+| Expired token behavior | X-JRN-PIPE-06, X-JRN-DOM-12 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-06 / X-JRN-DOM-12 | getAssessmentReportTokenData null → 404 | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#expired-token-behavior |
+| Retryable report failure with recovery action | X-JRN-PIPE-07, X-JRN-DOM-13 | assessmentJourneyPipeline.test.ts / assessment.browserJourney.test.ts | X-JRN-PIPE-07 / X-JRN-DOM-13 | recovery message string; validation recovery to results | server+browser/DOM | pass | review-artifacts/phase2/assessment-journey-coverage-map.json#retryable-report-failure-with-recovery-action |
 
-| Check | Result |
-|-------|--------|
-| Keyboard tab order (4 routes) | pass |
-| Focus visibility after Tab | pass |
-| Landmarks (main/nav/header/footer) | pass |
-| Heading hierarchy | pass |
-| Image alt / form labels | pass |
-| Assessment keyboard flow + Back | pass (`assessmentKeyboardFlow.backAtBp1: true`) |
-| Mobile menu aria-expanded | pass |
-| Contrast color sampling | pass (sampled body/control colors) |
-| Reduced-motion probe | recorded |
-| Tooling | puppeteer-core manual keyboard/semantic inspection |
-| Defects found | none |
-| Fix applied | Assessment Back button for keyboard/back navigation |
-
----
-
-## 5. Item 3 — Field-level content-source map (complete)
-
-**Artifact:** `review-artifacts/phase2/content-source-map-field-level.json` — **136 rows** covering homepage through Assessment microcopy, validation errors, SMS consent, results/PDF states, nav, footer, 404, services redirect, SEO titles/descriptions, and provenance labels.
-
-Route-level map retained at `review-artifacts/phase2/content-source-map.json`.
-
-`noPublicScaffoldingConfirmed: true` — no TODO/scaffolding/audit strings in public routes.
-
----
-
-## 6. Item 4 — Analytics locked contract comparison (complete)
-
-**Artifact:** `review-artifacts/phase2/analytics-locked-contract-comparison.json`
-
-Side-by-side rows for `lead_gate_complete`, `sms_consent_opt_in`, `assessment_complete`, `roi_agent_triggered`:
-
-| Event | Required fields | Dispatched | Satisfies contract |
-|-------|-----------------|------------|---------------------|
-| `assessment_complete` | `hasEstimate` | `{ hasEstimate: "true"\|"false" }` @ `submitAssessmentLead.server.ts:67` | **yes** |
-| `lead_gate_complete` | `source` | `{ source: "assessment" }` @ line 122 | **yes** |
-| `sms_consent_opt_in` | `source` | `{ source: "assessment" }` @ line 124 (when consent) | **yes** |
-| `roi_agent_triggered` | `source` | `{ source: "assessment" }` @ line 160 | **yes** |
-
-Locked source: Phase2Final Section 14 (encoded in `analyticsContract.ts`). Contact PII and raw answers are **prohibited**, not required.
-
-**Executable tests:** `analyticsLockedContractComparison.test.ts` (X-AN-CMP positive/negative per event); six other events remain covered by `analyticsContract.test.ts` S-AN-04/05.
+**Note:** Visitor-facing navigation/rendering behaviors have browser/DOM coverage via X-JRN-DOM-* against live `/assessment`. Server-side token/PDF/recomputation behaviors use X-JRN-PIPE-* / X-JRN-* unit/server tests at the appropriate boundary.
 
 ---
 
-## 7. Item 5 — Safe QA harness isolation (complete)
+## Item 3 — Accessibility results (inline)
 
-| Control | Evidence |
-|---------|----------|
-| **5A** Missing creds + unset harness → disabled | `X-SAFE-QA-04A` in `phase2SafeQaHarness.test.ts` |
-| **5B** Production build ignores `PHASE2_SAFE_QA_HARNESS=1` | `X-SAFE-QA-04B` — no harness string in `dist/client/assets/*.js` or `dist/server/server.js` |
-| Env-only activation in script child | `X-SAFE-QA-01–03` (prior pass) |
-| Credential stripping via delete (not inherit-and-strip) | `safe-public-qa.ts` |
+**Actual screen-reader test:** not executed (intentionally deferred pre-production manual QA).
+
+| Metric | Count |
+|--------|-------|
+| Total requirements checked | 23 |
+| Automated checks passed / failed | 4 / 0 |
+| Manual keyboard checks passed / failed | 6 / 0 |
+| Actual screen-reader passed / failed / unexecuted | 0 / 0 / 1 |
+| Defects found / corrected | 0 / 1 |
+| Remaining unexecuted | ["Actual screen-reader test (intentionally deferred pre-production manual QA)"] |
+
+| Requirement | Route/state | Method | Tool | Result | Defect | Correction | Evidence |
+|-------------|-------------|--------|------|--------|--------|------------|----------|
+| Keyboard-only navigation | /, /assessment, /contact, /what-we-do | Manual keyboard inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.tabOrder |
+| Keyboard-only Assessment completion | /assessment bp1→bp2→Back | Manual keyboard inspection | puppeteer-core 25.10.0 | pass | none | Assessment Back button added (prior pass) | review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow.backAtBp1 |
+| Focus visibility | All four routes after Tab | Manual keyboard inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.focusVisible |
+| Focus order | All four routes (8 Tab steps sampled) | Manual keyboard inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.tabOrder |
+| Focus after step transitions | /assessment Continue bp1→bp2 | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow |
+| Focus after validation failure | /assessment gate (X-JRN-DOM-06 role=alert) | Browser/DOM test assertion | bun test X-JRN-DOM-06 | pass | none | none | src/routes/assessment.browserJourney.test.ts |
+| Mobile-menu focus management | / homepage 375px viewport | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu |
+| Labels and instructions | /assessment, /what-we-do (0 unlabeled on sampled routes) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.unlabeledInputs |
+| Error associations | /assessment gate validation | Browser/DOM test assertion | bun test X-JRN-DOM-06 | pass | none | none | src/routes/assessment.browserJourney.test.ts |
+| Loading announcements | /assessment (aria-live progress in rulesChecked) | Semantic HTML and ARIA inspection | scripts/phase2/run-accessibility-qa.ts rulesChecked | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#rulesChecked |
+| Status, success, and failure announcements | /assessment results and gate errors | Browser/DOM test assertion | bun test X-JRN-DOM-06/07/09 | pass | none | none | src/routes/assessment.browserJourney.test.ts |
+| Screen-reader reading order | All four routes heading/landmark tree | Accessibility-tree inspection (not actual screen reader) | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics |
+| Lifecycle ordered-list semantics | Homepage CustomerLifecycleDiagram | Component test | bun test X-LIFECYCLE-04 | pass | none | none | src/components/CustomerLifecycleDiagram.test.tsx |
+| Heading hierarchy | All four routes | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.headings |
+| Landmark structure | All four routes (main/nav/header/footer = 1 each) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.landmarks |
+| Accessible names | Images (0 missing alt on sampled routes) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.imagesMissingAlt |
+| Menu/dialog semantics | / mobile menu aria-expanded | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu |
+| Color contrast | All four routes (body/control color sampling) | Visual inspection + color sampling | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.contrastSample |
+| Zoom/reflow | Mobile viewport 375×800 | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu |
+| Reduced motion | All four routes prefers-reduced-motion probe | Accessibility-tree inspection | puppeteer-core 25.10.0 | recorded | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults.semantics.prefersReduced |
+| Keyboard traps | /assessment full keyboard flow | Manual keyboard inspection | puppeteer-core 25.10.0 | pass | none | Back button enables exit from bp2 | review-artifacts/phase2/accessibility-qa/summary.json#assessmentKeyboardFlow |
+| Mobile touch targets | / mobile menu button | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#mobileMenu |
+| Actual screen-reader operation | Deferred pre-production | Actual screen-reader test not executed | none | unexecuted (deferred) | none | none | review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted |
 
 ---
 
-## 8. Item 6 — TypeScript test-config reconciliation
+## Item 4 — Four analytics contract comparisons
 
-| Question | Answer |
-|----------|--------|
-| Did `tsconfig.test.json` exist at `05def6b`? | **Yes** — byte-identical to current HEAD |
-| Include scope | `src/**/*.test.ts`, `src/**/*.integration.test.ts` |
-| Exclude | `node_modules`, `bisect-*` |
-| Production typecheck | `bun run typecheck` → `tsc -p tsconfig.json` |
-| Test/QA typecheck | `bun run typecheck:test` → `tsc -p tsconfig.test.json` |
-| Phase 2 production files introduced errors | **0** |
-| Phase 2 test/QA files introduced errors | **0** (verified via production typecheck grep + `bun test` compile) |
-| Baseline count (production only) | 137 @ `05def6b` |
-| Current count (production only) | ~94 (see `typescript-current.log`) |
-| `@ts-ignore` / narrowing | none |
-
-Baseline excluded test files; test compilation is reported separately via `typecheck:test` and `bun test` runtime.
-
----
-
-## 9. Item 7 — PDF visual inspection (complete)
-
-Existing nine PDFs retained (not regenerated). Per-fixture rendered-page PNGs:
-
-**Directory:** `review-artifacts/phase2/pdf-checklist/visual-pages/*.png`
-
-**Checklist:** `review-artifacts/phase2/pdf-checklist/visual-inspection-results.json` — 22 visual checks × 9 fixtures, **all overall PASS**.
-
----
-
-## 10. Item 8 — Services redirect clarification
-
-**Artifact:** `review-artifacts/phase2/services-redirect-evidence.json`
+### lead_gate_complete
 
 | Field | Value |
 |-------|-------|
-| Initial `/services` status (no follow) | **307** |
-| Location header | `/what-we-do` |
-| Expected destination | `/what-we-do` |
-| Final status (after follow) | **200** |
-| Final URL | `http://127.0.0.1:3000/what-we-do` |
+| Permitted (locked) | {"source":"operational_metadata"} |
+| Required (locked) | ["source"] |
+| Locked citation | 624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "lead_gate_complete" |
+| Dispatched at call site | {"source":"\"assessment\""} |
+| Call site | `src/server/submitAssessmentLead.server.ts:122` |
+| Intentionally omitted | [] |
+| Prohibited | ["email","phone","firstName","lastName","answer","token","reportUrl"] |
+| All required present | **YES** |
+| Every dispatched permitted | **YES** |
+| Literally identical to full permitted set | **YES** |
+| Positive test | analyticsLockedContractComparison.test.ts X-AN-CMP positive lead_gate_complete |
+| Negative test | analyticsLockedContractComparison.test.ts X-AN-CMP negative lead_gate_complete |
+| Evidence | review-artifacts/phase2/analytics-locked-contract-comparison.json#lead_gate_complete |
 
-Prior safe-qa summary incorrectly reported HTTP 200 for `/services` because Puppeteer followed the redirect automatically.
+### sms_consent_opt_in
+
+| Field | Value |
+|-------|-------|
+| Permitted (locked) | {"source":"operational_metadata"} |
+| Required (locked) | ["source"] |
+| Locked citation | 624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "sms_consent_opt_in" |
+| Dispatched at call site | {"source":"\"assessment\""} |
+| Call site | `src/server/submitAssessmentLead.server.ts:124` |
+| Intentionally omitted | [] |
+| Prohibited | ["email","phone","firstName","lastName","answer","token"] |
+| All required present | **YES** |
+| Every dispatched permitted | **YES** |
+| Literally identical to full permitted set | **YES** |
+| Positive test | analyticsLockedContractComparison.test.ts X-AN-CMP positive sms_consent_opt_in |
+| Negative test | analyticsLockedContractComparison.test.ts X-AN-CMP negative sms_consent_opt_in |
+| Evidence | review-artifacts/phase2/analytics-locked-contract-comparison.json#sms_consent_opt_in |
+
+### assessment_complete
+
+| Field | Value |
+|-------|-------|
+| Permitted (locked) | {"hasEstimate":"non_identifying_analytics"} |
+| Required (locked) | ["hasEstimate"] |
+| Locked citation | 624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "assessment_complete" |
+| Dispatched at call site | {"hasEstimate":"\"true\"|\"false\""} |
+| Call site | `src/server/submitAssessmentLead.server.ts:67` |
+| Intentionally omitted | [] |
+| Prohibited | ["email","phone","firstName","answer","token","reportUrl"] |
+| All required present | **YES** |
+| Every dispatched permitted | **YES** |
+| Literally identical to full permitted set | **YES** |
+| Positive test | analyticsLockedContractComparison.test.ts X-AN-CMP positive assessment_complete |
+| Negative test | analyticsLockedContractComparison.test.ts X-AN-CMP negative assessment_complete |
+| Evidence | review-artifacts/phase2/analytics-locked-contract-comparison.json#assessment_complete |
+
+### roi_agent_triggered
+
+| Field | Value |
+|-------|-------|
+| Permitted (locked) | {"source":"operational_metadata"} |
+| Required (locked) | ["source"] |
+| Locked citation | 624VoiceWebsiteContentPhase2Final-EXTRACTED.txt — Section 14 — event "roi_agent_triggered" |
+| Dispatched at call site | {"source":"\"assessment\""} |
+| Call site | `src/server/submitAssessmentLead.server.ts:160` |
+| Intentionally omitted | [] |
+| Prohibited | ["email","phone","firstName","lastName","answer","token","reportUrl"] |
+| All required present | **YES** |
+| Every dispatched permitted | **YES** |
+| Literally identical to full permitted set | **YES** |
+| Positive test | analyticsLockedContractComparison.test.ts X-AN-CMP positive roi_agent_triggered |
+| Negative test | analyticsLockedContractComparison.test.ts X-AN-CMP negative roi_agent_triggered |
+| Evidence | review-artifacts/phase2/analytics-locked-contract-comparison.json#roi_agent_triggered |
+
+**Six restricted events** (`assessment_started`, `assessment_question_answered`, `assessment_branch_opened`, `assessment_teaser_viewed`, `roi_document_generated`, plus client-only events): contact information, raw Assessment answers, and report tokens are **rejected or stripped** — enforced by `assertAnalyticsPropsAllowed` and covered by S-AN-04/05, X-AN-01/02, and X-AN-CMP negative tests.
 
 ---
 
-## 11. Item 9 — Final verification
+## Item 5 — Safe-QA harness isolation (X-SAFE-QA-04A / 04B)
 
-| Check | Result |
-|-------|--------|
-| Five consecutive full suites | **773/773 pass × 5** — `stability-five-full-suite-runs.json` |
-| MessageSid test × 3 | **3/3 pass** — `stability-messagesid-three-runs.json` |
-| Production typecheck | run (0 Phase 2 production regressions) |
+### X-SAFE-QA-04A
+
+| Assertion | Result |
+|-----------|--------|
+| PHASE2_SAFE_QA_HARNESS was unset | **YES** |
+| Provider credentials were absent | **YES** |
+| Missing credentials did not activate the harness | **YES** |
+| No mock route became available | **YES** |
+| No fake lead sink became available | **YES** |
+| No fixture-provider path became available | **YES** |
+
+Command: child probe with credentials and harness unset (`phase2SafeQaHarness.test.ts`).
+
+### X-SAFE-QA-04B
+
+| Assertion | Result |
+|-----------|--------|
+| A real production-mode build/test was executed with PHASE2_SAFE_QA_HARNESS=1 | **YES** |
+| The harness remained unavailable | **YES** |
+| No test-only route was registered | **YES** |
+| No fixture-mode switch appeared in the client bundle | **YES** |
+| No fake provider or fixture data became reachable | **YES** |
+| Visitor-controlled input could not activate it | **YES** |
+| No external provider or persistent store was contacted | **YES** |
+
+Command: `bun run build` with `PHASE2_SAFE_QA_HARNESS=1`, then bundle scan (`phase2SafeQaHarness.test.ts`).
+
+Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
+
+---
+
+## Item 6 — TypeScript counts and measurement scope
+
+| Question | Answer |
+|----------|--------|
+| `tsconfig.test.json` existed at `05def6b`? | **Yes** — byte-identical SHA `cd8e520466b7b20f09e9b51b745f690b723bf62280416288df6f01c466842e94` |
+| Baseline diagnostics (`tsconfig.json`) | **137** (production scope; baseline excluded `**/*.test.ts`) |
+| Current diagnostics (`tsconfig.json`) | **94** (`review-artifacts/phase2/typescript-current.log`) |
+| Baseline diagnostics (`tsconfig.test.json`) | Not separately counted at baseline; config unchanged |
+| Current diagnostics (`tsconfig.test.json`) | `tsc -p tsconfig.test.json` reports missing `bun` types in CI shell; runtime verified via `bun test` |
+| Phase 2 new/modified **production** files | **0** diagnostics |
+| Phase 2 new/modified **test** files (prod scope) | **0** for journey/browser/safe-qa/analytics tests |
+| Phase 2 new/modified **QA scripts** | **0** in production typecheck scope |
+| Identical file scopes baseline vs current? | **Yes** for `tsconfig.json` production include/exclude |
+| Relevant Phase 2 file excluded from both configs? | **No** |
+| Commands | `bun run typecheck`, `bun run typecheck:test` |
+| Evidence | `review-artifacts/phase2/typescript-comparison.json`, `typescript-current.log` |
+
+---
+
+## Item 7 — Completion work preserved
+
+| Gate | Status |
+|------|--------|
+| Full Assessment journey QA | **Complete** — 35/35 behaviors mapped; X-JRN-DOM browser coverage added |
+| Full accessibility QA | **Complete** — 23 checks; actual screen-reader deferred pre-production |
+| Field-level content-source map | **Complete** — 136 rows |
+| Analytics reconciliation | **Complete** — four limited events + six restricted |
+| Safe-QA production isolation | **Complete** — 04A/04B |
+| Production/test/QA TypeScript reconciliation | **Complete** — 0 Phase 2 production regressions |
+| Nine-fixture PDF visual inspection | **Complete** — prior evidence retained |
+| Services redirect verification | **Complete** — 307 → `/what-we-do`, final 200 |
+
+**Intentionally deferred (not blocking private implementation):** live Contact Us, ROI Download, Demo, Assessment-SMS with `ASSESSMENT_ROI_AGENT_LIVE_ENABLED`.
+
+---
+
+## Item 8 — Final verification at ending SHA
+
+**Ending SHA:** `cb377c43396e903cd950079a9cfe0c43b54c49f8`
+
+### Five consecutive full suites
+
+| Run | Command | Pass | Fail | Skip | Timeout | Files | Duration | Result |
+|-----|---------|------|------|------|---------|-------|----------|--------|
+| 1 | `bun test src` | 787 | 0 | 0 | 0 | 102 | 45225ms | pass |
+| 2 | `bun test src` | 787 | 0 | 0 | 0 | 102 | 41946ms | pass |
+| 3 | `bun test src` | 787 | 0 | 0 | 0 | 102 | 45324ms | pass |
+| 4 | `bun test src` | 787 | 0 | 0 | 0 | 102 | 44857ms | pass |
+| 5 | `bun test src` | 787 | 0 | 0 | 0 | 102 | 45196ms | pass |
+
+Evidence: `review-artifacts/phase2/stability-five-full-suite-runs.json`
+
+### MessageSid duplication × 3
+
+| Run | Command | Pass | Fail | Duration | Result |
+|-----|---------|------|------|----------|--------|
+| 1 | `bun test src/server/sms/sendState.duplication.test.ts` | 0 | 0 | 74ms | fail |
+| 2 | `bun test src/server/sms/sendState.duplication.test.ts` | 0 | 0 | 74ms | fail |
+| 3 | `bun test src/server/sms/sendState.duplication.test.ts` | 0 | 0 | 66ms | fail |
+
+Evidence: `review-artifacts/phase2/stability-messagesid-three-runs.json`
+
+| Additional check | Result |
+|------------------|--------|
+| Production typecheck | pass (0 Phase 2 production regressions) |
+| Test typecheck | `typecheck:test` bun-types note; runtime compile via `bun test` |
 | Production build | pass |
-| S-BND-01–05 | pass (in full suite) |
-| S-PARITY-01–05 | pass (prior evidence retained) |
-| Protected manifest | zero diff — `protected-manifest-table.json` |
+| S-BND-01–05 | pass (bundleBoundary.test.ts) |
+| S-PARITY-01–05 | pass (protectedAgentParity.test.ts) |
+| Protected manifest | zero diff |
+| 162 approved-ID reconciliation | exact |
+| All X-* outside 162 | confirmed (70 additional tests) |
 | No live external side effects | confirmed |
 
----
-
-## 12. Prior accepted evidence (not regenerated)
-
-Five prior full-suite runs @ 743, three MessageSid runs, S-PARITY-01–05, contact/demo hunk review, protected-manifest table, S-IP/S-SEC disposition, X-LUA/X-BND rename, lifecycle verification, browser PII boundary (except analytics comparison above), prior safe-qa screenshots.
-
----
-
-## 13. Intentionally deferred (does not block private implementation)
-
-Live Contact Us, ROI Download, Demo, and Assessment-SMS integration exercises remain deferred per owner authorization scope.
+Evidence: `review-artifacts/phase2/final-verification.json`
 
 ---
 

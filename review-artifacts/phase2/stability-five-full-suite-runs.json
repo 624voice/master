@@ -7,8 +7,9 @@
     "skip": 0,
     "timeout": 0,
     "files": 102,
-    "durationMs": 46828,
-    "status": 0
+    "durationMs": 45225,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 2,
@@ -18,8 +19,9 @@
     "skip": 0,
     "timeout": 0,
     "files": 102,
-    "durationMs": 41778,
-    "status": 0
+    "durationMs": 41946,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 3,
@@ -29,8 +31,9 @@
     "skip": 0,
     "timeout": 0,
     "files": 102,
-    "durationMs": 43093,
-    "status": 0
+    "durationMs": 45324,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 4,
@@ -40,8 +43,9 @@
     "skip": 0,
     "timeout": 0,
     "files": 102,
-    "durationMs": 44965,
-    "status": 0
+    "durationMs": 44857,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 5,
@@ -51,7 +55,8 @@
     "skip": 0,
     "timeout": 0,
     "files": 102,
-    "durationMs": 45441,
-    "status": 0
+    "durationMs": 45196,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   }
 ]

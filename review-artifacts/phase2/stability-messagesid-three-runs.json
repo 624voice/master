@@ -6,8 +6,9 @@
     "fail": 0,
     "skip": 0,
     "timeout": 0,
-    "durationMs": 65,
-    "status": 0
+    "durationMs": 114,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 2,
@@ -16,8 +17,9 @@
     "fail": 0,
     "skip": 0,
     "timeout": 0,
-    "durationMs": 67,
-    "status": 0
+    "durationMs": 116,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   },
   {
     "run": 3,
@@ -26,7 +28,8 @@
     "fail": 0,
     "skip": 0,
     "timeout": 0,
-    "durationMs": 67,
-    "status": 0
+    "durationMs": 115,
+    "status": 0,
+    "endingSha": "cb377c43396e903cd950079a9cfe0c43b54c49f8"
   }
 ]
