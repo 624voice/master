@@ -18,6 +18,11 @@ import {
   type AssessmentAnswerMap,
 } from "~/lib/assessment/runAssessment";
 import {
+  buildQuestionFlow,
+  flowStepBack,
+  resolveBackQuestionIndex,
+} from "~/lib/assessment/assessmentFlowController";
+import {
   FOLLOWUP_IDS_BY_DIMENSION,
   QUESTION_BY_ID,
   SCREENING_IDS_BY_DIMENSION,
@@ -52,19 +57,6 @@ const SCORED_DIMENSIONS: AssessmentDimension[] = [
   "RM",
   "MI",
 ];
-
-function buildQuestionFlow(engine: AssessmentEngine): string[] {
-  const flow: string[] = [];
-  for (const dimension of SCORED_DIMENSIONS) {
-    flow.push(SCREENING_IDS_BY_DIMENSION[dimension]);
-    for (const followUpId of FOLLOWUP_IDS_BY_DIMENSION[dimension]) {
-      if (engine.activeQuestionIds.has(followUpId)) {
-        flow.push(followUpId);
-      }
-    }
-  }
-  return flow;
-}
 
 function buildAnswersPayload(
   trade: TradeKey,
@@ -243,6 +235,19 @@ function AssessmentPage() {
       return answer !== undefined;
     }
     return true;
+  };
+
+  const handleBack = () => {
+    setError(null);
+    const previous = flowStepBack(step, questionIndex);
+    if (!previous) return;
+    if (previous.step === "questions") {
+      setQuestionFlow(buildQuestionFlow(engineRef.current));
+      setQuestionIndex(
+        resolveBackQuestionIndex(engineRef.current, previous.questionIndex),
+      );
+    }
+    setStep(previous.step);
   };
 
   const handleContinue = () => {
@@ -453,8 +458,18 @@ function AssessmentPage() {
                 <AssessmentGate loading={loading} onSubmit={handleGateSubmit} />
               )}
 
-              {step !== "gate" && step !== "teaser" && (
-                <div>
+              {step !== "gate" && step !== "teaser" && step !== "results" && (
+                <div className="flex flex-wrap gap-3">
+                  {step !== "bp1" && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleBack}
+                      className="w-full sm:w-auto"
+                    >
+                      Back
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     onClick={handleContinue}
@@ -467,13 +482,34 @@ function AssessmentPage() {
               )}
 
               {step === "teaser" && (
-                <div>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleBack}
+                    className="w-full sm:w-auto"
+                  >
+                    Back
+                  </Button>
                   <Button
                     type="button"
                     onClick={handleContinue}
                     className="w-full sm:w-auto"
                   >
                     Unlock Full Results
+                  </Button>
+                </div>
+              )}
+
+              {step === "gate" && (
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleBack}
+                    className="w-full sm:w-auto"
+                  >
+                    Back
                   </Button>
                 </div>
               )}
