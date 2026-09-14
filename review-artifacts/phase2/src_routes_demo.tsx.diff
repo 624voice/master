@@ -1,0 +1,48 @@
+diff --git a/src/routes/demo.tsx b/src/routes/demo.tsx
+index a450252..e486704 100644
+--- a/src/routes/demo.tsx
++++ b/src/routes/demo.tsx
+@@ -1,5 +1,6 @@
+ import { createFileRoute } from "@tanstack/react-router";
+ import { useCallback, useState } from "react";
++import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
+ import { DemoAgentOverview } from "~/components/DemoAgentOverview";
+ import { DemoLeadForm } from "~/components/DemoLeadForm";
+ import { DemoLimitPanel } from "~/components/DemoLimitPanel";
+@@ -17,12 +18,12 @@ export const Route = createFileRoute("/demo")({
+   head: () => ({
+     meta: [
+       {
+-        title: "Talk to Jessica — Live AI Receptionist Demo | 624 Voice",
++        title: "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+       },
+       {
+         name: "description",
+         content:
+-          "Experience what your customers hear when they call your business. Talk to Jessica, our AI voice agent, live in your browser.",
++          "Call Jessica, a live AI receptionist built for home-service companies, and hear a fast, consistent response for yourself, in English or Spanish.",
+       },
+     ],
+   }),
+@@ -190,6 +191,21 @@ function DemoPage() {
+       </section>
+ 
+       <section className="bg-white px-6 py-16 sm:py-24">
++        <div className="mx-auto max-w-5xl">
++          <h2 className="text-center text-2xl font-bold text-brand-secondary sm:text-3xl">
++            How the Customer Journey Fits Together
++          </h2>
++          <p className="mx-auto mt-4 max-w-2xl text-center text-gray-600">
++            Jessica supports the Respond dimension. The full system connects all
++            six lifecycle areas.
++          </p>
++          <div className="mt-10">
++            <CustomerLifecycleDiagram />
++          </div>
++        </div>
++      </section>
++
++      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
+         <div className="mx-auto max-w-5xl">
+           <DemoAgentOverview />
+         </div>

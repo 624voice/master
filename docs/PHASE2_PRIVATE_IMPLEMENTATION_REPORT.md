@@ -1,4 +1,4 @@
-# Phase 2 Private Implementation Report (Reconciliation + Final Clarifications)
+# Phase 2 Private Implementation Report (Evidence Correction Pass)
 
 ## 1. Branch, SHAs, PR
 
@@ -6,259 +6,207 @@
 |------|-------|
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
-| Ending SHA | `adbd7c8` |
+| Ending SHA | *(updated at commit push)* |
 | PR | #97 (draft) |
 
-## 2. Actual completion status
+## 2. Gate status summary
 
-**Complete for all applicable automated gates.** Clarifications 1–3 are implemented with executable evidence. Nine-fixture PDF visual PNG QA completed. Full suite: **716/716 pass** (measured 2026-09-14). Live manual/interactive QA (Contact Us, ROI Download, Demo, Assessment SMS) was **not executed** — production-capable Twilio/Upstash credentials present; live external workflows not authorized in this phase.
+| Category | Status |
+|----------|--------|
+| 1. Private implementation automated gates | **Passed** (743/743 tests, 162-row reconciliation, S-PARITY, PDF checklist) |
+| 2. Safe QA gates (presentation/navigation/a11y) | **Passed with documented partial assessment-navigation coverage** |
+| 3. Live integration checks | **Intentionally deferred** (production-capable Twilio/Upstash; not authorized) |
+| 4. Category B / C launch gates | **Closed** (not in scope for private implementation) |
+| 5. Production-launch blockers | Owner review + production authorization remain |
+| 6. Live Assessment-SMS activation blockers | `ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false`; live SMS not exercised |
 
----
-
-## Section 14 — Completion criteria (corrected)
-
-### Browser/transport PII boundary (replaces overly broad “no PII in browser code”)
-
-| Allowed | Prohibited |
-|---------|------------|
-| Raw contact information only in transient controlled form state (`AssessmentGate` `useState<LeadInfo>`) and the TLS-protected HTTPS POST body (`submitAssessmentLead`, `createServerFn POST`) | Raw or reversibly hashed PII in URLs, query strings, report tokens, analytics events (except four approved events with approved non-PII fields), console output, application logs, error telemetry, Redis keys, client-side persistent storage, HTML source, client bundles |
-| Four approved analytics events with non-PII props only (`source`, `hasEstimate`, `questionId`) | localStorage, sessionStorage, IndexedDB, cookies, service-worker caches unless an existing approved requirement explicitly authorizes |
-| Server-side identifiers derived from PII via domain-separated HMAC (`v1:source:`, `v1:phone:`, `v1:idempotency:`) | Persisting Assessment PII in browser storage |
-
-**Not a violation:** Necessary transient form state holding name/email/phone until submit; POST body carrying lead fields to server over TLS.
-
-**Verification:** Code inspection + executable tests X-PII-01–06 (`browserPiiBoundaries.test.ts`), reinforced by S-HMAC-07 and S-PL-* pipeline tests.
-
-### Responsive lifecycle (locked visitor-facing HTML)
-
-| Field | Exact string |
-|-------|--------------|
-| Headline | `Six stages. One connected system moves a customer through all of them. Not every customer needs every capability.` |
-| Supporting note | `The AI Tool Assessment lives inside the paid Diagnostic. It is not a public lifecycle stage.` |
-
-Stage/capability labels unchanged (X-LIFECYCLE-01). Approved PNG remains authoritative visual reference; semantic HTML is primary on-page render.
-
-### Protected manifest parity (S-PARITY-05)
-
-Positive: working-tree SHA-256 vs immutable baseline manifest. Negative control: in-memory tampered hash only — **no protected file mutation**.
-
-### Other Section 14 gates
-
-| Gate | Status |
-|------|--------|
-| 162/162 approved test IDs | pass |
-| S-PARITY-01–05 | pass |
-| HMAC domain separation | pass |
-| `ASSESSMENT_ROI_AGENT_LIVE_ENABLED` = false | pass |
-| Protected agent files zero diff vs `05def6b` | pass |
-| A3 homepage + static copy from authoritative docs | pass |
-| Nine-fixture PDF generation + visual PNG QA | pass |
-| No live SMS/webhooks/CRM writes during testing | confirmed |
+**Durable evidence root:** `review-artifacts/phase2/` (committed; accessible from PR #97).
 
 ---
 
-## Clarification 1 — Corrected browser/transport PII requirement
+## 3. Item 2 — Full-suite flakiness fix
 
-### Executable verification (X-PII-01–06, `browserPiiBoundaries.test.ts`)
+### Failing test (sanitized)
 
-| Test ID | Verification | Result |
-|---------|--------------|--------|
-| X-PII-01 | No localStorage/sessionStorage/IndexedDB/cookies in Assessment client paths | pass |
-| X-PII-02 | `AssessmentGate` uses transient `useState` only | pass |
-| X-PII-03 | Report token = `randomBytes(24).hex`; URL path `/assessment-report/${token}` only | pass |
-| X-PII-04 | Analytics props exclude raw email/phone/firstName; exactly 4 PII-capable events | pass |
-| X-PII-05 | Redis rate-limit keys use HMAC digests; no raw phone/IP in key material | pass |
-| X-PII-06 | Submission via POST server function, not URL query params | pass |
+| Field | Value |
+|-------|-------|
+| File | `src/server/sms/sendState.duplication.test.ts` |
+| Test | `inbound reply: the same Twilio MessageSid delivered twice sends one reply` |
+| Failure mode | Intermittent **timeout (5000ms)** when `runAgentTurn` invoked live OpenAI |
 
----
+### Run order
 
-## Clarification 2 — Locked responsive lifecycle wording
+Full suite (`bun test`) after Assessment tests calling `mock.restore()` in `afterEach` (`rateLimitSource.test.ts`, `supplementalAbuse.test.ts`, pipeline tests).
 
-### Punctuation adaptation (content-source map)
+### Leaked state
 
-| Source | Section/field | Public destination | Adaptation | Gate | Status |
-|--------|---------------|-------------------|------------|------|--------|
-| Owner instruction §8.3 / approved PNG | Headline (PNG used em dashes) | `CustomerLifecycleDiagram` → `<p>` | Periods replace em dashes in HTML only | S-RT-10, X-LIFECYCLE-02 | implemented |
-| Owner instruction §8.3 / approved PNG | Supporting note (PNG used em dash) | `CustomerLifecycleDiagram` → `<figcaption>` | Periods replace em dash in HTML only | S-RT-10, X-LIFECYCLE-02 | implemented |
-| Approved PNG asset | Six stage/capability label pairs | `LIFECYCLE_STAGES` verbatim in semantic HTML | **No alteration** | X-LIFECYCLE-01 | implemented |
-| Approved PNG asset | Visual reference | `public/diagram-v3-lifecycle.png` | PNG retains baked-in original punctuation | hash lock | verified |
+Assessment tests restored Bun module mocks without restoring `runAgentTurn`; inbound dedup test hit **live OpenAI** when `OPENAI_API_KEY` present (~3s+ latency → timeout under load).
 
-S-RT-10 checks visitor-facing copy only (JSX comments stripped); developer section markers like `{/* 1 — Hero */}` are excluded from the em-dash gate.
+### Fix
 
-### Lifecycle PNG asset verification
+`mock.module("~/server/speed2Lead/agent/llmTurn")` in `sendState.duplication.test.ts` spreads actual exports and stubs `runAgentTurn` only (deterministic ~5ms).
 
-| Property | Measured value |
-|----------|----------------|
-| SHA-256 | `ca710e111e59a4c8aa0c219290b902a85613e9cbd2b13d532205d4a8e250bbeb` |
-| Dimensions | 2500 × 760 px |
-| File size | 106,051 bytes |
-| Color mode | 8-bit RGBA (PNG color type 6) |
-| Alpha channel | Present |
-| Actual transparency | **Yes** — 1,899,978 of 1,900,000 pixels have alpha < 255 (X-LIFECYCLE-05) |
-| Primary on-page render | Semantic responsive HTML/CSS (`CustomerLifecycleDiagram.tsx`) |
+### Proof (`review-artifacts/phase2/stability-five-full-suite-runs.json`)
+
+| Run | Command | Pass | Fail | Files |
+|-----|---------|------|------|-------|
+| 1 | `bun test` | 743 | 0 | 98 |
+| 2 | `bun test` | 743 | 0 | 98 |
+| 3 | `bun test` | 743 | 0 | 98 |
+| 4 | `bun test` | 743 | 0 | 98 |
+| 5 | `bun test` | 743 | 0 | 98 |
+
+MessageSid test (`review-artifacts/phase2/stability-messagesid-three-runs.json`): **3/3 pass**, ~5ms each.
+
+### Test command scope (`review-artifacts/phase2/test-command-scope.json`)
+
+`bun test` and `bun test src` both discover **743 tests across 98 files** (identical scope).
 
 ---
 
-## Clarification 3 — S-PARITY-05 non-mutating negative control
+## 4. Item 3 — S-IP/S-SEC → S-PL semantic equivalence
 
-1. **Positive (S-PARITY-05):** SHA-256 of each protected working-tree file compared against immutable manifest at `tests/fixtures/phase2-baseline/protected-manifest.json` (Git object at baseline SHA `05def6b`). Before/after hash snapshots identical.
+Full disposition: `review-artifacts/phase2/s-pl-disposition-table.json` (7 rows, one per former ID).
 
-2. **Negative control (separate test):** In-memory manifest copy with one deliberately incorrect expected hash (`"0".repeat(64)`). Verification **fails**. Restored manifest verification **passes**. Working-tree snapshots unchanged.
-
-3. **No protected file mutation:** Test never writes to, edits, or restores any protected production source file.
+Example row (S-IP-01 → S-PL-01): executable test `S-PL-01: returns platform-resolved client IP` proves same `getTrustedClientIp()` behavior; remapped to pipeline namespace because IP feeds rate-limit fingerprinting, not a standalone IP module.
 
 ---
 
-## 3. TypeScript baseline reconciliation
+## 5. Item 4 — S-PARITY-01–04 individual results
 
-| Measurement | Command | Bun | Count |
-|-------------|---------|-----|-------|
-| A0 baseline (clean worktree at `05def6b`) | `bun install && bun run typecheck` | 1.3.14 | **137** |
-| Prior report (wrong) | — | — | 102 |
-| Approved plan v4 (correct) | — | — | 137 |
-| Current branch final | `bun run typecheck` | 1.3.14 | **96** |
+| ID | Assertions | Result |
+|----|------------|--------|
+| **S-PARITY-01** | `startContactAgentConversation` export present; `StartContactAgentInput`; `source: "contact"`; no `assessment:` in file | pass |
+| **S-PARITY-02** | `StartAgentInput`; `annualOpportunity: string`; `reportUrl: string`; `source: "roi"` | pass |
+| **S-PARITY-03** | `startDemoAgentConversation` export; `StartDemoAgentInput`; `source: "demo"` | pass |
+| **S-PARITY-04** | `submitDemoLead.ts` has `source: "voice_demo"`, no assessment; `handleInbound.ts` has `handleInbound`, no `submitAssessmentLead` | pass |
+| **S-PARITY-05** | Manifest hash match + non-mutating in-memory negative control | pass |
 
-The 102 figure was wrong (stale measurement). Plan v4’s 137 was correct for SHA `05def6b`. Current branch reduced pre-existing errors by 41; no new Assessment-path errors introduced.
-
----
-
-## 4–6. 162-ID approved test reconciliation (traceability)
-
-**162/162 IDs have automated coverage** with targeted passes.
-
-| Category | Count | Status |
-|----------|-------|--------|
-| Locked L# | 34 | pass |
-| Supplemental S-* | 128 | pass |
-| **Total approved gate** | **162** | **pass** |
-
-### Disposition of 17 formerly-unapproved IDs
-
-| Former ID | Disposition |
-|-----------|-------------|
-| S-IP-01–03 | Remapped → **S-PL-01–03** |
-| S-SEC-01–04 | Remapped → **S-PL-04–07** |
-| S-LUA-04 | **X-ADDITIONAL-LUA-01** (outside 162) |
-| S-BND-06–14 | **X-ADDITIONAL-BND-06–14** (outside 162) |
-
-### Supplemental route/copy gates (S-RT)
-
-| ID | Verification | Result |
-|----|--------------|--------|
-| S-RT-07 | Homepage hero headline | pass |
-| S-RT-08 | Assessment route in `routeTree.gen.ts` + `assessment.tsx` | pass |
-| S-RT-09 | What-we-do H1 (split JSX spans) | pass |
-| S-RT-10 | Visitor-facing copy em-dash-free (comments excluded) | pass |
-| S-RT-11 | Nav Free Assessment link | pass |
-| S-RT-12 | Report token route uses `serveAssessmentTokenPdf` | pass |
+Source: `src/server/assessment/protectedAgentParity.test.ts`
 
 ---
 
-## 7. Mock-isolation fix (test layer only)
+## 6. Item 5 — contact.tsx and demo.tsx hunk review
 
-Files: `integrationMocks.ts`, `rateLimitSource.test.ts`, `submitAssessmentLead.pipeline.test.ts`. Test harness only; zero protected production changes.
+| File | Diff vs `05def6b` | Protected-integration hunks | Presentation hunks |
+|------|-------------------|----------------------------|-------------------|
+| `src/routes/contact.tsx` | **No diff** | **None** | N/A |
+| `src/routes/demo.tsx` | **Yes** | **None** | SEO meta, lifecycle section, background class |
 
----
-
-## 8–9. S-PARITY-01–05
-
-All pass including non-mutating negative control (§ Clarification 3).
-
----
-
-## 10. A3 homepage and static copy
-
-From `624VoiceHomepageCopy-v2.1-EXTRACTED.txt` §2 and `624VoiceWebsiteContentPhase2Final-EXTRACTED.txt` §§4–7. Feature gates false. No internal scaffolding exposed.
+Evidence: `review-artifacts/phase2/src_routes_contact.tsx.diff`, `review-artifacts/phase2/src_routes_demo.tsx.diff`
 
 ---
 
-## 11. Security evidence summary
+## 7. Item 6 — Route-level content-source map
+
+`review-artifacts/phase2/content-source-map.json` — routes, nav, SEO, feature gates, verification refs.
+
+`/contact` unchanged vs baseline. `/demo` presentation-only diff (§5). Feature gates `SHOW_*` all false.
+
+---
+
+## 8. Item 7 — Protected manifest table
+
+`review-artifacts/phase2/protected-manifest-table.json` — one row per manifest file + every `docs/claude-handoff/*` file with baseline/current SHA-256 and match result.
+
+`docs/claude-handoff/CURRENT_SYSTEM_PROMPT.txt` in manifest: **match**. Other handoff docs: baseline/current hashes recorded separately.
+
+---
+
+## 9. Item 8 — TypeScript diagnostic reconciliation
+
+Artifacts:
+- `review-artifacts/phase2/typescript-baseline.log` (clean worktree `05def6b`, 137 errors)
+- `review-artifacts/phase2/typescript-current.log` (96 errors)
+- `review-artifacts/phase2/typescript-comparison.json`
+
+| Metric | Value |
+|--------|-------|
+| Baseline errors | 137 |
+| Current errors | 96 |
+| Removed | 50 |
+| Introduced | 9 |
+| Phase 2 production-file introduced | **0** (after `renderAssessmentPdf.server.ts` / `serveAssessmentTokenPdf.server.ts` fixes) |
+| Introduced in test-only paths | 2 (`CustomerLifecycleDiagram.test.tsx` — excluded from main `tsconfig.json`; covered by `tsconfig.test.json`) |
+
+No tsconfig narrowing, no `@ts-ignore`, no strictness reduction between runs.
+
+---
+
+## 10. Item 9 — PDF per-fixture checklist
+
+`review-artifacts/phase2/pdf-checklist/checklist-results.json` — nine fixtures, eight checks each (dimensions, provenance, priority, clarify, CTA/disclaimer, moderate isolation, page size, no debug). **All nine overall PASS.** PDFs at `review-artifacts/phase2/pdf-checklist/*.pdf`.
+
+---
+
+## 11. Item 10 — X-LUA / X-BND namespaces
+
+Renamed: `X-ADDITIONAL-LUA-01` → **X-LUA-01**; `X-ADDITIONAL-BND-06–14` → **X-BND-06–14** in `rateLimitLua.test.ts`, `bundleBoundary.test.ts`.
+
+Additional tests table: `review-artifacts/phase2/additional-tests-table.json` *(generated with approved-id script)*.
+
+---
+
+## 12. Item 11 — Analytics privacy contract (reconciled)
+
+**Four events authorized for limited payload fields** (`LIMITED_PAYLOAD_ANALYTICS_EVENTS`): `lead_gate_complete`, `sms_consent_opt_in`, `assessment_complete`, `roi_agent_triggered`. Current dispatch sends **operational metadata only** (`source`, `hasEstimate`).
+
+**Six events prohibit contact/answer/token props** (`CONTACT_ANSWER_PROHIBITED_EVENTS`).
+
+Ten-row contract: `src/lib/analytics/analyticsContract.ts`. Tests: `analyticsContract.test.ts` (S-AN-03–05 positive/negative per event), X-PII-04 updated.
+
+Browser/transport PII table corrected: four events may carry **approved limited fields** when dispatched; six events must not carry contact/answer/token data.
+
+---
+
+## 13. Item 12 — Safe QA harness production isolation
 
 | Control | Evidence |
 |---------|----------|
-| Browser PII boundaries | X-PII-01–06 pass; transient state + TLS POST only |
-| Redis key material | HMAC domain-separated keys; S-HMAC-07, S-PL-* |
-| Report tokens | Opaque 24-byte hex; path-only URLs (X-PII-03) |
-| Analytics | 4 approved events; no raw contact in props (X-PII-04) |
-| Protected agent parity | S-PARITY-01–05; manifest zero diff |
-| Live agent flag | `ASSESSMENT_ROI_AGENT_LIVE_ENABLED` hardcoded false |
-| Rate limiting / idempotency | S-RATE-01–04, S-IDEM-01–12 |
-| No live external side effects | Confirmed during all test runs |
+| Env-only activation | `PHASE2_SAFE_QA_HARNESS=1` set only in `scripts/phase2/safe-public-qa.ts` child process |
+| No query param / cookie / missing-credential activation | `X-SAFE-QA-01–03` in `phase2SafeQaHarness.test.ts` |
+| Credentials stripped in child | TWILIO_*, UPSTASH_*, HMAC secret, OPENAI_* unset |
+| Production build server | `bun run build` + `bun run start` on port 3000 (not dev/fixture route) |
 
 ---
 
-## 15. Additional tests beyond approved 162
+## 14. Item 1 — Safe interactive QA
 
-| ID | Description |
-|----|-------------|
-| X-LIFECYCLE-01–05 | Lifecycle labels, em-dash-free copy, PNG hash/dimensions/size, semantic HTML, RGBA alpha transparency |
-| X-PII-01–06 | Browser/transport PII boundary verification |
-| X-ADDITIONAL-LUA-01 | Extended Lua command coverage |
-| X-ADDITIONAL-BND-06–14 | Extended bundle boundary checks |
+Script: `scripts/phase2/safe-public-qa.ts`. Summary: `review-artifacts/phase2/safe-qa/summary.json`. Screenshots: `review-artifacts/phase2/safe-qa/screenshots/{320,375,390,430,768,1024,1440}px/`.
 
----
-
-## 16. Repository test totals (measured)
-
-| Metric | Baseline (A0) | Current branch |
-|--------|---------------|----------------|
-| Tests passing | 501 | **716** |
-| Tests failing | — | **0** |
-| Test files | 71 | 96 |
-
-Command: `bun test` on branch `cursor/phase2-assessment-build-e498`, Bun 1.3.14, 2026-09-14. One intermittent timeout observed on an unrelated Speed2Lead inbound-replay test on first run; clean re-run 716/716.
+| Check | Result |
+|-------|--------|
+| All public routes HTTP 200 (after production server) | pass |
+| `/services` redirect | pass |
+| 404 page | pass |
+| Responsive breakpoints (7 widths) | pass (screenshots) |
+| Basic a11y (focusable count, alt text, labels) | pass |
+| Assessment: BP1/BP2/respond progression | pass |
+| SMS consent default unchecked | **pass** (`smsConsentDefaultUnchecked: true`) |
+| Assessment back/branch/stale-answer navigation | **partial** — not fully automated in harness |
+| No live SMS/call/webhook/CRM/analytics side effects | confirmed |
 
 ---
 
-## 17. PDF content and visual QA
+## 15. 162-row approved-ID reconciliation
 
-Nine PDFs generated via production path (`generateAssessmentPdfBytes.server.ts` → `renderAssessmentHtml.server.tsx` → `renderAssessmentPdf.server.ts`).
-
-| Fixture | PDF bytes | Pages | Visual PNG |
-|---------|-----------|-------|------------|
-| 01-all-modeled | 111,959 | 1 | `01-all-modeled-visual.png` |
-| 02-all-visitor | 112,855 | 1 | `02-all-visitor-visual.png` |
-| 03-mixed-provenance | 112,846 | 1 | `03-mixed-provenance-visual.png` |
-| 04-low-respond | 110,453 | 1 | `04-low-respond-visual.png` |
-| 05-moderate-respond | 112,152 | 1 | `05-moderate-respond-visual.png` |
-| 06-high-respond | 112,067 | 1 | `06-high-respond-visual.png` |
-| 07-needs-clarification | 112,751 | 1 | `07-needs-clarification-visual.png` |
-| 08-missing-moderate | 109,969 | 1 | `08-missing-moderate-visual.png` |
-| 09-longest-realistic | 111,959 | 1 | `09-longest-realistic-visual.png` |
-
-Artifacts: `artifacts/phase2-pdf-qa/` (generated locally; not committed). S-BND-01–05 pass.
+`review-artifacts/phase2/approved-id-reconciliation.json` — exactly **162 rows** (34 locked L# + 128 supplemental S-*). No X-* IDs inside approved 162.
 
 ---
 
-## 18–20. Credential status and manual QA
+## 16. Clarifications preserved (no redo)
 
-| Integration | Status |
-|-------------|--------|
-| ASSESSMENT_SECURITY_HMAC_SECRET | absent |
-| TWILIO_* | production-capable — not exercised |
-| UPSTASH_REDIS_* | production-capable — not exercised |
-| ASSESSMENT_ROI_AGENT_LIVE_ENABLED | **false** |
-
-**Deferred pending separate production authorization (not a private-implementation code gap):** Contact Us, ROI Download, Demo live flows, Assessment live SMS.
+- Browser/transport PII (X-PII-01–06): unchanged except X-PII-04 analytics wording aligned to Item 11.
+- Lifecycle punctuation/asset verification (X-LIFECYCLE-01–05): unchanged.
 
 ---
 
-## 21–23. Server pipeline verification
+## 17. Documented gaps (why status remains in progress)
 
-HMAC `v1:source:` / `v1:phone:` / `v1:idempotency:`; idempotency four-case design (S-IDEM-01–12); rate limits (S-RATE-01–04); L#32 = A-RESILIENCE-01 unchanged.
-
----
-
-## 24. Hard Rule 1
-
-Protected manifest files: zero diff vs `05def6b`. S-PARITY-05 positive + non-mutating negative control pass. Route edits copy/presentation only.
+1. Assessment safe QA does not yet automate forward/back navigation, conditional branching, stale-answer clearing, or full results/report-link states end-to-end.
+2. Live Contact Us / ROI / Demo / Assessment SMS flows intentionally not exercised.
+3. Content-source map covers route-level entries; field-level microcopy audit for every form state is not yet itemized row-by-row.
 
 ---
 
-## 25. No live external side effects
-
-Confirmed. No live SMS, webhooks, or CRM writes during testing.
-
----
-
-Private implementation complete. Awaiting owner review and separate production authorization.
+Private implementation remains in progress. Awaiting completion of the documented gaps.
