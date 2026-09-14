@@ -5,10 +5,8 @@ import {
   phoneFingerprintKey,
   sourceFingerprintKey,
 } from "~/server/assessment/hmacKeys.server";
-import {
-  ANALYTICS_EVENTS,
-  PII_ANALYTICS_EVENTS,
-} from "~/lib/analytics/trackEvent";
+import { LIMITED_PAYLOAD_ANALYTICS_EVENTS } from "~/lib/analytics/analyticsContract";
+import { ANALYTICS_EVENTS } from "~/lib/analytics/trackEvent";
 
 const REPO_ROOT = join(import.meta.dir, "../../..");
 
@@ -49,7 +47,7 @@ describe("Assessment browser and transport PII boundaries", () => {
     expect(tokens).not.toMatch(/\?|searchParams|email|phone|firstName/);
   });
 
-  test("X-PII-04: analytics props in Assessment paths exclude raw contact fields", () => {
+  test("X-PII-04: four limited-payload events; six prohibit contact/answer/token; dispatch excludes raw contact", () => {
     const assessmentRoute = readSource("src/routes/assessment.tsx");
     const serverHandler = readSource("src/server/submitAssessmentLead.server.ts");
 
@@ -59,8 +57,8 @@ describe("Assessment browser and transport PII boundaries", () => {
       expect(source).not.toMatch(/trackEvent\([^)]*firstName/i);
     }
 
-    expect(PII_ANALYTICS_EVENTS.size).toBe(4);
-    for (const event of PII_ANALYTICS_EVENTS) {
+    expect(LIMITED_PAYLOAD_ANALYTICS_EVENTS.size).toBe(4);
+    for (const event of LIMITED_PAYLOAD_ANALYTICS_EVENTS) {
       expect([
         ANALYTICS_EVENTS.lead_gate_complete,
         ANALYTICS_EVENTS.sms_consent_opt_in,
@@ -68,6 +66,11 @@ describe("Assessment browser and transport PII boundaries", () => {
         ANALYTICS_EVENTS.roi_agent_triggered,
       ]).toContain(event);
     }
+
+    const prohibitedCount = Object.values(ANALYTICS_EVENTS).filter(
+      (event) => !LIMITED_PAYLOAD_ANALYTICS_EVENTS.has(event),
+    ).length;
+    expect(prohibitedCount).toBe(6);
   });
 
   test("X-PII-05: server-side Redis identifiers use domain-separated HMAC, not raw PII", () => {

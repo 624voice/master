@@ -26,17 +26,17 @@ describe("trackEvent", () => {
     expect(calls[1]?.name).toBe("assessment_question_answered");
   });
 
-  test("S-AN-02: PII confined to exactly four approved events", () => {
+  test("S-AN-02: limited-payload authorization confined to exactly four events", () => {
     const allEvents = Object.values(ANALYTICS_EVENTS);
     expect(PII_ANALYTICS_EVENTS.size).toBe(4);
     for (const event of allEvents) {
-      const expectsPii = [
+      const expectsLimitedPayload = [
         ANALYTICS_EVENTS.lead_gate_complete,
         ANALYTICS_EVENTS.sms_consent_opt_in,
         ANALYTICS_EVENTS.assessment_complete,
         ANALYTICS_EVENTS.roi_agent_triggered,
       ].includes(event);
-      expect(isPiiAnalyticsEvent(event)).toBe(expectsPii);
+      expect(isPiiAnalyticsEvent(event)).toBe(expectsLimitedPayload);
     }
   });
 });

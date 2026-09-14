@@ -83,7 +83,7 @@ export async function renderAssessmentPdf(
   const page = await browser.newPage();
 
   const pageLoadStarted = performance.now();
-  await page.setContent(html, { waitUntil: "networkidle0" });
+  await page.setContent(html, { waitUntil: "load" });
   await page.emulateMediaType("print");
   timing.pageLoadMs = Math.round(performance.now() - pageLoadStarted);
 

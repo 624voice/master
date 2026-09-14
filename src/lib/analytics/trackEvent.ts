@@ -15,13 +15,20 @@ export const ANALYTICS_EVENTS = {
 export type AnalyticsEventName =
   (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
 
-/** Events that may carry PII or answer payload (S-AN-02). */
-export const PII_ANALYTICS_EVENTS = new Set<AnalyticsEventName>([
+/**
+ * Four events authorized to carry limited contact/answer-adjacent payload fields.
+ * Current dispatch sends only operational metadata (source, hasEstimate).
+ * See analyticsContract.ts for permitted properties per event.
+ */
+export const LIMITED_PAYLOAD_ANALYTICS_EVENTS = new Set<AnalyticsEventName>([
   ANALYTICS_EVENTS.lead_gate_complete,
   ANALYTICS_EVENTS.sms_consent_opt_in,
   ANALYTICS_EVENTS.assessment_complete,
   ANALYTICS_EVENTS.roi_agent_triggered,
 ]);
+
+/** @deprecated Use LIMITED_PAYLOAD_ANALYTICS_EVENTS */
+export const PII_ANALYTICS_EVENTS = LIMITED_PAYLOAD_ANALYTICS_EVENTS;
 
 export type AnalyticsEventProps = Record<string, string | number | boolean>;
 
@@ -44,13 +51,14 @@ export function trackEvent(
   name: AnalyticsEventName,
   props: AnalyticsEventProps = {},
 ): void {
-  if (PII_ANALYTICS_EVENTS.has(name)) {
-    sink(name, props);
-    return;
-  }
   sink(name, props);
 }
 
+export function isLimitedPayloadAnalyticsEvent(name: AnalyticsEventName): boolean {
+  return LIMITED_PAYLOAD_ANALYTICS_EVENTS.has(name);
+}
+
+/** @deprecated Use isLimitedPayloadAnalyticsEvent */
 export function isPiiAnalyticsEvent(name: AnalyticsEventName): boolean {
-  return PII_ANALYTICS_EVENTS.has(name);
+  return isLimitedPayloadAnalyticsEvent(name);
 }

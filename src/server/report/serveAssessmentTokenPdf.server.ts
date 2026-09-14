@@ -14,7 +14,7 @@ export async function serveAssessmentTokenPdf(token: string): Promise<Response> 
   const pdfBytes = await generateAssessmentPdfBytes({ snapshot: data.snapshot });
   const filename = "624-voice-assessment-report.pdf";
 
-  return new Response(pdfBytes, {
+  return new Response(new Uint8Array(pdfBytes), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
