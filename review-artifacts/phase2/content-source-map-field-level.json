@@ -1,0 +1,1366 @@
+{
+  "rowCount": 136,
+  "noPublicScaffoldingConfirmed": true,
+  "rows": [
+    {
+      "status": "implemented",
+      "copyUnit": "/ SEO title",
+      "exactStringOrMetadata": "624 Voice: AI Growth Systems for Home Services",
+      "authoritativeSourceDocument": "624VoiceHomepageCopy-v2.1-EXTRACTED.txt §2",
+      "sourceSectionAndField": "head.title",
+      "destinationFile": "src/routes/index.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/index.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "/what-we-do SEO title",
+      "exactStringOrMetadata": "AI Growth Systems for Home Service Companies | 624 Voice",
+      "authoritativeSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §4",
+      "sourceSectionAndField": "head.title",
+      "destinationFile": "src/routes/what-we-do.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/what-we-do.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "/what-we-do SEO description",
+      "exactStringOrMetadata": "Connects the systems you already use so information moves through the process without repeated entry.",
+      "authoritativeSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §4",
+      "sourceSectionAndField": "head.description",
+      "destinationFile": "src/routes/what-we-do.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/what-we-do.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "/how-we-work SEO title",
+      "exactStringOrMetadata": "How 624 Voice Works | AI Growth Systems for Home Services",
+      "authoritativeSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §5",
+      "sourceSectionAndField": "head.title",
+      "destinationFile": "src/routes/how-we-work.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/how-we-work.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "/demo SEO title",
+      "exactStringOrMetadata": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+      "authoritativeSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §6",
+      "sourceSectionAndField": "head.title",
+      "destinationFile": "src/routes/demo.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/demo.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "/about SEO title",
+      "exactStringOrMetadata": "About 624 Voice | AI Growth Systems for Home Services",
+      "authoritativeSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §7",
+      "sourceSectionAndField": "head.title",
+      "destinationFile": "src/routes/about.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "readRouteMeta src/routes/about.tsx"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment introduction H1",
+      "exactStringOrMetadata": "Find Your{\" \"} <span className=\"text-brand-primary\">Top Priorities",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX",
+      "sourceSectionAndField": "Assessment intro hero",
+      "destinationFile": "src/routes/assessment.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-01, safe-qa assessment-01-start.png"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question BP1",
+      "exactStringOrMetadata": "What type of home-service business do you run?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question BP1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=BP1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question BP2",
+      "exactStringOrMetadata": "How many trucks or service vehicles do you operate?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question BP2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=BP2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question R1",
+      "exactStringOrMetadata": "About how many new inbound calls does your business get in a typical month?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question R1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=R1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question R2",
+      "exactStringOrMetadata": "About what percentage of those calls go missed or unanswered?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question R2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=R2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question R3",
+      "exactStringOrMetadata": "What is your average job or ticket value?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question R3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=R3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question GF-S",
+      "exactStringOrMetadata": "How consistently do new customers find your business when they need your services?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-S.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=GF-S"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-S option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-S choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-S option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-S choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-S option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-S choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-S option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-S choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question CV-S",
+      "exactStringOrMetadata": "How consistently do inbound leads convert into booked jobs or appointments?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-S.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=CV-S"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-S option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-S choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-S option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-S choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-S option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-S choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-S option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-S choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RG-S",
+      "exactStringOrMetadata": "How consistently do you stay in touch with past customers to earn repeat business?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-S.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RG-S"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-S option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-S choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-S option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-S choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-S option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-S choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-S option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-S choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RM-S",
+      "exactStringOrMetadata": "How much manual admin work still falls on your team for scheduling and follow-up?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-S.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RM-S"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-S option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-S choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-S option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-S choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-S option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-S choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-S option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-S choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question MI-S",
+      "exactStringOrMetadata": "How clearly can you see which marketing and operations efforts are working?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-S.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=MI-S"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-S option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-S choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-S option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-S choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-S option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-S choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-S option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-S choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question GF-F1",
+      "exactStringOrMetadata": "Do you track where new leads come from (calls, web, referrals, ads)?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=GF-F1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F1 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F1 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F1 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F1 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F1 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F1 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F1 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F1 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question GF-F2",
+      "exactStringOrMetadata": "Is your Google Business Profile complete, current, and actively managed?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=GF-F2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F2 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F2 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F2 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F2 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F2 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F2 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F2 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F2 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question GF-F3",
+      "exactStringOrMetadata": "Do you have a simple way for prospects to request service online or after hours?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=GF-F3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F3 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F3 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F3 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F3 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F3 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F3 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment GF-F3 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question GF-F3 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question CV-F1",
+      "exactStringOrMetadata": "Does every inbound call get answered or returned the same business day?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=CV-F1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F1 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F1 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F1 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F1 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F1 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F1 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F1 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F1 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question CV-F2",
+      "exactStringOrMetadata": "Do you confirm appointments and reduce no-shows with reminders?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=CV-F2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F2 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F2 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F2 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F2 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F2 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F2 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F2 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F2 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question CV-F3",
+      "exactStringOrMetadata": "Do you follow up on estimates or quotes that have not booked yet?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=CV-F3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F3 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F3 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F3 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F3 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F3 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F3 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment CV-F3 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question CV-F3 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RG-F1",
+      "exactStringOrMetadata": "Do you reach out to past customers on a regular schedule?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RG-F1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F1 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F1 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F1 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F1 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F1 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F1 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F1 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F1 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RG-F2",
+      "exactStringOrMetadata": "Do you ask for reviews or referrals after completed jobs?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RG-F2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F2 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F2 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F2 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F2 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F2 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F2 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F2 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F2 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RG-F3",
+      "exactStringOrMetadata": "Do you offer maintenance plans or seasonal check-ins?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RG-F3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F3 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F3 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F3 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F3 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F3 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F3 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RG-F3 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RG-F3 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RM-F1",
+      "exactStringOrMetadata": "Does your team still re-enter the same customer details in multiple places?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RM-F1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F1 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F1 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F1 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F1 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F1 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F1 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F1 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F1 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RM-F2",
+      "exactStringOrMetadata": "Do dispatch and office staff spend significant time on phone tag?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RM-F2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F2 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F2 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F2 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F2 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F2 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F2 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F2 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F2 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question RM-F3",
+      "exactStringOrMetadata": "Are invoices, payments, or balance reminders still handled mostly by hand?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=RM-F3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F3 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F3 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F3 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F3 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F3 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F3 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment RM-F3 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question RM-F3 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question MI-F1",
+      "exactStringOrMetadata": "Can you see booking conversion and missed-call rates for your business?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F1.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=MI-F1"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F1 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F1 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F1 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F1 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F1 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F1 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F1 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F1 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question MI-F2",
+      "exactStringOrMetadata": "Do you review marketing spend against booked jobs?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F2.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=MI-F2"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F2 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F2 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F2 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F2 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F2 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F2 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F2 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F2 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment question MI-F3",
+      "exactStringOrMetadata": "Do you have a simple dashboard or report your team reviews regularly?",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F3.text",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts ASSESSMENT_QUESTIONS id=MI-F3"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F3 option",
+      "exactStringOrMetadata": "Not at all / rarely",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F3 choice score=0",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F3 option",
+      "exactStringOrMetadata": "Somewhat / occasionally",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F3 choice score=1",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F3 option",
+      "exactStringOrMetadata": "Mostly / often",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F3 choice score=2",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assessment MI-F3 option",
+      "exactStringOrMetadata": "Consistently / always",
+      "authoritativeSourceDocument": "Phase2Final Assessment question bank",
+      "sourceSectionAndField": "Question MI-F3 choice score=3",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts choice label"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Assumptions-review heading",
+      "exactStringOrMetadata": "Review your respond assumptions",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Respond review",
+      "sourceSectionAndField": "RespondAssumptionsReview heading",
+      "destinationFile": "src/components/assessment/RespondAssumptionsReview.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-CMP-06"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate heading",
+      "exactStringOrMetadata": "Unlock your full assessment results",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate",
+      "sourceSectionAndField": "AssessmentGate h2",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "REQUIRE_LEAD_FOR_RESULTS (true)",
+      "verificationEvidence": "S-CMP-01"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate label First name",
+      "exactStringOrMetadata": "First name",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate F.1",
+      "sourceSectionAndField": "label for=gate-first-name",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "AssessmentGate.tsx label scan"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate label Last name",
+      "exactStringOrMetadata": "Last name",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate F.1",
+      "sourceSectionAndField": "label for=gate-last-name",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "AssessmentGate.tsx label scan"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate label Business name",
+      "exactStringOrMetadata": "Business name",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate F.1",
+      "sourceSectionAndField": "label for=gate-business",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "AssessmentGate.tsx label scan"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate label Email",
+      "exactStringOrMetadata": "Email",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate F.1",
+      "sourceSectionAndField": "label for=gate-email",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "AssessmentGate.tsx label scan"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Lead gate label Phone number",
+      "exactStringOrMetadata": "Phone number",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Lead gate F.1",
+      "sourceSectionAndField": "label for=gate-phone",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "AssessmentGate.tsx label scan"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "SMS consent copy",
+      "exactStringOrMetadata": "I agree to receive text messages from 624 Voice about my assessment results. Message and data rates may apply. Reply STOP to opt out.",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §SMS consent",
+      "sourceSectionAndField": "AssessmentGate smsConsent span",
+      "destinationFile": "src/components/assessment/AssessmentGate.tsx",
+      "featureFlagOrGate": "ASSESSMENT_ROI_AGENT_LIVE_ENABLED (false in private impl)",
+      "verificationEvidence": "S-CMP-08, S-JRN-PIPE-03"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Validation or failure message: First name is required.…",
+      "exactStringOrMetadata": "First name is required.",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Validation",
+      "sourceSectionAndField": "validateLeadInfo",
+      "destinationFile": "src/lib/lead/validateLead.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-PIPE-01, S-JRN-PIPE-07"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Validation or failure message: Enter a valid email address.…",
+      "exactStringOrMetadata": "Enter a valid email address.",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Validation",
+      "sourceSectionAndField": "validateLeadInfo",
+      "destinationFile": "src/lib/lead/validateLead.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-PIPE-01, S-JRN-PIPE-07"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Validation or failure message: Enter a valid phone number.…",
+      "exactStringOrMetadata": "Enter a valid phone number.",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Validation",
+      "sourceSectionAndField": "validateLeadInfo",
+      "destinationFile": "src/lib/lead/validateLead.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-PIPE-01, S-JRN-PIPE-07"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Validation or failure message: Could not submit your assessment…",
+      "exactStringOrMetadata": "Could not submit your assessment. Please try again.",
+      "authoritativeSourceDocument": "Phase2Final Assessment UX §Validation",
+      "sourceSectionAndField": "assessment.tsx catch",
+      "destinationFile": "src/routes/assessment.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-PIPE-01, S-JRN-PIPE-07"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Results disclaimer",
+      "exactStringOrMetadata": "This Assessment is directional and based on the information you provided. It is a starting point, not a full operational diagnosis. A paid AI Revenue and Operations Diagnostic is used only when a deeper review is warranted.",
+      "authoritativeSourceDocument": "Phase2Final Assessment results §Disclaimer",
+      "sourceSectionAndField": "AssessmentResults DISCLAIMER",
+      "destinationFile": "src/components/assessment/AssessmentResults.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-CMP-10, S-PDF-03"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Invalid/expired report token message",
+      "exactStringOrMetadata": "This assessment report link has expired or is invalid.",
+      "authoritativeSourceDocument": "Phase2Final token PDF route",
+      "sourceSectionAndField": "serveAssessmentTokenPdf 404 body",
+      "destinationFile": "src/server/report/serveAssessmentTokenPdf.server.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "S-JRN-PIPE-06"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Services redirect destination",
+      "exactStringOrMetadata": "/what-we-do (307/302 redirect from /services)",
+      "authoritativeSourceDocument": "Phase2Final route table",
+      "sourceSectionAndField": "services.tsx beforeLoad redirect",
+      "destinationFile": "src/routes/services.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "services-redirect-evidence.json"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: What We Do",
+      "exactStringOrMetadata": "What We Do",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: How We Work",
+      "exactStringOrMetadata": "How We Work",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: Demo",
+      "exactStringOrMetadata": "Demo",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: About",
+      "exactStringOrMetadata": "About",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: Contact",
+      "exactStringOrMetadata": "Contact",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Desktop/mobile nav label: Assessment",
+      "exactStringOrMetadata": "Assessment",
+      "authoritativeSourceDocument": "Phase2Final nav labels",
+      "sourceSectionAndField": "Header navigation",
+      "destinationFile": "src/routes/__root.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa screenshots, supplementalPublicCopy.test.ts"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "404 page copy",
+      "exactStringOrMetadata": "Back to Home",
+      "authoritativeSourceDocument": "Phase2Final default not-found",
+      "sourceSectionAndField": "router notFoundComponent",
+      "destinationFile": "src/router.tsx",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "safe-qa 404.png"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Provenance label all modeled",
+      "exactStringOrMetadata": "Estimate based on your business type and size.",
+      "authoritativeSourceDocument": "Phase2Final §F.1 combined provenance",
+      "sourceSectionAndField": "engine.resolveRespondInputs label",
+      "destinationFile": "src/lib/assessment/engine.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "L#27, S-JRN-04"
+    },
+    {
+      "status": "implemented",
+      "copyUnit": "Dimension labels",
+      "exactStringOrMetadata": "{\"GF\":\"Get Found\",\"Respond\":\"Respond\",\"CV\":\"Convert\",\"RG\":\"Retain and Grow\",\"RM\":\"Reduce Manual Work\",\"MI\":\"Measure and Improve\"}",
+      "authoritativeSourceDocument": "Phase2Final dimension naming",
+      "sourceSectionAndField": "DIMENSION_LABELS",
+      "destinationFile": "src/lib/assessment/questions.ts",
+      "featureFlagOrGate": "none",
+      "verificationEvidence": "questions.ts DIMENSION_LABELS"
+    }
+  ]
+}

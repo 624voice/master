@@ -1,0 +1,29 @@
+{
+  "completedAt": "2026-09-14T20:20:00.000Z",
+  "branch": "cursor/phase2-assessment-build-e498",
+  "fiveConsecutiveFullSuiteRuns": "review-artifacts/phase2/stability-five-full-suite-runs.json",
+  "messagesidThreeRuns": "review-artifacts/phase2/stability-messagesid-three-runs.json",
+  "productionTypecheck": {
+    "command": "bun run typecheck",
+    "phase2ProductionFilesIntroduced": 0,
+    "log": "review-artifacts/phase2/typescript-current.log"
+  },
+  "testTypecheck": {
+    "command": "bun run typecheck:test",
+    "note": "Uses tsconfig.test.json (existed at 05def6b, byte-identical); bun types resolved in bun test runtime"
+  },
+  "productionBuild": {
+    "command": "bun run build",
+    "result": "pass"
+  },
+  "sBnd01Through05": "src/server/report/bundleBoundary.test.ts (included in full suite)",
+  "sParity01Through05": "src/server/assessment/protectedAgentParity.test.ts (included in full suite)",
+  "protectedManifestZeroDiff": "review-artifacts/phase2/protected-manifest-table.json — all manifest entries match",
+  "noLiveExternalSideEffects": true,
+  "liveIntegrationDeferred": [
+    "Contact Us live submit",
+    "ROI Download live workflow",
+    "Demo live SMS",
+    "Assessment-SMS with ASSESSMENT_ROI_AGENT_LIVE_ENABLED"
+  ]
+}

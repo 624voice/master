@@ -1,0 +1,154 @@
+[
+  {
+    "event": "lead_gate_complete",
+    "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
+    "permittedByLockedContract": {
+      "source": "operational_metadata"
+    },
+    "requiredByLockedContract": [
+      "source"
+    ],
+    "prohibitedByLockedContract": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "currentlyDispatchedFields": {
+      "source": "\"assessment\""
+    },
+    "callSiteFile": "src/server/submitAssessmentLead.server.ts",
+    "callSiteLine": 122,
+    "fieldsIntentionallyOmitted": [],
+    "fieldsProhibited": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "satisfiesLockedContract": true,
+    "contractProof": "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited. source and hasEstimate are the required operational fields for server-dispatched limited events.",
+    "positiveTest": "analyticsLockedContractComparison.test.ts X-AN-CMP positive lead_gate_complete",
+    "negativeTest": "analyticsLockedContractComparison.test.ts X-AN-CMP negative lead_gate_complete"
+  },
+  {
+    "event": "sms_consent_opt_in",
+    "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
+    "permittedByLockedContract": {
+      "source": "operational_metadata"
+    },
+    "requiredByLockedContract": [
+      "source"
+    ],
+    "prohibitedByLockedContract": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token"
+    ],
+    "currentlyDispatchedFields": {
+      "source": "\"assessment\""
+    },
+    "callSiteFile": "src/server/submitAssessmentLead.server.ts",
+    "callSiteLine": 124,
+    "fieldsIntentionallyOmitted": [],
+    "fieldsProhibited": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token"
+    ],
+    "satisfiesLockedContract": true,
+    "contractProof": "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited. source and hasEstimate are the required operational fields for server-dispatched limited events.",
+    "positiveTest": "analyticsLockedContractComparison.test.ts X-AN-CMP positive sms_consent_opt_in",
+    "negativeTest": "analyticsLockedContractComparison.test.ts X-AN-CMP negative sms_consent_opt_in"
+  },
+  {
+    "event": "assessment_complete",
+    "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
+    "permittedByLockedContract": {
+      "hasEstimate": "non_identifying_analytics"
+    },
+    "requiredByLockedContract": [
+      "hasEstimate"
+    ],
+    "prohibitedByLockedContract": [
+      "email",
+      "phone",
+      "firstName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "currentlyDispatchedFields": {
+      "hasEstimate": "\"true\"|\"false\""
+    },
+    "callSiteFile": "src/server/submitAssessmentLead.server.ts",
+    "callSiteLine": 67,
+    "fieldsIntentionallyOmitted": [],
+    "fieldsProhibited": [
+      "email",
+      "phone",
+      "firstName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "satisfiesLockedContract": true,
+    "contractProof": "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited. source and hasEstimate are the required operational fields for server-dispatched limited events.",
+    "positiveTest": "analyticsLockedContractComparison.test.ts X-AN-CMP positive assessment_complete",
+    "negativeTest": "analyticsLockedContractComparison.test.ts X-AN-CMP negative assessment_complete"
+  },
+  {
+    "event": "roi_agent_triggered",
+    "lockedSourceDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt",
+    "lockedSourceSection": "Section 14 — Analytics privacy contract (ten events)",
+    "permittedByLockedContract": {
+      "source": "operational_metadata"
+    },
+    "requiredByLockedContract": [
+      "source"
+    ],
+    "prohibitedByLockedContract": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "currentlyDispatchedFields": {
+      "source": "\"assessment\""
+    },
+    "callSiteFile": "src/server/submitAssessmentLead.server.ts",
+    "callSiteLine": 160,
+    "fieldsIntentionallyOmitted": [],
+    "fieldsProhibited": [
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "answer",
+      "token",
+      "reportUrl"
+    ],
+    "satisfiesLockedContract": true,
+    "contractProof": "Phase2Final Section 14 authorizes limited operational metadata only; contact PII and raw answers are prohibited. source and hasEstimate are the required operational fields for server-dispatched limited events.",
+    "positiveTest": "analyticsLockedContractComparison.test.ts X-AN-CMP positive roi_agent_triggered",
+    "negativeTest": "analyticsLockedContractComparison.test.ts X-AN-CMP negative roi_agent_triggered"
+  }
+]

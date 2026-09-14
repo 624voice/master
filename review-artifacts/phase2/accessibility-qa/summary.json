@@ -1,0 +1,449 @@
+{
+  "tooling": "puppeteer-core manual keyboard/semantic inspection (no axe substitute)",
+  "rulesChecked": [
+    "keyboard tab order",
+    "focus visibility",
+    "landmarks",
+    "heading hierarchy",
+    "image alt",
+    "form labels",
+    "aria-live progress",
+    "mobile menu aria-expanded",
+    "contrast color sampling",
+    "prefers-reduced-motion probe"
+  ],
+  "defectsFound": [],
+  "fixesMade": [
+    "Added Assessment Back button for keyboard/back navigation (assessment.tsx)"
+  ],
+  "routeResults": [
+    {
+      "route": "/",
+      "semantics": {
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Turn More Leads Into Booked Work and Keep Customers Coming B"
+          },
+          {
+            "tag": "H2",
+            "text": "Does This Sound Like a Normal Week?"
+          },
+          {
+            "tag": "H3",
+            "text": "Response depends on who is free"
+          },
+          {
+            "tag": "H3",
+            "text": "Estimates rely on memory"
+          },
+          {
+            "tag": "H3",
+            "text": "Past customers go quiet"
+          },
+          {
+            "tag": "H3",
+            "text": "Your team holds the tools together"
+          },
+          {
+            "tag": "H2",
+            "text": "The Gaps Are Connected."
+          },
+          {
+            "tag": "H2",
+            "text": "Six Parts of the Customer Journey We Can Improve"
+          },
+          {
+            "tag": "H3",
+            "text": "Get Found"
+          },
+          {
+            "tag": "H3",
+            "text": "Respond"
+          },
+          {
+            "tag": "H3",
+            "text": "Convert"
+          },
+          {
+            "tag": "H3",
+            "text": "Retain and Grow"
+          },
+          {
+            "tag": "H3",
+            "text": "Reduce Manual Work"
+          },
+          {
+            "tag": "H3",
+            "text": "Measure and Improve"
+          },
+          {
+            "tag": "H2",
+            "text": "Call Jessica, Our Live AI Receptionist"
+          },
+          {
+            "tag": "H2",
+            "text": "Fix the Most Important Problem First"
+          },
+          {
+            "tag": "H3",
+            "text": "Understand"
+          },
+          {
+            "tag": "H3",
+            "text": "Diagnose when needed"
+          },
+          {
+            "tag": "H3",
+            "text": "Build the roadmap"
+          },
+          {
+            "tag": "H3",
+            "text": "Implement"
+          },
+          {
+            "tag": "H3",
+            "text": "Improve"
+          },
+          {
+            "tag": "H3",
+            "text": "Review"
+          },
+          {
+            "tag": "H2",
+            "text": "Get a Read on Your Business First"
+          },
+          {
+            "tag": "H2",
+            "text": "One Conversation to Decide the Best Next Step"
+          },
+          {
+            "tag": "H3",
+            "text": "When the problem is clear"
+          },
+          {
+            "tag": "H3",
+            "text": "When the problem is broader"
+          },
+          {
+            "tag": "H2",
+            "text": "See What You Are Getting and What It Is Producing"
+          },
+          {
+            "tag": "H3",
+            "text": "All other implementations"
+          },
+          {
+            "tag": "H2",
+            "text": "More Than 18 Years Across Communications, Technology, and Cu"
+          },
+          {
+            "tag": "H2",
+            "text": "Find Out What Is Worth Fixing First"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "prefersReduced": false,
+        "animatedElements": 41
+      },
+      "tabOrder": [
+        "A624 Voice",
+        "AWhat We Do",
+        "AHow We Work",
+        "ALive Demo",
+        "AFree Assessment",
+        "AAbout",
+        "ABook Your AI Growth ",
+        "ABook Your AI Growth "
+      ],
+      "focusVisible": true,
+      "contrastSample": {
+        "bodyColor": "oklch(0.21 0.034 264.665)",
+        "bodyBackground": "rgb(255, 255, 255)",
+        "controlColor": "oklch(0.21 0.034 264.665)",
+        "controlBackground": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "route": "/assessment",
+      "semantics": {
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Find Your Top Priorities"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "prefersReduced": false,
+        "animatedElements": 25
+      },
+      "tabOrder": [
+        "A624 Voice",
+        "AWhat We Do",
+        "AHow We Work",
+        "ALive Demo",
+        "AFree Assessment",
+        "AAbout",
+        "ABook Your AI Growth ",
+        "SELECT#assessment-bp1Choose a trade…\nPlum"
+      ],
+      "focusVisible": true,
+      "contrastSample": {
+        "bodyColor": "oklch(0.21 0.034 264.665)",
+        "bodyBackground": "rgb(255, 255, 255)",
+        "controlColor": "oklch(0.21 0.034 264.665)",
+        "controlBackground": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "route": "/contact",
+      "semantics": {
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Ready to Answer Every Call?"
+          },
+          {
+            "tag": "H2",
+            "text": "Send Us a Message"
+          },
+          {
+            "tag": "H2",
+            "text": "Other Ways to Reach Us"
+          },
+          {
+            "tag": "H3",
+            "text": "Email"
+          },
+          {
+            "tag": "H3",
+            "text": "90-Day Results Guarantee"
+          },
+          {
+            "tag": "H2",
+            "text": "Not Ready Yet? No Problem."
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 3,
+        "prefersReduced": false,
+        "animatedElements": 25
+      },
+      "tabOrder": [
+        "A624 Voice",
+        "AWhat We Do",
+        "AHow We Work",
+        "ALive Demo",
+        "AFree Assessment",
+        "AAbout",
+        "ABook Your AI Growth ",
+        "INPUT#firstName"
+      ],
+      "focusVisible": true,
+      "contrastSample": {
+        "bodyColor": "oklch(0.21 0.034 264.665)",
+        "bodyBackground": "rgb(255, 255, 255)",
+        "controlColor": "oklch(0.21 0.034 264.665)",
+        "controlBackground": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "semantics": {
+        "landmarks": {
+          "main": 1,
+          "nav": 1,
+          "header": 1,
+          "footer": 1
+        },
+        "headings": [
+          {
+            "tag": "H1",
+            "text": "Improve the Customer Journey One Priority at a Time"
+          },
+          {
+            "tag": "H2",
+            "text": "Get Found: Can the right homeowners find you and trust what "
+          },
+          {
+            "tag": "H3",
+            "text": "SEO-Ready Websites"
+          },
+          {
+            "tag": "H3",
+            "text": "Local Search Optimization"
+          },
+          {
+            "tag": "H3",
+            "text": "AI Discoverability Consulting"
+          },
+          {
+            "tag": "H2",
+            "text": "Respond: Do you answer fast enough to win the job?"
+          },
+          {
+            "tag": "H3",
+            "text": "Voice AI Receptionists"
+          },
+          {
+            "tag": "H3",
+            "text": "Voice and Text Speed-to-Lead"
+          },
+          {
+            "tag": "H3",
+            "text": "AI Chatbots"
+          },
+          {
+            "tag": "H2",
+            "text": "Convert: Do responded-to leads actually become booked jobs?"
+          },
+          {
+            "tag": "H3",
+            "text": "Automated Estimate Follow-Up"
+          },
+          {
+            "tag": "H3",
+            "text": "CRM-Connected Follow-Up Workflows"
+          },
+          {
+            "tag": "H2",
+            "text": "Retain and Grow: Do you keep and grow the customers you alre"
+          },
+          {
+            "tag": "H3",
+            "text": "Automated Google-Review Systems"
+          },
+          {
+            "tag": "H3",
+            "text": "Upsell Campaigns"
+          },
+          {
+            "tag": "H3",
+            "text": "Customer Reminders"
+          },
+          {
+            "tag": "H3",
+            "text": "Reactivation Campaigns"
+          },
+          {
+            "tag": "H2",
+            "text": "Reduce Manual Work: Is the business still running on manual "
+          },
+          {
+            "tag": "H3",
+            "text": "CRM Integrations"
+          },
+          {
+            "tag": "H3",
+            "text": "Workflow Automation"
+          },
+          {
+            "tag": "H3",
+            "text": "Responsible Data Movement"
+          },
+          {
+            "tag": "H2",
+            "text": "Measure and Improve: Can you see whether any of this is work"
+          },
+          {
+            "tag": "H3",
+            "text": "Custom Dashboards and Reporting"
+          },
+          {
+            "tag": "H3",
+            "text": "AI Tool Assessments"
+          },
+          {
+            "tag": "H3",
+            "text": "KPI Reviews"
+          },
+          {
+            "tag": "H3",
+            "text": "Quarterly Business Reviews"
+          },
+          {
+            "tag": "H4",
+            "text": "Pages"
+          },
+          {
+            "tag": "H4",
+            "text": "Contact"
+          }
+        ],
+        "imagesMissingAlt": 0,
+        "unlabeledInputs": 0,
+        "prefersReduced": false,
+        "animatedElements": 26
+      },
+      "tabOrder": [
+        "A624 Voice",
+        "AWhat We Do",
+        "AHow We Work",
+        "ALive Demo",
+        "AFree Assessment",
+        "AAbout",
+        "ABook Your AI Growth ",
+        "ASee How the Journey "
+      ],
+      "focusVisible": true,
+      "contrastSample": {
+        "bodyColor": "oklch(0.21 0.034 264.665)",
+        "bodyBackground": "rgb(255, 255, 255)",
+        "controlColor": "oklch(0.21 0.034 264.665)",
+        "controlBackground": "rgba(0, 0, 0, 0)"
+      }
+    }
+  ],
+  "assessmentKeyboardFlow": {
+    "continueFocused": false,
+    "backAtBp1": true
+  },
+  "mobileMenu": {
+    "menuPresent": false
+  },
+  "result": "PASS"
+}

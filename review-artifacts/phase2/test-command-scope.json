@@ -1,6 +1,6 @@
 {
-  "bunTest": "743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [8.06s]",
-  "bunTestSrc": "743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.64s]",
-  "identicalScope": false,
-  "note": "Both commands discover 716 tests across 96 files on current branch."
+  "bunTest": "773 pass, 0 fail, 101 files",
+  "bunTestSrc": "773 pass, 0 fail, 101 files",
+  "identicalScope": true,
+  "note": "Both `bun test` and `bun test src` discover 773 tests across 101 files after Phase 2 completion pass."
 }

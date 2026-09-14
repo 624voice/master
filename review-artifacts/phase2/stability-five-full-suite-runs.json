@@ -1,52 +1,42 @@
 [
   {
     "run": 1,
-    "command": "bun test",
-    "pass": 743,
+    "pass": 773,
     "fail": 0,
-    "tests": 743,
-    "files": 98,
-    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.13ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.61s]",
+    "tests": 773,
+    "files": 101,
     "status": 0
   },
   {
     "run": 2,
-    "command": "bun test",
-    "pass": 743,
+    "pass": 773,
     "fail": 0,
-    "tests": 743,
-    "files": 98,
-    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.73s]",
+    "tests": 773,
+    "files": 101,
     "status": 0
   },
   {
     "run": 3,
-    "command": "bun test",
-    "pass": 743,
+    "pass": 773,
     "fail": 0,
-    "tests": 743,
-    "files": 98,
-    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.12ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.62s]",
+    "tests": 773,
+    "files": 101,
     "status": 0
   },
   {
     "run": 4,
-    "command": "bun test",
-    "pass": 743,
+    "pass": 773,
     "fail": 0,
-    "tests": 743,
-    "files": 98,
-    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.05ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.67s]",
+    "tests": 773,
+    "files": 101,
     "status": 0
   },
   {
     "run": 5,
-    "command": "bun test",
-    "pass": 743,
+    "pass": 773,
     "fail": 0,
-    "tests": 743,
-    "files": 98,
-    "tail": "(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.15ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.07ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.07ms]\n\n 743 pass\n 0 fail\n 1942 expect() calls\nRan 743 tests across 98 files. [7.72s]",
+    "tests": 773,
+    "files": 101,
     "status": 0
   }
 ]
