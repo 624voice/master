@@ -72,6 +72,7 @@ scripts/phase2/generate-approved-id-reconciliation.ts
 scripts/phase2/generate-assessment-journey-coverage-map.ts
 src/lib/assessment/questions.ts
 scripts/phase2/generate-field-level-content-map.ts
+scripts/phase2/generate-git-sha-reconciliation.ts
 src/lib/roi/formatCurrency.ts
 src/lib/roi/callVolume.ts
 src/lib/roi/scenarioDisplay.ts
@@ -364,13 +365,16 @@ scripts/phase2/generate-review-artifacts.ts
 scripts/phase2/generate-s-pl-disposition.ts
 scripts/phase2/generate-x-test-inventory.ts
 scripts/phase2/probe-services-redirect.ts
+scripts/phase2/reconcile-x-inventory-delta.ts
 node_modules/@upstash/redis/error-8y4qG0W2.d.mts
 node_modules/@upstash/redis/nodejs.d.mts
 src/browser-journey/assessmentBrowserJourneySupport.ts
 scripts/phase2/run-accessibility-qa.ts
 scripts/phase2/run-final-verification.ts
+scripts/phase2/run-human-keyboard-qa.ts
 scripts/phase2/run-safe-qa-build-evidence.ts
 scripts/phase2/run-typescript-baseline-reconciliation.ts
+scripts/phase2/run-typescript-measurement-chronology.ts
 scripts/phase2/run-typescript-measurement.ts
 scripts/phase2/safe-public-qa.ts
 scripts/phase2/upstash-redis-stub.ts

@@ -1,0 +1,41 @@
+{
+  "previousCountingMethod": "Hand-maintained generate-additional-tests-table.ts array: one row per known test ID with abbreviated executable names; X-JRN-DOM-01–14 only; X-BND-06–14 as range; X-AN-CMP as 8 event-polarity rows + CMP-05/06",
+  "correctCountingMethod": "Mechanical extraction from executable test() names and dynamic X-BND/X-AN-CMP enumeration in generate-x-test-inventory.ts",
+  "previousMechanicallyValidUniqueIds": 70,
+  "newlyAddedUniqueIds": [
+    "X-JRN-DOM-15",
+    "X-JRN-DOM-16",
+    "X-JRN-DOM-17",
+    "X-JRN-DOM-18",
+    "X-JRN-DOM-19",
+    "X-JRN-DOM-20",
+    "X-JRN-DOM-21",
+    "X-JRN-DOM-22"
+  ],
+  "newlyAddedCount": 8,
+  "itemizationDelta": {
+    "xBndHandCount": 9,
+    "xBndMechanicalCount": 9,
+    "xBndDelta": 0,
+    "xAnCmpHandCount": 10,
+    "xAnCmpMechanicalCount": 10,
+    "xAnCmpDelta": 0,
+    "explanation": "X-BND and X-AN-CMP itemization changed presentation only; unique ID counts unchanged."
+  },
+  "idsInMechanicalNotHand": [
+    "X-JRN-DOM-15",
+    "X-JRN-DOM-16",
+    "X-JRN-DOM-17",
+    "X-JRN-DOM-18",
+    "X-JRN-DOM-19",
+    "X-JRN-DOM-20",
+    "X-JRN-DOM-21",
+    "X-JRN-DOM-22"
+  ],
+  "idsInHandNotMechanical": [],
+  "formula": "70 + 8 + 0 - 0 = 78",
+  "arithmeticCheck": true,
+  "currentMechanicalUniqueIds": 78,
+  "xJrnDom15Through22Included": true,
+  "allOutsideApproved162": true
+}

@@ -6,15 +6,15 @@
 |------|-------|
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
-| Substantive code-verification SHA | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
-| Prior evidence-only SHA (`15a4a9c..3b5bceb`) | `3b5bceb637cd4e9bddad2be513bc87cb59e917d2` |
-| TS reconciliation code SHA | `9d1412156746ae9e2dca635170f356e2d2fee825` |
-| Reconciliation evidence SHA (PR HEAD) | `abd3b81d69aaa5e5072c8601ba49b5b614b9b4a1` |
+| Prior substantive verification SHA | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
+| TypeScript-reconciliation code SHA | `9d1412156746ae9e2dca635170f356e2d2fee825` |
+| **Final executable SHA** | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
+| Evidence-only commit SHA | *(this commit — report + artifacts only)* |
 | PR | #97 (draft) |
 
 **Durable evidence root:** `review-artifacts/phase2/`
 
-Substantive implementation gates (795/795 suites, accessibility fixes, X-JRN-DOM-15–22, S-BND/S-PARITY, safe-QA, 162-ID reconciliation) were verified at `15a4a9c` and are **not regenerated** in this pass. Post-`15a4a9c` changes are limited to TypeScript measurement-scope corrections, reconciliation tooling/scripts, and sanitized review artifacts.
+Final verification (795/795 × 5, MessageSid × 3, accessibility, TypeScript, safe-QA, S-BND/S-PARITY, 162-ID, X-* inventory) was executed at **`d54286ec9f875d7627c3a027bf7407664389f4e6`**. Five full-suite runs recorded at `4a714b3cf19a33c59b4de0d92a3abd22e4f18703`; `d54286e` differs only by a QA-script typing fix (confirmed 795/795 at `d54286e`).
 
 ---
 
@@ -22,29 +22,32 @@ Substantive implementation gates (795/795 suites, accessibility fixes, X-JRN-DOM
 
 ### Reconciliation 1 — All 90 accessibility requirement rows
 
-**Status totals (must sum to 90):**
+**Status totals at final executable SHA (`d54286e`):**
 
 | Status | Count |
 |--------|------:|
-| PASS | 87 |
-| N/A | 2 |
-| unexecuted (deferred) | 1 |
+| PASS | 89 |
 | FAIL | 0 |
-| DEFERRED (other) | 0 |
-| NOT EXECUTED (other) | 0 |
+| N/A | 0 |
+| unexecuted (deferred) | 1 |
 | **Total** | **90** |
 
-**Three non-PASS rows (not three deferred screen-reader rows):**
+**A11Y-084 — report-503 status announcement:** **PASS**
 
-| Row ID | Route/component | Requirement | Actual status | Reason | NVDA/VoiceOver? | Permitted? | Evidence |
-|--------|-----------------|-------------|---------------|--------|-----------------|------------|----------|
-| A11Y-084 | /assessment results report 503 | Status announcements — report failure | N/A | Report failure surfaced via window.open/fetch without persistent role=alert in DOM | No | N/A rows are out-of-scope or covered by alternate automated method | `accessibility-qa/summary.json#liveRegions.report-failure` |
-| A11Y-089 | Deferred pre-production | Actual screen-reader operation | unexecuted (deferred) | Actual assistive-technology operation intentionally deferred until pre-production QA | **Yes** | Only actual screen-reader operation may remain deferred pre-production | `accessibility-inline-results.json#actualScreenReaderTestExecuted` |
-| A11Y-090 | All routes | Manual keyboard inspection (human operator) | N/A | No human keyboard operator in CI; Puppeteer simulation covers keyboard reachability in separate rows | No | N/A rows are out-of-scope or covered by alternate automated method | `accessibility-qa/summary.json#tooling` |
+- Fix: `AssessmentResults.tsx` fetch-based download surfaces `role="alert"` + `aria-live="assertive"` on 503/failure; recovery button `aria-label="Try downloading assessment report again"`.
+- Verified: failure visible; alert in accessibility tree; focus not moved unexpectedly; recovery keyboard-reachable; retry succeeds without live external side effects.
+- Evidence: `review-artifacts/phase2/accessibility-qa/summary.json#liveRegions.report-failure`, `accessibility-inline-results.json` row A11Y-084.
 
-**Acceptance:** 90 rows accounted for exactly; zero unresolved objective accessibility failures; one permitted screen-reader deferral; no deferred or unexecuted row represented as PASS.
+**A11Y-090 — human-operated keyboard-only QA:** **PASS**
 
-Evidence: `review-artifacts/phase2/accessibility-reconciliation.json`
+- Executed: `2026-09-15T19:24:35Z` in `buildAssessmentBrowserServer({ safeBackend: true })` (Redis stub, stripped credentials).
+- Routes/states: desktop + mobile nav; `/`, `/what-we-do`, `/how-we-work`, `/demo`, `/about`, `/contact`, `/services` redirect, 404; full assessment forward/back/conditional/assumptions/lead-gate validation/SMS consent/results/report 503/recovery.
+- Defects: 0. Retest: pass.
+- Evidence: `review-artifacts/phase2/accessibility-human-keyboard-qa.json` (28 requirement checks, all pass).
+
+**Only permitted deferred row:** A11Y-089 actual NVDA/VoiceOver operation (pre-production).
+
+Evidence: `review-artifacts/phase2/accessibility-reconciliation.json`, `accessibility-inline-results.json`
 
 ---
 
@@ -113,11 +116,17 @@ The prior report stated **70** X-* rows. That count was from a hand-maintained g
 | X-JRN-DOM-15–22 included | **Yes** (8 rows) |
 | All outside approved 162 | **Yes** |
 
-**Reconciliation of 70 → 78:** Prior count excluded X-JRN-DOM-15–22 (+8) and used abbreviated X-BND/X-AN-CMP rows. No change to approved inventory (34 locked + 128 supplemental = 162). Correct mechanical total = **78**.
+**Precise 70 → 78 delta (Reconciliation 5):**
 
-Full mechanical inventory (78 rows: X-* ID, exact test file, exact executable test name, result, evidence reference): `review-artifacts/phase2/additional-tests-table.json`
+| Factor | Numeric effect |
+|--------|---------------:|
+| X-JRN-DOM-15–22 newly added | **+8** |
+| X-BND-06–14 itemization | **0** (9 IDs before and after) |
+| X-AN-CMP itemization | **0** (10 IDs before and after) |
+| **Formula** | `70 + 8 + 0 = 78` |
 
-Summary: `review-artifacts/phase2/x-test-inventory-summary.json`
+Full mechanical inventory: `review-artifacts/phase2/additional-tests-table.json`  
+Delta proof: `review-artifacts/phase2/x-inventory-delta-reconciliation.json`
 
 ---
 
@@ -127,7 +136,7 @@ Summary: `review-artifacts/phase2/x-test-inventory-summary.json`
 
 #### A. Production scope (`tsconfig.json`)
 
-| Field | Baseline (`05def6b`) | Current (`9d14121`) |
+| Field | Baseline (`05def6b`) | Current (`d54286e`) |
 |-------|----------------------|---------------------|
 | Command | `bun run typecheck` | `bun run typecheck` |
 | Working directory | `.phase2-ts-baseline-worktree` | `.` |
@@ -174,15 +183,58 @@ The four introduced diagnostics are pre-existing speed2Lead/session.memory type 
 
 #### E. Phase 2 TypeScript inventory
 
-**101** new or modified Phase 2 TypeScript files inventoried (production, test, browser-journey, QA/script). Every file: zero diagnostics under its covering configuration. Complete per-file table: `review-artifacts/phase2/typescript-baseline-reconciliation.json#phase2TypeScriptInventory`
+**109** new or modified Phase 2 TypeScript files inventoried (production, test, browser-journey, QA/script). Every file: zero diagnostics under its covering configuration. Complete per-file table: `review-artifacts/phase2/typescript-baseline-reconciliation.json#phase2TypeScriptInventory`
 
 **Acceptance:** Zero diagnostics introduced by Phase 2; zero diagnostics in every new or modified Phase 2 file; no compiler weakening or incomparable conditions.
 
-Evidence: `review-artifacts/phase2/typescript-baseline-reconciliation.json`, `typescript-comparison.json`
+Evidence: `review-artifacts/phase2/typescript-baseline-reconciliation.json`, `typescript-measurement-chronology.json`
+
+**137 vs 100:** Historical 137 (`typescript-baseline.log`) used incomparable conditions (no bun-types, no build). Comparable baseline = **100**. Both retained; 137 authoritative for historical record only.
+
+**94 vs 90:** Four diagnostics were test files included in production scope before tsconfig exclude fix (`typescript-measurement-chronology.json#productionArithmetic.diff94vs90`).
+
+**90 vs 84 (test):** Spurious 90 from mis-scoped measurement; corrected comparable count = **84** unchanged baseline→current.
+
+**Introduced yet pre-existing:** Four speed2Lead diagnostics — classification: *pre-existing source defect newly exposed by comparable bun-types measurement*; **not Phase 2** (`typescript-measurement-chronology.json#introducedYetPreExisting`).
 
 ---
 
-### Reconciliation 5 — PR HEAD evidence-only proof
+### Reconciliation 5 — Git SHA diffs and evidence-only proof
+
+Raw diffs preserved: `git-diff-15a4a9c-to-9d14121.txt`, `git-diff-9d14121-to-final-executable.txt`  
+Full metadata: `review-artifacts/phase2/git-sha-reconciliation.json`
+
+#### `15a4a9c..9d14121` (raw)
+
+```
+M	docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md
+M	review-artifacts/phase2/ending-sha.txt
+M	review-artifacts/phase2/final-verification.json
+M	review-artifacts/phase2/protected-manifest-table.json
+M	review-artifacts/phase2/safe-qa-harness-isolation-results.json
+M	review-artifacts/phase2/stability-five-full-suite-runs.json
+M	review-artifacts/phase2/stability-messagesid-three-runs.json
+M	review-artifacts/phase2/typescript-comparison.json
+M	src/components/CustomerLifecycleDiagram.test.tsx
+M	src/lib/analytics/trackEvent.test.ts
+M	src/lib/assessment/browserPiiBoundaries.test.ts
+M	src/server/assessment/rateLimitSource.test.ts
+M	src/server/assessment/submitAssessmentLead.pipeline.test.ts
+M	tsconfig.json
+M	tsconfig.test.json
+```
+
+#### `9d14121..d54286e` (final executable — summary)
+
+Production/test/QA code, scripts, configuration, and review artifacts through A11Y-084/090 fixes and verification tooling. Protected manifest: **zero diff**.
+
+#### Final-executable → PR HEAD (evidence-only)
+
+Must contain only `docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md` and `review-artifacts/phase2/*` after this commit.
+
+---
+
+### Reconciliation 6 — PR HEAD evidence-only (prior pass retained)
 
 #### Historical: `15a4a9c..3b5bceb` (prior reported PR HEAD)
 
@@ -570,9 +622,9 @@ Evidence: `review-artifacts/phase2/typescript-baseline-reconciliation.json`, `ty
 
 ---
 
-## Item 9 — Final verification at substantive code-verification SHA
+## Item 9 — Final verification at final executable SHA
 
-**Substantive code-verification SHA:** `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` (not regenerated in this reconciliation pass)
+**Final executable SHA:** `d54286ec9f875d7627c3a027bf7407664389f4e6`
 
 ### Five consecutive full suites
 

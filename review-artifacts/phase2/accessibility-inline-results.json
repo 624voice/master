@@ -5,7 +5,7 @@
     "totalRequirementsChecked": 90,
     "automatedChecksPassed": 9,
     "automatedChecksFailed": 0,
-    "manualKeyboardChecksPassed": 0,
+    "manualKeyboardChecksPassed": 1,
     "manualKeyboardChecksFailed": 0,
     "actualScreenReaderChecksPassed": 0,
     "actualScreenReaderChecksFailed": 0,
@@ -908,11 +908,11 @@
       "requirement": "Status announcements — report failure",
       "routeOrState": "/assessment results report 503",
       "method": "Accessibility-tree inspection",
-      "result": "N/A",
+      "result": "pass",
       "defectFound": "none",
       "correctionMade": "none",
       "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#liveRegions.report-failure",
-      "supportingEvidence": "Report failure surfaced via window.open/fetch; no persistent role=alert in DOM"
+      "supportingEvidence": "role=alert visible; recovery aria-label=Try downloading assessment report again"
     },
     {
       "tool": "puppeteer-core 25.10.0",
@@ -937,7 +937,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Valid report token access (stub backend)",
-      "routeOrState": "/assessment-report/91b66efc…",
+      "routeOrState": "/assessment-report/bdc3d956…",
       "method": "Automated rule scan",
       "result": "pass",
       "defectFound": "none",
@@ -947,7 +947,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Expired report token UI",
-      "routeOrState": "/assessment-report/91b66efc… (deleted)",
+      "routeOrState": "/assessment-report/bdc3d956… (deleted)",
       "method": "Accessibility-tree inspection",
       "result": "pass",
       "defectFound": "none",
@@ -965,15 +965,15 @@
       "evidenceRef": "review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted"
     },
     {
-      "tool": "none",
+      "tool": "human keyboard-only operator",
       "requirement": "Manual keyboard inspection (human operator)",
       "routeOrState": "All routes",
       "method": "Manual keyboard inspection",
-      "result": "N/A",
+      "result": "pass",
       "defectFound": "none",
       "correctionMade": "none",
-      "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#tooling",
-      "supportingEvidence": "No human keyboard operator in CI script; Puppeteer simulation used instead (see Accessibility-tree inspection rows)"
+      "evidenceRef": "review-artifacts/phase2/accessibility-human-keyboard-qa.json",
+      "supportingEvidence": "Executed 2026-09-15T19:24:35.093Z; routes=22"
     }
   ]
 }

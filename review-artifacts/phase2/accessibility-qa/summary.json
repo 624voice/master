@@ -1,6 +1,6 @@
 {
   "tooling": "puppeteer-core 25.10.0 + @sparticuz/chromium; production build on port 3000 with Redis stub backend for assessment/report flows",
-  "probedAt": "2026-09-15T15:14:19.783Z",
+  "probedAt": "2026-09-15T19:25:38.865Z",
   "publicRoutes": [
     "/",
     "/what-we-do",
@@ -1782,10 +1782,14 @@
       }
     },
     "reportAction": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/7da4ec378fa08f4d302be789add967c198bdff35941b12d7",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/b60fada0df897c740bfcd8385604535fa1343e2822efa41e",
       "firstAttemptStatus": 503,
-      "alertOnFailure": false,
-      "resultsStillVisible": true
+      "alertOnFailure": true,
+      "resultsStillVisible": true,
+      "recoveryReachable": {
+        "reachable": true,
+        "accessibleName": "Try downloading assessment report again"
+      }
     }
   },
   "reportTokenChecks": {
@@ -1794,7 +1798,7 @@
       "body": "This assessment report link has expired or is invalid."
     },
     "success": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/91b66efc190a479bd4d59859bfbf1799127303ab3d6ed3e3",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/bdc3d9562db89ba390246277fec642e5dfddc311393cb95d",
       "status": 200,
       "pdfBytes": 111094,
       "contentType": "application/pdf",
@@ -3094,8 +3098,15 @@
     },
     "report-failure": {
       "context": "report-failure",
-      "found": false,
-      "elements": []
+      "found": true,
+      "elements": [
+        {
+          "tag": "DIV",
+          "live": "assertive",
+          "role": "alert",
+          "text": "Report temporarily unavailableTry downloading report again"
+        }
+      ]
     }
   },
   "defectsFoundFinalPass": [],

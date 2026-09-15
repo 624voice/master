@@ -33,215 +33,215 @@
       "production/provider credentials explicitly absent"
     ],
     "exitStatus": 0,
-    "sanitizedOutputTail": "dist/server/assets/reportCopy-CGIeraPR.js                        6.22 kB\ndist/server/assets/submitContactLead-BvCS-QOk.js                 6.39 kB\ndist/server/assets/rollout-Dmyis1f3.js                           6.43 kB\ndist/server/assets/generateRoiPdfHandler.server-UVwMkmWY.js      6.85 kB\ndist/server/assets/openers-CwCKL_d2.js                           7.20 kB\ndist/server/assets/terms-DK4whqjQ.js                             7.33 kB\ndist/server/assets/computeRoi-C5yp5uXH.js                        8.52 kB\ndist/server/assets/google-calendar-CyYukHiD.js                   8.58 kB\ndist/server/assets/formatReportMeta-_-8D6fdh.js                  8.70 kB\ndist/server/assets/what-we-do-5BxgO05Y.js                       10.11 kB\ndist/server/assets/privacy-B6VF8a-S.js                          10.16 kB\ndist/server/assets/submitAssessmentLead.server-D6VtHzQU.js      13.09 kB\ndist/server/assets/contact-B_Qu9n5z.js                          16.44 kB\ndist/server/assets/serveAssessmentTokenPdf.server-uhc7bgVk.js   17.99 kB\ndist/server/assets/selectModerateScenario-BDikNrtZ.js           18.59 kB\ndist/server/assets/index-3wdsMgd8.js                            22.62 kB\ndist/server/assets/RoiReport-CI9FS7Vu.js                        27.42 kB\ndist/server/assets/roi-calculator-D661F6XH.js                   32.09 kB\ndist/server/assets/assessment-CW-KVHJH.js                       35.27 kB\ndist/server/assets/greetingName-rL0HyI22.js                     36.68 kB\ndist/server/assets/demo-B2VnOhJJ.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-DjN_amRh.js                          357.06 kB\n3:21:16 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.19s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "sanitizedOutputTail": "dist/server/assets/reportCopy-CGIeraPR.js                        6.22 kB\ndist/server/assets/submitContactLead-BvCS-QOk.js                 6.39 kB\ndist/server/assets/rollout-Dmyis1f3.js                           6.43 kB\ndist/server/assets/generateRoiPdfHandler.server-UVwMkmWY.js      6.85 kB\ndist/server/assets/openers-CwCKL_d2.js                           7.20 kB\ndist/server/assets/terms-DK4whqjQ.js                             7.33 kB\ndist/server/assets/computeRoi-C5yp5uXH.js                        8.52 kB\ndist/server/assets/google-calendar--QYQh2JA.js                   8.58 kB\ndist/server/assets/formatReportMeta-_-8D6fdh.js                  8.70 kB\ndist/server/assets/what-we-do-5BxgO05Y.js                       10.11 kB\ndist/server/assets/privacy-B6VF8a-S.js                          10.16 kB\ndist/server/assets/submitAssessmentLead.server-D6VtHzQU.js      13.09 kB\ndist/server/assets/contact-B_Qu9n5z.js                          16.44 kB\ndist/server/assets/serveAssessmentTokenPdf.server-uhc7bgVk.js   17.99 kB\ndist/server/assets/selectModerateScenario-BDikNrtZ.js           18.59 kB\ndist/server/assets/index-3wdsMgd8.js                            22.62 kB\ndist/server/assets/RoiReport-CI9FS7Vu.js                        27.42 kB\ndist/server/assets/roi-calculator-D661F6XH.js                   32.09 kB\ndist/server/assets/greetingName-rL0HyI22.js                     36.68 kB\ndist/server/assets/assessment-BBHzttVE.js                       37.32 kB\ndist/server/assets/demo-BSmEiiN1.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-D84IGsxa.js                          357.06 kB\n7:36:21 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.21s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
     "distProduced": true,
     "inspectedBundleInventory": {
       "prefix": "harness-flag",
       "distMissing": false,
-      "buildCompletedAtIso": "2026-09-15T15:21:16.243Z",
+      "buildCompletedAtIso": "2026-09-15T19:36:21.428Z",
       "files": [
         {
-          "path": "dist/client/assets/contact-CcIE8DSi.js",
+          "path": "dist/client/assets/contact-DG1pcz8K.js",
           "sizeBytes": 10693,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "62bf884e3de044b09791ded6c8cd44d3e4f0c12be3f2548f3cd217b183b075d0"
-        },
-        {
-          "path": "dist/client/assets/how-we-work-BwlmAU7T.js",
-          "sizeBytes": 4997,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "2a45bbe344fd530fa94efd987fbae3e5e5a277b99384bf4a67f3b640abd9e5b9"
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "0a880cb04c155effb038f774cfbf364f1698489f0da91b0bf3c821ac15d9e023"
         },
         {
           "path": "dist/client/assets/reportCopy-WXJagmA8.js",
           "sizeBytes": 4456,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "0f5d9516818f0bca81d4b076122c783deb19b98b0bd3037d8313b5afb13b730a"
-        },
-        {
-          "path": "dist/client/assets/terms-B_gyywDa.js",
-          "sizeBytes": 5368,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "d4802f8e4ebfeccc31ca816b3a4b42c0104b3df8d6eb975e7bbfcb68a666c078"
         },
         {
           "path": "dist/client/assets/computeRoi-BjZ_zNle.js",
           "sizeBytes": 3779,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "4b67fc35cf64bc7fecd26d0be2aff43b6f2815d55fe6f4d738af6863ff8bfa81"
         },
         {
-          "path": "dist/client/assets/book-CeLKcGKZ.js",
-          "sizeBytes": 1357,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "67865c63c8993265017a64945777470b35d02c30b6ed4a66894fe75d4ef57fcf"
-        },
-        {
-          "path": "dist/client/assets/index-Dig1KOBS.js",
-          "sizeBytes": 18439,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "d12dd7eb5e5e6101c0ec65eb5c67ca375d0449b95097a52c31551fee969d25b3"
+          "path": "dist/client/assets/CustomerLifecycleDiagram-CTNaLGOL.js",
+          "sizeBytes": 2228,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "b18b0ad012769f69ec3554b7434e5b8d47d5852faf80da2b8fa1eb0792dde770"
         },
         {
           "path": "dist/client/assets/validateLead-BnUvyc_Q.js",
           "sizeBytes": 1177,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "34ad9c543ef6959f9d579be07441e283c503f08419a84ce29cabb751798bc232"
         },
         {
-          "path": "dist/client/assets/what-we-do-L9F8vvqC.js",
-          "sizeBytes": 8502,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "4b7c2ed49e87324842df5e71b00a207bc63f90179c0fad52a48eae8d1e48dd09"
+          "path": "dist/client/assets/index-Ce3fc6FU.js",
+          "sizeBytes": 18439,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "838264260936265d82474ace5d44841739bbfae0f52171bdbd84b762ace9a991"
         },
         {
-          "path": "dist/client/assets/report-preview-jCIKz4Nl.js",
-          "sizeBytes": 17015,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "c23e3df8c47701413a0c45b442961f58ec5c3315748363f06b51297c81bebf53"
-        },
-        {
-          "path": "dist/client/assets/LegalDocumentPage-BsX1VH_m.js",
-          "sizeBytes": 2381,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "bf4898a2d609b438e5e6606debe87452a47f13344aa3d52577f98d4145170367"
-        },
-        {
-          "path": "dist/client/assets/about-Cu-lthbJ.js",
-          "sizeBytes": 4054,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "2a8f92954eb8e808795967bf1f5ed6b0635a07c6a7def6076398abfae067f4a3"
-        },
-        {
-          "path": "dist/client/assets/assessment-B4K435Db.js",
-          "sizeBytes": 27984,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "4ad48b47bdb90ab0ec5d684edec0cd3cfc67bf98f38aa36565ce79050a3b0e5a"
-        },
-        {
-          "path": "dist/client/assets/GoogleCalendarEmbed-B51Uhdqp.js",
+          "path": "dist/client/assets/GoogleCalendarEmbed-p4GzzO5j.js",
           "sizeBytes": 252,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "787f81672386261963f39108f06bb5136bcab76bcf8725255d073723c210d12b"
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "d69781fa93ab485d5697127955a661c38a004f3a90ddb0ea81a81f1feb8d0e30"
         },
         {
-          "path": "dist/client/assets/roi-calculator-ChTwSuD1.js",
-          "sizeBytes": 16859,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "a124c65bd63145eaff41cadbfa0a614a6be1a3472a2a02ae7b925db06860ca17"
+          "path": "dist/client/assets/google-calendar-DbmGgBs7.js",
+          "sizeBytes": 5029,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "045182ab052d18ce460f97d3488ded4180aac94cbea16396e95aa325ac7b1b7d"
         },
         {
-          "path": "dist/client/assets/vapi-C3YfTqNg.js",
+          "path": "dist/client/assets/vapi-B1W6v3pK.js",
           "sizeBytes": 302128,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "f83cb7d3af3c06c657771f90d5ce6ea6caf2f233b99c4b8ade352f943a521c40"
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "9812e02bccdfc36769eed64fd090ec640ffcb5b03534030676f18406a773e6a5"
         },
         {
-          "path": "dist/client/assets/demo-CySjRg2V.js",
-          "sizeBytes": 29738,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "9990d7b2e63115cc392ee67c439c954d476bd3f37a70908859fec757098a5716"
-        },
-        {
-          "path": "dist/client/assets/Card-CfeYJrTW.js",
+          "path": "dist/client/assets/Card-Cq-SlSJp.js",
           "sizeBytes": 697,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "2d53353dce88908186f93bd51a373c7f54e13e0af63c8e1b0ea21a7a2ca5eb9d"
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "8b6bffa665e599b644ec9a22bfb6dfe6b3ad412288e6a97218e4884d247f62c2"
+        },
+        {
+          "path": "dist/client/assets/terms-B-eZJnYO.js",
+          "sizeBytes": 5368,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "afc62517707f1f5bb5c8b438b24091a9ceda4437e220f1e4f7bfddf6575dd48e"
+        },
+        {
+          "path": "dist/client/assets/createServerFn-9TqWYEdF.js",
+          "sizeBytes": 4367,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "53262905ebee263470736cd8b1c3130a1be82e7990c4b9608bfe8d13ecab94ac"
+        },
+        {
+          "path": "dist/client/assets/index-CnH2Zbl7.js",
+          "sizeBytes": 335595,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "2b059bada7a7cccb9c337db46c8caf8e2d6ec11b4f65ef3ae6de14ccb6916696"
+        },
+        {
+          "path": "dist/client/assets/about-CKDdmHBk.js",
+          "sizeBytes": 4054,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "bd73e77c8e7a69cf22fdc3e6419c71c1b159caffb04f779feb63f346cc2e2ff5"
+        },
+        {
+          "path": "dist/client/assets/report-preview-BI2gn7Ec.js",
+          "sizeBytes": 17015,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "3663a3575aacef618a4d0f0f007183b3e1c6ff81efdcbeb2f7e9ebcdf1a45ccd"
+        },
+        {
+          "path": "dist/client/assets/how-we-work-iTP2hqpQ.js",
+          "sizeBytes": 4997,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "6eea78f534b9af7e705db0c719690ecad43bd95f65249291cf845d344d54c738"
+        },
+        {
+          "path": "dist/client/assets/assessment-CZ70kHZy.js",
+          "sizeBytes": 28964,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "39ab935a8c8c1f6e57f1f7986b87706de6a8f117d3e62db53c5fdc31779c56eb"
+        },
+        {
+          "path": "dist/client/assets/privacy-CBNcO0f-.js",
+          "sizeBytes": 7346,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "6f2d5ff86ffa2e2b940f0b1e39b73a64adc59264ac227b7bc4f541964dff102b"
+        },
+        {
+          "path": "dist/client/assets/demo-B6eYOg9w.js",
+          "sizeBytes": 29738,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "c67d55d29ebefc649900ef21d535536779e326d6ff5f28e847a5e177702848d7"
         },
         {
           "path": "dist/client/assets/roiModel-CAk7pXlG.js",
           "sizeBytes": 1096,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "dc80206b8945ac6c99573fcfeafdf6b78eff5d1fede33f0dec347c08e7552817"
-        },
-        {
-          "path": "dist/client/assets/index-WhkVYVY3.js",
-          "sizeBytes": 335595,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "1ecde25de09d7574bc9c5ca12f48d5a3352c9326576988ee53d5fe3344e085e8"
-        },
-        {
-          "path": "dist/client/assets/CustomerLifecycleDiagram-Cp--aozZ.js",
-          "sizeBytes": 2228,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "80fce6f5235a4a5981e6b720b33ae943f20759b68800e6942cf66bf8a9f11099"
-        },
-        {
-          "path": "dist/client/assets/privacy-CpSCeata.js",
-          "sizeBytes": 7346,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "73e3f87cf59ab32a087e6fa87e16d6fe9209dddb0982ca79dd8c9bc4f4a4b7f8"
         },
         {
           "path": "dist/client/assets/features-PEhsqtiJ.js",
           "sizeBytes": 525,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "43b07866c6073e0b66aa26c9cf49f3b9d6ea82fd45bce624842c6b43c690c180"
+        },
+        {
+          "path": "dist/client/assets/roi-calculator-CXBADY75.js",
+          "sizeBytes": 16859,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "de1965eac37cf4d01244130be0691c2b1fe6ef8f181df3624453ba34e1f47947"
         },
         {
           "path": "dist/client/assets/callVolume-UDXRJ3RD.js",
           "sizeBytes": 480,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "d93b8e40c8be8f784fc60073b71f0cbe9e3d87b6bee219a51fcd32a5e271c633"
         },
         {
-          "path": "dist/client/assets/google-calendar-7-caBWca.js",
-          "sizeBytes": 5029,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "a78ef4785af7aab2be5db031c4d513807d8b6efd9fd6696cc086f12010a963d4"
+          "path": "dist/client/assets/what-we-do-DJD8nVLo.js",
+          "sizeBytes": 8502,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "21bbbc5127500c57e0b16476ae7e4c960cfdb52a1c839937638d3177072bbc18"
         },
         {
-          "path": "dist/client/assets/createServerFn-BLjoFERl.js",
-          "sizeBytes": 4367,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
-          "sha256": "d04e58692661ac0a0d932317aae989bff24854a56010c2219ff87aaaf25d2b32"
+          "path": "dist/client/assets/book-CK-OdLGk.js",
+          "sizeBytes": 1357,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "fd9daddaaa5d4101f51fd26393bd6e4f0e74b808e74c2f6810063d596f65da67"
+        },
+        {
+          "path": "dist/client/assets/LegalDocumentPage-CFXvdN4_.js",
+          "sizeBytes": 2381,
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
+          "sha256": "f1c5ce9d6c4e19f8c61dfcf74631fd38e3588a33affea80a154eebf2978bda83"
         },
         {
           "path": "dist/client/assets/northstar-9QGI1zL5.js",
           "sizeBytes": 7136,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "1967b24034568774ca3ada34b6e1768a7df5a6600a71bee7c5fa8a1b294866bc"
         },
         {
           "path": "dist/client/assets/formatCurrency-98B0Aq0f.js",
           "sizeBytes": 148,
-          "modifiedAtMs": 1789485674996.916,
-          "modifiedAtIso": "2026-09-15T15:21:14.996Z",
+          "modifiedAtMs": 1789500980157.2537,
+          "modifiedAtIso": "2026-09-15T19:36:20.157Z",
           "sha256": "c45c3a3e622ccaa499bdd695d8da949a90a1671d20a5dd1244c94f4bcbece326"
         },
         {
           "path": "dist/server/server.js",
           "sizeBytes": 67015,
-          "modifiedAtMs": 1789485676188.9165,
-          "modifiedAtIso": "2026-09-15T15:21:16.188Z",
-          "sha256": "4c1a14931e36361e5979158cf7e78ef67c6335581b0838fe7c5640bda62efb94"
+          "modifiedAtMs": 1789500981373.2546,
+          "modifiedAtIso": "2026-09-15T19:36:21.373Z",
+          "sha256": "a18589ce6c3438cbcd770c516f85bad429e28309f7339a20db0cfca388c736af"
         }
       ]
     },
@@ -254,218 +254,218 @@
   "cleanProductionBuild": {
     "command": "NODE_ENV=production bun run build (PHASE2_SAFE_QA_HARNESS absent)",
     "exitStatus": 0,
-    "sanitizedOutputTail": "dist/server/assets/demo-BZE7D-Xp.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-BvyQCrSv.js                          357.06 kB\n3:21:20 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.19s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "sanitizedOutputTail": "dist/server/assets/demo-DjQui2Rb.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-CCaT3eqK.js                          357.06 kB\n7:36:25 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.23s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
     "inspectedBundleInventory": {
       "prefix": "clean",
       "distMissing": false,
-      "buildCompletedAtIso": "2026-09-15T15:21:20.407Z",
+      "buildCompletedAtIso": "2026-09-15T19:36:25.779Z",
       "files": [
         {
-          "path": "dist/client/assets/contact-CcIE8DSi.js",
+          "path": "dist/client/assets/contact-DG1pcz8K.js",
           "sizeBytes": 10693,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "62bf884e3de044b09791ded6c8cd44d3e4f0c12be3f2548f3cd217b183b075d0"
-        },
-        {
-          "path": "dist/client/assets/how-we-work-BwlmAU7T.js",
-          "sizeBytes": 4997,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "2a45bbe344fd530fa94efd987fbae3e5e5a277b99384bf4a67f3b640abd9e5b9"
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "0a880cb04c155effb038f774cfbf364f1698489f0da91b0bf3c821ac15d9e023"
         },
         {
           "path": "dist/client/assets/reportCopy-WXJagmA8.js",
           "sizeBytes": 4456,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "0f5d9516818f0bca81d4b076122c783deb19b98b0bd3037d8313b5afb13b730a"
-        },
-        {
-          "path": "dist/client/assets/terms-B_gyywDa.js",
-          "sizeBytes": 5368,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "d4802f8e4ebfeccc31ca816b3a4b42c0104b3df8d6eb975e7bbfcb68a666c078"
         },
         {
           "path": "dist/client/assets/computeRoi-BjZ_zNle.js",
           "sizeBytes": 3779,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "4b67fc35cf64bc7fecd26d0be2aff43b6f2815d55fe6f4d738af6863ff8bfa81"
         },
         {
-          "path": "dist/client/assets/book-CeLKcGKZ.js",
-          "sizeBytes": 1357,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "67865c63c8993265017a64945777470b35d02c30b6ed4a66894fe75d4ef57fcf"
-        },
-        {
-          "path": "dist/client/assets/index-Dig1KOBS.js",
-          "sizeBytes": 18439,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "d12dd7eb5e5e6101c0ec65eb5c67ca375d0449b95097a52c31551fee969d25b3"
+          "path": "dist/client/assets/CustomerLifecycleDiagram-CTNaLGOL.js",
+          "sizeBytes": 2228,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "b18b0ad012769f69ec3554b7434e5b8d47d5852faf80da2b8fa1eb0792dde770"
         },
         {
           "path": "dist/client/assets/validateLead-BnUvyc_Q.js",
           "sizeBytes": 1177,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "34ad9c543ef6959f9d579be07441e283c503f08419a84ce29cabb751798bc232"
         },
         {
-          "path": "dist/client/assets/what-we-do-L9F8vvqC.js",
-          "sizeBytes": 8502,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "4b7c2ed49e87324842df5e71b00a207bc63f90179c0fad52a48eae8d1e48dd09"
+          "path": "dist/client/assets/index-Ce3fc6FU.js",
+          "sizeBytes": 18439,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "838264260936265d82474ace5d44841739bbfae0f52171bdbd84b762ace9a991"
         },
         {
-          "path": "dist/client/assets/report-preview-jCIKz4Nl.js",
-          "sizeBytes": 17015,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "c23e3df8c47701413a0c45b442961f58ec5c3315748363f06b51297c81bebf53"
-        },
-        {
-          "path": "dist/client/assets/LegalDocumentPage-BsX1VH_m.js",
-          "sizeBytes": 2381,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "bf4898a2d609b438e5e6606debe87452a47f13344aa3d52577f98d4145170367"
-        },
-        {
-          "path": "dist/client/assets/about-Cu-lthbJ.js",
-          "sizeBytes": 4054,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "2a8f92954eb8e808795967bf1f5ed6b0635a07c6a7def6076398abfae067f4a3"
-        },
-        {
-          "path": "dist/client/assets/assessment-B4K435Db.js",
-          "sizeBytes": 27984,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "4ad48b47bdb90ab0ec5d684edec0cd3cfc67bf98f38aa36565ce79050a3b0e5a"
-        },
-        {
-          "path": "dist/client/assets/GoogleCalendarEmbed-B51Uhdqp.js",
+          "path": "dist/client/assets/GoogleCalendarEmbed-p4GzzO5j.js",
           "sizeBytes": 252,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "787f81672386261963f39108f06bb5136bcab76bcf8725255d073723c210d12b"
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "d69781fa93ab485d5697127955a661c38a004f3a90ddb0ea81a81f1feb8d0e30"
         },
         {
-          "path": "dist/client/assets/roi-calculator-ChTwSuD1.js",
-          "sizeBytes": 16859,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "a124c65bd63145eaff41cadbfa0a614a6be1a3472a2a02ae7b925db06860ca17"
+          "path": "dist/client/assets/google-calendar-DbmGgBs7.js",
+          "sizeBytes": 5029,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "045182ab052d18ce460f97d3488ded4180aac94cbea16396e95aa325ac7b1b7d"
         },
         {
-          "path": "dist/client/assets/vapi-C3YfTqNg.js",
+          "path": "dist/client/assets/vapi-B1W6v3pK.js",
           "sizeBytes": 302128,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "f83cb7d3af3c06c657771f90d5ce6ea6caf2f233b99c4b8ade352f943a521c40"
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "9812e02bccdfc36769eed64fd090ec640ffcb5b03534030676f18406a773e6a5"
         },
         {
-          "path": "dist/client/assets/demo-CySjRg2V.js",
-          "sizeBytes": 29738,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "9990d7b2e63115cc392ee67c439c954d476bd3f37a70908859fec757098a5716"
-        },
-        {
-          "path": "dist/client/assets/Card-CfeYJrTW.js",
+          "path": "dist/client/assets/Card-Cq-SlSJp.js",
           "sizeBytes": 697,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "2d53353dce88908186f93bd51a373c7f54e13e0af63c8e1b0ea21a7a2ca5eb9d"
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "8b6bffa665e599b644ec9a22bfb6dfe6b3ad412288e6a97218e4884d247f62c2"
+        },
+        {
+          "path": "dist/client/assets/terms-B-eZJnYO.js",
+          "sizeBytes": 5368,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "afc62517707f1f5bb5c8b438b24091a9ceda4437e220f1e4f7bfddf6575dd48e"
+        },
+        {
+          "path": "dist/client/assets/createServerFn-9TqWYEdF.js",
+          "sizeBytes": 4367,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "53262905ebee263470736cd8b1c3130a1be82e7990c4b9608bfe8d13ecab94ac"
+        },
+        {
+          "path": "dist/client/assets/index-CnH2Zbl7.js",
+          "sizeBytes": 335595,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "2b059bada7a7cccb9c337db46c8caf8e2d6ec11b4f65ef3ae6de14ccb6916696"
+        },
+        {
+          "path": "dist/client/assets/about-CKDdmHBk.js",
+          "sizeBytes": 4054,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "bd73e77c8e7a69cf22fdc3e6419c71c1b159caffb04f779feb63f346cc2e2ff5"
+        },
+        {
+          "path": "dist/client/assets/report-preview-BI2gn7Ec.js",
+          "sizeBytes": 17015,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "3663a3575aacef618a4d0f0f007183b3e1c6ff81efdcbeb2f7e9ebcdf1a45ccd"
+        },
+        {
+          "path": "dist/client/assets/how-we-work-iTP2hqpQ.js",
+          "sizeBytes": 4997,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "6eea78f534b9af7e705db0c719690ecad43bd95f65249291cf845d344d54c738"
+        },
+        {
+          "path": "dist/client/assets/assessment-CZ70kHZy.js",
+          "sizeBytes": 28964,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "39ab935a8c8c1f6e57f1f7986b87706de6a8f117d3e62db53c5fdc31779c56eb"
+        },
+        {
+          "path": "dist/client/assets/privacy-CBNcO0f-.js",
+          "sizeBytes": 7346,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "6f2d5ff86ffa2e2b940f0b1e39b73a64adc59264ac227b7bc4f541964dff102b"
+        },
+        {
+          "path": "dist/client/assets/demo-B6eYOg9w.js",
+          "sizeBytes": 29738,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "c67d55d29ebefc649900ef21d535536779e326d6ff5f28e847a5e177702848d7"
         },
         {
           "path": "dist/client/assets/roiModel-CAk7pXlG.js",
           "sizeBytes": 1096,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "dc80206b8945ac6c99573fcfeafdf6b78eff5d1fede33f0dec347c08e7552817"
-        },
-        {
-          "path": "dist/client/assets/index-WhkVYVY3.js",
-          "sizeBytes": 335595,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "1ecde25de09d7574bc9c5ca12f48d5a3352c9326576988ee53d5fe3344e085e8"
-        },
-        {
-          "path": "dist/client/assets/CustomerLifecycleDiagram-Cp--aozZ.js",
-          "sizeBytes": 2228,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "80fce6f5235a4a5981e6b720b33ae943f20759b68800e6942cf66bf8a9f11099"
-        },
-        {
-          "path": "dist/client/assets/privacy-CpSCeata.js",
-          "sizeBytes": 7346,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "73e3f87cf59ab32a087e6fa87e16d6fe9209dddb0982ca79dd8c9bc4f4a4b7f8"
         },
         {
           "path": "dist/client/assets/features-PEhsqtiJ.js",
           "sizeBytes": 525,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "43b07866c6073e0b66aa26c9cf49f3b9d6ea82fd45bce624842c6b43c690c180"
+        },
+        {
+          "path": "dist/client/assets/roi-calculator-CXBADY75.js",
+          "sizeBytes": 16859,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "de1965eac37cf4d01244130be0691c2b1fe6ef8f181df3624453ba34e1f47947"
         },
         {
           "path": "dist/client/assets/callVolume-UDXRJ3RD.js",
           "sizeBytes": 480,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "d93b8e40c8be8f784fc60073b71f0cbe9e3d87b6bee219a51fcd32a5e271c633"
         },
         {
-          "path": "dist/client/assets/google-calendar-7-caBWca.js",
-          "sizeBytes": 5029,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "a78ef4785af7aab2be5db031c4d513807d8b6efd9fd6696cc086f12010a963d4"
+          "path": "dist/client/assets/what-we-do-DJD8nVLo.js",
+          "sizeBytes": 8502,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "21bbbc5127500c57e0b16476ae7e4c960cfdb52a1c839937638d3177072bbc18"
         },
         {
-          "path": "dist/client/assets/createServerFn-BLjoFERl.js",
-          "sizeBytes": 4367,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
-          "sha256": "d04e58692661ac0a0d932317aae989bff24854a56010c2219ff87aaaf25d2b32"
+          "path": "dist/client/assets/book-CK-OdLGk.js",
+          "sizeBytes": 1357,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "fd9daddaaa5d4101f51fd26393bd6e4f0e74b808e74c2f6810063d596f65da67"
+        },
+        {
+          "path": "dist/client/assets/LegalDocumentPage-CFXvdN4_.js",
+          "sizeBytes": 2381,
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
+          "sha256": "f1c5ce9d6c4e19f8c61dfcf74631fd38e3588a33affea80a154eebf2978bda83"
         },
         {
           "path": "dist/client/assets/northstar-9QGI1zL5.js",
           "sizeBytes": 7136,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "1967b24034568774ca3ada34b6e1768a7df5a6600a71bee7c5fa8a1b294866bc"
         },
         {
           "path": "dist/client/assets/formatCurrency-98B0Aq0f.js",
           "sizeBytes": 148,
-          "modifiedAtMs": 1789485679156.9175,
-          "modifiedAtIso": "2026-09-15T15:21:19.156Z",
+          "modifiedAtMs": 1789500984481.2573,
+          "modifiedAtIso": "2026-09-15T19:36:24.481Z",
           "sha256": "c45c3a3e622ccaa499bdd695d8da949a90a1671d20a5dd1244c94f4bcbece326"
         },
         {
           "path": "dist/server/server.js",
           "sizeBytes": 67015,
-          "modifiedAtMs": 1789485680344.918,
-          "modifiedAtIso": "2026-09-15T15:21:20.344Z",
-          "sha256": "88bedf9d39cf0a53d8d27848ddf0691fe039b289b8bd95e6ef30a906646e288b"
+          "modifiedAtMs": 1789500985717.2585,
+          "modifiedAtIso": "2026-09-15T19:36:25.717Z",
+          "sha256": "8e5f72dfff85f27c6b1eda031299c8a3625d37f7616749067eb804865c1ba3a0"
         }
       ]
     },
-    "serverBundleSha256": "88bedf9d39cf0a53d8d27848ddf0691fe039b289b8bd95e6ef30a906646e288b",
+    "serverBundleSha256": "8e5f72dfff85f27c6b1eda031299c8a3625d37f7616749067eb804865c1ba3a0",
     "clientBundleSearch": [],
     "serverBundleSearch": [],
     "harnessRouteMatches": [],

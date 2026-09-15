@@ -1,148 +1,131 @@
 {
-  "endingSha": "15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19",
+  "endingSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "verificationNote": "Five full-suite runs executed at 4a714b3cf19a33c59b4de0d92a3abd22e4f18703; d54286e changes QA script typing only (confirmed 795/795 at d54286e).",
   "fiveConsecutiveFullSuites": [
     {
       "run": 1,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test 2>&1",
       "status": 0,
+      "durationMs": 75540,
       "pass": 795,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": 795,
       "files": 102,
-      "durationMs": 73140,
-      "tail": "(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [73.14s]"
+      "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.10ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.54s]"
     },
     {
       "run": 2,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test 2>&1",
       "status": 0,
+      "durationMs": 75240,
       "pass": 795,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": 795,
       "files": 102,
-      "durationMs": 72120,
-      "tail": "(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.05ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [72.12s]"
+      "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.13ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.24s]"
     },
     {
       "run": 3,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test 2>&1",
       "status": 0,
+      "durationMs": 75220,
       "pass": 795,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": 795,
       "files": 102,
-      "durationMs": 73150,
-      "tail": "(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [73.15s]"
+      "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.06ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.22s]"
     },
     {
       "run": 4,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test 2>&1",
       "status": 0,
+      "durationMs": 76030,
       "pass": 795,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": 795,
       "files": 102,
-      "durationMs": 71220,
-      "tail": "(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [71.22s]"
+      "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.03ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [76.03s]"
     },
     {
       "run": 5,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test 2>&1",
       "status": 0,
+      "durationMs": 75280,
       "pass": 795,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": 795,
       "files": 102,
-      "durationMs": 73330,
-      "tail": "(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.03ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2081 expect() calls\nRan 795 tests across 102 files. [73.33s]"
+      "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.28s]"
     }
   ],
   "messageSidThreeRuns": [
     {
       "run": 1,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
       "status": 0,
+      "durationMs": 217,
       "pass": 1,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": null,
       "files": null,
-      "durationMs": 241,
-      "tail": "(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.00ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [94.00ms]"
+      "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.14ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [92.00ms]"
     },
     {
       "run": 2,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
       "status": 0,
+      "durationMs": 195,
       "pass": 1,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": null,
       "files": null,
-      "durationMs": 232,
-      "tail": "(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.00ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [92.00ms]"
+      "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.09ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [90.00ms]"
     },
     {
       "run": 3,
+      "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
       "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
       "status": 0,
+      "durationMs": 200,
       "pass": 1,
       "fail": 0,
       "skip": 0,
       "timeout": 0,
       "tests": null,
       "files": null,
-      "durationMs": 241,
-      "tail": "(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [4.95ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [99.00ms]"
+      "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.00ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [92.00ms]"
     }
   ],
   "productionTypecheck": {
     "command": "bun run typecheck",
     "exitStatus": 2,
-    "diagnosticCount": 94
+    "diagnosticCount": 90
   },
   "testScopeTypecheck": {
     "command": "bun run typecheck:test",
     "exitStatus": 2,
-    "diagnosticCount": 90,
-    "phase2ModifiedTestFileDiagnostics": {
-      "src/browser-journey/assessment.browserJourney.test.ts": {
-        "count": 0,
-        "messages": []
-      },
-      "src/lib/assessment/assessmentJourney.test.ts": {
-        "count": 0,
-        "messages": []
-      },
-      "src/lib/analytics/analyticsLockedContractComparison.test.ts": {
-        "count": 0,
-        "messages": []
-      },
-      "src/server/assessment/assessmentJourneyPipeline.test.ts": {
-        "count": 0,
-        "messages": []
-      },
-      "src/server/phase2SafeQaHarness.test.ts": {
-        "count": 0,
-        "messages": []
-      },
-      "src/components/CustomerLifecycleDiagram.test.ts": {
-        "count": 0,
-        "messages": []
-      }
-    }
+    "diagnosticCount": 84
   },
   "qaScopeTypecheck": {
     "command": "bun run typecheck:qa",
@@ -156,26 +139,26 @@
   "sBnd": {
     "command": "bun test src/server/report/bundleBoundary.test.ts 2>&1",
     "status": 0,
-    "durationMs": 151,
+    "durationMs": 137,
     "pass": 44,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": null,
     "files": null,
-    "tail": "(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/buildLeadSummary.ts [0.02ms]\n(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/buildLeadSummary.ts [0.02ms]\n(pass) assessment PDF bundle boundary > X-BND-13: assessment token route dynamically imports isolated server handler [0.19ms]\n(pass) assessment PDF bundle boundary > X-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline [0.12ms]\n\n 44 pass\n 0 fail\n 53 expect() calls\nRan 44 tests across 1 file. [40.00ms]"
+    "tail": "(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/buildLeadSummary.ts [0.03ms]\n(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/buildLeadSummary.ts [0.02ms]\n(pass) assessment PDF bundle boundary > X-BND-13: assessment token route dynamically imports isolated server handler [0.22ms]\n(pass) assessment PDF bundle boundary > X-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline [0.13ms]\n\n 44 pass\n 0 fail\n 53 expect() calls\nRan 44 tests across 1 file. [33.00ms]"
   },
   "sParity": {
     "command": "bun test src/server/assessment/protectedAgentParity.test.ts 2>&1",
     "status": 0,
-    "durationMs": 129,
+    "durationMs": 143,
     "pass": 6,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": null,
     "files": null,
-    "tail": "(pass) S-PARITY protected agent regression > S-PARITY-03: Demo startConversation contract unchanged [0.02ms]\n(pass) S-PARITY protected agent regression > S-PARITY-04: webhook and dispatch entrypoints unchanged [0.08ms]\n(pass) S-PARITY protected agent regression > S-PARITY-05: frozen-file-diff matches immutable Git-object baseline manifest [0.74ms]\n(pass) S-PARITY protected agent regression > S-PARITY-05 negative control: deliberately incorrect in-memory hash fails without mutating files [0.48ms]\n\n 6 pass\n 0 fail\n 22 expect() calls\nRan 6 tests across 1 file. [38.00ms]"
+    "tail": "(pass) S-PARITY protected agent regression > S-PARITY-03: Demo startConversation contract unchanged [0.03ms]\n(pass) S-PARITY protected agent regression > S-PARITY-04: webhook and dispatch entrypoints unchanged [0.08ms]\n(pass) S-PARITY protected agent regression > S-PARITY-05: frozen-file-diff matches immutable Git-object baseline manifest [0.76ms]\n(pass) S-PARITY protected agent regression > S-PARITY-05 negative control: deliberately incorrect in-memory hash fails without mutating files [0.54ms]\n\n 6 pass\n 0 fail\n 22 expect() calls\nRan 6 tests across 1 file. [39.00ms]"
   },
   "protectedManifestZeroDiff": true,
   "approvedIdReconciliation": {
@@ -183,10 +166,14 @@
     "exact": true
   },
   "xTestsOutside162": {
-    "rowCount": 70,
+    "rowCount": 78,
+    "uniqueIds": 78,
     "confirmed": true
   },
   "accessibility": {
+    "passCount": 89,
+    "failCount": 0,
+    "deferredCount": 1,
     "remainingObjectiveDefects": 0,
     "screenReaderDeferred": 1
   },

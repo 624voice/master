@@ -1,6 +1,6 @@
 {
   "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
-  "currentVerificationSha": "9d1412156746ae9e2dca635170f356e2d2fee825",
+  "currentVerificationSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
   "comparabilityNote": "Baseline measurements run in detached worktree at 05def6b with bun install and temporary bun-types@1.3.14 added only in the worktree (baseline Git tree unmodified). Current measurements run at verification SHA with existing bun-types devDependency. Same bun 1.3.14 and tsc invocation for both sides.",
   "production": {
     "baseline": {
@@ -831,7 +831,7 @@
       "config": "tsconfig.json",
       "configSha256": "8f97853b2d38d434e95e1fe1ff72ae73e89b1a84a80fba13c95b66d42b256458",
       "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-      "includedFileCount": 1930,
+      "includedFileCount": 1929,
       "exitStatus": 2,
       "totalDiagnosticCount": 90,
       "artifactLogPath": "review-artifacts/phase2/typescript-production-current.log",
@@ -2949,7 +2949,7 @@
       "config": "tsconfig.qa.json",
       "reason": "tsconfig.qa.json and scripts/phase2/** did not exist at starting SHA 05def6b; no direct baseline diagnostic count",
       "currentFilesCovered": "{\n  \"extends\": \"./tsconfig.test.json\",\n  \"include\": [\"scripts/phase2/**/*.ts\"]\n}\n",
-      "currentDiagnosticCount": 0
+      "currentDiagnosticCount": 10
     },
     "current": {
       "available": true,
@@ -2961,12 +2961,93 @@
       "config": "tsconfig.qa.json",
       "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
       "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-      "includedFileCount": 404,
-      "exitStatus": 0,
-      "totalDiagnosticCount": 0,
+      "includedFileCount": 408,
+      "exitStatus": 2,
+      "totalDiagnosticCount": 10,
       "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
       "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1452,
+          "column": 22,
+          "code": "TS2339",
+          "message": "Property 'finalResult' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1452:22:TS2339:Property 'finalResult' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1454,
+          "column": 26,
+          "code": "TS2339",
+          "message": "Property 'finalResult' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1454:26:TS2339:Property 'finalResult' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1455,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'finalResult' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1455:28:TS2339:Property 'finalResult' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1456,
+          "column": 28,
+          "code": "TS2339",
+          "message": "Property 'finalResult' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1456:28:TS2339:Property 'finalResult' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1460,
+          "column": 22,
+          "code": "TS2339",
+          "message": "Property 'defectsFound' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1460:22:TS2339:Property 'defectsFound' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1460,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'defectsFound' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1460:59:TS2339:Property 'defectsFound' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1462,
+          "column": 22,
+          "code": "TS2339",
+          "message": "Property 'fixesApplied' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1462:22:TS2339:Property 'fixesApplied' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1462,
+          "column": 59,
+          "code": "TS2339",
+          "message": "Property 'fixesApplied' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1462:59:TS2339:Property 'fixesApplied' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1465,
+          "column": 35,
+          "code": "TS2339",
+          "message": "Property 'executedAt' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1465:35:TS2339:Property 'executedAt' does not exist on type 'never'."
+        },
+        {
+          "file": "scripts/phase2/run-accessibility-qa.ts",
+          "line": 1465,
+          "column": 71,
+          "code": "TS2339",
+          "message": "Property 'routesAndStatesChecked' does not exist on type 'never'.",
+          "key": "scripts/phase2/run-accessibility-qa.ts:1465:71:TS2339:Property 'routesAndStatesChecked' does not exist on type 'never'."
+        }
+      ]
     }
   },
   "diagnosticComparison": {
@@ -6210,6 +6291,15 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/generate-accessibility-reconciliation.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/generate-additional-tests-table.ts",
       "newOrModified": "new",
       "category": "qa-script",
@@ -6255,6 +6345,15 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/generate-git-sha-reconciliation.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/generate-pdf-checklist.ts",
       "newOrModified": "new",
       "category": "qa-script",
@@ -6265,6 +6364,15 @@
     },
     {
       "path": "scripts/phase2/generate-pdf-visual-inspection.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/generate-pr-head-reconciliation.ts",
       "newOrModified": "new",
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",
@@ -6300,7 +6408,25 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/generate-x-test-inventory.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/probe-services-redirect.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/reconcile-x-inventory-delta.ts",
       "newOrModified": "new",
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",
@@ -6314,8 +6440,8 @@
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",
       "includedInMeasurement": "yes",
-      "diagnosticCount": 0,
-      "result": "pass"
+      "diagnosticCount": 10,
+      "result": "fail"
     },
     {
       "path": "scripts/phase2/run-final-verification.ts",
@@ -6327,7 +6453,34 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/run-human-keyboard-qa.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/run-safe-qa-build-evidence.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/run-typescript-measurement-chronology.ts",
       "newOrModified": "new",
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",
@@ -6368,6 +6521,6 @@
     "phase2IntroducedDiagnostics": [],
     "allPhase2ProductionFilesZero": true,
     "allPhase2TestFilesZero": true,
-    "allPhase2QaScriptFilesZero": true
+    "allPhase2QaScriptFilesZero": false
   }
 }
