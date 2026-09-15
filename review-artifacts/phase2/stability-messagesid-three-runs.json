@@ -1,44 +1,44 @@
 [
   {
     "run": 1,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
     "status": 0,
-    "durationMs": 217,
+    "durationMs": 216,
     "pass": 1,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": null,
     "files": null,
-    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.14ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [92.00ms]"
+    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.05ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [101.00ms]"
   },
   {
     "run": 2,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
     "status": 0,
-    "durationMs": 195,
+    "durationMs": 207,
     "pass": 1,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": null,
     "files": null,
-    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.09ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [90.00ms]"
+    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.08ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [98.00ms]"
   },
   {
     "run": 3,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\" 2>&1",
     "status": 0,
-    "durationMs": 200,
+    "durationMs": 194,
     "pass": 1,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": null,
     "files": null,
-    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.00ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [92.00ms]"
+    "tail": "src/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.18ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [86.00ms]"
   }
 ]

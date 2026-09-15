@@ -5,15 +5,17 @@
     "totalRequirementsChecked": 90,
     "automatedChecksPassed": 9,
     "automatedChecksFailed": 0,
-    "manualKeyboardChecksPassed": 1,
+    "manualKeyboardChecksPassed": 0,
     "manualKeyboardChecksFailed": 0,
+    "manualKeyboardChecksUnexecuted": 1,
     "actualScreenReaderChecksPassed": 0,
     "actualScreenReaderChecksFailed": 0,
     "actualScreenReaderChecksUnexecuted": 1,
     "defectsFound": 0,
     "defectsCorrected": 0,
     "remainingFailuresOrUnexecuted": [
-      "Actual screen-reader operation (Deferred pre-production): unexecuted (deferred)"
+      "Actual screen-reader operation (Deferred pre-production): unexecuted (deferred)",
+      "Manual keyboard inspection (human operator) (All routes): unexecuted"
     ],
     "defectsFoundFinalPass": 0,
     "defectsFoundEarlierPasses": 1,
@@ -937,7 +939,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Valid report token access (stub backend)",
-      "routeOrState": "/assessment-report/bdc3d956…",
+      "routeOrState": "/assessment-report/d7726c62…",
       "method": "Automated rule scan",
       "result": "pass",
       "defectFound": "none",
@@ -947,7 +949,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Expired report token UI",
-      "routeOrState": "/assessment-report/bdc3d956… (deleted)",
+      "routeOrState": "/assessment-report/d7726c62… (deleted)",
       "method": "Accessibility-tree inspection",
       "result": "pass",
       "defectFound": "none",
@@ -965,15 +967,15 @@
       "evidenceRef": "review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted"
     },
     {
-      "tool": "human keyboard-only operator",
+      "tool": "none",
       "requirement": "Manual keyboard inspection (human operator)",
       "routeOrState": "All routes",
       "method": "Manual keyboard inspection",
-      "result": "pass",
+      "result": "unexecuted",
       "defectFound": "none",
       "correctionMade": "none",
-      "evidenceRef": "review-artifacts/phase2/accessibility-human-keyboard-qa.json",
-      "supportingEvidence": "Executed 2026-09-15T19:24:35.093Z; routes=22"
+      "evidenceRef": "review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+      "supportingEvidence": "Case B: no real human operator performed all 28 checks. Prior accessibility-human-keyboard-qa.json was Puppeteer automation mislabeled as human. Automated supplement retained separately; owner checklist awaiting completion."
     }
   ]
 }

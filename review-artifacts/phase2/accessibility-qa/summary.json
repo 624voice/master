@@ -1,6 +1,6 @@
 {
   "tooling": "puppeteer-core 25.10.0 + @sparticuz/chromium; production build on port 3000 with Redis stub backend for assessment/report flows",
-  "probedAt": "2026-09-15T19:25:38.865Z",
+  "probedAt": "2026-09-15T20:00:00.985Z",
   "publicRoutes": [
     "/",
     "/what-we-do",
@@ -1782,7 +1782,7 @@
       }
     },
     "reportAction": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/b60fada0df897c740bfcd8385604535fa1343e2822efa41e",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/c89ccc3ef62c0f1153b1c20ef28e1549ff8a3bfd7336c746",
       "firstAttemptStatus": 503,
       "alertOnFailure": true,
       "resultsStillVisible": true,
@@ -1798,7 +1798,7 @@
       "body": "This assessment report link has expired or is invalid."
     },
     "success": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/bdc3d9562db89ba390246277fec642e5dfddc311393cb95d",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/d7726c6209030bcc9b3a33326713ff7dde457b1320a5bc0a",
       "status": 200,
       "pdfBytes": 111094,
       "contentType": "application/pdf",

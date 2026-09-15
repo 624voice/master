@@ -1,72 +1,72 @@
 [
   {
     "run": 1,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test 2>&1",
     "status": 0,
-    "durationMs": 75540,
+    "durationMs": 74660,
     "pass": 795,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": 795,
     "files": 102,
-    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.10ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.54s]"
+    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.05ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [74.66s]"
   },
   {
     "run": 2,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test 2>&1",
     "status": 0,
-    "durationMs": 75240,
+    "durationMs": 75810,
     "pass": 795,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": 795,
     "files": 102,
-    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.13ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.24s]"
+    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.81s]"
   },
   {
     "run": 3,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test 2>&1",
     "status": 0,
-    "durationMs": 75220,
+    "durationMs": 75850,
     "pass": 795,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": 795,
     "files": 102,
-    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.06ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.22s]"
+    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.04ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.85s]"
   },
   {
     "run": 4,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test 2>&1",
     "status": 0,
-    "durationMs": 76030,
+    "durationMs": 76350,
     "pass": 795,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": 795,
     "files": 102,
-    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.03ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [76.03s]"
+    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [76.35s]"
   },
   {
     "run": 5,
-    "gitSha": "4a714b3cf19a33c59b4de0d92a3abd22e4f18703",
+    "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
     "command": "bun test 2>&1",
     "status": 0,
-    "durationMs": 75280,
+    "durationMs": 76000,
     "pass": 795,
     "fail": 0,
     "skip": 0,
     "timeout": 0,
     "tests": 795,
     "files": 102,
-    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [75.28s]"
+    "tail": "src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:\n(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.12ms]\n(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]\n(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]\n\n 795 pass\n 0 fail\n 2082 expect() calls\nRan 795 tests across 102 files. [76.00s]"
   }
 ]

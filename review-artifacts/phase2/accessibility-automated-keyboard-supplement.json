@@ -1,7 +1,9 @@
 {
-  "executedAt": "2026-09-15T19:24:35.093Z",
+  "executedAt": "2026-09-15T19:59:07.175Z",
   "safeEnvironment": "buildAssessmentBrowserServer({ safeBackend: true }) — Redis stub, stripped credentials, no live providers",
-  "operatorRole": "human keyboard-only operator",
+  "automationMethod": "Puppeteer page.keyboard / page.click (not human-operated)",
+  "operatorRole": "automated — does not satisfy A11Y-090 human operator requirement",
+  "supplementOnly": true,
   "routesAndStatesChecked": [
     "/",
     "/",
