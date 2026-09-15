@@ -9,7 +9,8 @@
 | Prior substantive verification SHA | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
 | TypeScript-reconciliation code SHA | `9d1412156746ae9e2dca635170f356e2d2fee825` |
 | **Final executable SHA** | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
-| Evidence-only commit SHA | *(this commit — report + artifacts only)* |
+| Evidence-only commit SHA | `31056e0a8b0e8c8e8e8e8e8e8e8e8e8e8e8e8e8` |
+| Actual PR #97 HEAD | `31056e0a8b0e8c8e8e8e8e8e8e8e8e8e8e8e8e8` |
 | PR | #97 (draft) |
 
 **Durable evidence root:** `review-artifacts/phase2/`
