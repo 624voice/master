@@ -793,7 +793,7 @@ Chris does **not** need to manually unset parent-shell credentials; the script e
 | Role | SHA |
 |------|-----|
 | Application behavior verified for keyboard QA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
-| Safe startup checkout (contains hardened preview script) | **`6462cfa545475ad5390c3cf9c9480b50ff1cb677`** (or later PR HEAD on this branch with same `src/` tree) |
+| Safe startup checkout (contains hardened preview script) | **`341a07a4732fd897451ad167011260c6771772ec`** (or later PR HEAD on this branch with same `src/` tree) |
 
 **Proof application behavior unchanged:** `git diff --name-only d54286e..<safe-startup-sha> -- src/` is **empty** (zero application route/runtime files differ; only `docs/`, `scripts/phase2/`, and `review-artifacts/phase2/` changed).
 
