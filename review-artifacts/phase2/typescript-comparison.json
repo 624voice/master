@@ -79,7 +79,7 @@
         "code": "TS2322",
         "message": "Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
         "key": "src/components/RoiCalculator.tsx:324:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
-        "canonicalKey": "src/components/RoiCalculator.tsx:324:11:TS2322:Type '\"\" | \"has\" | \"none\"' is not assignable to type '\"has\" | \"none\"'."
+        "canonicalKey": "src/components/RoiCalculator.tsx:324:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'."
       },
       {
         "file": "src/components/RoiCalculator.tsx",
@@ -88,7 +88,7 @@
         "code": "TS2322",
         "message": "Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
         "key": "src/components/RoiCalculator.tsx:355:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
-        "canonicalKey": "src/components/RoiCalculator.tsx:355:11:TS2322:Type '\"\" | \"has\" | \"none\"' is not assignable to type '\"has\" | \"none\"'."
+        "canonicalKey": "src/components/RoiCalculator.tsx:355:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'."
       },
       {
         "file": "src/components/RoiCalculator.tsx",
@@ -97,7 +97,7 @@
         "code": "TS7053",
         "message": "Element implicitly has an 'any' type because expression of type '\"\" | \"PestControl\" | \"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'.",
         "key": "src/components/RoiCalculator.tsx:524:20:TS7053:Element implicitly has an 'any' type because expression of type '\"\" | \"PestControl\" | \"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'.",
-        "canonicalKey": "src/components/RoiCalculator.tsx:524:20:TS7053:Element implicitly has an 'any' type because expression of type '\"\" | \"Electricians\" | \"HVAC\" | \"PestControl\" | \"Plumbers\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'."
+        "canonicalKey": "src/components/RoiCalculator.tsx:524:20:TS7053:Element implicitly has an 'any' type because expression of type '\"\" | \"PestControl\" | \"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'."
       },
       {
         "file": "src/components/VoiceDemo.tsx",
@@ -106,7 +106,7 @@
         "code": "TS2322",
         "message": "Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
         "key": "src/components/VoiceDemo.tsx:154:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
-        "canonicalKey": "src/components/VoiceDemo.tsx:154:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-change-detected\" | \"language-changed\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
+        "canonicalKey": "src/components/VoiceDemo.tsx:154:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
       },
       {
         "file": "src/hooks/useVoiceDemo.ts",
@@ -115,7 +115,7 @@
         "code": "TS2322",
         "message": "Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
         "key": "src/hooks/useVoiceDemo.ts:170:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
-        "canonicalKey": "src/hooks/useVoiceDemo.ts:170:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-change-detected\" | \"language-changed\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
+        "canonicalKey": "src/hooks/useVoiceDemo.ts:170:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
       },
       {
         "file": "src/server/appointmentLifecycle/calendarBookingSmoke.ts",
@@ -142,7 +142,7 @@
         "code": "TS2741",
         "message": "Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
         "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
-        "canonicalKey": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"attendeeCount\" | \"eventEndIso\" | \"eventStartIso\" | \"failureStage\" | \"googleErrorMessage\" | \"googleErrorReason\" | \"httpStatus\" | \"sendUpdatesUsed\">'."
+        "canonicalKey": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'."
       },
       {
         "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
@@ -331,7 +331,7 @@
         "code": "TS2345",
         "message": "Argument of type '\"phone\" | \"email\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
         "key": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"phone\" | \"email\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
-        "canonicalKey": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"both\" | \"correlation\" | \"email\" | \"phone\"' is not assignable to parameter of type 'MatchMethod | undefined'."
+        "canonicalKey": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"phone\" | \"email\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'."
       },
       {
         "file": "src/server/appointmentLifecycle/store.ts",
@@ -538,7 +538,7 @@
         "code": "TS2322",
         "message": "Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
         "key": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
-        "canonicalKey": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"domcontentloaded\" | \"load\" | (\"domcontentloaded\" | \"load\")[] | undefined'."
+        "canonicalKey": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'."
       },
       {
         "file": "src/server/report/serveReportTokenPdf.server.ts",
@@ -610,7 +610,7 @@
         "code": "TS2322",
         "message": "Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
         "key": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
-        "canonicalKey": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"booked\" | \"booking_link_pending\" | \"bridge\" | \"confirming\" | \"declined\" | \"discovery\" | \"handoff\" | \"offering_slots\"' is not assignable to type 'AgentStageOutput'."
+        "canonicalKey": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'."
       },
       {
         "file": "src/server/speed2Lead/agent/humanAlert.ts",
@@ -637,7 +637,7 @@
         "code": "TS2345",
         "message": "Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
         "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
-        "canonicalKey": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"confirmed\" | \"idle\" | \"slots_offered\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
+        "canonicalKey": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
       },
       {
         "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
@@ -934,7 +934,7 @@
         "code": "TS2741",
         "message": "Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
         "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
-        "canonicalKey": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"attendeeCount\" | \"eventEndIso\" | \"eventStartIso\" | \"failureStage\" | \"googleErrorMessage\" | \"googleErrorReason\" | \"httpStatus\" | \"sendUpdatesUsed\">'."
+        "canonicalKey": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'."
       },
       {
         "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
@@ -1096,7 +1096,7 @@
         "code": "TS2345",
         "message": "Argument of type '\"email\" | \"phone\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
         "key": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"email\" | \"phone\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
-        "canonicalKey": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"both\" | \"correlation\" | \"email\" | \"phone\"' is not assignable to parameter of type 'MatchMethod | undefined'."
+        "canonicalKey": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"email\" | \"phone\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'."
       },
       {
         "file": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts",
@@ -1159,7 +1159,7 @@
         "code": "TS2322",
         "message": "Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
         "key": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
-        "canonicalKey": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"domcontentloaded\" | \"load\" | (\"domcontentloaded\" | \"load\")[] | undefined'."
+        "canonicalKey": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'."
       },
       {
         "file": "src/server/sms/inboundRecovery.characterization.test.ts",
@@ -1231,7 +1231,7 @@
         "code": "TS2322",
         "message": "Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
         "key": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
-        "canonicalKey": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"booked\" | \"booking_link_pending\" | \"bridge\" | \"confirming\" | \"declined\" | \"discovery\" | \"handoff\" | \"offering_slots\"' is not assignable to type 'AgentStageOutput'."
+        "canonicalKey": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'."
       },
       {
         "file": "src/server/speed2Lead/agent/humanAlert.ts",
@@ -1267,7 +1267,7 @@
         "code": "TS2345",
         "message": "Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
         "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
-        "canonicalKey": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"confirmed\" | \"idle\" | \"slots_offered\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
+        "canonicalKey": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
       },
       {
         "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
@@ -1357,7 +1357,7 @@
         "code": "TS2353",
         "message": "Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.",
         "key": "src/server/speed2Lead/session.memory.test.ts:51:7:TS2353:Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.",
-        "canonicalKey": "src/server/speed2Lead/session.memory.test.ts:51:7:TS2353:Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"Electricians\" | \"HVAC\" | \"PestControl\" | \"Plumbers\" | \"Roofers\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'."
+        "canonicalKey": "src/server/speed2Lead/session.memory.test.ts:51:7:TS2353:Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'."
       },
       {
         "file": "src/server/speed2Lead/session.memory.test.ts",
@@ -1402,7 +1402,7 @@
         "code": "TS2322",
         "message": "Type '\"plumbing\"' is not assignable to type '\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined'.",
         "key": "src/server/speed2Lead/session.memory.test.ts:75:7:TS2322:Type '\"plumbing\"' is not assignable to type '\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined'.",
-        "canonicalKey": "src/server/speed2Lead/session.memory.test.ts:75:7:TS2322:Type '\"plumbing\"' is not assignable to type '\"Electricians\" | \"HVAC\" | \"PestControl\" | \"Plumbers\" | \"Roofers\" | undefined'."
+        "canonicalKey": "src/server/speed2Lead/session.memory.test.ts:75:7:TS2322:Type '\"plumbing\"' is not assignable to type '\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined'."
       },
       {
         "file": "src/server/speed2Lead/session.memory.test.ts",
@@ -1614,22 +1614,104 @@
     "config": "tsconfig.qa.json",
     "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
     "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-    "includedFileCount": 409,
-    "exitStatus": 0,
-    "totalDiagnosticCount": 0,
+    "includedFileCount": 411,
+    "exitStatus": 2,
+    "totalDiagnosticCount": 9,
     "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
     "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
-    "diagnostics": []
+    "diagnostics": [
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 299,
+        "column": 25,
+        "code": "TS2339",
+        "message": "Property 'bunLockSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 299,
+        "column": 62,
+        "code": "TS2339",
+        "message": "Property 'bunLockSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 300,
+        "column": 25,
+        "code": "TS2339",
+        "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 300,
+        "column": 66,
+        "code": "TS2339",
+        "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 301,
+        "column": 25,
+        "code": "TS2339",
+        "message": "Property 'typescriptVersion' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 301,
+        "column": 66,
+        "code": "TS2339",
+        "message": "Property 'typescriptVersion' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 302,
+        "column": 25,
+        "code": "TS2339",
+        "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 302,
+        "column": 67,
+        "code": "TS2339",
+        "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
+        "line": 187,
+        "column": 47,
+        "code": "TS2769",
+        "message": "No overload matches this call.",
+        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:187:47:TS2769:No overload matches this call.",
+        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:187:47:TS2769:No overload matches this call."
+      }
+    ]
   },
   "baselineProductionCount": 100,
   "baselineTestCount": 84,
-  "introducedCount": 0,
+  "introducedCount": 2,
   "phase2IntroducedCount": 0,
   "acceptance": {
     "zeroPhase2Introduced": true,
     "phase2IntroducedDiagnostics": [],
     "allPhase2ProductionFilesZero": true,
     "allPhase2TestFilesZero": true,
-    "allPhase2QaScriptFilesZero": true
+    "allPhase2QaScriptFilesZero": false
   }
 }

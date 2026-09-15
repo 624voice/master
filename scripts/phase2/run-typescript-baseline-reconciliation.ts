@@ -11,8 +11,7 @@ const ROOT = join(import.meta.dir, "../..");
 const OUT = join(ROOT, "review-artifacts/phase2");
 const BASELINE_SHA = "05def6b17c7645d783c85df92d1e4053099c2ea4";
 const CURRENT_SHA =
-  process.env.PHASE2_CURRENT_SHA?.trim() ||
-  execSync("git rev-parse HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
+  process.env.PHASE2_CURRENT_SHA?.trim() || "d54286ec9f875d7627c3a027bf7407664389f4e6";
 const WORKTREE = join(ROOT, ".phase2-ts-baseline-worktree");
 
 type Diagnostic = {
@@ -46,21 +45,12 @@ function toCanonicalRepoPath(filePath: string): string {
   return p.replace(/^\.\//, "");
 }
 
-function sortUnionLiteralsInTypeStrings(message: string): string {
-  return message.replace(/"([^"]+)"(\s*\|\s*"([^"]+)")+/g, (segment) => {
-    const literals = [...segment.matchAll(/"([^"]+)"/g)]
-      .map((m) => m[1]!)
-      .sort((a, b) => a.localeCompare(b));
-    return literals.map((l) => `"${l}"`).join(" | ");
-  });
-}
-
+/** Approved canonicalization: workspace/worktree path prefixes and embedded absolute paths only. */
 function canonicalizeDiagnosticMessage(message: string): string {
   let m = normalizeSlashes(message);
   m = m.replace(/\/workspace\/\.phase2-ts-baseline-worktree\//g, "");
   m = m.replace(/\/workspace\//g, "");
   m = m.replace(/\.phase2-ts-baseline-worktree\//g, "");
-  m = sortUnionLiteralsInTypeStrings(m);
   return m;
 }
 
@@ -151,6 +141,25 @@ function measureScope(cwd: string, config: string, label: string, npmScript: str
   };
 }
 
+function collectToolchainFingerprint(cwd: string, label: string) {
+  const bunLockPath = join(cwd, "bun.lock");
+  const packagePath = join(cwd, "package.json");
+  const testConfigPath = join(cwd, "tsconfig.test.json");
+  return {
+    label,
+    cwd: cwd.replace(`${ROOT}/`, "") || ".",
+    bunVersion: execSync("bun --version", { cwd, encoding: "utf8" }).trim(),
+    typescriptVersion: execSync("bunx tsc --version", { cwd, encoding: "utf8" }).trim(),
+    packageJsonSha256: existsSync(packagePath) ? sha256File(packagePath) : null,
+    bunLockSha256: existsSync(bunLockPath) ? sha256File(bunLockPath) : null,
+    tsconfigTestSha256: existsSync(testConfigPath) ? sha256File(testConfigPath) : null,
+    tsconfigTestOnDiskMatchesGitTree:
+      label === "baseline-worktree"
+        ? "patched at measurement time (bun-types + **/*.test.tsx include)"
+        : "committed tree at verification SHA",
+  };
+}
+
 function ensureBaselineWorktree(): void {
   if (!existsSync(WORKTREE)) {
     execSync(`git worktree add ${WORKTREE} ${BASELINE_SHA}`, { cwd: ROOT, stdio: "pipe" });
@@ -229,12 +238,6 @@ function compareDiagnostics(
     currentByStructural.get(sk)!.push(d);
   }
 
-  const structurallyPaired = new Set<string>();
-  for (const [sk, bList] of baselineByStructural) {
-    const cList = currentByStructural.get(sk);
-    if (bList.length === 1 && cList?.length === 1) structurallyPaired.add(sk);
-  }
-
   const rows = [];
   for (const canonicalKey of new Set([
     ...baselineByCanonical.keys(),
@@ -244,10 +247,6 @@ function compareDiagnostics(
     const c = currentByCanonical.get(canonicalKey);
     let disposition: string;
     if (b && c) disposition = "unchanged";
-    else if (b && !c && structurallyPaired.has(structuralKey(b)))
-      disposition = "unchanged";
-    else if (!b && c && structurallyPaired.has(structuralKey(c)))
-      disposition = "unchanged";
     else if (b && !c) disposition = "removed";
     else if (!b && c) disposition = "introduced";
     else disposition = "moved";
@@ -294,7 +293,13 @@ function buildCanonicalPairingTable(
   baselineCwd: string,
   currentCwd: string,
   phase2ModifiedPaths: Set<string>,
+  toolchain: Record<string, unknown>,
 ) {
+  const toolchainComparable =
+    toolchain.baseline?.bunLockSha256 === toolchain.current?.bunLockSha256 &&
+    toolchain.baseline?.packageJsonSha256 === toolchain.current?.packageJsonSha256 &&
+    toolchain.baseline?.typescriptVersion === toolchain.current?.typescriptVersion &&
+    toolchain.baseline?.tsconfigTestSha256 === toolchain.current?.tsconfigTestSha256;
   const baselineEnriched = baseline.map((d) => enrichDiagnostic(d, "baseline", baselineCwd));
   const currentEnriched = current.map((d) => enrichDiagnostic(d, "current", currentCwd));
 
@@ -335,6 +340,38 @@ function buildCanonicalPairingTable(
       fileExistedAtStartingSha = false;
     }
     const phase2Modified = phase2ModifiedPaths.has(canonicalPath);
+    const canonicalizedBaselineMessage = canonicalizeDiagnosticMessage(b.message);
+    const canonicalizedCurrentMessage = canonicalizeDiagnosticMessage(c.message);
+    const canonicalizedMessagesMatch =
+      canonicalizedBaselineMessage === canonicalizedCurrentMessage;
+    const onlyWorkspacePrefixDiff =
+      b.key !== c.key &&
+      b.code === c.code &&
+      b.line === c.line &&
+      b.column === c.column &&
+      canonicalizedMessagesMatch;
+    const unionPrintOrderOnlyDiff =
+      !canonicalizedMessagesMatch &&
+      structuralKey(b) === structuralKey(c) &&
+      !phase2Modified;
+
+    let finalClassification: string;
+    if (phase2Modified) {
+      finalClassification = "phase2-modified-file-diagnostic";
+    } else if (onlyWorkspacePrefixDiff) {
+      finalClassification = "unchanged legacy diagnostic (raw key differed by workspace prefix only)";
+    } else if (unionPrintOrderOnlyDiff && !toolchainComparable) {
+      finalClassification =
+        "non-comparable (measurement toolchain differs — lockfile/package/tsconfig delta disqualifies union-order pairing)";
+    } else if (unionPrintOrderOnlyDiff && toolchainComparable) {
+      finalClassification =
+        "review required (canonical messages differ at same location; toolchain matched but union print order changed)";
+    } else if (canonicalizedMessagesMatch) {
+      finalClassification = "unchanged legacy diagnostic";
+    } else {
+      finalClassification = "review required";
+    }
+
     pairs.push({
       pairId: `P-${pairs.length + 1}`,
       scope,
@@ -350,31 +387,18 @@ function buildCanonicalPairingTable(
       canonicalPathsMatch: toCanonicalRepoPath(b.file) === toCanonicalRepoPath(c.file),
       sanitizedBaselineMessage: b.message,
       sanitizedCurrentMessage: c.message,
-      canonicalizedBaselineMessage: canonicalizeDiagnosticMessage(b.message),
-      canonicalizedCurrentMessage: canonicalizeDiagnosticMessage(c.message),
-      canonicalizedMessagesMatch:
-        canonicalizeDiagnosticMessage(b.message) === canonicalizeDiagnosticMessage(c.message),
-      onlyRawDifferenceIsWorkspacePrefix:
-        b.key !== c.key &&
-        b.code === c.code &&
-        b.line === c.line &&
-        b.column === c.column &&
-        (canonicalizeDiagnosticMessage(b.message) === canonicalizeDiagnosticMessage(c.message) ||
-          (b.canonicalKey !== c.canonicalKey &&
-            structuralKey(b) === structuralKey(c) &&
-            !phase2Modified)),
-      substantiveMessageDifferenceNote:
-        b.canonicalKey !== c.canonicalKey &&
-        canonicalizeDiagnosticMessage(b.message) !== canonicalizeDiagnosticMessage(c.message)
-          ? "TypeScript diagnostic text differs in union-member print order only; same file, line, column, code, and type members"
-          : null,
+      canonicalizedBaselineMessage,
+      canonicalizedCurrentMessage,
+      canonicalizedMessagesMatch,
+      onlyRawDifferenceIsWorkspacePrefix: onlyWorkspacePrefixDiff,
+      unionMemberPrintOrderDiffers: unionPrintOrderOnlyDiff,
+      substantiveMessageDifferenceNote: unionPrintOrderOnlyDiff
+        ? "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string"
+        : null,
+      toolchainComparable,
       fileExistedAtStartingSha,
       phase2CreatedOrModifiedFile: phase2Modified,
-      finalClassification: phase2Modified
-        ? "phase2-modified-file-diagnostic"
-        : b.canonicalKey === c.canonicalKey || structuralKey(b) === structuralKey(c)
-          ? "unchanged legacy diagnostic (raw key differed by workspace prefix and/or TS union print order only)"
-          : "review required",
+      finalClassification,
     });
   }
 
@@ -384,10 +408,22 @@ function buildCanonicalPairingTable(
     (c) => !pairs.some((p) => p.sanitizedCurrentMessage === c.message),
   );
 
+  const confirmedUnchangedPairs = pairs.filter((p) =>
+    String(p.finalClassification).startsWith("unchanged legacy"),
+  ).length;
+  const nonComparablePairs = pairs.filter((p) =>
+    String(p.finalClassification).startsWith("non-comparable"),
+  ).length;
+
   return {
     scope,
     pairingMethod:
-      "Match raw-removed to raw-introduced by canonicalKey after stripping worktree and /workspace/ prefixes from paths and embedded import() paths in messages",
+      "Match raw-removed to raw-introduced by canonicalKey after stripping worktree and /workspace/ prefixes from paths and embedded import() paths in messages. Union literal reordering is NOT applied.",
+    toolchain,
+    toolchainComparable,
+    toolchainComparabilityNote: toolchainComparable
+      ? "Baseline and current fingerprints match; cross-environment pairing permitted."
+      : "Baseline worktree (05def6b) and current verification SHA (d54286e) use different bun.lock, package.json, and/or tsconfig.test.json fingerprints. Pairings that differ only in union-member print order are disqualified under anti-gaming rules.",
     pairs,
     unmatchedRawRemoved: unmatchedRemoved.map((d) => ({
       canonicalKey: d.canonicalKey,
@@ -405,13 +441,13 @@ function buildCanonicalPairingTable(
     canonicalComparison: {
       baselineTotal: baselineEnriched.length,
       currentTotal: currentEnriched.length,
-      unchanged:
-        baselineEnriched.length - unmatchedRemoved.length,
+      unchangedExactRawKeys: baselineEnriched.length - rawRemoved.length,
+      confirmedUnchangedPairs,
+      nonComparablePairs,
       removed: unmatchedRemoved.length,
       introduced: unmatchedIntroduced.length,
       rawRemovedCount: rawRemoved.length,
       rawIntroducedCount: rawIntroduced.length,
-      pairedByStructuralFallback: pairs.filter((p) => p.onlyRawDifferenceIsWorkspacePrefix === false && p.substantiveMessageDifferenceNote).length,
     },
   };
 }
@@ -535,6 +571,11 @@ const phase2DiffPaths = new Set(
     .filter(Boolean),
 );
 
+const toolchainFingerprint = {
+  baseline: collectToolchainFingerprint(WORKTREE, "baseline-worktree"),
+  current: collectToolchainFingerprint(ROOT, "current-verification"),
+};
+
 const testScopeCanonicalPairing = buildCanonicalPairingTable(
   testBaseline.available ? testBaseline.diagnostics! : [],
   testCurrent.available ? testCurrent.diagnostics! : [],
@@ -542,6 +583,7 @@ const testScopeCanonicalPairing = buildCanonicalPairingTable(
   WORKTREE,
   ROOT,
   phase2DiffPaths,
+  toolchainFingerprint,
 );
 
 const introduced = [...prodComparison, ...testComparison].filter((r) => r.disposition === "introduced");

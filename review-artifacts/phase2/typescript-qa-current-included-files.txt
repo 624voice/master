@@ -377,6 +377,9 @@ scripts/phase2/run-typescript-baseline-reconciliation.ts
 scripts/phase2/run-typescript-measurement-chronology.ts
 scripts/phase2/run-typescript-measurement.ts
 scripts/phase2/safe-public-qa.ts
+scripts/phase2/safePreviewEnvironment.ts
+scripts/phase2/start-safe-assessment-preview.test.ts
+scripts/phase2/start-safe-assessment-preview.ts
 scripts/phase2/upstash-redis-stub.ts
 node_modules/bun-types/globals.d.ts
 node_modules/bun-types/s3.d.ts
