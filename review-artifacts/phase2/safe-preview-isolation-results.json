@@ -1,0 +1,42 @@
+{
+  "script": "scripts/phase2/start-safe-assessment-preview.ts",
+  "environmentModule": "scripts/phase2/safePreviewEnvironment.ts",
+  "testCommand": "bun test scripts/phase2/start-safe-assessment-preview.test.ts",
+  "testResults": {
+    "pass": true,
+    "testsRun": 8,
+    "testsPassed": 8,
+    "testsFailed": 0
+  },
+  "isolationMechanism": {
+    "childEnvConstruction": "buildIsolatedSafePreviewEnvironment() copies bootstrap keys only, then applies forced safe overrides — parent credentials never copied",
+    "preStartAssertion": "assertSafePreviewEnvironment() fail-closed before spawnSafePreviewServer()",
+    "liveEnableOverride": "ASSESSMENT_ROI_AGENT_LIVE_ENABLED forced to false; parent true value cannot override",
+    "boundaryMarker": "PHASE2_SAFE_PREVIEW=1 required in child env"
+  },
+  "adapters": {
+    "leadSubmission": "LEADS_WEBHOOK_URL -> local Redis stub /leads-webhook",
+    "redis": "scripts/phase2/upstash-redis-stub.ts in-memory Map",
+    "reportTokensPdf": "local ASSESSMENT_SECURITY_HMAC_SECRET only",
+    "sms": "SPEED2LEAD_ENABLED=false; Twilio keys absent",
+    "email": "SendGrid keys absent",
+    "crm": "CRM/webhook keys absent",
+    "webhooks": "local stub only",
+    "analytics": "no analytics provider keys in child env",
+    "agentProvider": "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false; OpenAI absent"
+  },
+  "negativeTest": {
+    "parentFakeCredentials": "TWILIO_*, SENDGRID_*, UPSTASH_*, GOOGLE_*, OPENAI_*, live flags",
+    "childLeakCheck": "none of parent fake credential keys present in child env",
+    "liveAdapterSelected": false,
+    "liveEnableFlag": "false"
+  },
+  "failurePathTest": {
+    "postSanitizationInjection": "assertSafePreviewEnvironment throws when TWILIO_ACCOUNT_SID injected after build",
+    "pass": true
+  },
+  "visitorControlledActivation": {
+    "assessmentRouteScan": "no PHASE2_SAFE_PREVIEW, fixtureMode, or query-param activation in src/routes/assessment.tsx",
+    "missingCredentialsAlone": "bare PATH/HOME child exits 0 without PHASE2_SAFE_PREVIEW; safe adapters require explicit boundary build"
+  }
+}
