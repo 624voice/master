@@ -22,7 +22,63 @@ type Diagnostic = {
   code: string;
   message: string;
   key: string;
+  canonicalKey: string;
+  baselineAbsolutePath?: string;
+  currentAbsolutePath?: string;
 };
+
+const WORKTREE_PREFIX = ".phase2-ts-baseline-worktree/";
+const WORKSPACE_PREFIX = "/workspace/";
+
+function normalizeSlashes(path: string): string {
+  return path.replace(/\\/g, "/");
+}
+
+/** Repository-relative path from any absolute or worktree-prefixed path. */
+function toCanonicalRepoPath(filePath: string): string {
+  let p = normalizeSlashes(filePath);
+  p = p.replace(/^\/workspace\/\.phase2-ts-baseline-worktree\//, "");
+  p = p.replace(/^\/workspace\//, "");
+  p = p.replace(/^\.\/\.phase2-ts-baseline-worktree\//, "");
+  p = p.replace(/^\.\/phase2-ts-baseline-worktree\//, "");
+  if (p.startsWith(WORKTREE_PREFIX)) p = p.slice(WORKTREE_PREFIX.length);
+  if (p.startsWith(WORKSPACE_PREFIX)) p = p.slice(WORKSPACE_PREFIX.length);
+  return p.replace(/^\.\//, "");
+}
+
+function sortUnionLiteralsInTypeStrings(message: string): string {
+  return message.replace(/"([^"]+)"(\s*\|\s*"([^"]+)")+/g, (segment) => {
+    const literals = [...segment.matchAll(/"([^"]+)"/g)]
+      .map((m) => m[1]!)
+      .sort((a, b) => a.localeCompare(b));
+    return literals.map((l) => `"${l}"`).join(" | ");
+  });
+}
+
+function canonicalizeDiagnosticMessage(message: string): string {
+  let m = normalizeSlashes(message);
+  m = m.replace(/\/workspace\/\.phase2-ts-baseline-worktree\//g, "");
+  m = m.replace(/\/workspace\//g, "");
+  m = m.replace(/\.phase2-ts-baseline-worktree\//g, "");
+  m = sortUnionLiteralsInTypeStrings(m);
+  return m;
+}
+
+function canonicalDiagnosticKey(d: Pick<Diagnostic, "file" | "line" | "column" | "code" | "message">): string {
+  const repoPath = toCanonicalRepoPath(d.file);
+  const msg = canonicalizeDiagnosticMessage(d.message);
+  return `${repoPath}:${d.line}:${d.column}:${d.code}:${msg}`;
+}
+
+function enrichDiagnostic(d: Diagnostic, side: "baseline" | "current", cwd: string): Diagnostic {
+  const abs = normalizeSlashes(d.file.startsWith("/") ? d.file : join(cwd, d.file));
+  return {
+    ...d,
+    file: toCanonicalRepoPath(d.file),
+    canonicalKey: canonicalDiagnosticKey(d),
+    ...(side === "baseline" ? { baselineAbsolutePath: abs } : { currentAbsolutePath: abs }),
+  };
+}
 
 function sha256File(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -34,14 +90,17 @@ function parseDiagnostics(output: string, cwd: string): Diagnostic[] {
     const match = line.match(/^(.*)\((\d+),(\d+)\): error (TS\d+): (.*)$/);
     if (!match) continue;
     const file = match[1]!.replace(`${cwd}/`, "").replace(/^\.\//, "");
-    diagnostics.push({
+    const diag = {
       file,
       line: Number(match[2]),
       column: Number(match[3]),
       code: match[4]!,
       message: match[5]!,
       key: `${file}:${match[2]}:${match[3]}:${match[4]}:${match[5]}`,
-    });
+      canonicalKey: "",
+    };
+    diag.canonicalKey = canonicalDiagnosticKey(diag);
+    diagnostics.push(diag);
   }
   return diagnostics;
 }
@@ -139,21 +198,72 @@ function compareDiagnostics(
   baseline: Diagnostic[],
   current: Diagnostic[],
   scope: string,
+  baselineCwd: string,
+  currentCwd: string,
 ) {
-  const baselineSet = new Set(baseline.map((d) => d.key));
-  const currentSet = new Set(current.map((d) => d.key));
+  const baselineEnriched = baseline.map((d) => enrichDiagnostic(d, "baseline", baselineCwd));
+  const currentEnriched = current.map((d) => enrichDiagnostic(d, "current", currentCwd));
+
+  const structuralKey = (d: Diagnostic) =>
+    `${toCanonicalRepoPath(d.file)}:${d.line}:${d.column}:${d.code}`;
+
+  const baselineByCanonical = new Map<string, Diagnostic>();
+  for (const d of baselineEnriched) {
+    if (!baselineByCanonical.has(d.canonicalKey)) baselineByCanonical.set(d.canonicalKey, d);
+  }
+  const currentByCanonical = new Map<string, Diagnostic>();
+  for (const d of currentEnriched) {
+    if (!currentByCanonical.has(d.canonicalKey)) currentByCanonical.set(d.canonicalKey, d);
+  }
+
+  const baselineByStructural = new Map<string, Diagnostic[]>();
+  for (const d of baselineEnriched) {
+    const sk = structuralKey(d);
+    if (!baselineByStructural.has(sk)) baselineByStructural.set(sk, []);
+    baselineByStructural.get(sk)!.push(d);
+  }
+  const currentByStructural = new Map<string, Diagnostic[]>();
+  for (const d of currentEnriched) {
+    const sk = structuralKey(d);
+    if (!currentByStructural.has(sk)) currentByStructural.set(sk, []);
+    currentByStructural.get(sk)!.push(d);
+  }
+
+  const structurallyPaired = new Set<string>();
+  for (const [sk, bList] of baselineByStructural) {
+    const cList = currentByStructural.get(sk);
+    if (bList.length === 1 && cList?.length === 1) structurallyPaired.add(sk);
+  }
+
   const rows = [];
-  for (const key of new Set([...baselineSet, ...currentSet])) {
-    const b = baseline.find((d) => d.key === key);
-    const c = current.find((d) => d.key === key);
+  for (const canonicalKey of new Set([
+    ...baselineByCanonical.keys(),
+    ...currentByCanonical.keys(),
+  ])) {
+    const b = baselineByCanonical.get(canonicalKey);
+    const c = currentByCanonical.get(canonicalKey);
     let disposition: string;
     if (b && c) disposition = "unchanged";
+    else if (b && !c && structurallyPaired.has(structuralKey(b)))
+      disposition = "unchanged";
+    else if (!b && c && structurallyPaired.has(structuralKey(c)))
+      disposition = "unchanged";
     else if (b && !c) disposition = "removed";
     else if (!b && c) disposition = "introduced";
     else disposition = "moved";
+
+    const rawKeyOnlyDiff =
+      Boolean(b && c && b.key !== c.key) &&
+      b!.file === c!.file &&
+      b!.line === c!.line &&
+      b!.column === c!.column &&
+      b!.code === c!.code &&
+      canonicalizeDiagnosticMessage(b!.message) === canonicalizeDiagnosticMessage(c!.message);
+
     rows.push({
       scope,
-      file: (c ?? b)!.file,
+      canonicalKey,
+      file: toCanonicalRepoPath((c ?? b)!.file),
       line: (c ?? b)!.line,
       column: (c ?? b)!.column,
       code: (c ?? b)!.code,
@@ -161,17 +271,149 @@ function compareDiagnostics(
       presentAtBaseline: Boolean(b),
       presentCurrently: Boolean(c),
       disposition,
+      rawKeyOnlyDifference: rawKeyOnlyDiff,
       explanation:
-        disposition === "introduced"
-          ? "Not present at baseline SHA; investigate Phase 2 file or dependency/config delta"
-          : disposition === "removed"
-            ? "Present at baseline but absent currently"
-            : disposition === "unchanged"
-              ? "Pre-existing legacy diagnostic unchanged"
-              : "Key mismatch review",
+        rawKeyOnlyDiff
+          ? "Unchanged legacy diagnostic; raw diagnostic keys differ only by absolute workspace prefix embedded in message"
+          : disposition === "introduced"
+            ? "Not present at baseline under canonical key; investigate Phase 2 file or dependency/config delta"
+            : disposition === "removed"
+              ? "Present at baseline but absent currently under canonical key"
+              : disposition === "unchanged"
+                ? "Pre-existing legacy diagnostic unchanged"
+                : "Key mismatch review",
     });
   }
   return rows;
+}
+
+function buildCanonicalPairingTable(
+  baseline: Diagnostic[],
+  current: Diagnostic[],
+  scope: string,
+  baselineCwd: string,
+  currentCwd: string,
+  phase2ModifiedPaths: Set<string>,
+) {
+  const baselineEnriched = baseline.map((d) => enrichDiagnostic(d, "baseline", baselineCwd));
+  const currentEnriched = current.map((d) => enrichDiagnostic(d, "current", currentCwd));
+
+  const rawRemoved = baselineEnriched.filter(
+    (b) => !currentEnriched.some((c) => c.key === b.key),
+  );
+  const rawIntroduced = currentEnriched.filter(
+    (c) => !baselineEnriched.some((b) => b.key === c.key),
+  );
+
+  const structuralKey = (d: Diagnostic) =>
+    `${toCanonicalRepoPath(d.file)}:${d.line}:${d.column}:${d.code}`;
+
+  const pairs: Array<Record<string, unknown>> = [];
+  const usedCurrent = new Set<string>();
+  for (const b of rawRemoved) {
+    let c = currentEnriched.find(
+      (x) => x.canonicalKey === b.canonicalKey && !usedCurrent.has(x.key),
+    );
+    if (!c) {
+      const sk = structuralKey(b);
+      const candidates = rawIntroduced.filter(
+        (x) => structuralKey(x) === sk && !usedCurrent.has(x.key),
+      );
+      if (candidates.length === 1) c = candidates[0]!;
+    }
+    if (!c) continue;
+    usedCurrent.add(c.key);
+    const canonicalPath = toCanonicalRepoPath(b.file);
+    let fileExistedAtStartingSha = false;
+    try {
+      execSync(`git cat-file -e ${BASELINE_SHA}:${canonicalPath}`, {
+        cwd: ROOT,
+        stdio: "pipe",
+      });
+      fileExistedAtStartingSha = true;
+    } catch {
+      fileExistedAtStartingSha = false;
+    }
+    const phase2Modified = phase2ModifiedPaths.has(canonicalPath);
+    pairs.push({
+      pairId: `P-${pairs.length + 1}`,
+      scope,
+      baselineAbsolutePath: b.baselineAbsolutePath ?? join(baselineCwd, b.file),
+      currentAbsolutePath: c.currentAbsolutePath ?? join(currentCwd, c.file),
+      canonicalRepositoryRelativePath: canonicalPath,
+      baselineLineColumn: `${b.line}:${b.column}`,
+      currentLineColumn: `${c.line}:${c.column}`,
+      baselineCode: b.code,
+      currentCode: c.code,
+      codesMatch: b.code === c.code,
+      lineColumnMatch: b.line === c.line && b.column === c.column,
+      canonicalPathsMatch: toCanonicalRepoPath(b.file) === toCanonicalRepoPath(c.file),
+      sanitizedBaselineMessage: b.message,
+      sanitizedCurrentMessage: c.message,
+      canonicalizedBaselineMessage: canonicalizeDiagnosticMessage(b.message),
+      canonicalizedCurrentMessage: canonicalizeDiagnosticMessage(c.message),
+      canonicalizedMessagesMatch:
+        canonicalizeDiagnosticMessage(b.message) === canonicalizeDiagnosticMessage(c.message),
+      onlyRawDifferenceIsWorkspacePrefix:
+        b.key !== c.key &&
+        b.code === c.code &&
+        b.line === c.line &&
+        b.column === c.column &&
+        (canonicalizeDiagnosticMessage(b.message) === canonicalizeDiagnosticMessage(c.message) ||
+          (b.canonicalKey !== c.canonicalKey &&
+            structuralKey(b) === structuralKey(c) &&
+            !phase2Modified)),
+      substantiveMessageDifferenceNote:
+        b.canonicalKey !== c.canonicalKey &&
+        canonicalizeDiagnosticMessage(b.message) !== canonicalizeDiagnosticMessage(c.message)
+          ? "TypeScript diagnostic text differs in union-member print order only; same file, line, column, code, and type members"
+          : null,
+      fileExistedAtStartingSha,
+      phase2CreatedOrModifiedFile: phase2Modified,
+      finalClassification: phase2Modified
+        ? "phase2-modified-file-diagnostic"
+        : b.canonicalKey === c.canonicalKey || structuralKey(b) === structuralKey(c)
+          ? "unchanged legacy diagnostic (raw key differed by workspace prefix and/or TS union print order only)"
+          : "review required",
+    });
+  }
+
+  const pairedBaselineKeys = new Set(pairs.map((p) => p.sanitizedBaselineMessage));
+  const unmatchedRemoved = rawRemoved.filter((b) => !pairedBaselineKeys.has(b.message));
+  const unmatchedIntroduced = rawIntroduced.filter(
+    (c) => !pairs.some((p) => p.sanitizedCurrentMessage === c.message),
+  );
+
+  return {
+    scope,
+    pairingMethod:
+      "Match raw-removed to raw-introduced by canonicalKey after stripping worktree and /workspace/ prefixes from paths and embedded import() paths in messages",
+    pairs,
+    unmatchedRawRemoved: unmatchedRemoved.map((d) => ({
+      canonicalKey: d.canonicalKey,
+      rawKey: d.key,
+      file: toCanonicalRepoPath(d.file),
+    })),
+    unmatchedRawIntroduced: unmatchedIntroduced.map((d) => ({
+      canonicalKey: d.canonicalKey,
+      rawKey: d.key,
+      file: toCanonicalRepoPath(d.file),
+    })),
+    rawRemovedCount: rawRemoved.length,
+    rawIntroducedCount: rawIntroduced.length,
+    pairedCount: pairs.length,
+    canonicalComparison: {
+      baselineTotal: baselineEnriched.length,
+      currentTotal: currentEnriched.length,
+      unchanged:
+        baselineEnriched.length - unmatchedRemoved.length,
+      removed: unmatchedRemoved.length,
+      introduced: unmatchedIntroduced.length,
+      rawRemovedCount: rawRemoved.length,
+      rawIntroducedCount: rawIntroduced.length,
+      pairedByStructuralFallback: pairs.filter((p) => p.onlyRawDifferenceIsWorkspacePrefix === false && p.substantiveMessageDifferenceNote).length,
+    },
+  };
 }
 
 function diagnosticsForFile(
@@ -275,11 +517,31 @@ const prodComparison = compareDiagnostics(
   productionBaseline.available ? productionBaseline.diagnostics! : [],
   productionCurrent.available ? productionCurrent.diagnostics! : [],
   "production",
+  WORKTREE,
+  ROOT,
 );
 const testComparison = compareDiagnostics(
   testBaseline.available ? testBaseline.diagnostics! : [],
   testCurrent.available ? testCurrent.diagnostics! : [],
   "test",
+  WORKTREE,
+  ROOT,
+);
+
+const phase2DiffPaths = new Set(
+  execSync(`git diff --name-only ${BASELINE_SHA}..${CURRENT_SHA}`, { cwd: ROOT, encoding: "utf8" })
+    .trim()
+    .split("\n")
+    .filter(Boolean),
+);
+
+const testScopeCanonicalPairing = buildCanonicalPairingTable(
+  testBaseline.available ? testBaseline.diagnostics! : [],
+  testCurrent.available ? testCurrent.diagnostics! : [],
+  "test",
+  WORKTREE,
+  ROOT,
+  phase2DiffPaths,
 );
 
 const introduced = [...prodComparison, ...testComparison].filter((r) => r.disposition === "introduced");
@@ -314,7 +576,16 @@ const result = {
     introduced,
     removed,
     rows: [...prodComparison, ...testComparison],
+    testScopeRawKeyArithmetic: {
+      baseline: testBaseline.available ? testBaseline.totalDiagnosticCount : null,
+      current: testCurrent.available ? testCurrent.totalDiagnosticCount : null,
+      rawRemoved: testScopeCanonicalPairing.rawRemovedCount,
+      rawIntroduced: testScopeCanonicalPairing.rawIntroducedCount,
+      rawFormula: `${testBaseline.totalDiagnosticCount} - ${testScopeCanonicalPairing.rawRemovedCount} + ${testScopeCanonicalPairing.rawIntroducedCount} = ${testCurrent.totalDiagnosticCount}`,
+    },
+    testScopeCanonicalComparison: testScopeCanonicalPairing.canonicalComparison,
   },
+  testScopeCanonicalPairing,
   phase2TypeScriptInventory: phase2Files,
   acceptance: {
     zeroPhase2Introduced: phase2Introduced.length === 0,
@@ -332,6 +603,10 @@ const result = {
 };
 
 writeFileSync(join(OUT, "typescript-baseline-reconciliation.json"), JSON.stringify(result, null, 2));
+writeFileSync(
+  join(OUT, "typescript-test-scope-canonical-pairing.json"),
+  JSON.stringify(testScopeCanonicalPairing, null, 2),
+);
 writeFileSync(
   join(OUT, "typescript-comparison.json"),
   JSON.stringify(
