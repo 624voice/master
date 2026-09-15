@@ -57,7 +57,13 @@ const METHODS = [
 ] as const;
 
 type Method = (typeof METHODS)[number];
-type CheckResult = "pass" | "fail" | "N/A" | "recorded" | "unexecuted (deferred)";
+type CheckResult =
+  | "pass"
+  | "fail"
+  | "N/A"
+  | "recorded"
+  | "unexecuted (deferred)"
+  | "unexecuted";
 
 type RequirementRow = {
   requirement: string;
@@ -1378,7 +1384,12 @@ function recalculateInlineSummary() {
   ).length;
   const defectsCorrected = rows.filter((r) => r.correctionMade !== "none").length;
   const remainingFailures = rows
-    .filter((r) => r.result === "fail" || r.result === "unexecuted (deferred)")
+    .filter(
+      (r) =>
+        r.result === "fail" ||
+        r.result === "unexecuted (deferred)" ||
+        r.result === "unexecuted",
+    )
     .map((r) => `${r.requirement} (${r.routeOrState}): ${r.result}`);
 
   (rawSummary.remainingDefects as string[]).push(
@@ -1391,6 +1402,7 @@ function recalculateInlineSummary() {
     automatedChecksFailed: autoCounts.failed,
     manualKeyboardChecksPassed: kbCounts.passed,
     manualKeyboardChecksFailed: kbCounts.failed,
+    manualKeyboardChecksUnexecuted: manualKb.filter((r) => r.result === "unexecuted").length,
     actualScreenReaderChecksPassed: srCounts.passed,
     actualScreenReaderChecksFailed: srCounts.failed,
     actualScreenReaderChecksUnexecuted: screenReader.filter(
@@ -1427,44 +1439,41 @@ function writeOutputs(): void {
     evidenceRef: "review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted",
   });
 
-  const humanKbPath = join(REPO_ROOT, "review-artifacts/phase2/accessibility-human-keyboard-qa.json");
-  type HumanKbResult = {
-    finalResult?: string;
-    executedAt?: string;
-    safeEnvironment?: string;
-    routesAndStatesChecked?: string[];
-    defectsFound?: string[];
-    fixesApplied?: string[];
-    retestResult?: string;
-  };
-  let humanKbResult: HumanKbResult | null = null;
-  if (existsSync(humanKbPath)) {
-    humanKbResult = JSON.parse(readFileSync(humanKbPath, "utf8")) as HumanKbResult;
-  }
-  (rawSummary.humanKeyboardQa as Record<string, unknown>) = humanKbResult ?? {
-    status: "not executed",
+  const ownerChecklistPath = join(
+    REPO_ROOT,
+    "review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+  );
+  const automatedSupplementPath = join(
+    REPO_ROOT,
+    "review-artifacts/phase2/accessibility-automated-keyboard-supplement.json",
+  );
+  const ownerAttestationPath = join(
+    REPO_ROOT,
+    "review-artifacts/phase2/accessibility-human-keyboard-owner-attestation.json",
+  );
+  const hasOwnerAttestation = existsSync(ownerAttestationPath);
+  (rawSummary.humanKeyboardQa as Record<string, unknown>) = {
+    status: hasOwnerAttestation ? "owner attestation on file" : "unexecuted — awaiting human operator",
+    ownerChecklistRef: "review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+    automatedSupplementRef: existsSync(automatedSupplementPath)
+      ? "review-artifacts/phase2/accessibility-automated-keyboard-supplement.json"
+      : "none",
+    note: "Puppeteer or scripted keyboard input does not satisfy A11Y-090; only a genuine human operator attestation may mark this row pass.",
   };
   addRow({
     requirement: "Manual keyboard inspection (human operator)",
     routeOrState: "All routes",
     method: "Manual keyboard inspection",
-    tool: humanKbResult ? "human keyboard-only operator" : "none",
-    result:
-      humanKbResult?.finalResult === "pass"
-        ? "pass"
-        : humanKbResult?.finalResult === "fail" ||
-            humanKbResult?.finalResult === "incomplete" ||
-            humanKbResult?.finalResult === "blocked"
-          ? "fail"
-          : "fail",
-    defectFound:
-      humanKbResult?.defectsFound?.length ? humanKbResult.defectsFound.join("; ") : "none",
-    correctionMade:
-      humanKbResult?.fixesApplied?.length ? humanKbResult.fixesApplied.join("; ") : "none",
-    evidenceRef: "review-artifacts/phase2/accessibility-human-keyboard-qa.json",
-    supportingEvidence: humanKbResult
-      ? `Executed ${humanKbResult.executedAt}; routes=${humanKbResult.routesAndStatesChecked?.length ?? 0}`
-      : "Human keyboard QA artifact missing",
+    tool: hasOwnerAttestation ? "human keyboard-only operator (owner attestation)" : "none",
+    result: hasOwnerAttestation ? "pass" : "unexecuted",
+    defectFound: "none",
+    correctionMade: "none",
+    evidenceRef: hasOwnerAttestation
+      ? "review-artifacts/phase2/accessibility-human-keyboard-owner-attestation.json"
+      : ownerChecklistPath.replace(`${REPO_ROOT}/`, ""),
+    supportingEvidence: hasOwnerAttestation
+      ? "Owner human keyboard attestation on file"
+      : "Awaiting owner completion of human keyboard checklist; automated supplement is non-substituting",
   });
 
   const inlineSummary = recalculateInlineSummary();

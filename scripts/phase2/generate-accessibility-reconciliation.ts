@@ -83,18 +83,22 @@ const nonPassDetail = nonPassRows.map((row) => ({
   requirement: row.requirement,
   actualStatus: row.result,
   reason:
-    row.result === "N/A"
-      ? row.requirement.includes("Manual keyboard")
-        ? "No human keyboard operator in CI; Puppeteer simulation covers keyboard reachability in separate rows"
-        : "Report failure surfaced via window.open/fetch without persistent role=alert in DOM"
-      : "Actual assistive-technology operation intentionally deferred until pre-production QA",
+    row.result === "unexecuted" && row.requirement.includes("Manual keyboard")
+      ? "No genuine human keyboard operator attestation; automated Puppeteer supplement does not substitute"
+      : row.result === "N/A"
+        ? row.requirement.includes("Manual keyboard")
+          ? "No human keyboard operator in CI; Puppeteer simulation covers keyboard reachability in separate rows"
+          : "Report failure surfaced via window.open/fetch without persistent role=alert in DOM"
+        : "Actual assistive-technology operation intentionally deferred until pre-production QA",
   isActualScreenReaderOperation: row.result === "unexecuted (deferred)",
   permittedUnderControllingInstruction:
     row.result === "unexecuted (deferred)"
       ? "Only actual screen-reader operation may remain deferred pre-production"
       : row.result === "N/A"
         ? "N/A rows are out-of-scope or covered by alternate automated method; not objective failures"
-        : false,
+        : row.result === "unexecuted"
+          ? "Human keyboard A11Y-090 requires owner attestation; not permitted as automated pass"
+          : false,
   evidenceRef: row.evidenceRef,
 }));
 

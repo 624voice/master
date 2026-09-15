@@ -1,7 +1,7 @@
 /**
- * Human-operated keyboard-only QA (A11Y-090).
- * Uses safe backend (Redis stub, no live providers) and keyboard-first navigation.
- * Writes review-artifacts/phase2/accessibility-human-keyboard-qa.json
+ * Automated keyboard supplement (NOT human-operated A11Y-090).
+ * Puppeteer-driven keyboard simulation for supplementary coverage only.
+ * Writes review-artifacts/phase2/accessibility-automated-keyboard-supplement.json
  *
  * Run: bun run scripts/phase2/run-human-keyboard-qa.ts
  */
@@ -26,7 +26,10 @@ import {
 const BASE_URL = "http://127.0.0.1:3000";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
-const OUT = join(REPO_ROOT, "review-artifacts/phase2/accessibility-human-keyboard-qa.json");
+const OUT = join(
+  REPO_ROOT,
+  "review-artifacts/phase2/accessibility-automated-keyboard-supplement.json",
+);
 
 const PUBLIC_ROUTES = [
   "/",
@@ -233,7 +236,8 @@ async function main() {
     executedAt: new Date().toISOString(),
     safeEnvironment:
       "buildAssessmentBrowserServer({ safeBackend: true }) — Redis stub, stripped credentials, no live providers",
-    operatorRole: "human keyboard-only operator",
+    automationMethod: "Puppeteer page.keyboard / page.click (not human-operated)",
+    operatorRole: "automated — does not satisfy A11Y-090 human operator requirement",
     routesAndStatesChecked: routesChecked,
     requirementsChecked: checks.map((c) => c.id),
     requirementResults: checks,

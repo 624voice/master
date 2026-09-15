@@ -130,6 +130,7 @@ const result = {
     passCount: a11y.requirements.filter((r: { result: string }) => r.result === "pass").length,
     failCount: a11y.requirements.filter((r: { result: string }) => r.result === "fail").length,
     deferredCount: a11y.requirements.filter((r: { result: string }) => r.result === "unexecuted (deferred)").length,
+    unexecutedCount: a11y.requirements.filter((r: { result: string }) => r.result === "unexecuted").length,
     remainingObjectiveDefects: a11y.summary.remainingDefects,
     screenReaderDeferred: a11y.summary.actualScreenReaderChecksUnexecuted,
   },
@@ -144,8 +145,9 @@ const result = {
     protectedManifest &&
     approvedIds.length === 162 &&
     a11y.summary.remainingDefects === 0 &&
-    a11y.requirements.filter((r: { result: string }) => r.result === "pass").length === 89 &&
-    a11y.requirements.filter((r: { result: string }) => r.result === "fail").length === 0,
+    a11y.requirements.filter((r: { result: string }) => r.result === "pass").length === 88 &&
+    a11y.requirements.filter((r: { result: string }) => r.result === "fail").length === 0 &&
+    a11y.requirements.filter((r: { result: string }) => r.result === "unexecuted").length === 1,
 };
 
 writeFileSync(join(OUT, "final-verification.json"), JSON.stringify(result, null, 2));
