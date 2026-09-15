@@ -42,9 +42,19 @@ mkdirSync(OUT, { recursive: true });
 const endingSha = execSync("git rev-parse HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
 writeFileSync(join(OUT, "ending-sha.txt"), `${endingSha}\n`);
 
+execSync("bun run scripts/phase2/run-human-keyboard-qa.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/run-accessibility-qa.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/generate-accessibility-reconciliation.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/run-typescript-measurement.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/run-typescript-baseline-reconciliation.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/run-typescript-measurement-chronology.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/generate-x-test-inventory.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/reconcile-x-inventory-delta.ts", { cwd: ROOT, stdio: "inherit" });
+execSync("bun run scripts/phase2/generate-git-sha-reconciliation.ts", { cwd: ROOT, stdio: "inherit" });
+
 const fiveRuns = [];
 for (let i = 1; i <= 5; i += 1) {
-  fiveRuns.push({ run: i, ...run("bun test 2>&1") });
+  fiveRuns.push({ run: i, gitSha: endingSha, ...run("bun test 2>&1") });
 }
 writeFileSync(join(OUT, "stability-five-full-suite-runs.json"), JSON.stringify(fiveRuns, null, 2));
 
@@ -52,15 +62,14 @@ const msgSidRuns = [];
 for (let i = 1; i <= 3; i += 1) {
   msgSidRuns.push({
     run: i,
+    gitSha: endingSha,
     ...run('bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1'),
   });
 }
 writeFileSync(join(OUT, "stability-messagesid-three-runs.json"), JSON.stringify(msgSidRuns, null, 2));
 
-execSync("bun run scripts/phase2/run-typescript-measurement.ts", { cwd: ROOT, stdio: "inherit" });
 execSync("bun run scripts/phase2/run-safe-qa-build-evidence.ts", { cwd: ROOT, stdio: "inherit" });
 execSync("bun run scripts/phase2/generate-approved-id-reconciliation.ts", { cwd: ROOT, stdio: "inherit" });
-execSync("bun run scripts/phase2/generate-additional-tests-table.ts", { cwd: ROOT, stdio: "inherit" });
 
 execSync(
   `bun -e "import m from './tests/fixtures/phase2-baseline/protected-manifest.json'; import {createHash} from 'crypto'; import {readFileSync,writeFileSync} from 'fs'; const rows=Object.entries(m.files).map(([p,h])=>{const c=createHash('sha256').update(readFileSync(p)).digest('hex'); return {baselinePath:p,baselineSha256:h,currentSha256:c,match:c===h};}); writeFileSync('review-artifacts/phase2/protected-manifest-table.json', JSON.stringify(rows,null,2));"`,
@@ -112,8 +121,15 @@ const result = {
   sParity: parity,
   protectedManifestZeroDiff: protectedManifest,
   approvedIdReconciliation: { rowCount: approvedIds.length, exact: approvedIds.length === 162 },
-  xTestsOutside162: { rowCount: additionalTests.length, confirmed: additionalTests.length >= 70 },
+  xTestsOutside162: {
+    rowCount: additionalTests.length,
+    uniqueIds: new Set(additionalTests.map((r: { id: string }) => r.id)).size,
+    confirmed: additionalTests.length >= 78,
+  },
   accessibility: {
+    passCount: a11y.requirements.filter((r: { result: string }) => r.result === "pass").length,
+    failCount: a11y.requirements.filter((r: { result: string }) => r.result === "fail").length,
+    deferredCount: a11y.requirements.filter((r: { result: string }) => r.result === "unexecuted (deferred)").length,
     remainingObjectiveDefects: a11y.summary.remainingDefects,
     screenReaderDeferred: a11y.summary.actualScreenReaderChecksUnexecuted,
   },
@@ -127,7 +143,9 @@ const result = {
     parity.status === 0 &&
     protectedManifest &&
     approvedIds.length === 162 &&
-    a11y.summary.remainingDefects === 0,
+    a11y.summary.remainingDefects === 0 &&
+    a11y.requirements.filter((r: { result: string }) => r.result === "pass").length === 89 &&
+    a11y.requirements.filter((r: { result: string }) => r.result === "fail").length === 0,
 };
 
 writeFileSync(join(OUT, "final-verification.json"), JSON.stringify(result, null, 2));
