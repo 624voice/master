@@ -694,32 +694,40 @@ Evidence: `review-artifacts/phase2/final-verification.json`, `stability-five-ful
 
 ---
 
-## Item 2 — Six test-scope TypeScript diagnostic rows (`84 − 3 + 3 = 84`)
+## Item 2 — Test-scope TypeScript canonical pairing (`84 − 3 + 3 = 84` raw keys → **84 unchanged**)
 
-The three removed and three introduced rows are the **same logical defects**; diagnostic **keys** differ only because TypeScript embeds absolute path prefixes (baseline worktree vs current workspace) in cross-module type error messages.
+Raw diagnostic keys showed 3 removed + 3 introduced at the same total (84). Explicit canonical pairing proves all three are **unchanged legacy diagnostics**; raw keys differed by workspace prefix and/or TypeScript union-member print order only.
 
-### Removed (baseline only)
+**Mechanically recomputed test-scope totals (canonical comparison at `d54286e`):**
 
-| # | File | Baseline line:col | Code | Message (sanitized) | Why removed | Responsible change | Classification |
-|---|------|-------------------|------|---------------------|-------------|-------------------|----------------|
-| R1 | `src/server/speed2Lead/agent/scheduling/state.ts` | 91:5 | TS2322 | AvailabilityPreference from scheduling/types not assignable to sessionMemoryTypes AvailabilityPreference | Key used `.phase2-ts-baseline-worktree/` path prefix | Baseline measured in detached worktree; path string in diagnostic key | Unrelated legacy speed2Lead |
-| R2 | `src/server/speed2Lead/session.memory.test.ts` | 51:7 | TS2353 | Object literal specifies unknown property `lastName` | Key used baseline worktree path prefix | Same comparable measurement; key normalization | Unrelated legacy speed2Lead test |
-| R3 | `src/server/speed2Lead/session.memory.test.ts` | 75:7 | TS2322 | `"plumbing"` not assignable to trade union | Key used baseline worktree path prefix | Same comparable measurement; key normalization | Unrelated legacy speed2Lead test |
+| Metric | Count |
+|--------|------:|
+| Baseline diagnostics | 84 |
+| Current diagnostics | 84 |
+| Unchanged | **84** |
+| Removed | **0** |
+| Introduced | **0** |
 
-### Introduced (current only)
+Raw-key arithmetic (audit trail only): `84 − 3 + 3 = 84`.
 
-| # | File | Current line:col | Code | Message (sanitized) | Why introduced | Underlying defect at baseline? | Classification |
-|---|------|------------------|------|---------------------|----------------|-------------------------------|----------------|
-| I1 | `src/server/speed2Lead/agent/scheduling/state.ts` | 91:5 | TS2322 | AvailabilityPreference from scheduling/types not assignable to sessionMemoryTypes AvailabilityPreference | Key uses `/workspace/` path prefix | **Yes** — pre-existing | Unrelated legacy speed2Lead |
-| I2 | `src/server/speed2Lead/session.memory.test.ts` | 51:7 | TS2353 | Object literal specifies unknown property `lastName` | Key uses current workspace path prefix | **Yes** — pre-existing | Unrelated legacy speed2Lead test |
-| I3 | `src/server/speed2Lead/session.memory.test.ts` | 75:7 | TS2322 | `"plumbing"` not assignable to trade union | Key uses current workspace path prefix | **Yes** — pre-existing | Unrelated legacy speed2Lead test |
+Full pairing artifact: `review-artifacts/phase2/typescript-test-scope-canonical-pairing.json`
+
+### Three-row explicit pairing table
+
+| Pair | Baseline abs path | Current abs path | Canonical repo path | Baseline L:C | Current L:C | Code (B/C) | Codes match | L:C match | Paths match | Canonical msgs match | Only raw prefix/order diff | Existed at `05def6b` | Phase 2 modified | Classification |
+|------|-------------------|------------------|---------------------|--------------|-------------|------------|-------------|-----------|-------------|----------------------|---------------------------|---------------------|------------------|----------------|
+| P-1 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/state.ts` | `/workspace/src/server/speed2Lead/agent/scheduling/state.ts` | `src/server/speed2Lead/agent/scheduling/state.ts` | 91:5 | 91:5 | TS2322 / TS2322 | yes | yes | yes | yes | yes (workspace prefix in `import()` paths) | yes | no | unchanged legacy |
+| P-2 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/session.memory.test.ts` | `/workspace/src/server/speed2Lead/session.memory.test.ts` | `src/server/speed2Lead/session.memory.test.ts` | 51:7 | 51:7 | TS2353 / TS2353 | yes | yes | yes | yes | yes (union print order in type string) | yes | no | unchanged legacy |
+| P-3 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/session.memory.test.ts` | `/workspace/src/server/speed2Lead/session.memory.test.ts` | `src/server/speed2Lead/session.memory.test.ts` | 75:7 | 75:7 | TS2322 / TS2322 | yes | yes | yes | yes | yes (union print order in type string) | yes | no | unchanged legacy |
+
+Sanitized raw and canonicalized messages for each pair are preserved in the pairing artifact (not repeated here in full).
 
 **Explicit confirmations:**
 
-- None of the three introduced diagnostics is in a new or modified Phase 2 file.
-- None resulted from weakening or narrowing the TypeScript measurement scope.
-- Complete Phase 2 inventory (109 files in reconciliation artifact): **zero diagnostics** under covering configs.
-- Arithmetic: **84 − 3 + 3 = 84** ✓
+- None of the three diagnostics is in a new or modified Phase 2 file.
+- None resulted from weakening or narrowing TypeScript measurement scope.
+- Complete Phase 2 inventory (109 files): **zero diagnostics** under covering configs.
+- Do **not** describe these three as removed, introduced, or “introduced yet pre-existing.”
 
 ---
 
@@ -738,20 +746,29 @@ After owner completes the checklist, record results in `accessibility-human-keyb
 
 ---
 
-## Item 4 — Final SHA alignment
+## Item 4 — PR HEAD currency and post-verification change classification
 
-| Role | SHA |
-|------|-----|
-| Final executable / verification SHA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
-| Evidence-only commits after verification | This commit (report + review-artifacts + evidence script labeling only) |
-| Actual PR #97 HEAD (prior) | `f2cf13de6468a673359acf7610c3458ba94bd9c6` |
+**Verified executable SHA:** `d54286ec9f875d7627c3a027bf7407664389f4e6` (unchanged)
+
+| Role | Full SHA |
+|------|----------|
+| Verified executable SHA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
+| Post-verification evidence-script commit (`9412e9dea…`) | `9412e9d9b9b04b83d5e374bc33955a48e3e53f2f` |
+| Last reported PR HEAD | `c1e0551ea5dcff50dacf850b1f7c770e9affe758` |
+| Commits after `c1e0551` | **none** (this response updates HEAD) |
+| **Actual current PR #97 HEAD** | **pending this evidence commit** |
 
 ```
-git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..f2cf13de6468a673359acf7610c3458ba94bd9c6
-# docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md + review-artifacts/phase2/* only (evidence-only)
+git log --oneline --decorate d54286ec9f875d7627c3a027bf7407664389f4e6..HEAD
+c1e0551 (origin/cursor/phase2-assessment-build-e498) Phase 2 final substantiation: d54286e verification, A11Y-090 gap, TS rows
+9412e9d Correct A11Y-090 evidence scripts: unexecuted until human attestation
+f2cf13d Record evidence-only PR HEAD SHA and final-executable diff
+31056e0 Phase 2 final acceptance: evidence, verification at d54286e, report
 ```
 
-Post-`f2cf13d` commits from this pass remain evidence-only (docs, review-artifacts, accessibility evidence script labeling).
+**Important:** The range `d54286e..HEAD` is **not** strictly evidence-only. Four scripts under `scripts/phase2/` changed in `9412e9d` (accessibility labeling and verification gate counts). Those are **post-verification evidence-tooling corrections** — they correct misleading labels and comparison output; they do **not** change application runtime, test assertions, or any gate result recorded at `d54286e`. Accepted verification artifacts at `d54286e` remain authoritative.
+
+Per-commit and per-file classification: `review-artifacts/phase2/post-verification-commit-classification.json`
 
 ---
 
