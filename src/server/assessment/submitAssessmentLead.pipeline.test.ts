@@ -127,9 +127,11 @@ describe("submitAssessmentLead pipeline", () => {
     });
 
     expect(startAgent).toHaveBeenCalledTimes(1);
-    const payload = startAgent.mock.calls[0]?.[0] as {
-      annualOpportunity: string;
-    };
+    const call = startAgent.mock.calls[0] as unknown as
+      | [{ annualOpportunity: string }]
+      | undefined;
+    expect(call).toBeDefined();
+    const payload = call![0];
     expect(payload.annualOpportunity).toMatch(/^\$/);
     expect(payload.annualOpportunity).not.toBe("not available");
   });

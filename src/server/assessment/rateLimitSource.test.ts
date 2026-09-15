@@ -140,7 +140,7 @@ describe("checkAssessmentSourceRateLimit supplemental", () => {
     });
 
     expect(evalMock).toHaveBeenCalledTimes(1);
-    const [script, keys, args] = evalMock.mock.calls[0] as [
+    const [script, keys, args] = evalMock.mock.calls[0] as unknown as [
       string,
       string[],
       string[],
@@ -293,7 +293,10 @@ describe("checkAssessmentPhoneIdempotency supplemental", () => {
 
   test("S-IDEM-10: case c replay_conflict when phone limit exceeded", async () => {
     const { evalMock } = mockRedisPipeline();
-    evalMock.mockResolvedValueOnce(["c", "replay_conflict", 0, 5, null]);
+    evalMock.mockResolvedValueOnce(["c", "replay_conflict", 0, 5, ""] as (
+      | string
+      | number
+    )[]);
 
     const { checkAssessmentPhoneIdempotency } = await import(
       "~/server/assessment/rateLimitSource"

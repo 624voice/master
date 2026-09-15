@@ -9,7 +9,7 @@ import {
   LIFECYCLE_STAGES,
 } from "~/components/CustomerLifecycleDiagram";
 
-const REPO_ROOT = join(import.meta.dir, "../..");
+const REPO_ROOT = join(import.meta.dirname, "../..");
 const APPROVED_PNG_HASH =
   "ca710e111e59a4c8aa0c219290b902a85613e9cbd2b13d532205d4a8e250bbeb";
 

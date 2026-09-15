@@ -58,13 +58,14 @@ describe("Assessment browser and transport PII boundaries", () => {
     }
 
     expect(LIMITED_PAYLOAD_ANALYTICS_EVENTS.size).toBe(4);
+    const expectedLimitedEvents = new Set<string>([
+      ANALYTICS_EVENTS.lead_gate_complete,
+      ANALYTICS_EVENTS.sms_consent_opt_in,
+      ANALYTICS_EVENTS.assessment_complete,
+      ANALYTICS_EVENTS.roi_agent_triggered,
+    ]);
     for (const event of LIMITED_PAYLOAD_ANALYTICS_EVENTS) {
-      expect([
-        ANALYTICS_EVENTS.lead_gate_complete,
-        ANALYTICS_EVENTS.sms_consent_opt_in,
-        ANALYTICS_EVENTS.assessment_complete,
-        ANALYTICS_EVENTS.roi_agent_triggered,
-      ]).toContain(event);
+      expect(expectedLimitedEvents.has(event)).toBe(true);
     }
 
     const prohibitedCount = Object.values(ANALYTICS_EVENTS).filter(
