@@ -694,17 +694,17 @@ Evidence: `review-artifacts/phase2/final-verification.json`, `stability-five-ful
 
 ---
 
-## Item 2 — Test-scope TypeScript canonical pairing (`84 − 3 + 3 = 84` raw keys → **84 unchanged**)
+## Item 2 — Test-scope TypeScript canonical pairing (approved rules only)
 
-Raw diagnostic keys showed 3 removed + 3 introduced at the same total (84). Explicit canonical pairing proves all three are **unchanged legacy diagnostics**; raw keys differed by workspace prefix and/or TypeScript union-member print order only.
-
-**Mechanically recomputed test-scope totals (canonical comparison at `d54286e`):**
+Raw diagnostic keys showed 3 removed + 3 introduced at the same total (84). Under **approved** canonicalization (workspace/worktree path prefixes and embedded absolute paths only — **no union-literal reordering**):
 
 | Metric | Count |
 |--------|------:|
 | Baseline diagnostics | 84 |
 | Current diagnostics | 84 |
-| Unchanged | **84** |
+| Unchanged (identical raw keys) | **81** |
+| Confirmed unchanged pairs (approved canonicalization) | **1** (P-1) |
+| Non-comparable pairs (toolchain delta) | **2** (P-2, P-3) |
 | Removed | **0** |
 | Introduced | **0** |
 
@@ -712,22 +712,46 @@ Raw-key arithmetic (audit trail only): `84 − 3 + 3 = 84`.
 
 Full pairing artifact: `review-artifacts/phase2/typescript-test-scope-canonical-pairing.json`
 
+### Toolchain comparability (P-2 / P-3 investigation)
+
+| Fingerprint | Baseline worktree (`05def6b`) | Current (`d54286e`) | Match |
+|-------------|------------------------------|---------------------|-------|
+| Bun | 1.3.14 | 1.3.14 | yes |
+| TypeScript | 5.9.3 | 5.9.3 | yes |
+| `package.json` sha256 | `9a58b4c8793524c67fba3bb249607a52b93629111e818b3e466a8a627e96f0c3` | `8f3421087481a1a4518c5275e9fc3e687c054aa61fc540b09af6dae7077951f1` | **no** |
+| `bun.lock` sha256 | `289d0babb5139a9590a424a3f9834bd26e53008b8ba289b6f9a591b7fabee446` | `f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c` | **no** |
+| `tsconfig.test.json` sha256 | `893123c22bc89534cc740a7a0ca572a9337670e2ab81a18097104e54966e5373` (patched at measure time) | `6a1058e309801cc2be3fd0c7c7ad2e992212b1390592dcfa25dda3872cc279c0` | **no** |
+
+**Conclusion:** Measurement environments are **not comparable** for union-order pairing. P-2 and P-3 are **disqualified** from “unchanged” classification under anti-gaming rules despite identical source file, line, column, and code. The union-member print order in diagnostic text likely reflects dependency/tsconfig graph differences between the baseline worktree install and the current verification tree, not a source edit (`TradeKey` remains `keyof typeof CALL_VOLUME_TRADES` in `src/lib/roi/callVolume.ts`; `createSession` signature unchanged).
+
 ### Three-row explicit pairing table
 
-| Pair | Baseline abs path | Current abs path | Canonical repo path | Baseline L:C | Current L:C | Code (B/C) | Codes match | L:C match | Paths match | Canonical msgs match | Only raw prefix/order diff | Existed at `05def6b` | Phase 2 modified | Classification |
-|------|-------------------|------------------|---------------------|--------------|-------------|------------|-------------|-----------|-------------|----------------------|---------------------------|---------------------|------------------|----------------|
-| P-1 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/state.ts` | `/workspace/src/server/speed2Lead/agent/scheduling/state.ts` | `src/server/speed2Lead/agent/scheduling/state.ts` | 91:5 | 91:5 | TS2322 / TS2322 | yes | yes | yes | yes | yes (workspace prefix in `import()` paths) | yes | no | unchanged legacy |
-| P-2 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/session.memory.test.ts` | `/workspace/src/server/speed2Lead/session.memory.test.ts` | `src/server/speed2Lead/session.memory.test.ts` | 51:7 | 51:7 | TS2353 / TS2353 | yes | yes | yes | yes | yes (union print order in type string) | yes | no | unchanged legacy |
-| P-3 | `/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/session.memory.test.ts` | `/workspace/src/server/speed2Lead/session.memory.test.ts` | `src/server/speed2Lead/session.memory.test.ts` | 75:7 | 75:7 | TS2322 / TS2322 | yes | yes | yes | yes | yes (union print order in type string) | yes | no | unchanged legacy |
+| Pair | Canonical msgs match (approved rules) | Classification |
+|------|--------------------------------------|----------------|
+| P-1 | yes | unchanged legacy (workspace prefix only) |
+| P-2 | **no** | **non-comparable** (toolchain delta) |
+| P-3 | **no** | **non-comparable** (toolchain delta) |
 
-Sanitized raw and canonicalized messages for each pair are preserved in the pairing artifact (not repeated here in full).
+#### P-1 — full canonicalized messages
+
+- **Baseline:** `Type 'import("src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.`
+- **Current:** `Type 'import("src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.`
+
+#### P-2 — full canonicalized messages (union order differs; **not** normalized)
+
+- **Baseline:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.`
+- **Current:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.`
+
+#### P-3 — full canonicalized messages (union order differs; **not** normalized)
+
+- **Baseline:** `Type '"plumbing"' is not assignable to type '"Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined'.`
+- **Current:** `Type '"plumbing"' is not assignable to type '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined'.`
 
 **Explicit confirmations:**
 
 - None of the three diagnostics is in a new or modified Phase 2 file.
-- None resulted from weakening or narrowing TypeScript measurement scope.
 - Complete Phase 2 inventory (109 files): **zero diagnostics** under covering configs.
-- Do **not** describe these three as removed, introduced, or “introduced yet pre-existing.”
+- P-2/P-3 must **not** be described as unchanged via union-order normalization.
 
 ---
 
@@ -743,6 +767,37 @@ Sanitized raw and canonicalized messages for each pair are preserved in the pair
 - Misleading `accessibility-human-keyboard-qa.json` removed.
 
 After owner completes the checklist, record results in `accessibility-human-keyboard-owner-attestation.json` exactly as supplied.
+
+---
+
+## Blocker B — Safe preview script enforcement (`start-safe-assessment-preview.ts`)
+
+The preview script now builds an **isolated child-process environment** via `scripts/phase2/safePreviewEnvironment.ts`. Parent-shell credentials are never copied through; `assertSafePreviewEnvironment()` runs fail-closed before spawn.
+
+**Executable proof:** `bun test scripts/phase2/start-safe-assessment-preview.test.ts` (8/8 pass). Evidence: `review-artifacts/phase2/safe-preview-isolation-results.json`.
+
+**Safe adapters (walkthrough paths):** in-memory Redis stub, local webhook stub, local HMAC secret, SMS/email/CRM/agent providers disabled via absent credentials + forced flags.
+
+**Exact safe command** (after checkout per Blocker C):
+
+```bash
+bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts
+```
+
+Chris does **not** need to manually unset parent-shell credentials; the script excludes them programmatically.
+
+---
+
+## Blocker C — Safe startup checkout SHA
+
+| Role | SHA |
+|------|-----|
+| Application behavior verified for keyboard QA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
+| Safe startup checkout (contains hardened preview script) | **`6462cfa545475ad5390c3cf9c9480b50ff1cb677`** (or later PR HEAD on this branch with same `src/` tree) |
+
+**Proof application behavior unchanged:** `git diff --name-only d54286e..<safe-startup-sha> -- src/` is **empty** (zero application route/runtime files differ; only `docs/`, `scripts/phase2/`, and `review-artifacts/phase2/` changed).
+
+Option (a) applies: checkout the safe-startup SHA (not bare `d54286e`, which predates the preview script at `b3e2283`).
 
 ---
 

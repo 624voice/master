@@ -2,6 +2,9 @@
   "checklistId": "A11Y-090-owner-human-keyboard",
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
   "purpose": "Human-operated keyboard-only QA across all public routes and the full assessment journey. Automated Puppeteer coverage in accessibility-automated-keyboard-supplement.json does NOT satisfy this row.",
+  "applicationBehaviorGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "safeStartupGitSha": "TO_BE_SET_ON_COMMIT",
+  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..<safeStartupGitSha> -- src/ returns empty",
   "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
   "operatorInstructions": {
     "who": "Chris (owner) — a real person, not automation",
@@ -14,17 +17,16 @@
       "Do NOT use Puppeteer, Playwright, scripted input, or an AI-controlled browser",
       "STOP immediately if any action appears able to contact a live SMS, call, email, lead, webhook, CRM, Redis production write, or analytics provider"
     ],
-    "credentialRule": "Do not expose, print, copy, or edit production credentials. Ensure they are unset or unreachable before starting."
+    "credentialRule": "Do not expose, print, copy, or edit production credentials. The safe preview script programmatically excludes parent-shell credentials — manual unset is not required."
   },
   "safeProcedure": {
-    "summary": "Local isolated preview with safe backend only — no production credentials, no live providers.",
-    "startupCommand": "git checkout d54286ec9f875d7627c3a027bf7407664389f4e6 && bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "summary": "Checkout safe-startup SHA (contains hardened preview script). Application routes match d54286e; script builds isolated child env.",
+    "startupCommand": "git checkout <safeStartupGitSha> && bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
-    "confirmSafeMode": "Terminal prints 'Safe preview ready: http://127.0.0.1:3000' and states stripped credentials / Redis stub. Open the URL in a normal browser; use keyboard only.",
+    "confirmSafeMode": "Terminal prints adapter summary, 'Child environment verified', then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser; keyboard only.",
     "shutdownCommand": "Press Ctrl+C in the terminal running the preview script",
     "steps": [
-      "git checkout d54286ec9f875d7627c3a027bf7407664389f4e6",
-      "Ensure TWILIO_*, SENDGRID_*, UPSTASH_*, GOOGLE_*, and ASSESSMENT_ROI_AGENT_LIVE_ENABLED are unset or unreachable",
+      "git checkout <safeStartupGitSha> (NOT bare d54286e — preview script did not exist there)",
       "bun install",
       "bun run build",
       "bun run scripts/phase2/start-safe-assessment-preview.ts",
@@ -32,7 +34,7 @@
       "Using only a physical keyboard, complete every check below",
       "Record PASS or FAIL and notes; save completed results as accessibility-human-keyboard-owner-attestation.json"
     ],
-    "safeEnvironment": "buildAssessmentBrowserServer({ safeBackend: true }) — Redis stub, stripped credentials, no live SMS/call/email/CRM/webhook/analytics dispatch"
+    "safeEnvironment": "scripts/phase2/safePreviewEnvironment.ts — isolated child env, Redis stub, forced ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false, no live providers"
   },
   "operatorFields": {
     "operatorRoleOrIdentifier": "NOT YET EXECUTED",
