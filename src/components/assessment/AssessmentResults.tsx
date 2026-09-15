@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BOOK_MEETING_PATH } from "~/config/features";
 import { Button } from "~/components/ui/Button";
 import type { RunAssessmentResult } from "~/lib/assessment/runAssessment";
@@ -6,6 +7,9 @@ import { selectModerateScenarioValue } from "~/lib/assessment/selectModerateScen
 
 const DISCLAIMER =
   "This Assessment is directional and based on the information you provided. It is a starting point, not a full operational diagnosis. A paid AI Revenue and Operations Diagnostic is used only when a deeper review is warranted.";
+
+const REPORT_UNAVAILABLE_MESSAGE =
+  "Report temporarily unavailable. Please try again in a moment.";
 
 type AssessmentResultsProps = {
   results: RunAssessmentResult;
@@ -32,6 +36,37 @@ export function AssessmentResults({
   const moderateValue =
     results.dollarEstimate &&
     selectModerateScenarioValue(results.dollarEstimate);
+
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  async function handleReportDownload() {
+    if (!reportUrl || isDownloading) return;
+    onReportDownload?.();
+    setIsDownloading(true);
+    setReportError(null);
+    try {
+      const response = await fetch(reportUrl);
+      if (!response.ok) {
+        const body = (await response.text()).trim();
+        setReportError(body || REPORT_UNAVAILABLE_MESSAGE);
+        return;
+      }
+      const contentType = response.headers.get("content-type") ?? "";
+      if (contentType.includes("pdf")) {
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        window.open(objectUrl, "_blank", "noopener,noreferrer");
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+        return;
+      }
+      window.open(reportUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      setReportError(REPORT_UNAVAILABLE_MESSAGE);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -130,6 +165,29 @@ export function AssessmentResults({
 
       <p className="text-xs leading-relaxed text-gray-500">{DISCLAIMER}</p>
 
+      {reportError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          <p>{reportError}</p>
+          {reportUrl && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-3"
+              aria-label="Try downloading assessment report again"
+              disabled={isDownloading}
+              onClick={() => void handleReportDownload()}
+            >
+              Try downloading report again
+            </Button>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <a href={BOOK_MEETING_PATH}>
           <Button type="button">Book a Meeting</Button>
@@ -138,12 +196,13 @@ export function AssessmentResults({
           <Button
             type="button"
             variant="secondary"
-            onClick={() => {
-              onReportDownload?.();
-              window.open(reportUrl, "_blank", "noopener,noreferrer");
-            }}
+            data-testid="assessment-report-download"
+            data-report-url={reportUrl}
+            disabled={isDownloading}
+            aria-busy={isDownloading}
+            onClick={() => void handleReportDownload()}
           >
-            Download Assessment Report
+            {isDownloading ? "Preparing report…" : "Download Assessment Report"}
           </Button>
         )}
       </div>

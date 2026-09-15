@@ -5,7 +5,7 @@
  *
  * Run: bun run scripts/phase2/run-accessibility-qa.ts
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Page } from "puppeteer-core";
 import {
@@ -1241,17 +1241,37 @@ async function runAssessmentKeyboardJourney(page: Page) {
     evidenceRef: evidenceRef("assessmentJourney.reportAction"),
     supportingEvidence: KEYBOARD_EVIDENCE,
   });
+  const recoveryReachable = await page.evaluate(() => {
+    const retry = document.querySelector(
+      '[aria-label="Try downloading assessment report again"]',
+    ) as HTMLButtonElement | null;
+    if (!retry) return { reachable: false, accessibleName: null };
+    retry.focus();
+    return {
+      reachable: document.activeElement === retry,
+      accessibleName: retry.getAttribute("aria-label"),
+    };
+  });
+  journey.reportAction = {
+    ...(journey.reportAction as Record<string, unknown>),
+    recoveryReachable,
+  };
   addRow({
     requirement: "Status announcements — report failure",
     routeOrState: "/assessment results report 503",
     method: "Accessibility-tree inspection",
-    result: reportFailLive.found ? "pass" : "N/A",
+    result:
+      reportFailLive.found &&
+      reportFail.access.status === 503 &&
+      recoveryReachable.reachable
+        ? "pass"
+        : "fail",
     defectFound: "none",
-    correctionMade: "none",
+    correctionMade: reportFailLive.found ? "none" : "AssessmentResults role=alert on fetch failure",
     evidenceRef: evidenceRef("liveRegions.report-failure"),
     supportingEvidence: reportFailLive.found
-      ? undefined
-      : "Report failure surfaced via window.open/fetch; no persistent role=alert in DOM",
+      ? `role=alert visible; recovery aria-label=${recoveryReachable.accessibleName ?? "missing"}`
+      : "Missing role=alert or recovery control after 503",
   });
 
   await page.setViewport({ width: 375, height: 800 });
@@ -1407,17 +1427,43 @@ function writeOutputs(): void {
     evidenceRef: "review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted",
   });
 
+  const humanKbPath = join(REPO_ROOT, "review-artifacts/phase2/accessibility-human-keyboard-qa.json");
+  let humanKbResult: {
+    finalResult?: string;
+    executedAt?: string;
+    safeEnvironment?: string;
+    routesAndStatesChecked?: string[];
+    defectsFound?: string[];
+    fixesApplied?: string[];
+    retestResult?: string;
+  } | null = null;
+  if (existsSync(humanKbPath)) {
+    humanKbResult = JSON.parse(readFileSync(humanKbPath, "utf8")) as typeof humanKbResult;
+  }
+  (rawSummary.humanKeyboardQa as Record<string, unknown>) = humanKbResult ?? {
+    status: "not executed",
+  };
   addRow({
     requirement: "Manual keyboard inspection (human operator)",
     routeOrState: "All routes",
     method: "Manual keyboard inspection",
-    tool: "none",
-    result: "N/A",
-    defectFound: "none",
-    correctionMade: "none",
-    evidenceRef: evidenceRef("tooling"),
-    supportingEvidence:
-      "No human keyboard operator in CI script; Puppeteer simulation used instead (see Accessibility-tree inspection rows)",
+    tool: humanKbResult ? "human keyboard-only operator" : "none",
+    result:
+      humanKbResult?.finalResult === "pass"
+        ? "pass"
+        : humanKbResult?.finalResult === "fail" ||
+            humanKbResult?.finalResult === "incomplete" ||
+            humanKbResult?.finalResult === "blocked"
+          ? "fail"
+          : "fail",
+    defectFound:
+      humanKbResult?.defectsFound?.length ? humanKbResult.defectsFound.join("; ") : "none",
+    correctionMade:
+      humanKbResult?.fixesApplied?.length ? humanKbResult.fixesApplied.join("; ") : "none",
+    evidenceRef: "review-artifacts/phase2/accessibility-human-keyboard-qa.json",
+    supportingEvidence: humanKbResult
+      ? `Executed ${humanKbResult.executedAt}; routes=${humanKbResult.routesAndStatesChecked?.length ?? 0}`
+      : "Human keyboard QA artifact missing",
   });
 
   const inlineSummary = recalculateInlineSummary();

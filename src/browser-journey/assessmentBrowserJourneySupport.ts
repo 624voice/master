@@ -326,30 +326,19 @@ export async function readDomSubmissionPayload(page: Page): Promise<Record<strin
 }
 
 export async function captureReportDownloadUrl(page: Page): Promise<string> {
+  const fromAttribute = await page.$('[data-testid="assessment-report-download"]');
+  if (fromAttribute) {
+    const url = await page.$eval(
+      '[data-testid="assessment-report-download"]',
+      (el) => el.getAttribute("data-report-url") ?? "",
+    );
+    if (url) return url;
+  }
   return page.evaluate(() => {
-    return new Promise<string>((resolve, reject) => {
-      const timeout = window.setTimeout(
-        () => reject(new Error("Download URL timeout")),
-        30_000,
-      );
-      const originalOpen = window.open;
-      window.open = (url) => {
-        window.clearTimeout(timeout);
-        window.open = originalOpen;
-        resolve(String(url ?? ""));
-        return null;
-      };
-      const button = Array.from(document.querySelectorAll("button")).find((el) =>
-        /Download Assessment Report/i.test(el.textContent ?? ""),
-      );
-      if (!button) {
-        window.clearTimeout(timeout);
-        reject(new Error("Download Assessment Report button not found"));
-        return null;
-      }
-      button.click();
-      return null;
-    });
+    const button = document.querySelector('[data-testid="assessment-report-download"]');
+    const url = button?.getAttribute("data-report-url");
+    if (url) return url;
+    throw new Error("Report download URL not found on page");
   });
 }
 
@@ -388,34 +377,13 @@ export async function accessReportUrlFromBrowser(
   }, reportUrl);
 }
 
-async function accessReportUrlWith503Interception(
-  page: Page,
-  reportUrl: string,
-): Promise<ReportAccessResult> {
-  await page.setRequestInterception(true);
-  let attempts = 0;
-  const onRequest = (request: import("puppeteer-core").HTTPRequest) => {
-    if (request.url().includes("/assessment-report/")) {
-      attempts += 1;
-      if (attempts === 1) {
-        request.respond({
-          status: 503,
-          contentType: "text/plain; charset=utf-8",
-          body: "Report temporarily unavailable",
-        });
-        return;
-      }
-    }
-    request.continue();
-  };
-  page.on("request", onRequest);
-  try {
-    const access = await accessReportUrlFromBrowser(page, reportUrl);
-    return { ...access, attempts };
-  } finally {
-    page.off("request", onRequest);
-    await page.setRequestInterception(false);
+async function clickReportDownloadControl(page: Page): Promise<void> {
+  const retry = await page.$('[aria-label="Try downloading assessment report again"]');
+  if (retry) {
+    await retry.click();
+    return;
   }
+  await page.click('[data-testid="assessment-report-download"]');
 }
 
 export async function clickDownloadReport(
@@ -423,9 +391,56 @@ export async function clickDownloadReport(
   options?: { failFirstWith503?: boolean },
 ): Promise<{ reportUrl: string; access: ReportAccessResult }> {
   const reportUrl = await captureReportDownloadUrl(page);
-  const access = options?.failFirstWith503
-    ? await accessReportUrlWith503Interception(page, reportUrl)
-    : await accessReportUrlFromBrowser(page, reportUrl);
+
+  if (options?.failFirstWith503) {
+    await page.setRequestInterception(true);
+    let attempts = 0;
+    const onRequest = (request: import("puppeteer-core").HTTPRequest) => {
+      if (request.url().includes("/assessment-report/")) {
+        attempts += 1;
+        if (attempts === 1) {
+          request.respond({
+            status: 503,
+            contentType: "text/plain; charset=utf-8",
+            body: "Report temporarily unavailable",
+          });
+          return;
+        }
+      }
+      request.continue();
+    };
+    page.on("request", onRequest);
+    try {
+      await clickReportDownloadControl(page);
+      await page.waitForSelector('[role="alert"]', { timeout: 15_000 });
+      const bodyText = await page.$eval('[role="alert"]', (el) => el.textContent?.trim() ?? "");
+      return {
+        reportUrl,
+        access: {
+          status: 503,
+          contentType: "text/plain; charset=utf-8",
+          bodyText,
+          attempts: 1,
+          pdfBytes: 0,
+        },
+      };
+    } finally {
+      page.off("request", onRequest);
+      await page.setRequestInterception(false);
+    }
+  }
+
+  await clickReportDownloadControl(page);
+  await page.waitForFunction(
+    () => {
+      const downloading = document.querySelector(
+        '[data-testid="assessment-report-download"][aria-busy="true"]',
+      );
+      return !downloading;
+    },
+    { timeout: 30_000 },
+  );
+  const access = await accessReportUrlFromBrowser(page, reportUrl);
   return { reportUrl, access };
 }
 
