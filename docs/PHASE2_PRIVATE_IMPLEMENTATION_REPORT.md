@@ -9,7 +9,7 @@
 | Substantive code-verification SHA | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
 | Prior evidence-only SHA (`15a4a9c..3b5bceb`) | `3b5bceb637cd4e9bddad2be513bc87cb59e917d2` |
 | TS reconciliation code SHA | `9d1412156746ae9e2dca635170f356e2d2fee825` |
-| Reconciliation evidence SHA (PR HEAD) | `a795138ea8c0f8b8c8e8f8e8f8e8f8e8f8e8f8e8` |
+| Reconciliation evidence SHA (PR HEAD) | `abd3b81d69aaa5e5072c8601ba49b5b614b9b4a1` |
 | PR | #97 (draft) |
 
 **Durable evidence root:** `review-artifacts/phase2/`
