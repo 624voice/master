@@ -4,7 +4,9 @@
     "node_modules",
     "bisect-*",
     "**/*.test.ts",
-    "**/*.integration.test.ts"
+    "**/*.test.tsx",
+    "**/*.integration.test.ts",
+    "**/testSupport/**"
   ],
   "compilerOptions": {
     "target": "ES2022",

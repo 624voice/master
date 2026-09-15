@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, mock, test } from "bun:test";
 import {
   capturedOutboundSms,
   installSpeed2LeadIntegrationMocks,
@@ -6,6 +6,21 @@ import {
 } from "~/server/speed2Lead/testSupport/integrationMocks";
 
 installSpeed2LeadIntegrationMocks();
+
+const llmTurnActual = await import("~/server/speed2Lead/agent/llmTurn");
+
+/** Prevent live OpenAI calls — inbound dedup tests must stay deterministic and fast. */
+mock.module("~/server/speed2Lead/agent/llmTurn", () => ({
+  ...llmTurnActual,
+  runAgentTurn: async () => ({
+    reply: "Thanks for asking. The report covers your top priority areas.",
+    stage: "discovery" as const,
+    primary_pain: null,
+    wants_meeting: false,
+    opt_out: false,
+    discovery_answer_sufficient: false,
+  }),
+}));
 
 const { startAgentConversation } = await import("~/server/speed2Lead/agent/startConversation");
 const { startContactAgentConversation } = await import(

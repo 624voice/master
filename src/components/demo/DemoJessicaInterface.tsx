@@ -87,7 +87,7 @@ export function DemoJessicaInterface({
             onClick={onMicClick}
             disabled={micDisabled || isConnecting}
             aria-label="Start live demo with Jessica"
-            className={`relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#10b981] text-white shadow-lg shadow-[#10b981]/35 transition-all hover:scale-[1.03] hover:bg-[#059669] hover:shadow-xl hover:shadow-[#10b981]/45 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#10b981]/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 sm:h-[92px] sm:w-[92px] ${
+            className={`relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-brand-primary text-white shadow-lg shadow-brand-primary/35 transition-all hover:scale-[1.03] hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/45 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 sm:h-[92px] sm:w-[92px] ${
               callState === "idle"
                 ? "motion-safe:animate-[pulse-glow_2s_ease-in-out_infinite]"
                 : ""
@@ -102,7 +102,7 @@ export function DemoJessicaInterface({
           </button>
         ) : (
           <div
-            className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#10b981] text-white opacity-80 sm:h-[92px] sm:w-[92px]"
+            className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-brand-primary text-white opacity-80 sm:h-[92px] sm:w-[92px]"
             aria-hidden="true"
           >
             <MicIcon />
@@ -136,7 +136,7 @@ export function DemoJessicaInterface({
           <button
             type="button"
             onClick={onBookMeeting}
-            className="mt-4 w-full max-w-xs rounded-xl bg-[#10b981] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#059669]"
+            className="mt-4 w-full max-w-xs rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-dark"
           >
             Book a meeting
           </button>
@@ -146,7 +146,7 @@ export function DemoJessicaInterface({
           <button
             type="button"
             onClick={onTryAgain}
-            className="mt-4 w-full max-w-xs rounded-xl bg-[#10b981] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#059669]"
+            className="mt-4 w-full max-w-xs rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-primary-dark"
           >
             Try again
           </button>

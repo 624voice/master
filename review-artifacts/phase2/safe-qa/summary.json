@@ -1,0 +1,991 @@
+{
+  "harnessEnv": "PHASE2_SAFE_QA_HARNESS=1 (script child process only)",
+  "credentialsStripped": [
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "TWILIO_FROM_NUMBER",
+    "UPSTASH_REDIS_REST_URL",
+    "UPSTASH_REDIS_REST_TOKEN",
+    "ASSESSMENT_SECURITY_HMAC_SECRET",
+    "OPENAI_API_KEY",
+    "SPEED2LEAD_LIVE_SMOKE"
+  ],
+  "noLiveSideEffectsConfirmed": true,
+  "routes": [
+    {
+      "route": "/",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 320,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 320,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 375,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 375,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 390,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 390,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 430,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 430,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 768,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 768,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 1024,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 1024,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 42,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice: AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/what-we-do",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/how-we-work",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/how-we-work",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "How 624 Voice Works | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/demo",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/demo",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 31,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/about",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/about",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "About 624 Voice | AI Growth Systems for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/contact",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/contact",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 41,
+        "missingAlt": 0,
+        "unlabeledInputs": 3,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/assessment",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/assessment",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 29,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/services",
+      "width": 1440,
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:3000/what-we-do",
+      "redirected": true,
+      "a11y": {
+        "focusableCount": 34,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "AI Growth Systems for Home Service Companies | 624 Voice",
+        "h1Count": 1
+      }
+    },
+    {
+      "route": "/does-not-exist-404",
+      "width": 1440,
+      "status": 404,
+      "finalUrl": "http://127.0.0.1:3000/does-not-exist-404",
+      "redirected": false,
+      "a11y": {
+        "focusableCount": 28,
+        "missingAlt": 0,
+        "unlabeledInputs": 0,
+        "issues": [],
+        "title": "624 Voice — Voice AI for Home Services",
+        "h1Count": 1
+      }
+    }
+  ],
+  "breakpoints": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "assessmentFlow_375": {
+    "log": [
+      "bp1-selected",
+      "bp2-selected",
+      "respond-continue"
+    ],
+    "smsConsentDefaultUnchecked": true,
+    "smsChecked": false
+  },
+  "assessmentFlow_1440": {
+    "log": [
+      "bp1-selected",
+      "bp2-selected",
+      "respond-continue"
+    ],
+    "smsConsentDefaultUnchecked": true,
+    "smsChecked": false
+  },
+  "keyboardFocusSmoke": {
+    "afterTab": "A"
+  }
+}

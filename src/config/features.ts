@@ -1,7 +1,25 @@
 export const FEATURE_FLAGS = {
   REQUIRE_LEAD_FOR_PDF: true,
   REQUIRE_LEAD_FOR_RESULTS: true,
+
+  // Phase2Final Part 1.A — Diagnostic fee credit terms. Owner approval pending (N).
+  SHOW_DIAGNOSTIC_CREDIT_MENTION: false,
+
+  // Phase2Final Part 1.B — Voice AI Results Guarantee. Attorney review, then owner sign-off (N).
+  SHOW_VOICE_AI_GUARANTEE: false,
+
+  // Phase2Final Part 1.C — Payment and Balance Follow-Up. Legal review required before marketing.
+  SHOW_PAYMENT_BALANCE_CARD: false,
+
+  // Phase2Final Part 1.D — footer phone/email. Owner confirms monitoring standard first.
+  SHOW_FOOTER_CONTACT_DETAILS: false,
+
+  // Phase2Final Section 7 — founder paragraph exact wording. Owner (Chris) approval pending (N).
+  SHOW_FOUNDER_PARAGRAPH_UPDATE: false,
 } as const;
+
+/** When false, assessment submissions skip live Speed2Lead ROI agent SMS. */
+export const ASSESSMENT_ROI_AGENT_LIVE_ENABLED = false;
 
 export const MAX_TRUCK_COUNT = 50;
 

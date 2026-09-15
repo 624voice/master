@@ -1,0 +1,332 @@
+{
+  "generatedAt": "2026-09-15T20:02:46.097Z",
+  "headSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "chronologicalMeasurements": [
+    {
+      "reportDate": "2026-09-15 (Phase 2 initial baseline artifact)",
+      "gitSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
+      "scope": "production",
+      "command": "bun run typecheck (tsc -p tsconfig.json)",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.json",
+      "configSha256": null,
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Baseline package.json/lockfile; no bun-types; dist/server/server.js missing at measure time",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": null,
+      "diagnosticCount": 137,
+      "countingMethod": "Count lines matching /error TS\\d+:/ in raw tsc stderr/stdout log",
+      "rawLogPath": "review-artifacts/phase2/typescript-baseline.log",
+      "differsFromPriorReason": "First accepted starting-SHA artifact (137). Incomparable to later counts: missing bun-types, missing production build output (serve.ts dist import), wider effective scope.",
+      "authoritativeFor": "Historical record only — not used as comparable baseline in final reconciliation"
+    },
+    {
+      "reportDate": "2026-09-15 (intermediate current before tsconfig scope fix)",
+      "gitSha": "15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19",
+      "scope": "production",
+      "command": "bun run typecheck",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.json",
+      "configSha256": null,
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Current package.json with bun-types devDependency",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": null,
+      "diagnosticCount": 94,
+      "countingMethod": "Count error TS lines in log",
+      "rawLogPath": "review-artifacts/phase2/typescript-current.log",
+      "differsFromPriorReason": "94 vs 137: bun-types + build + different config scope. vs 100 comparable baseline: included **/*.test.tsx in production scope (+4 test-file diagnostics) before tsconfig exclude fix.",
+      "authoritativeFor": "Superseded by post-9d14121 production measurement (90)"
+    },
+    {
+      "reportDate": "2026-09-15 (comparable baseline worktree)",
+      "gitSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
+      "scope": "production",
+      "command": "bunx tsc -p tsconfig.json",
+      "workingDirectory": ".phase2-ts-baseline-worktree",
+      "configPath": "tsconfig.json (worktree; patched excludes for comparability)",
+      "configSha256": "8f97853b2d38d434e95e1fe1ff72ae73e89b1a84a80fba13c95b66d42b256458",
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Baseline lockfile + temporary bun-types@1.3.14 in worktree only",
+      "temporaryComparisonEnv": true,
+      "includedFileCount": 1864,
+      "diagnosticCount": 100,
+      "countingMethod": "Parsed tsc output after bun install + build in worktree",
+      "rawLogPath": "review-artifacts/phase2/typescript-production-baseline.log",
+      "differsFromPriorReason": "100 vs 137: bun-types resolves Bun/import.meta; production build removes serve.ts dist error; comparable exclude/include patches; duplicate vs unique counting identical (line count).",
+      "authoritativeFor": "Comparable production baseline for final reconciliation"
+    },
+    {
+      "reportDate": "2026-09-15 (current after tsconfig scope fix)",
+      "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+      "scope": "production",
+      "command": "bun run typecheck",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.json",
+      "configSha256": "8f97853b2d38d434e95e1fe1ff72ae73e89b1a84a80fba13c95b66d42b256458",
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Current package.json/lockfile with bun-types",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": 1929,
+      "diagnosticCount": 90,
+      "countingMethod": "Parsed tsc output",
+      "rawLogPath": "review-artifacts/phase2/typescript-production-current.log",
+      "differsFromPriorReason": "90 vs 94: exclude **/*.test.tsx and **/testSupport/** from production (-4); 14 legacy unused-import removals from Phase 2 route cleanup (-10 net with overlap).",
+      "authoritativeFor": "Current production diagnostic count"
+    },
+    {
+      "reportDate": "2026-09-15 (intermediate test scope at 15a4a9c)",
+      "gitSha": "15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19",
+      "scope": "test",
+      "command": "bun run typecheck:test",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.test.json",
+      "configSha256": null,
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Current package.json; test config before .test.tsx include fix",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": null,
+      "diagnosticCount": 90,
+      "countingMethod": "Reported in prior verification artifact typescript-comparison.json (superseded)",
+      "rawLogPath": "review-artifacts/phase2/typescript-test.log (partial)",
+      "differsFromPriorReason": "90 figure counted test-scoped files still excluded from tsconfig.test.json include list (.test.tsx missing); measurement conflated production+test overlap.",
+      "authoritativeFor": "Superseded — not comparable"
+    },
+    {
+      "reportDate": "2026-09-15 (comparable test baseline)",
+      "gitSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
+      "scope": "test",
+      "command": "bunx tsc -p tsconfig.test.json",
+      "workingDirectory": ".phase2-ts-baseline-worktree",
+      "configPath": "tsconfig.test.json (worktree; bun-types + .test.tsx include patch)",
+      "configSha256": null,
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Baseline lockfile + temporary bun-types in worktree",
+      "temporaryComparisonEnv": true,
+      "includedFileCount": 1657,
+      "diagnosticCount": 84,
+      "countingMethod": "Parsed tsc output",
+      "rawLogPath": "review-artifacts/phase2/typescript-test-baseline.log",
+      "differsFromPriorReason": "Authoritative comparable test baseline",
+      "authoritativeFor": "Comparable test baseline"
+    },
+    {
+      "reportDate": "2026-09-15 (current test scope)",
+      "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+      "scope": "test",
+      "command": "bun run typecheck:test",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.test.json",
+      "configSha256": "6a1058e309801cc2be3fd0c7c7ad2e992212b1390592dcfa25dda3872cc279c0",
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Current package.json with bun-types",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": 1740,
+      "diagnosticCount": 84,
+      "countingMethod": "Parsed tsc output",
+      "rawLogPath": "review-artifacts/phase2/typescript-test-current.log",
+      "differsFromPriorReason": "84 vs spurious 90: corrected include scope for **/*.test.tsx; identical to comparable baseline 84.",
+      "authoritativeFor": "Current test diagnostic count"
+    },
+    {
+      "reportDate": "2026-09-15 (current QA scope)",
+      "gitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+      "scope": "qa",
+      "command": "bun run typecheck:qa",
+      "workingDirectory": ".",
+      "configPath": "tsconfig.qa.json",
+      "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
+      "bunVersion": "1.3.14",
+      "typescriptVersion": "Version 5.9.3",
+      "dependencyIdentity": "Current package.json",
+      "temporaryComparisonEnv": false,
+      "includedFileCount": 408,
+      "diagnosticCount": 0,
+      "countingMethod": "Parsed tsc output",
+      "rawLogPath": "review-artifacts/phase2/typescript-qa-current.log",
+      "differsFromPriorReason": "tsconfig.qa.json did not exist at 05def6b — no baseline",
+      "authoritativeFor": "Current QA diagnostic count"
+    }
+  ],
+  "reconcile137vs100": {
+    "historical137Available": true,
+    "comparableBaseline100": 100,
+    "explanation": "137 used incomparable conditions (no bun-types, no build, serve.ts dist missing). 100 uses comparable worktree with bun-types, build, and patched scope. Diagnostic-level: 37 diagnostics in 137 log are absent from 100 due to bun-types/build/scope; 100 includes diagnostics not in 137 due to resolved imports enabling deeper checking.",
+    "historical137AuthoritativeFor": "Historical acceptance record only",
+    "comparable100AuthoritativeFor": "Baseline/current reconciliation"
+  },
+  "productionArithmetic": {
+    "baseline": 100,
+    "removed": 11,
+    "introduced": 1,
+    "current": 90,
+    "formula": "100 - 11 + 1 = 90",
+    "matchesCurrent": true,
+    "removedDiagnostics": [
+      {
+        "file": "src/routes/about.tsx",
+        "line": 4,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'VoiceWaveIcon' is declared but its value is never read.",
+        "key": "src/routes/about.tsx:4:3:TS6133:'VoiceWaveIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/about.tsx",
+        "line": 5,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'PhoneRingIcon' is declared but its value is never read.",
+        "key": "src/routes/about.tsx:5:3:TS6133:'PhoneRingIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 3,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'PlumbingIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:3:3:TS6133:'PlumbingIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 4,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'HVACIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:4:3:TS6133:'HVACIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 5,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'ElectricalIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:5:3:TS6133:'ElectricalIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 6,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'PestControlIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:6:3:TS6133:'PestControlIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 7,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'RoofingIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:7:3:TS6133:'RoofingIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 8,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'PoolIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:8:3:TS6133:'PoolIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 9,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'LawnIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:9:3:TS6133:'LawnIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/routes/index.tsx",
+        "line": 11,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'VoiceWaveIcon' is declared but its value is never read.",
+        "key": "src/routes/index.tsx:11:3:TS6133:'VoiceWaveIcon' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/state.ts",
+        "line": 91,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'import(\"/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/state.ts:91:5:TS2322:Type 'import(\"/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'."
+      }
+    ],
+    "introducedDiagnostics": [
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/state.ts",
+        "line": 91,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/state.ts:91:5:TS2322:Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'."
+      }
+    ],
+    "diff94vs90": {
+      "explanation": "94 was pre-tsconfig-fix production scope including 4 test-file diagnostics",
+      "diagnosticsOnlyIn94": [
+        {
+          "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+          "line": 1,
+          "column": 40,
+          "code": "TS2307",
+          "message": "Cannot find module 'bun:test' or its corresponding type declarations.",
+          "key": "src/components/CustomerLifecycleDiagram.test.tsx:1:40:TS2307:Cannot find module 'bun:test' or its corresponding type declarations."
+        },
+        {
+          "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+          "line": 12,
+          "column": 36,
+          "code": "TS2339",
+          "message": "Property 'dir' does not exist on type 'ImportMeta'.",
+          "key": "src/components/CustomerLifecycleDiagram.test.tsx:12:36:TS2339:Property 'dir' does not exist on type 'ImportMeta'."
+        },
+        {
+          "file": "src/server/speed2Lead/testSupport/integrationMocks.ts",
+          "line": 1,
+          "column": 34,
+          "code": "TS2307",
+          "message": "Cannot find module 'bun:test' or its corresponding type declarations.",
+          "key": "src/server/speed2Lead/testSupport/integrationMocks.ts:1:34:TS2307:Cannot find module 'bun:test' or its corresponding type declarations."
+        },
+        {
+          "file": "src/server/speed2Lead/testSupport/offlineSuitePreload.ts",
+          "line": 9,
+          "column": 28,
+          "code": "TS2307",
+          "message": "Cannot find module 'bun:test' or its corresponding type declarations.",
+          "key": "src/server/speed2Lead/testSupport/offlineSuitePreload.ts:9:28:TS2307:Cannot find module 'bun:test' or its corresponding type declarations."
+        }
+      ]
+    }
+  },
+  "testArithmetic": {
+    "baseline": 84,
+    "removed": 3,
+    "introduced": 3,
+    "current": 84,
+    "formula": "84 - 3 + 3 = 84",
+    "spurious90Explanation": "90 was reported when test config omitted .test.tsx includes; corrected comparable count is 84."
+  },
+  "introducedYetPreExisting": [
+    {
+      "file": "src/server/speed2Lead/agent/scheduling/state.ts",
+      "line": 91,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+      "key": "src/server/speed2Lead/agent/scheduling/state.ts:91:5:TS2322:Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+      "classification": "Pre-existing source defect newly exposed by comparable bun-types measurement and expanded file inclusion",
+      "existedAtStartingShaSource": true,
+      "absentInComparableBaselineBecause": "Diagnostic key not emitted under baseline worktree tsc run for this file path in production scope overlap; appears when test+production scopes both type-check scheduling/state.ts under bun-types",
+      "notPhase2": true
+    }
+  ]
+}

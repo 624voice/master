@@ -13,6 +13,7 @@
     "test:smoke": "SPEED2LEAD_LIVE_SMOKE=1 bun test src",
     "typecheck": "tsc -p tsconfig.json",
     "typecheck:test": "tsc -p tsconfig.test.json",
+    "typecheck:qa": "tsc -p tsconfig.qa.json",
     "reset-s2l-test-phone": "bun run scripts/reset-s2l-test-phone.ts"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.3",
+    "bun-types": "^1.4.2",
     "pdf-parse": "^2.4.5",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.18",

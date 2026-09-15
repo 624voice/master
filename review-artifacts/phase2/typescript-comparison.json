@@ -1,0 +1,1461 @@
+{
+  "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
+  "currentHeadSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "note": "Baseline measurements run in detached worktree at 05def6b with bun install and temporary bun-types@1.3.14 added only in the worktree (baseline Git tree unmodified). Current measurements run at verification SHA with existing bun-types devDependency. Same bun 1.3.14 and tsc invocation for both sides.",
+  "production": {
+    "available": true,
+    "label": "production-current",
+    "command": "bun run typecheck",
+    "workingDirectory": "/workspace",
+    "bunVersion": "1.3.14",
+    "typescriptVersion": "Version 5.9.3",
+    "config": "tsconfig.json",
+    "configSha256": "8f97853b2d38d434e95e1fe1ff72ae73e89b1a84a80fba13c95b66d42b256458",
+    "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
+    "includedFileCount": 1929,
+    "exitStatus": 2,
+    "totalDiagnosticCount": 90,
+    "artifactLogPath": "review-artifacts/phase2/typescript-production-current.log",
+    "includedFilesInventoryPath": "review-artifacts/phase2/typescript-production-current-included-files.txt",
+    "diagnostics": [
+      {
+        "file": "serve.ts",
+        "line": 20,
+        "column": 35,
+        "code": "TS2339",
+        "message": "Property 'dir' does not exist on type 'ImportMeta'.",
+        "key": "serve.ts:20:35:TS2339:Property 'dir' does not exist on type 'ImportMeta'."
+      },
+      {
+        "file": "serve.ts",
+        "line": 37,
+        "column": 9,
+        "code": "TS2868",
+        "message": "Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.",
+        "key": "serve.ts:37:9:TS2868:Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig."
+      },
+      {
+        "file": "serve.ts",
+        "line": 39,
+        "column": 5,
+        "code": "TS2868",
+        "message": "Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.",
+        "key": "serve.ts:39:5:TS2868:Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig."
+      },
+      {
+        "file": "serve.ts",
+        "line": 42,
+        "column": 19,
+        "code": "TS7006",
+        "message": "Parameter 'req' implicitly has an 'any' type.",
+        "key": "serve.ts:42:19:TS7006:Parameter 'req' implicitly has an 'any' type."
+      },
+      {
+        "file": "serve.ts",
+        "line": 45,
+        "column": 24,
+        "code": "TS2868",
+        "message": "Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.",
+        "key": "serve.ts:45:24:TS2868:Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig."
+      },
+      {
+        "file": "serve.ts",
+        "line": 56,
+        "column": 11,
+        "code": "TS2868",
+        "message": "Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.",
+        "key": "serve.ts:56:11:TS2868:Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig."
+      },
+      {
+        "file": "src/components/RoiCalculator.tsx",
+        "line": 324,
+        "column": 11,
+        "code": "TS2322",
+        "message": "Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
+        "key": "src/components/RoiCalculator.tsx:324:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'."
+      },
+      {
+        "file": "src/components/RoiCalculator.tsx",
+        "line": 355,
+        "column": 11,
+        "code": "TS2322",
+        "message": "Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'.",
+        "key": "src/components/RoiCalculator.tsx:355:11:TS2322:Type '\"\" | \"none\" | \"has\"' is not assignable to type '\"none\" | \"has\"'."
+      },
+      {
+        "file": "src/components/RoiCalculator.tsx",
+        "line": 524,
+        "column": 20,
+        "code": "TS7053",
+        "message": "Element implicitly has an 'any' type because expression of type '\"\" | \"PestControl\" | \"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'.",
+        "key": "src/components/RoiCalculator.tsx:524:20:TS7053:Element implicitly has an 'any' type because expression of type '\"\" | \"PestControl\" | \"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\"' can't be used to index type '{ readonly Plumbers: { readonly label: \"Plumbers\"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: \"Electricians\"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'."
+      },
+      {
+        "file": "src/components/VoiceDemo.tsx",
+        "line": 154,
+        "column": 9,
+        "code": "TS2322",
+        "message": "Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
+        "key": "src/components/VoiceDemo.tsx:154:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
+      },
+      {
+        "file": "src/hooks/useVoiceDemo.ts",
+        "line": 170,
+        "column": 9,
+        "code": "TS2322",
+        "message": "Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'.",
+        "key": "src/hooks/useVoiceDemo.ts:170:9:TS2322:Type 'string[]' is not assignable to type '\"assistant.started\" | \"conversation-update\" | \"end-of-call-report\" | \"function-call\" | \"hang\" | \"language-changed\" | \"language-change-detected\" | \"model-output\" | \"phone-call-control\" | ... 17 more ... | undefined'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarBookingSmoke.ts",
+        "line": 151,
+        "column": 9,
+        "code": "TS2783",
+        "message": "'startIso' is specified more than once, so this usage will be overwritten.",
+        "key": "src/server/appointmentLifecycle/calendarBookingSmoke.ts:151:9:TS2783:'startIso' is specified more than once, so this usage will be overwritten."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarCapabilityProbe.ts",
+        "line": 185,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type 'GoogleCalendarResource' is not assignable to type 'string | T'.",
+        "key": "src/server/appointmentLifecycle/calendarCapabilityProbe.ts:185:7:TS2322:Type 'GoogleCalendarResource' is not assignable to type 'string | T'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 129,
+        "column": 5,
+        "code": "TS2741",
+        "message": "Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 171,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:171:7:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 188,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:188:5:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 284,
+        "column": 21,
+        "code": "TS2345",
+        "message": "Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:284:21:TS2345:Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 343,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:343:5:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 455,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:455:7:TS2322:Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 472,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'Date | undefined' is not assignable to type 'Date'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:472:5:TS2322:Type 'Date | undefined' is not assignable to type 'Date'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 503,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:503:5:TS2322:Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.ts",
+        "line": 1,
+        "column": 1,
+        "code": "TS6133",
+        "message": "'createSign' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.ts:1:1:TS6133:'createSign' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.ts",
+        "line": 8,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.ts:8:3:TS6133:'GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.ts",
+        "line": 497,
+        "column": 9,
+        "code": "TS6133",
+        "message": "'durationMinutes' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.ts:497:9:TS6133:'durationMinutes' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.ts",
+        "line": 702,
+        "column": 16,
+        "code": "TS6133",
+        "message": "'insertCalendarEvent' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.ts:702:16:TS6133:'insertCalendarEvent' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 195,
+        "column": 15,
+        "code": "TS2339",
+        "message": "Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:195:15:TS2339:Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 198,
+        "column": 69,
+        "code": "TS2339",
+        "message": "Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:198:69:TS2339:Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 198,
+        "column": 87,
+        "code": "TS2339",
+        "message": "Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:198:87:TS2339:Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCredentials.ts",
+        "line": 227,
+        "column": 68,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'.",
+        "key": "src/server/appointmentLifecycle/googleCredentials.ts:227:68:TS2339:Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleProviderProbe.ts",
+        "line": 114,
+        "column": 48,
+        "code": "TS2345",
+        "message": "Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'GoogleCalendarApiEvent'.",
+        "key": "src/server/appointmentLifecycle/googleProviderProbe.ts:114:48:TS2345:Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'GoogleCalendarApiEvent'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/handleInbound.ts",
+        "line": 154,
+        "column": 25,
+        "code": "TS2345",
+        "message": "Argument of type '\"cancellation_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'.",
+        "key": "src/server/appointmentLifecycle/handleInbound.ts:154:25:TS2345:Argument of type '\"cancellation_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/messages.ts",
+        "line": 33,
+        "column": 9,
+        "code": "TS6133",
+        "message": "'name' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/messages.ts:33:9:TS6133:'name' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/messages.ts",
+        "line": 61,
+        "column": 9,
+        "code": "TS6133",
+        "message": "'name' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/messages.ts:61:9:TS6133:'name' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/messages.ts",
+        "line": 93,
+        "column": 44,
+        "code": "TS2552",
+        "message": "Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?",
+        "key": "src/server/appointmentLifecycle/messages.ts:93:44:TS2552:Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?"
+      },
+      {
+        "file": "src/server/appointmentLifecycle/processEvent.ts",
+        "line": 342,
+        "column": 52,
+        "code": "TS2345",
+        "message": "Argument of type '\"phone\" | \"email\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
+        "key": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"phone\" | \"email\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/store.ts",
+        "line": 42,
+        "column": 73,
+        "code": "TS6133",
+        "message": "'now' is declared but its value is never read.",
+        "key": "src/server/appointmentLifecycle/store.ts:42:73:TS6133:'now' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 58,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_faq_business_value\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:58:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_faq_business_value\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 59,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_booking_value\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:59:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_booking_value\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 60,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_confirmation_value\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:60:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_confirmation_value\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 61,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_maintenance_value\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:61:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_maintenance_value\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 62,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_multiple_priority\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:62:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_multiple_priority\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/intents.ts",
+        "line": 63,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_not_sure_relevance\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/intents.ts:63:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_not_sure_relevance\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 25,
+        "column": 34,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:25:34:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 50,
+        "column": 35,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:50:35:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 68,
+        "column": 42,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:68:42:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 79,
+        "column": 41,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:79:41:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 193,
+        "column": 43,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:193:43:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 197,
+        "column": 39,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:197:39:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 208,
+        "column": 44,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:208:44:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/messages.ts",
+        "line": 226,
+        "column": 41,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/messages.ts:226:41:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/startConversation.ts",
+        "line": 112,
+        "column": 30,
+        "code": "TS2345",
+        "message": "Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'.",
+        "key": "src/server/demoSpeed2Lead/startConversation.ts:112:30:TS2345:Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 4,
+        "column": 8,
+        "code": "TS6133",
+        "message": "'PainCategory' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:4:8:TS6133:'PainCategory' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 240,
+        "column": 29,
+        "code": "TS6133",
+        "message": "'state' is declared but its value is never read.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:240:29:TS6133:'state' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 272,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_demo_feature\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:272:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_demo_feature\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 317,
+        "column": 34,
+        "code": "TS2339",
+        "message": "Property 'scheduleReady' does not exist on type 'MessageSignals'.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:317:34:TS2339:Property 'scheduleReady' does not exist on type 'MessageSignals'."
+      },
+      {
+        "file": "src/server/deployVersion.ts",
+        "line": 49,
+        "column": 40,
+        "code": "TS6133",
+        "message": "'now' is declared but its value is never read.",
+        "key": "src/server/deployVersion.ts:49:40:TS6133:'now' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/leads.ts",
+        "line": 4,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'validateLeadInfo' is declared but its value is never read.",
+        "key": "src/server/leads.ts:4:3:TS6133:'validateLeadInfo' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/report/renderReportPdf.server.ts",
+        "line": 94,
+        "column": 33,
+        "code": "TS2322",
+        "message": "Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
+        "key": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'."
+      },
+      {
+        "file": "src/server/report/serveReportTokenPdf.server.ts",
+        "line": 36,
+        "column": 23,
+        "code": "TS2345",
+        "message": "Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'BodyInit | null | undefined'.",
+        "key": "src/server/report/serveReportTokenPdf.server.ts:36:23:TS2345:Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'BodyInit | null | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/contactFlow/testScenarios/checks.ts",
+        "line": 4,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'buildAlreadyClearOpener' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/contactFlow/testScenarios/checks.ts:4:3:TS6133:'buildAlreadyClearOpener' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/contactFlow/testScenarios/seed.ts",
+        "line": 18,
+        "column": 15,
+        "code": "TS2459",
+        "message": "Module '\"~/server/speed2Lead/agent/contactFlow/testScenarios/types\"' declares 'InquiryClarity' locally, but it is not exported.",
+        "key": "src/server/speed2Lead/agent/contactFlow/testScenarios/seed.ts:18:15:TS2459:Module '\"~/server/speed2Lead/agent/contactFlow/testScenarios/types\"' declares 'InquiryClarity' locally, but it is not exported."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/demoFlow/openers.ts",
+        "line": 1,
+        "column": 1,
+        "code": "TS6133",
+        "message": "'AgentProfile' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/demoFlow/openers.ts:1:1:TS6133:'AgentProfile' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/demoFlow/testScenarios/seed.ts",
+        "line": 66,
+        "column": 5,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'vapiCallId' does not exist in type '{ tenantId: string; phone: string; flow?: AgentFlow | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; annualOpportunity?: string | undefined; ... 7 more ...; inquiryClarity?: InquiryClarity | undefined; }'.",
+        "key": "src/server/speed2Lead/agent/demoFlow/testScenarios/seed.ts:66:5:TS2353:Object literal may only specify known properties, and 'vapiCallId' does not exist in type '{ tenantId: string; phone: string; flow?: AgentFlow | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; annualOpportunity?: string | undefined; ... 7 more ...; inquiryClarity?: InquiryClarity | undefined; }'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/discoveryGuard.ts",
+        "line": 111,
+        "column": 66,
+        "code": "TS2554",
+        "message": "Expected 2-3 arguments, but got 4.",
+        "key": "src/server/speed2Lead/agent/discoveryGuard.ts:111:66:TS2554:Expected 2-3 arguments, but got 4."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/handleInbound.ts",
+        "line": 211,
+        "column": 15,
+        "code": "TS6133",
+        "message": "'escalated' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/handleInbound.ts:211:15:TS6133:'escalated' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/handleInbound.ts",
+        "line": 433,
+        "column": 29,
+        "code": "TS2322",
+        "message": "Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
+        "key": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/humanAlert.ts",
+        "line": 50,
+        "column": 25,
+        "code": "TS2345",
+        "message": "Argument of type '\"human_alert_send_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'.",
+        "key": "src/server/speed2Lead/agent/humanAlert.ts:50:25:TS2345:Argument of type '\"human_alert_send_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 108,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:108:5:TS2322:Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 497,
+        "column": 71,
+        "code": "TS2345",
+        "message": "Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 584,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:584:5:TS2322:Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/provider.ts",
+        "line": 204,
+        "column": 29,
+        "code": "TS2339",
+        "message": "Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/speed2Lead/agent/scheduling/provider.ts:204:29:TS2339:Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/provider.ts",
+        "line": 206,
+        "column": 41,
+        "code": "TS2339",
+        "message": "Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/speed2Lead/agent/scheduling/provider.ts:206:41:TS2339:Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/state.ts",
+        "line": 91,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/state.ts:91:5:TS2322:Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/schedulingContext.ts",
+        "line": 55,
+        "column": 7,
+        "code": "TS6133",
+        "message": "'REJECT_OFFERED_RE' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/schedulingContext.ts:55:7:TS6133:'REJECT_OFFERED_RE' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/schedulingContext.ts",
+        "line": 66,
+        "column": 7,
+        "code": "TS6133",
+        "message": "'BARE_TIME_PREFERENCE_RE' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/schedulingContext.ts:66:7:TS6133:'BARE_TIME_PREFERENCE_RE' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/schedulingContext.ts",
+        "line": 314,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'scheduling' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/schedulingContext.ts:314:3:TS6133:'scheduling' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/schedulingContext.ts",
+        "line": 963,
+        "column": 14,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '\"evening\"' have no overlap.",
+        "key": "src/server/speed2Lead/agent/schedulingContext.ts:963:14:TS2367:This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '\"evening\"' have no overlap."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/batch-1.ts",
+        "line": 5,
+        "column": 3,
+        "code": "TS6133",
+        "message": "'dateKeyInTimezone' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/testScenarios/batch-1.ts:5:3:TS6133:'dateKeyInTimezone' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/checks.ts",
+        "line": 53,
+        "column": 10,
+        "code": "TS6133",
+        "message": "'assistantMessages' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/testScenarios/checks.ts:53:10:TS6133:'assistantMessages' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/checks.ts",
+        "line": 64,
+        "column": 10,
+        "code": "TS6133",
+        "message": "'countQuestionMarks' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/testScenarios/checks.ts:64:10:TS6133:'countQuestionMarks' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/checks.ts",
+        "line": 529,
+        "column": 9,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types '\"bridge\" | \"offering_slots\"' and '\"booked\"' have no overlap.",
+        "key": "src/server/speed2Lead/agent/testScenarios/checks.ts:529:9:TS2367:This comparison appears to be unintentional because the types '\"bridge\" | \"offering_slots\"' and '\"booked\"' have no overlap."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/checks.ts",
+        "line": 625,
+        "column": 11,
+        "code": "TS6133",
+        "message": "'lower' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/testScenarios/checks.ts:625:11:TS6133:'lower' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/testScenarios/seed.ts",
+        "line": 65,
+        "column": 9,
+        "code": "TS6133",
+        "message": "'profile' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/agent/testScenarios/seed.ts:65:9:TS6133:'profile' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 145,
+        "column": 15,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:145:15:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 145,
+        "column": 40,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:145:40:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 148,
+        "column": 45,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:148:45:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/messages.ts",
+        "line": 27,
+        "column": 34,
+        "code": "TS6133",
+        "message": "'context' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/messages.ts:27:34:TS6133:'context' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/nurtureFollowUp.ts",
+        "line": 41,
+        "column": 53,
+        "code": "TS2339",
+        "message": "Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: \"demo\"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'.",
+        "key": "src/server/speed2Lead/nurtureFollowUp.ts:41:53:TS2339:Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: \"demo\"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'."
+      },
+      {
+        "file": "src/server/speed2Lead/stateMachine.ts",
+        "line": 196,
+        "column": 29,
+        "code": "TS6133",
+        "message": "'state' is declared but its value is never read.",
+        "key": "src/server/speed2Lead/stateMachine.ts:196:29:TS6133:'state' is declared but its value is never read."
+      },
+      {
+        "file": "src/server/speed2Lead/stateMachine.ts",
+        "line": 205,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'ConversationState' and '\"awaiting_goal\"' have no overlap.",
+        "key": "src/server/speed2Lead/stateMachine.ts:205:5:TS2367:This comparison appears to be unintentional because the types 'ConversationState' and '\"awaiting_goal\"' have no overlap."
+      }
+    ]
+  },
+  "testScope": {
+    "available": true,
+    "label": "test-current",
+    "command": "bun run typecheck:test",
+    "workingDirectory": "/workspace",
+    "bunVersion": "1.3.14",
+    "typescriptVersion": "Version 5.9.3",
+    "config": "tsconfig.test.json",
+    "configSha256": "6a1058e309801cc2be3fd0c7c7ad2e992212b1390592dcfa25dda3872cc279c0",
+    "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
+    "includedFileCount": 1740,
+    "exitStatus": 2,
+    "totalDiagnosticCount": 84,
+    "artifactLogPath": "review-artifacts/phase2/typescript-test-current.log",
+    "includedFilesInventoryPath": "review-artifacts/phase2/typescript-test-current-included-files.txt",
+    "diagnostics": [
+      {
+        "file": "src/lib/report/buildReportViewModel.test.ts",
+        "line": 64,
+        "column": 76,
+        "code": "TS2345",
+        "message": "Argument of type 'number' is not assignable to parameter of type 'ScenarioIndex'.",
+        "key": "src/lib/report/buildReportViewModel.test.ts:64:76:TS2345:Argument of type 'number' is not assignable to parameter of type 'ScenarioIndex'."
+      },
+      {
+        "file": "src/lib/report/renderReportPdf.test.ts",
+        "line": 39,
+        "column": 25,
+        "code": "TS18046",
+        "message": "'annots.size' is of type 'unknown'.",
+        "key": "src/lib/report/renderReportPdf.test.ts:39:25:TS18046:'annots.size' is of type 'unknown'."
+      },
+      {
+        "file": "src/lib/report/renderReportPdf.test.ts",
+        "line": 40,
+        "column": 47,
+        "code": "TS2339",
+        "message": "Property 'get' does not exist on type 'PDFObject & Record<\"size\", unknown>'.",
+        "key": "src/lib/report/renderReportPdf.test.ts:40:47:TS2339:Property 'get' does not exist on type 'PDFObject & Record<\"size\", unknown>'."
+      },
+      {
+        "file": "src/routes/api/cron/agent-no-response-followups.ts",
+        "line": 26,
+        "column": 38,
+        "code": "TS2345",
+        "message": "Argument of type '\"/api/cron/agent-no-response-followups\"' is not assignable to parameter of type 'undefined'.",
+        "key": "src/routes/api/cron/agent-no-response-followups.ts:26:38:TS2345:Argument of type '\"/api/cron/agent-no-response-followups\"' is not assignable to parameter of type 'undefined'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts",
+        "line": 90,
+        "column": 82,
+        "code": "TS2345",
+        "message": "Argument of type 'Mock<() => Promise<{ startIso: string; calendarId: string; withoutAttendee: { ok: boolean; variant: \"no_attendee\"; }; withAttendee: { ok: boolean; variant: \"with_attendee\"; }; }>>' is not assignable to parameter of type '(args: { start: string; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<{ startIso: string; calendarId: string | null; withoutAttendee: BookingProviderProbeResult; withAttendee: BookingProviderProbeResult; }>'.",
+        "key": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts:90:82:TS2345:Argument of type 'Mock<() => Promise<{ startIso: string; calendarId: string; withoutAttendee: { ok: boolean; variant: \"no_attendee\"; }; withAttendee: { ok: boolean; variant: \"with_attendee\"; }; }>>' is not assignable to parameter of type '(args: { start: string; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<{ startIso: string; calendarId: string | null; withoutAttendee: BookingProviderProbeResult; withAttendee: BookingProviderProbeResult; }>'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts",
+        "line": 91,
+        "column": 81,
+        "code": "TS2345",
+        "message": "Argument of type 'Mock<() => Promise<{ attendeeIncluded: boolean; attendeeCount: number; summaryPrefix: string; hasAttendeesField: boolean; }>>' is not assignable to parameter of type '(args: { start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; }) => Promise<{ attendeeIncluded: boolean; attendeeCount: number; sendUpdatesUsed?: string | undefined; summaryPrefix: string; hasAttendeesField: boolean; phoneSource: string; }>'.",
+        "key": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts:91:81:TS2345:Argument of type 'Mock<() => Promise<{ attendeeIncluded: boolean; attendeeCount: number; summaryPrefix: string; hasAttendeesField: boolean; }>>' is not assignable to parameter of type '(args: { start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; }) => Promise<{ attendeeIncluded: boolean; attendeeCount: number; sendUpdatesUsed?: string | undefined; summaryPrefix: string; hasAttendeesField: boolean; phoneSource: string; }>'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts",
+        "line": 94,
+        "column": 86,
+        "code": "TS2345",
+        "message": "Argument of type 'Mock<() => Promise<{ ok: boolean; mode: \"handset_book_provider_slot\"; entrypoint: \"bookProviderSlot\"; startIso: string; phoneSuffix: string; attendeeIncluded: boolean; attendeeCount: number; bookingResult: { ...; }; smokePathComparison: { ...; }; }>>' is not assignable to parameter of type '(args: { start?: string | undefined; phone?: string | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<...>'.",
+        "key": "src/server/appointmentLifecycle/calendarBookingSmoke.test.ts:94:86:TS2345:Argument of type 'Mock<() => Promise<{ ok: boolean; mode: \"handset_book_provider_slot\"; entrypoint: \"bookProviderSlot\"; startIso: string; phoneSuffix: string; attendeeIncluded: boolean; attendeeCount: number; bookingResult: { ...; }; smokePathComparison: { ...; }; }>>' is not assignable to parameter of type '(args: { start?: string | undefined; phone?: string | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<...>'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarBookingSmoke.ts",
+        "line": 151,
+        "column": 9,
+        "code": "TS2783",
+        "message": "'startIso' is specified more than once, so this usage will be overwritten.",
+        "key": "src/server/appointmentLifecycle/calendarBookingSmoke.ts:151:9:TS2783:'startIso' is specified more than once, so this usage will be overwritten."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/calendarCapabilityProbe.ts",
+        "line": 185,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type 'GoogleCalendarResource' is not assignable to type 'string | T'.",
+        "key": "src/server/appointmentLifecycle/calendarCapabilityProbe.ts:185:7:TS2322:Type 'GoogleCalendarResource' is not assignable to type 'string | T'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 129,
+        "column": 5,
+        "code": "TS2741",
+        "message": "Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:129:5:TS2741:Property 'attendeeCount' is missing in type '{ failureStage: \"recheck_failed\"; }' but required in type 'Pick<BookingProviderProbeResult, \"failureStage\" | \"httpStatus\" | \"googleErrorReason\" | \"sendUpdatesUsed\" | \"attendeeCount\" | \"googleErrorMessage\" | \"eventStartIso\" | \"eventEndIso\">'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 171,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:171:7:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 188,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:188:5:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 284,
+        "column": 21,
+        "code": "TS2345",
+        "message": "Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:284:21:TS2345:Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 343,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'string | undefined' is not assignable to type 'string | null'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:343:5:TS2322:Type 'string | undefined' is not assignable to type 'string | null'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 455,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:455:7:TS2322:Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 472,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'Date | undefined' is not assignable to type 'Date'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:472:5:TS2322:Type 'Date | undefined' is not assignable to type 'Date'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts",
+        "line": 503,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.",
+        "key": "src/server/appointmentLifecycle/googleBookingProviderProbe.ts:503:5:TS2322:Type '{ smokeUses: \"createConsultationEvent\"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: \"createConsultationEvent\"; handsetUses: \"bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent\"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts",
+        "line": 302,
+        "column": 39,
+        "code": "TS2339",
+        "message": "Property 'createRequest' does not exist on type '{}'.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts:302:39:TS2339:Property 'createRequest' does not exist on type '{}'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts",
+        "line": 304,
+        "column": 44,
+        "code": "TS2339",
+        "message": "Property 'createRequest' does not exist on type '{}'.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts:304:44:TS2339:Property 'createRequest' does not exist on type '{}'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts",
+        "line": 325,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'googleMeetUrl' does not exist on type 'CreateConsultationEventResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendar.consultation.test.ts:325:19:TS2339:Property 'googleMeetUrl' does not exist on type 'CreateConsultationEventResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 195,
+        "column": 15,
+        "code": "TS2339",
+        "message": "Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:195:15:TS2339:Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 198,
+        "column": 69,
+        "code": "TS2339",
+        "message": "Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:198:69:TS2339:Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCalendarAuth.ts",
+        "line": 198,
+        "column": 87,
+        "code": "TS2339",
+        "message": "Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.",
+        "key": "src/server/appointmentLifecycle/googleCalendarAuth.ts:198:87:TS2339:Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleCredentials.ts",
+        "line": 227,
+        "column": 68,
+        "code": "TS2339",
+        "message": "Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'.",
+        "key": "src/server/appointmentLifecycle/googleCredentials.ts:227:68:TS2339:Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/googleMeetConference.test.ts",
+        "line": 190,
+        "column": 21,
+        "code": "TS2352",
+        "message": "Conversion of type 'null' to type '{ conferenceData?: { createRequest?: { requestId?: string | undefined; conferenceSolutionKey?: { type?: string | undefined; } | undefined; } | undefined; } | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.",
+        "key": "src/server/appointmentLifecycle/googleMeetConference.test.ts:190:21:TS2352:Conversion of type 'null' to type '{ conferenceData?: { createRequest?: { requestId?: string | undefined; conferenceSolutionKey?: { type?: string | undefined; } | undefined; } | undefined; } | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/handleInbound.ts",
+        "line": 154,
+        "column": 25,
+        "code": "TS2345",
+        "message": "Argument of type '\"cancellation_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'.",
+        "key": "src/server/appointmentLifecycle/handleInbound.ts:154:25:TS2345:Argument of type '\"cancellation_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/messages.ts",
+        "line": 93,
+        "column": 44,
+        "code": "TS2552",
+        "message": "Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?",
+        "key": "src/server/appointmentLifecycle/messages.ts:93:44:TS2552:Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?"
+      },
+      {
+        "file": "src/server/appointmentLifecycle/processEvent.ts",
+        "line": 342,
+        "column": 52,
+        "code": "TS2345",
+        "message": "Argument of type '\"email\" | \"phone\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'.",
+        "key": "src/server/appointmentLifecycle/processEvent.ts:342:52:TS2345:Argument of type '\"email\" | \"phone\" | \"both\" | \"correlation\"' is not assignable to parameter of type 'MatchMethod | undefined'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts",
+        "line": 230,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts:230:19:TS2339:Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts",
+        "line": 231,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts:231:19:TS2339:Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts",
+        "line": 289,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts:289:19:TS2339:Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/startConversation.ts",
+        "line": 112,
+        "column": 30,
+        "code": "TS2345",
+        "message": "Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'.",
+        "key": "src/server/demoSpeed2Lead/startConversation.ts:112:30:TS2345:Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 272,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_demo_feature\"' have no overlap.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:272:5:TS2367:This comparison appears to be unintentional because the types 'DemoConversationState' and '\"awaiting_demo_feature\"' have no overlap."
+      },
+      {
+        "file": "src/server/demoSpeed2Lead/stateMachine.ts",
+        "line": 317,
+        "column": 34,
+        "code": "TS2339",
+        "message": "Property 'scheduleReady' does not exist on type 'MessageSignals'.",
+        "key": "src/server/demoSpeed2Lead/stateMachine.ts:317:34:TS2339:Property 'scheduleReady' does not exist on type 'MessageSignals'."
+      },
+      {
+        "file": "src/server/report/renderReportPdf.server.ts",
+        "line": 94,
+        "column": 33,
+        "code": "TS2322",
+        "message": "Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'.",
+        "key": "src/server/report/renderReportPdf.server.ts:94:33:TS2322:Type '\"networkidle0\"' is not assignable to type '\"load\" | \"domcontentloaded\" | (\"load\" | \"domcontentloaded\")[] | undefined'."
+      },
+      {
+        "file": "src/server/sms/inboundRecovery.characterization.test.ts",
+        "line": 97,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.",
+        "key": "src/server/sms/inboundRecovery.characterization.test.ts:97:19:TS2339:Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'."
+      },
+      {
+        "file": "src/server/sms/optOut.test.ts",
+        "line": 37,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.",
+        "key": "src/server/sms/optOut.test.ts:37:19:TS2339:Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'."
+      },
+      {
+        "file": "src/server/sms/optOut.test.ts",
+        "line": 44,
+        "column": 19,
+        "code": "TS2339",
+        "message": "Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.",
+        "key": "src/server/sms/optOut.test.ts:44:19:TS2339:Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/contactFlow/openers.test.ts",
+        "line": 93,
+        "column": 29,
+        "code": "TS2769",
+        "message": "No overload matches this call.",
+        "key": "src/server/speed2Lead/agent/contactFlow/openers.test.ts:93:29:TS2769:No overload matches this call."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/discoveryGuard.test.ts",
+        "line": 49,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'AgentSession' is not assignable to type '{ stage: \"discovery\"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'.",
+        "key": "src/server/speed2Lead/agent/discoveryGuard.test.ts:49:5:TS2322:Type 'AgentSession' is not assignable to type '{ stage: \"discovery\"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/discoveryGuard.test.ts",
+        "line": 50,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'AgentSession' is not assignable to type '{ stage: \"discovery\"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'.",
+        "key": "src/server/speed2Lead/agent/discoveryGuard.test.ts:50:5:TS2322:Type 'AgentSession' is not assignable to type '{ stage: \"discovery\"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/discoveryGuard.ts",
+        "line": 111,
+        "column": 66,
+        "code": "TS2554",
+        "message": "Expected 2-3 arguments, but got 4.",
+        "key": "src/server/speed2Lead/agent/discoveryGuard.ts:111:66:TS2554:Expected 2-3 arguments, but got 4."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/handleInbound.ts",
+        "line": 433,
+        "column": 29,
+        "code": "TS2322",
+        "message": "Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'.",
+        "key": "src/server/speed2Lead/agent/handleInbound.ts:433:29:TS2322:Type '\"bridge\" | \"booked\" | \"declined\" | \"discovery\" | \"booking_link_pending\" | \"offering_slots\" | \"confirming\" | \"handoff\"' is not assignable to type 'AgentStageOutput'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/humanAlert.ts",
+        "line": 50,
+        "column": 25,
+        "code": "TS2345",
+        "message": "Argument of type '\"human_alert_send_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'.",
+        "key": "src/server/speed2Lead/agent/humanAlert.ts:50:25:TS2345:Argument of type '\"human_alert_send_failed\"' is not assignable to parameter of type 'AppointmentLogEvent'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/roiDeclineHandling.test.ts",
+        "line": 37,
+        "column": 29,
+        "code": "TS2769",
+        "message": "No overload matches this call.",
+        "key": "src/server/speed2Lead/agent/roiDeclineHandling.test.ts:37:29:TS2769:No overload matches this call."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 108,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:108:5:TS2322:Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 497,
+        "column": 71,
+        "code": "TS2345",
+        "message": "Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:497:71:TS2345:Argument of type '{ offeredSlots: string[] | undefined; status: \"idle\" | \"slots_offered\" | \"confirmed\"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/intentParser.ts",
+        "line": 584,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/intentParser.ts:584:5:TS2322:Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/provider.ts",
+        "line": 204,
+        "column": 29,
+        "code": "TS2339",
+        "message": "Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/speed2Lead/agent/scheduling/provider.ts:204:29:TS2339:Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/provider.ts",
+        "line": 206,
+        "column": 41,
+        "code": "TS2339",
+        "message": "Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.",
+        "key": "src/server/speed2Lead/agent/scheduling/provider.ts:206:41:TS2339:Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/scheduling/state.ts",
+        "line": 91,
+        "column": 5,
+        "code": "TS2322",
+        "message": "Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'.",
+        "key": "src/server/speed2Lead/agent/scheduling/state.ts:91:5:TS2322:Type 'import(\"/workspace/src/server/speed2Lead/agent/scheduling/types\").AvailabilityPreference | undefined' is not assignable to type 'import(\"/workspace/src/server/speed2Lead/sessionMemoryTypes\").AvailabilityPreference | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/agent/schedulingContext.ts",
+        "line": 963,
+        "column": 14,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '\"evening\"' have no overlap.",
+        "key": "src/server/speed2Lead/agent/schedulingContext.ts:963:14:TS2367:This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '\"evening\"' have no overlap."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 145,
+        "column": 15,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:145:15:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 145,
+        "column": 40,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:145:40:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/memory.ts",
+        "line": 148,
+        "column": 45,
+        "code": "TS2339",
+        "message": "Property 'detectedPains' does not exist on type 'AnyConversationContext'.",
+        "key": "src/server/speed2Lead/memory.ts:148:45:TS2339:Property 'detectedPains' does not exist on type 'AnyConversationContext'."
+      },
+      {
+        "file": "src/server/speed2Lead/nurtureFollowUp.ts",
+        "line": 41,
+        "column": 53,
+        "code": "TS2339",
+        "message": "Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: \"demo\"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'.",
+        "key": "src/server/speed2Lead/nurtureFollowUp.ts:41:53:TS2339:Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: \"demo\"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 51,
+        "column": 7,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:51:7:TS2353:Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: \"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 62,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:62:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 63,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:63:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 64,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:64:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 65,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:65:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 75,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type '\"plumbing\"' is not assignable to type '\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:75:7:TS2322:Type '\"plumbing\"' is not assignable to type '\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\" | undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 82,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:82:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 83,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:83:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 84,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:84:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 120,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:120:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 121,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:121:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 122,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:122:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 144,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'updated.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:144:12:TS18048:'updated.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 165,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:165:12:TS18048:'session.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 170,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:170:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 171,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:171:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 172,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.knownFacts' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:172:12:TS18048:'session.knownFacts' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 194,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:194:12:TS18048:'session.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 195,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:195:12:TS18048:'session.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 214,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:214:12:TS18048:'session.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/session.memory.test.ts",
+        "line": 231,
+        "column": 12,
+        "code": "TS18048",
+        "message": "'session.messages' is possibly 'undefined'.",
+        "key": "src/server/speed2Lead/session.memory.test.ts:231:12:TS18048:'session.messages' is possibly 'undefined'."
+      },
+      {
+        "file": "src/server/speed2Lead/stateMachine.ts",
+        "line": 205,
+        "column": 5,
+        "code": "TS2367",
+        "message": "This comparison appears to be unintentional because the types 'ConversationState' and '\"awaiting_goal\"' have no overlap.",
+        "key": "src/server/speed2Lead/stateMachine.ts:205:5:TS2367:This comparison appears to be unintentional because the types 'ConversationState' and '\"awaiting_goal\"' have no overlap."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 208,
+        "column": 7,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:208:7:TS2353:Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 223,
+        "column": 7,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:223:7:TS2353:Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 235,
+        "column": 7,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:235:7:TS2353:Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 249,
+        "column": 7,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:249:7:TS2353:Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 261,
+        "column": 9,
+        "code": "TS2353",
+        "message": "Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:261:9:TS2353:Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'."
+      },
+      {
+        "file": "src/server/speed2Lead/testPhoneAllowlist.test.ts",
+        "line": 279,
+        "column": 20,
+        "code": "TS2339",
+        "message": "Property 'nurtureNextAt' does not exist on type 'ConversationContext'.",
+        "key": "src/server/speed2Lead/testPhoneAllowlist.test.ts:279:20:TS2339:Property 'nurtureNextAt' does not exist on type 'ConversationContext'."
+      }
+    ]
+  },
+  "qaScope": {
+    "available": true,
+    "label": "qa-current",
+    "command": "bun run typecheck:qa",
+    "workingDirectory": "/workspace",
+    "bunVersion": "1.3.14",
+    "typescriptVersion": "Version 5.9.3",
+    "config": "tsconfig.qa.json",
+    "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
+    "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
+    "includedFileCount": 408,
+    "exitStatus": 0,
+    "totalDiagnosticCount": 0,
+    "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
+    "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
+    "diagnostics": []
+  },
+  "baselineProductionCount": 100,
+  "baselineTestCount": 84,
+  "introducedCount": 4,
+  "phase2IntroducedCount": 0,
+  "acceptance": {
+    "zeroPhase2Introduced": true,
+    "phase2IntroducedDiagnostics": [],
+    "allPhase2ProductionFilesZero": true,
+    "allPhase2TestFilesZero": true,
+    "allPhase2QaScriptFilesZero": true
+  }
+}
