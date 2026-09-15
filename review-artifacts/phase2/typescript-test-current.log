@@ -1,4 +1,93 @@
-$ tsc -p tsconfig.test.json
-error TS2688: Cannot find type definition file for 'bun'.
-  The file is in the program because:
-    Entry point of type library 'bun' specified in compilerOptions
+src/lib/analytics/trackEvent.test.ts(38,1): error TS2345: Argument of type '"assessment_started" | "assessment_question_answered" | "assessment_branch_opened" | "assessment_teaser_viewed" | "lead_gate_complete" | "sms_consent_opt_in" | "assessment_complete" | "assessment_report_downloaded" | "roi_agent_triggered" | "roi_document_generated"' is not assignable to parameter of type '"lead_gate_complete" | "sms_consent_opt_in" | "assessment_complete" | "roi_agent_triggered"'.
+src/lib/assessment/assessmentJourney.test.ts(36,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
+src/lib/assessment/assessmentJourney.test.ts(38,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
+src/lib/assessment/assessmentJourney.test.ts(41,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
+src/lib/assessment/browserPiiBoundaries.test.ts(67,1): error TS2769: No overload matches this call.
+src/lib/report/buildReportViewModel.test.ts(64,1): error TS2345: Argument of type 'number' is not assignable to parameter of type 'ScenarioIndex'.
+src/lib/report/renderReportPdf.test.ts(39,1): error TS18046: 'annots.size' is of type 'unknown'.
+src/lib/report/renderReportPdf.test.ts(40,1): error TS2339: Property 'get' does not exist on type 'PDFObject & Record<"size", unknown>'.
+src/routes/api/cron/agent-no-response-followups.ts(26,1): error TS2345: Argument of type '"/api/cron/agent-no-response-followups"' is not assignable to parameter of type 'undefined'.
+src/server/appointmentLifecycle/calendarBookingSmoke.test.ts(90,1): error TS2345: Argument of type 'Mock<() => Promise<{ startIso: string; calendarId: string; withoutAttendee: { ok: boolean; variant: "no_attendee"; }; withAttendee: { ok: boolean; variant: "with_attendee"; }; }>>' is not assignable to parameter of type '(args: { start: string; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<{ startIso: string; calendarId: string | null; withoutAttendee: BookingProviderProbeResult; withAttendee: BookingProviderProbeResult; }>'.
+src/server/appointmentLifecycle/calendarBookingSmoke.test.ts(91,1): error TS2345: Argument of type 'Mock<() => Promise<{ attendeeIncluded: boolean; attendeeCount: number; summaryPrefix: string; hasAttendeesField: boolean; }>>' is not assignable to parameter of type '(args: { start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; }) => Promise<{ attendeeIncluded: boolean; attendeeCount: number; sendUpdatesUsed?: string | undefined; summaryPrefix: string; hasAttendeesField: boolean; phoneSource: string; }>'.
+src/server/appointmentLifecycle/calendarBookingSmoke.test.ts(94,1): error TS2345: Argument of type 'Mock<() => Promise<{ ok: boolean; mode: "handset_book_provider_slot"; entrypoint: "bookProviderSlot"; startIso: string; phoneSuffix: string; attendeeIncluded: boolean; attendeeCount: number; bookingResult: { ...; }; smokePathComparison: { ...; }; }>>' is not assignable to parameter of type '(args: { start?: string | undefined; phone?: string | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }) => Promise<...>'.
+src/server/appointmentLifecycle/calendarBookingSmoke.ts(151,1): error TS2783: 'startIso' is specified more than once, so this usage will be overwritten.
+src/server/appointmentLifecycle/calendarCapabilityProbe.ts(185,1): error TS2322: Type 'GoogleCalendarResource' is not assignable to type 'string | T'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(129,1): error TS2741: Property 'attendeeCount' is missing in type '{ failureStage: "recheck_failed"; }' but required in type 'Pick<BookingProviderProbeResult, "failureStage" | "httpStatus" | "googleErrorReason" | "sendUpdatesUsed" | "attendeeCount" | "googleErrorMessage" | "eventStartIso" | "eventEndIso">'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(171,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(188,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(284,1): error TS2345: Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(343,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(455,1): error TS2322: Type '{ smokeUses: "createConsultationEvent"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: "createConsultationEvent"; handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(472,1): error TS2322: Type 'Date | undefined' is not assignable to type 'Date'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(503,1): error TS2322: Type '{ smokeUses: "createConsultationEvent"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: "createConsultationEvent"; handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.
+src/server/appointmentLifecycle/googleCalendar.consultation.test.ts(302,1): error TS2339: Property 'createRequest' does not exist on type '{}'.
+src/server/appointmentLifecycle/googleCalendar.consultation.test.ts(304,1): error TS2339: Property 'createRequest' does not exist on type '{}'.
+src/server/appointmentLifecycle/googleCalendar.consultation.test.ts(325,1): error TS2339: Property 'googleMeetUrl' does not exist on type 'CreateConsultationEventResult'.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(195,1): error TS2339: Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(198,1): error TS2339: Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(198,1): error TS2339: Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCredentials.ts(227,1): error TS2339: Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'.
+src/server/appointmentLifecycle/googleMeetConference.test.ts(190,1): error TS2352: Conversion of type 'null' to type '{ conferenceData?: { createRequest?: { requestId?: string | undefined; conferenceSolutionKey?: { type?: string | undefined; } | undefined; } | undefined; } | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/server/appointmentLifecycle/handleInbound.ts(154,1): error TS2345: Argument of type '"cancellation_failed"' is not assignable to parameter of type 'AppointmentLogEvent'.
+src/server/appointmentLifecycle/messages.ts(93,1): error TS2552: Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?
+src/server/appointmentLifecycle/processEvent.ts(342,1): error TS2345: Argument of type '"email" | "phone" | "both" | "correlation"' is not assignable to parameter of type 'MatchMethod | undefined'.
+src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts(230,1): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts(231,1): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts(289,1): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/assessment/rateLimitSource.test.ts(143,1): error TS2352: Conversion of type '[]' to type '[string, string[], string[]]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/server/assessment/rateLimitSource.test.ts(296,1): error TS2322: Type 'null' is not assignable to type 'string | number'.
+src/server/assessment/submitAssessmentLead.pipeline.test.ts(130,1): error TS2352: Conversion of type 'undefined' to type '{ annualOpportunity: string; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/server/assessment/submitAssessmentLead.pipeline.test.ts(130,1): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+src/server/demoSpeed2Lead/startConversation.ts(112,1): error TS2345: Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'.
+src/server/demoSpeed2Lead/stateMachine.ts(272,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_demo_feature"' have no overlap.
+src/server/demoSpeed2Lead/stateMachine.ts(317,1): error TS2339: Property 'scheduleReady' does not exist on type 'MessageSignals'.
+src/server/report/renderReportPdf.server.ts(94,1): error TS2322: Type '"networkidle0"' is not assignable to type '"load" | "domcontentloaded" | ("load" | "domcontentloaded")[] | undefined'.
+src/server/sms/inboundRecovery.characterization.test.ts(97,1): error TS2339: Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.
+src/server/sms/optOut.test.ts(37,1): error TS2339: Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.
+src/server/sms/optOut.test.ts(44,1): error TS2339: Property 'sendLegacyConfirmation' does not exist on type 'ComplianceDecision'.
+src/server/speed2Lead/agent/contactFlow/openers.test.ts(93,1): error TS2769: No overload matches this call.
+src/server/speed2Lead/agent/discoveryGuard.test.ts(49,1): error TS2322: Type 'AgentSession' is not assignable to type '{ stage: "discovery"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'.
+src/server/speed2Lead/agent/discoveryGuard.test.ts(50,1): error TS2322: Type 'AgentSession' is not assignable to type '{ stage: "discovery"; flow: AgentFlow; tenantId: string; phone: string; firstName?: string; businessName?: string; email?: string; annualOpportunity?: string; primaryOpportunity?: string; ... 55 more ...; updatedAt: string; }'.
+src/server/speed2Lead/agent/discoveryGuard.ts(111,1): error TS2554: Expected 2-3 arguments, but got 4.
+src/server/speed2Lead/agent/handleInbound.ts(433,1): error TS2322: Type '"bridge" | "booked" | "declined" | "discovery" | "booking_link_pending" | "offering_slots" | "confirming" | "handoff"' is not assignable to type 'AgentStageOutput'.
+src/server/speed2Lead/agent/humanAlert.ts(50,1): error TS2345: Argument of type '"human_alert_send_failed"' is not assignable to parameter of type 'AppointmentLogEvent'.
+src/server/speed2Lead/agent/roiDeclineHandling.test.ts(37,1): error TS2769: No overload matches this call.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(108,1): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(497,1): error TS2345: Argument of type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(584,1): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
+src/server/speed2Lead/agent/scheduling/provider.ts(204,1): error TS2339: Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/speed2Lead/agent/scheduling/provider.ts(206,1): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/speed2Lead/agent/scheduling/state.ts(91,1): error TS2322: Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+src/server/speed2Lead/agent/schedulingContext.ts(963,1): error TS2367: This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '"evening"' have no overlap.
+src/server/speed2Lead/memory.ts(145,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/memory.ts(145,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/memory.ts(148,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/nurtureFollowUp.ts(41,1): error TS2339: Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: "demo"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'.
+src/server/speed2Lead/session.memory.test.ts(51,1): error TS2353: Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.
+src/server/speed2Lead/session.memory.test.ts(62,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(63,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(64,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(65,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(75,1): error TS2322: Type '"plumbing"' is not assignable to type '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined'.
+src/server/speed2Lead/session.memory.test.ts(82,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(83,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(84,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(120,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(121,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(122,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(144,1): error TS18048: 'updated.messages' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(165,1): error TS18048: 'session.messages' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(170,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(171,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(172,1): error TS18048: 'session.knownFacts' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(194,1): error TS18048: 'session.messages' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(195,1): error TS18048: 'session.messages' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(214,1): error TS18048: 'session.messages' is possibly 'undefined'.
+src/server/speed2Lead/session.memory.test.ts(231,1): error TS18048: 'session.messages' is possibly 'undefined'.
+src/server/speed2Lead/stateMachine.ts(205,1): error TS2367: This comparison appears to be unintentional because the types 'ConversationState' and '"awaiting_goal"' have no overlap.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(208,1): error TS2353: Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(223,1): error TS2353: Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(235,1): error TS2353: Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(249,1): error TS2353: Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(261,1): error TS2353: Object literal may only specify known properties, and 'nurtureStage' does not exist in type 'Partial<ConversationContext>'.
+src/server/speed2Lead/testPhoneAllowlist.test.ts(279,1): error TS2339: Property 'nurtureNextAt' does not exist on type 'ConversationContext'.

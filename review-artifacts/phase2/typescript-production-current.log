@@ -1,0 +1,94 @@
+serve.ts(20,1): error TS2339: Property 'dir' does not exist on type 'ImportMeta'.
+serve.ts(37,1): error TS2868: Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+serve.ts(39,1): error TS2868: Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+serve.ts(42,1): error TS7006: Parameter 'req' implicitly has an 'any' type.
+serve.ts(45,1): error TS2868: Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+serve.ts(56,1): error TS2868: Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+src/components/CustomerLifecycleDiagram.test.tsx(1,1): error TS2307: Cannot find module 'bun:test' or its corresponding type declarations.
+src/components/CustomerLifecycleDiagram.test.tsx(12,1): error TS2339: Property 'dir' does not exist on type 'ImportMeta'.
+src/components/RoiCalculator.tsx(324,1): error TS2322: Type '"" | "none" | "has"' is not assignable to type '"none" | "has"'.
+src/components/RoiCalculator.tsx(355,1): error TS2322: Type '"" | "none" | "has"' is not assignable to type '"none" | "has"'.
+src/components/RoiCalculator.tsx(524,1): error TS7053: Element implicitly has an 'any' type because expression of type '"" | "PestControl" | "Plumbers" | "Electricians" | "HVAC" | "Roofers"' can't be used to index type '{ readonly Plumbers: { readonly label: "Plumbers"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: "Electricians"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'.
+src/components/VoiceDemo.tsx(154,1): error TS2322: Type 'string[]' is not assignable to type '"assistant.started" | "conversation-update" | "end-of-call-report" | "function-call" | "hang" | "language-changed" | "language-change-detected" | "model-output" | "phone-call-control" | ... 17 more ... | undefined'.
+src/hooks/useVoiceDemo.ts(170,1): error TS2322: Type 'string[]' is not assignable to type '"assistant.started" | "conversation-update" | "end-of-call-report" | "function-call" | "hang" | "language-changed" | "language-change-detected" | "model-output" | "phone-call-control" | ... 17 more ... | undefined'.
+src/server/appointmentLifecycle/calendarBookingSmoke.ts(151,1): error TS2783: 'startIso' is specified more than once, so this usage will be overwritten.
+src/server/appointmentLifecycle/calendarCapabilityProbe.ts(185,1): error TS2322: Type 'GoogleCalendarResource' is not assignable to type 'string | T'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(129,1): error TS2741: Property 'attendeeCount' is missing in type '{ failureStage: "recheck_failed"; }' but required in type 'Pick<BookingProviderProbeResult, "failureStage" | "httpStatus" | "googleErrorReason" | "sendUpdatesUsed" | "attendeeCount" | "googleErrorMessage" | "eventStartIso" | "eventEndIso">'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(171,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(188,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(284,1): error TS2345: Argument of type '{ start: string; includeAttendee: boolean; attendeeEmail?: string | undefined; cleanup?: boolean | undefined; now?: Date | undefined; }' is not assignable to parameter of type '{ start: string; phone: string; includeAttendee: boolean; attendeeEmail?: string | undefined; now?: Date | undefined; }'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(343,1): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(455,1): error TS2322: Type '{ smokeUses: "createConsultationEvent"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: "createConsultationEvent"; handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(472,1): error TS2322: Type 'Date | undefined' is not assignable to type 'Date'.
+src/server/appointmentLifecycle/googleBookingProviderProbe.ts(503,1): error TS2322: Type '{ smokeUses: "createConsultationEvent"; handsetUses: string; inputDiff: { field: string; smoke: string; handset: string; }[]; }' is not assignable to type '{ smokeUses: "createConsultationEvent"; handsetUses: "bookProviderSlot → bookConsultation → createConsultationEvent → processCalendarEvent"; inputDiff: { field: string; smoke: string; handset: string; }[]; }'.
+src/server/appointmentLifecycle/googleCalendar.ts(1,1): error TS6133: 'createSign' is declared but its value is never read.
+src/server/appointmentLifecycle/googleCalendar.ts(8,1): error TS6133: 'GOOGLE_MEET_CONFERENCE_SOLUTION_TYPE' is declared but its value is never read.
+src/server/appointmentLifecycle/googleCalendar.ts(497,1): error TS6133: 'durationMinutes' is declared but its value is never read.
+src/server/appointmentLifecycle/googleCalendar.ts(702,1): error TS6133: 'insertCalendarEvent' is declared but its value is never read.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(195,1): error TS2339: Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(198,1): error TS2339: Property 'detail' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCalendarAuth.ts(198,1): error TS2339: Property 'reason' does not exist on type 'GoogleOAuthRefreshResult'.
+src/server/appointmentLifecycle/googleCredentials.ts(227,1): error TS2339: Property 'message' does not exist on type 'string | { code?: number | undefined; message?: string | undefined; errors?: { reason?: string | undefined; message?: string | undefined; }[] | undefined; }'.
+src/server/appointmentLifecycle/googleProviderProbe.ts(114,1): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'GoogleCalendarApiEvent'.
+src/server/appointmentLifecycle/handleInbound.ts(154,1): error TS2345: Argument of type '"cancellation_failed"' is not assignable to parameter of type 'AppointmentLogEvent'.
+src/server/appointmentLifecycle/messages.ts(33,1): error TS6133: 'name' is declared but its value is never read.
+src/server/appointmentLifecycle/messages.ts(61,1): error TS6133: 'name' is declared but its value is never read.
+src/server/appointmentLifecycle/messages.ts(93,1): error TS2552: Cannot find name 'formatAppointmentParts'. Did you mean 'formatNaturalAppointmentParts'?
+src/server/appointmentLifecycle/processEvent.ts(342,1): error TS2345: Argument of type '"phone" | "email" | "both" | "correlation"' is not assignable to parameter of type 'MatchMethod | undefined'.
+src/server/appointmentLifecycle/store.ts(42,1): error TS6133: 'now' is declared but its value is never read.
+src/server/demoSpeed2Lead/intents.ts(58,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_faq_business_value"' have no overlap.
+src/server/demoSpeed2Lead/intents.ts(59,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_booking_value"' have no overlap.
+src/server/demoSpeed2Lead/intents.ts(60,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_confirmation_value"' have no overlap.
+src/server/demoSpeed2Lead/intents.ts(61,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_maintenance_value"' have no overlap.
+src/server/demoSpeed2Lead/intents.ts(62,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_multiple_priority"' have no overlap.
+src/server/demoSpeed2Lead/intents.ts(63,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_not_sure_relevance"' have no overlap.
+src/server/demoSpeed2Lead/messages.ts(25,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(50,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(68,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(79,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(193,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(197,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(208,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/messages.ts(226,1): error TS6133: 'context' is declared but its value is never read.
+src/server/demoSpeed2Lead/startConversation.ts(112,1): error TS2345: Argument of type 'AnyConversationContext' is not assignable to parameter of type 'DemoConversationContext'.
+src/server/demoSpeed2Lead/stateMachine.ts(4,1): error TS6133: 'PainCategory' is declared but its value is never read.
+src/server/demoSpeed2Lead/stateMachine.ts(240,1): error TS6133: 'state' is declared but its value is never read.
+src/server/demoSpeed2Lead/stateMachine.ts(272,1): error TS2367: This comparison appears to be unintentional because the types 'DemoConversationState' and '"awaiting_demo_feature"' have no overlap.
+src/server/demoSpeed2Lead/stateMachine.ts(317,1): error TS2339: Property 'scheduleReady' does not exist on type 'MessageSignals'.
+src/server/deployVersion.ts(49,1): error TS6133: 'now' is declared but its value is never read.
+src/server/leads.ts(4,1): error TS6133: 'validateLeadInfo' is declared but its value is never read.
+src/server/report/renderReportPdf.server.ts(94,1): error TS2322: Type '"networkidle0"' is not assignable to type '"load" | "domcontentloaded" | ("load" | "domcontentloaded")[] | undefined'.
+src/server/report/serveReportTokenPdf.server.ts(36,1): error TS2345: Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'BodyInit | null | undefined'.
+src/server/speed2Lead/agent/contactFlow/testScenarios/checks.ts(4,1): error TS6133: 'buildAlreadyClearOpener' is declared but its value is never read.
+src/server/speed2Lead/agent/contactFlow/testScenarios/seed.ts(18,1): error TS2459: Module '"~/server/speed2Lead/agent/contactFlow/testScenarios/types"' declares 'InquiryClarity' locally, but it is not exported.
+src/server/speed2Lead/agent/demoFlow/openers.ts(1,1): error TS6133: 'AgentProfile' is declared but its value is never read.
+src/server/speed2Lead/agent/demoFlow/testScenarios/seed.ts(66,1): error TS2353: Object literal may only specify known properties, and 'vapiCallId' does not exist in type '{ tenantId: string; phone: string; flow?: AgentFlow | undefined; firstName?: string | undefined; businessName?: string | undefined; email?: string | undefined; annualOpportunity?: string | undefined; ... 7 more ...; inquiryClarity?: InquiryClarity | undefined; }'.
+src/server/speed2Lead/agent/discoveryGuard.ts(111,1): error TS2554: Expected 2-3 arguments, but got 4.
+src/server/speed2Lead/agent/handleInbound.ts(211,1): error TS6133: 'escalated' is declared but its value is never read.
+src/server/speed2Lead/agent/handleInbound.ts(433,1): error TS2322: Type '"bridge" | "booked" | "declined" | "discovery" | "booking_link_pending" | "offering_slots" | "confirming" | "handoff"' is not assignable to type 'AgentStageOutput'.
+src/server/speed2Lead/agent/humanAlert.ts(50,1): error TS2345: Argument of type '"human_alert_send_failed"' is not assignable to parameter of type 'AppointmentLogEvent'.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(108,1): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(497,1): error TS2345: Argument of type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.
+src/server/speed2Lead/agent/scheduling/intentParser.ts(584,1): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
+src/server/speed2Lead/agent/scheduling/provider.ts(204,1): error TS2339: Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/speed2Lead/agent/scheduling/provider.ts(206,1): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
+src/server/speed2Lead/agent/scheduling/state.ts(91,1): error TS2322: Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+src/server/speed2Lead/agent/schedulingContext.ts(55,1): error TS6133: 'REJECT_OFFERED_RE' is declared but its value is never read.
+src/server/speed2Lead/agent/schedulingContext.ts(66,1): error TS6133: 'BARE_TIME_PREFERENCE_RE' is declared but its value is never read.
+src/server/speed2Lead/agent/schedulingContext.ts(314,1): error TS6133: 'scheduling' is declared but its value is never read.
+src/server/speed2Lead/agent/schedulingContext.ts(963,1): error TS2367: This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '"evening"' have no overlap.
+src/server/speed2Lead/agent/testScenarios/batch-1.ts(5,1): error TS6133: 'dateKeyInTimezone' is declared but its value is never read.
+src/server/speed2Lead/agent/testScenarios/checks.ts(53,1): error TS6133: 'assistantMessages' is declared but its value is never read.
+src/server/speed2Lead/agent/testScenarios/checks.ts(64,1): error TS6133: 'countQuestionMarks' is declared but its value is never read.
+src/server/speed2Lead/agent/testScenarios/checks.ts(529,1): error TS2367: This comparison appears to be unintentional because the types '"bridge" | "offering_slots"' and '"booked"' have no overlap.
+src/server/speed2Lead/agent/testScenarios/checks.ts(625,1): error TS6133: 'lower' is declared but its value is never read.
+src/server/speed2Lead/agent/testScenarios/seed.ts(65,1): error TS6133: 'profile' is declared but its value is never read.
+src/server/speed2Lead/memory.ts(145,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/memory.ts(145,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/memory.ts(148,1): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
+src/server/speed2Lead/messages.ts(27,1): error TS6133: 'context' is declared but its value is never read.
+src/server/speed2Lead/nurtureFollowUp.ts(41,1): error TS2339: Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: "demo"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'.
+src/server/speed2Lead/stateMachine.ts(196,1): error TS6133: 'state' is declared but its value is never read.
+src/server/speed2Lead/stateMachine.ts(205,1): error TS2367: This comparison appears to be unintentional because the types 'ConversationState' and '"awaiting_goal"' have no overlap.
+src/server/speed2Lead/testSupport/integrationMocks.ts(1,1): error TS2307: Cannot find module 'bun:test' or its corresponding type declarations.
+src/server/speed2Lead/testSupport/offlineSuitePreload.ts(9,1): error TS2307: Cannot find module 'bun:test' or its corresponding type declarations.

@@ -11,6 +11,7 @@ import {
   AssessmentEngine,
   getCalculatorDefaults,
   resolveRespondInputs,
+  type AnswerValue,
 } from "~/lib/assessment/engine";
 import { runAssessment } from "~/lib/assessment/runAssessment";
 import { selectModerateScenarioValue } from "~/lib/assessment/selectModerateScenario";
@@ -23,7 +24,7 @@ import { assertAnalyticsPropsAllowed } from "~/lib/analytics/analyticsContract";
 
 function walkForwardThroughQuestions(
   engine: AssessmentEngine,
-  answers: Record<string, number | "not_sure">,
+  answers: Record<string, AnswerValue>,
 ): string[] {
   const visited: string[] = [];
   for (const questionId of buildQuestionFlow(engine)) {

@@ -1,6 +1,6 @@
 {
   "tooling": "puppeteer-core 25.10.0 + @sparticuz/chromium; production build on port 3000 with Redis stub backend for assessment/report flows",
-  "probedAt": "2026-09-14T22:59:02.189Z",
+  "probedAt": "2026-09-15T14:54:08.162Z",
   "publicRoutes": [
     "/",
     "/what-we-do",
@@ -229,11 +229,11 @@
           "category": "link",
           "selector": "main a[href]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "form label",
@@ -282,12 +282,12 @@
         {
           "category": "severity state",
           "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
-          "foreground": "rgb(16, 185, 129)",
+          "foreground": "rgb(4, 120, 87)",
           "background": "rgb(255, 255, 255)",
-          "ratio": 2.54,
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "lifecycle card",
@@ -303,11 +303,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -324,8 +324,8 @@
         "route": "/",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 41,
-        "reducedAnimatedOrTransitioningCount": 41,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -527,12 +527,12 @@
         {
           "category": "link",
           "selector": "main a[href]",
-          "foreground": "rgb(16, 185, 129)",
+          "foreground": "rgb(4, 120, 87)",
           "background": "rgb(241, 245, 249)",
-          "ratio": 2.32,
+          "ratio": 5.01,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "form label",
@@ -604,11 +604,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -625,8 +625,8 @@
         "route": "/what-we-do",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 26,
-        "reducedAnimatedOrTransitioningCount": 26,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -753,11 +753,11 @@
           "category": "link",
           "selector": "main a[href]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "form label",
@@ -829,11 +829,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -850,8 +850,8 @@
         "route": "/how-we-work",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 26,
-        "reducedAnimatedOrTransitioningCount": 26,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -973,11 +973,11 @@
           "category": "link",
           "selector": "main a[href]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "form label",
@@ -1049,11 +1049,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -1070,7 +1070,7 @@
         "route": "/demo",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 28,
-        "reducedAnimatedOrTransitioningCount": 25,
+        "reducedAnimatedOrTransitioningCount": 0,
         "result": "PASS"
       }
     },
@@ -1190,11 +1190,11 @@
           "category": "link",
           "selector": "main a[href]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "form label",
@@ -1266,11 +1266,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -1287,8 +1287,8 @@
         "route": "/about",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 26,
-        "reducedAnimatedOrTransitioningCount": 26,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -1400,11 +1400,11 @@
           "category": "button",
           "selector": "button",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "link",
@@ -1487,11 +1487,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -1508,8 +1508,8 @@
         "route": "/contact",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 25,
-        "reducedAnimatedOrTransitioningCount": 25,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -1602,11 +1602,11 @@
           "category": "button",
           "selector": "button",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "link",
@@ -1688,11 +1688,11 @@
           "category": "CTA",
           "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         }
       ],
       "zoom": {
@@ -1709,8 +1709,8 @@
         "route": "/assessment",
         "prefersReducedMatches": true,
         "baselineAnimatedOrTransitioningCount": 25,
-        "reducedAnimatedOrTransitioningCount": 25,
-        "result": "FAIL"
+        "reducedAnimatedOrTransitioningCount": 0,
+        "result": "PASS"
       }
     },
     {
@@ -1751,7 +1751,7 @@
       "reachedRespondReview": true
     },
     "assumptionsReview": {
-      "respondR1Value": "350450"
+      "respondR1Value": "450"
     },
     "conditionalQuestions": {
       "followUpActivated": true
@@ -1782,7 +1782,7 @@
       }
     },
     "reportAction": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/966c1822d6258e255ed105271fcf2be86727347f4c591a7e",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/d995bf3e94a4901daa610bea67e885e8ca87ae619ead3c29",
       "firstAttemptStatus": 503,
       "alertOnFailure": false,
       "resultsStillVisible": true
@@ -1794,11 +1794,11 @@
       "body": "This assessment report link has expired or is invalid."
     },
     "success": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/eed20ec7dea605f502c85ac29a2a89053ab60bb905ee1b3e",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/00ff40b5586f374c4fce515c4d4bcd178eb2275b1c5ace04",
       "status": 200,
-      "pdfBytes": 111035,
+      "pdfBytes": 111094,
       "contentType": "application/pdf",
-      "bodySample": "[pdf:111035]"
+      "bodySample": "[pdf:111094]"
     },
     "expired": {
       "status": 404,
@@ -1922,11 +1922,11 @@
         "category": "link",
         "selector": "main a[href]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "form label",
@@ -1975,12 +1975,12 @@
       {
         "category": "severity state",
         "selector": ".bg-red-50, .bg-amber-50, .bg-emerald-50",
-        "foreground": "rgb(16, 185, 129)",
+        "foreground": "rgb(4, 120, 87)",
         "background": "rgb(255, 255, 255)",
-        "ratio": 2.54,
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "lifecycle card",
@@ -1996,11 +1996,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/what-we-do": [
@@ -2060,12 +2060,12 @@
       {
         "category": "link",
         "selector": "main a[href]",
-        "foreground": "rgb(16, 185, 129)",
+        "foreground": "rgb(4, 120, 87)",
         "background": "rgb(241, 245, 249)",
-        "ratio": 2.32,
+        "ratio": 5.01,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "form label",
@@ -2137,11 +2137,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/how-we-work": [
@@ -2202,11 +2202,11 @@
         "category": "link",
         "selector": "main a[href]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "form label",
@@ -2278,11 +2278,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/demo": [
@@ -2342,11 +2342,11 @@
         "category": "link",
         "selector": "main a[href]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "form label",
@@ -2418,11 +2418,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/about": [
@@ -2483,11 +2483,11 @@
         "category": "link",
         "selector": "main a[href]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "form label",
@@ -2559,11 +2559,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/contact": [
@@ -2613,11 +2613,11 @@
         "category": "button",
         "selector": "button",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "link",
@@ -2700,11 +2700,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ],
     "/assessment": [
@@ -2755,11 +2755,11 @@
         "category": "button",
         "selector": "button",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "link",
@@ -2841,11 +2841,11 @@
         "category": "CTA",
         "selector": "a.bg-brand-primary, button.bg-brand-primary, a[href=\"/contact\"]",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       }
     ]
   },
@@ -2926,50 +2926,50 @@
       "route": "/",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 41,
-      "reducedAnimatedOrTransitioningCount": 41,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     },
     "/what-we-do": {
       "route": "/what-we-do",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 26,
-      "reducedAnimatedOrTransitioningCount": 26,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     },
     "/how-we-work": {
       "route": "/how-we-work",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 26,
-      "reducedAnimatedOrTransitioningCount": 26,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     },
     "/demo": {
       "route": "/demo",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 28,
-      "reducedAnimatedOrTransitioningCount": 25,
+      "reducedAnimatedOrTransitioningCount": 0,
       "result": "PASS"
     },
     "/about": {
       "route": "/about",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 26,
-      "reducedAnimatedOrTransitioningCount": 26,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     },
     "/contact": {
       "route": "/contact",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 25,
-      "reducedAnimatedOrTransitioningCount": 25,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     },
     "/assessment": {
       "route": "/assessment",
       "prefersReducedMatches": true,
       "baselineAnimatedOrTransitioningCount": 25,
-      "reducedAnimatedOrTransitioningCount": 25,
-      "result": "FAIL"
+      "reducedAnimatedOrTransitioningCount": 0,
+      "result": "PASS"
     }
   },
   "touchTargets": {
@@ -2977,22 +2977,50 @@
       {
         "label": "mobile menu summary",
         "selector": "header details summary",
-        "width": 24,
-        "height": 24,
-        "meetsMinimum": false
+        "width": 44,
+        "height": 44,
+        "meetsMinimum": true
       },
       {
-        "label": "mobile nav link",
-        "selector": "header details a",
+        "label": "mobile nav link — What We Do",
+        "selector": "header details a[href=\"/what-we-do\"]",
         "width": 327,
-        "height": 20,
-        "meetsMinimum": false
+        "height": 44,
+        "meetsMinimum": true
       },
       {
-        "label": "mobile CTA",
+        "label": "mobile nav link — How We Work",
+        "selector": "header details a[href=\"/how-we-work\"]",
+        "width": 327,
+        "height": 44,
+        "meetsMinimum": true
+      },
+      {
+        "label": "mobile nav link — Live Demo",
+        "selector": "header details a[href=\"/demo\"]",
+        "width": 327,
+        "height": 44,
+        "meetsMinimum": true
+      },
+      {
+        "label": "mobile nav link — Free Assessment",
+        "selector": "header details a[href=\"/assessment\"]",
+        "width": 327,
+        "height": 44,
+        "meetsMinimum": true
+      },
+      {
+        "label": "mobile nav link — About",
+        "selector": "header details a[href=\"/about\"]",
+        "width": 327,
+        "height": 44,
+        "meetsMinimum": true
+      },
+      {
+        "label": "mobile CTA — Book consultation",
         "selector": "header details a[href=\"/contact\"]",
         "width": 327,
-        "height": 60,
+        "height": 64,
         "meetsMinimum": true
       }
     ],
@@ -3071,20 +3099,8 @@
     }
   },
   "defectsFoundFinalPass": [
-    "/: contrast failures — link, severity state, CTA",
-    "/: motion not reduced under prefers-reduced-motion (baseline=41, reduced=41)",
-    "/what-we-do: contrast failures — link, CTA",
-    "/what-we-do: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
-    "/how-we-work: contrast failures — link, CTA",
-    "/how-we-work: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
-    "/demo: contrast failures — button, link, CTA",
-    "/demo: zoom/reflow horizontal scroll or clipping at 200%",
-    "/about: contrast failures — link, CTA",
-    "/about: motion not reduced under prefers-reduced-motion (baseline=26, reduced=26)",
-    "/contact: contrast failures — button, CTA",
-    "/contact: motion not reduced under prefers-reduced-motion (baseline=25, reduced=25)",
-    "/assessment: contrast failures — button, CTA",
-    "/assessment: motion not reduced under prefers-reduced-motion (baseline=25, reduced=25)"
+    "/demo: contrast failures — button",
+    "/demo: zoom/reflow horizontal scroll or clipping at 200%"
   ],
   "defectsFoundEarlierPasses": [
     "Assessment bp2 lacked Back button for keyboard/back navigation (corrected in prior pass)"
