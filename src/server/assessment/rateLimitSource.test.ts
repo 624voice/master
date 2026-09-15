@@ -314,7 +314,7 @@ describe("checkAssessmentPhoneIdempotency supplemental", () => {
       substate: "replay_conflict",
       allowed: false,
       count: 5,
-      cachedResponse: undefined,
+      cachedResponse: "",
     });
   });
 

@@ -17,6 +17,7 @@ import {
   clickButtonMatching,
   clickChoiceMatching,
   attachSubmitAnswerKeyCapture,
+  captureReportDownloadUrl,
   clickDownloadReport,
   continueToTeaserFromCurrent,
   deleteReportToken,
@@ -348,20 +349,7 @@ describe("Assessment browser journey X-JRN-DOM (safe backend)", () => {
   test("X-JRN-DOM-19: expired report-link UI state", async () => {
     await fastForwardToGate(page);
     await submitLeadToResults(page);
-    const reportUrl = await page.evaluate(() => {
-      const open = window.open;
-      let captured = "";
-      window.open = (url) => {
-        captured = String(url ?? "");
-        return null;
-      };
-      const btn = Array.from(document.querySelectorAll("button")).find((b) =>
-        /Download Assessment Report/i.test(b.textContent ?? ""),
-      );
-      btn?.click();
-      window.open = open;
-      return captured;
-    });
+    const reportUrl = await captureReportDownloadUrl(page);
     const token = reportUrl.split("/assessment-report/")[1] ?? "";
     expect(token.length).toBeGreaterThan(10);
     await deleteReportToken(token);
