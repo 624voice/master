@@ -131,7 +131,7 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
   test("X-JRN-DOM-05: assumptions-review edit updates rendered field", async () => {
     await advanceToRespondReview(page);
     const input = await page.waitForSelector("#respond-R1");
-    await input!.click({ clickCount: 3 });
+    await input!.click({ count: 3 });
     await page.type("#respond-R1", "450");
     const value = await page.$eval("#respond-R1", (el) => (el as HTMLInputElement).value);
     expect(value).toContain("450");

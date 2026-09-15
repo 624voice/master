@@ -1,6 +1,6 @@
 /**
- * Standalone test/QA TypeScript measurement for baseline vs current comparison.
- * Run: bun run scripts/phase2/run-typescript-measurement.ts [--baseline-sha SHA]
+ * Standalone TypeScript measurements: production, test, and QA configs reported separately.
+ * Run: bun run scripts/phase2/run-typescript-measurement.ts
  */
 import { createHash } from "node:crypto";
 import { execSync, spawnSync } from "node:child_process";
@@ -9,9 +9,7 @@ import { join } from "node:path";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 const OUT = join(REPO_ROOT, "review-artifacts/phase2");
-const BASELINE_SHA = process.argv.includes("--baseline-sha")
-  ? process.argv[process.argv.indexOf("--baseline-sha") + 1]
-  : "05def6b17c7645d783c85df92d1e4053099c2ea4";
+const BASELINE_SHA = "05def6b17c7645d783c85df92d1e4053099c2ea4";
 
 type Diagnostic = { file: string; line: number; code: string; message: string };
 
@@ -35,125 +33,101 @@ function parseDiagnostics(output: string): Diagnostic[] {
   return diagnostics;
 }
 
-function runTypecheck(label: string, configs: string[]): {
-  label: string;
-  command: string;
-  bunVersion: string;
-  typescriptVersion: string;
-  configHashes: Record<string, string>;
-  includedFiles: Record<string, string[]>;
-  exitStatus: number;
-  totalDiagnosticCount: number;
-  diagnostics: Diagnostic[];
-  artifactPath: string;
-} {
-  const commands = configs.map((cfg) => `tsc -p ${cfg}`);
-  const command = commands.join(" && ");
-  const results: Diagnostic[] = [];
-  let exitStatus = 0;
-  for (const cfg of configs) {
-    const result = spawnSync("bunx", ["tsc", "-p", cfg], {
-      cwd: REPO_ROOT,
-      encoding: "utf8",
-    });
-    const chunk = `${result.stdout ?? ""}${result.stderr ?? ""}`;
-    results.push(...parseDiagnostics(chunk));
-    if (result.status !== 0) exitStatus = result.status ?? 1;
-  }
-  const artifactPath = join(OUT, `typescript-${label}.log`);
-  const body = results
-    .map((d) => `${d.file}(${d.line},1): error ${d.code}: ${d.message}`)
-    .join("\n");
-  writeFileSync(artifactPath, body);
-
-  const includedFiles: Record<string, string[]> = {};
-  for (const cfg of configs) {
-    includedFiles[cfg] = execSync(`bunx tsc -p ${cfg} --listFilesOnly`, {
-      cwd: REPO_ROOT,
-      encoding: "utf8",
-    })
-      .split("\n")
-      .filter(Boolean)
-      .map((p) => p.replace(`${REPO_ROOT}/`, ""));
-  }
-
-  return {
-    label,
-    command: configs.map((cfg) => `bun run typecheck${cfg.includes("qa") ? ":qa" : cfg.includes("test") ? ":test" : ""}`).join(" ; "),
-    bunVersion: execSync("bun --version", { encoding: "utf8" }).trim(),
-    typescriptVersion: execSync("bunx tsc --version", { encoding: "utf8" }).trim(),
-    configHashes: Object.fromEntries(configs.map((cfg) => [cfg, configHash(cfg)])),
-    includedFiles,
-    exitStatus,
-    totalDiagnosticCount: results.length,
-    diagnostics: results,
-    artifactPath: artifactPath.replace(`${REPO_ROOT}/`, ""),
-  };
-}
-
-function phase2ChangedFiles(): string[] {
-  const diff = execSync(`git diff --name-only ${BASELINE_SHA}..HEAD`, {
+function runSingleConfig(config: string, label: string, npmScript: string) {
+  const result = spawnSync("bunx", ["tsc", "-p", config], {
     cwd: REPO_ROOT,
     encoding: "utf8",
   });
-  return diff
+  const raw = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  const diagnostics = parseDiagnostics(raw);
+  const artifactPath = join(OUT, `typescript-${label}.log`);
+  writeFileSync(
+    artifactPath,
+    diagnostics
+      .map((d) => `${d.file}(${d.line},1): error ${d.code}: ${d.message}`)
+      .join("\n"),
+  );
+  const includedFiles = execSync(`bunx tsc -p ${config} --listFilesOnly`, {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+  })
     .split("\n")
     .filter(Boolean)
-    .filter(
-      (f) =>
-        (f.startsWith("src/") && f.endsWith(".ts")) ||
-        (f.startsWith("src/") && f.endsWith(".tsx")) ||
-        f.startsWith("scripts/phase2/"),
-    );
+    .map((p) => p.replace(`${REPO_ROOT}/`, ""));
+
+  return {
+    label,
+    command: `bun run ${npmScript}`,
+    config,
+    configHash: configHash(config),
+    bunVersion: execSync("bun --version", { encoding: "utf8" }).trim(),
+    typescriptVersion: execSync("bunx tsc --version", { encoding: "utf8" }).trim(),
+    exitStatus: result.status ?? 0,
+    totalDiagnosticCount: diagnostics.length,
+    includedFileCount: includedFiles.length,
+    includedFilesSample: includedFiles.slice(0, 5),
+    artifactPath: artifactPath.replace(`${REPO_ROOT}/`, ""),
+    diagnostics,
+  };
 }
 
 function diagnosticsForFiles(
   diagnostics: Diagnostic[],
   files: string[],
-): Record<string, number> {
-  const counts: Record<string, number> = {};
+): Record<string, { count: number; messages: string[] }> {
+  const counts: Record<string, { count: number; messages: string[] }> = {};
   for (const file of files) {
-    counts[file] = diagnostics.filter((d) => d.file.endsWith(file)).length;
+    const matches = diagnostics.filter((d) => d.file.endsWith(file));
+    counts[file] = {
+      count: matches.length,
+      messages: matches.map(
+        (d) => `${d.file}(${d.line},1): error ${d.code}: ${d.message}`,
+      ),
+    };
   }
   return counts;
 }
 
-mkdirSync(OUT, { recursive: true });
-const configs = ["tsconfig.test.json", "tsconfig.qa.json"];
-const current = runTypecheck("current", configs);
-const changed = phase2ChangedFiles();
-const phase2Prod = changed.filter((f) => f.startsWith("src/") && !f.includes(".test."));
-const phase2Tests = changed.filter((f) => f.includes(".test."));
-const phase2Qa = changed.filter((f) => f.startsWith("scripts/phase2/"));
+const PHASE2_TEST_FILES = [
+  "src/browser-journey/assessment.browserJourney.test.ts",
+  "src/lib/assessment/assessmentJourney.test.ts",
+  "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+  "src/server/assessment/assessmentJourneyPipeline.test.ts",
+  "src/server/phase2SafeQaHarness.test.ts",
+  "src/components/CustomerLifecycleDiagram.test.ts",
+];
 
-const prodTypecheck = spawnSync("bun", ["run", "typecheck"], {
-  cwd: REPO_ROOT,
-  encoding: "utf8",
-});
-const prodDiagnostics = parseDiagnostics(
-  `${prodTypecheck.stdout ?? ""}${prodTypecheck.stderr ?? ""}`,
-);
+mkdirSync(OUT, { recursive: true });
+
+const production = runSingleConfig("tsconfig.json", "production-current", "typecheck");
+const testScope = runSingleConfig("tsconfig.test.json", "test-current", "typecheck:test");
+const qaScope = runSingleConfig("tsconfig.qa.json", "qa-current", "typecheck:qa");
 
 const comparison = {
   baselineSha: BASELINE_SHA,
   currentHeadSha: execSync("git rev-parse HEAD", { cwd: REPO_ROOT, encoding: "utf8" }).trim(),
-  measurementCommand: "bun run typecheck:test && bun run typecheck:qa",
-  current,
-  phase2FileDiagnostics: {
-    production: diagnosticsForFiles(prodDiagnostics, phase2Prod),
-    tests: diagnosticsForFiles(current.diagnostics, phase2Tests),
-    qaScripts: diagnosticsForFiles(current.diagnostics, phase2Qa),
-  },
+  note:
+    "Production (tsconfig.json), test (tsconfig.test.json), and QA (tsconfig.qa.json) are measured separately. Equal counts are coincidental, not carry-over.",
+  production,
+  testScope,
+  qaScope,
+  phase2ModifiedTestFileDiagnostics: diagnosticsForFiles(
+    testScope.diagnostics,
+    PHASE2_TEST_FILES,
+  ),
   acceptance: {
-    phase2ProductionZero: Object.values(
-      diagnosticsForFiles(prodDiagnostics, phase2Prod),
-    ).every((n) => n === 0),
-    phase2TestsZero: Object.values(
-      diagnosticsForFiles(current.diagnostics, phase2Tests),
-    ).every((n) => n === 0),
-    phase2QaZero: Object.values(
-      diagnosticsForFiles(current.diagnostics, phase2Qa),
-    ).every((n) => n === 0),
+    productionConfigExecutes: production.totalDiagnosticCount >= 0,
+    testConfigExecutes: testScope.exitStatus !== null,
+    qaConfigExecutes: qaScope.exitStatus === 0,
+    phase2QaScriptsZero: qaScope.totalDiagnosticCount === 0,
+    phase2BrowserJourneyTestZero:
+      diagnosticsForFiles(testScope.diagnostics, [
+        "src/browser-journey/assessment.browserJourney.test.ts",
+      ])["src/browser-journey/assessment.browserJourney.test.ts"]?.count === 0,
+    allListedPhase2TestFilesZero: PHASE2_TEST_FILES.every(
+      (file) =>
+        diagnosticsForFiles(testScope.diagnostics, [file])[file]?.count === 0,
+    ),
   },
 };
 

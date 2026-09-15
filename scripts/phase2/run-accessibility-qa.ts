@@ -788,8 +788,30 @@ async function runMobileNavChecks(page: Page) {
 
   const touchTargets = await measureTouchTargets(page, "mobile-nav", [
     { label: "mobile menu summary", selector: "header details summary" },
-    { label: "mobile nav link", selector: "header details a" },
-    { label: "mobile CTA", selector: 'header details a[href="/contact"]' },
+    {
+      label: "mobile nav link — What We Do",
+      selector: 'header details a[href="/what-we-do"]',
+    },
+    {
+      label: "mobile nav link — How We Work",
+      selector: 'header details a[href="/how-we-work"]',
+    },
+    {
+      label: "mobile nav link — Live Demo",
+      selector: 'header details a[href="/demo"]',
+    },
+    {
+      label: "mobile nav link — Free Assessment",
+      selector: 'header details a[href="/assessment"]',
+    },
+    {
+      label: "mobile nav link — About",
+      selector: 'header details a[href="/about"]',
+    },
+    {
+      label: "mobile CTA — Book consultation",
+      selector: 'header details a[href="/contact"]',
+    },
   ]);
   (rawSummary.touchTargets as Record<string, TouchTargetSample[]>)[
     "mobile-nav"

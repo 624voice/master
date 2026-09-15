@@ -142,12 +142,12 @@ function Nav() {
         </nav>
         <details className="group md:hidden">
           <summary
-            className={`flex cursor-pointer list-none items-center gap-2 ${
+            className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-lg p-2 ${
               isDemoPage ? "text-white/80" : "text-gray-600"
             }`}
           >
             <svg
-              className="h-6 w-6"
+              className="h-6 w-6 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -175,25 +175,25 @@ function Nav() {
                 : "border-gray-100 bg-white"
             }`}
           >
-            <div className="flex flex-col gap-4">
-              <a href="/what-we-do" className={linkClassName}>
+            <div className="flex flex-col gap-1">
+              <a href="/what-we-do" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 What We Do
               </a>
-              <a href="/how-we-work" className={linkClassName}>
+              <a href="/how-we-work" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 How We Work
               </a>
-              <a href="/demo" className={demoLinkClassName}>
+              <a href="/demo" className={`${demoLinkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 Live Demo
               </a>
-              <a href="/assessment" className={linkClassName}>
+              <a href="/assessment" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 Free Assessment
               </a>
-              <a href="/about" className={linkClassName}>
+              <a href="/about" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 About
               </a>
               <a
                 href="/contact"
-                className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="flex min-h-11 items-center justify-center rounded-[10px] bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
               >
                 Book Your AI Growth Systems Consultation
               </a>

@@ -75,6 +75,47 @@ const harnessScan = distExistsAfterHarness
   : { clientHits: [], serverHits: [] };
 const harnessRoutes = distExistsAfterHarness ? routeManifestScan() : { harnessRoutes: [], allRoutesSample: [] };
 
+function bundleInventory(prefix: "harness-flag" | "clean") {
+  if (!statSync(DIST, { throwIfNoEntry: false })) {
+    return { prefix, distMissing: true, files: [] as Array<Record<string, string | number>> };
+  }
+  const clientDir = join(DIST, "client/assets");
+  const clientFiles = readdirSync(clientDir)
+    .filter((f) => f.endsWith(".js"))
+    .map((file) => {
+      const fullPath = join(clientDir, file);
+      const st = statSync(fullPath);
+      return {
+        path: `dist/client/assets/${file}`,
+        sizeBytes: st.size,
+        modifiedAtMs: st.mtimeMs,
+        modifiedAtIso: new Date(st.mtimeMs).toISOString(),
+        sha256: sha256File(fullPath),
+      };
+    });
+  const serverPath = join(DIST, "server/server.js");
+  const serverStat = statSync(serverPath);
+  return {
+    prefix,
+    distMissing: false,
+    buildCompletedAtIso: new Date().toISOString(),
+    files: [
+      ...clientFiles,
+      {
+        path: "dist/server/server.js",
+        sizeBytes: serverStat.size,
+        modifiedAtMs: serverStat.mtimeMs,
+        modifiedAtIso: new Date(serverStat.mtimeMs).toISOString(),
+        sha256: sha256File(serverPath),
+      },
+    ],
+  };
+}
+
+const harnessBundleInventory = distExistsAfterHarness
+  ? bundleInventory("harness-flag")
+  : { prefix: "harness-flag" as const, distMissing: true, files: [] as Array<Record<string, string | number>> };
+
 rmSync(DIST, { recursive: true, force: true });
 const cleanEnv: Record<string, string | undefined> = {
   ...process.env,
@@ -92,6 +133,7 @@ const cleanOutput = `${cleanBuild.stdout ?? ""}${cleanBuild.stderr ?? ""}`.repla
 );
 const cleanScan = searchBundles(harnessPattern);
 const cleanRoutes = routeManifestScan();
+const cleanBundleInventory = bundleInventory("clean");
 const cleanServerHash = sha256File(join(DIST, "server/server.js"));
 
 const pass =
@@ -139,6 +181,9 @@ const result = {
     exitStatus: harnessBuild.status,
     sanitizedOutputTail: harnessOutput.split("\n").slice(-40).join("\n"),
     distProduced: distExistsAfterHarness,
+    inspectedBundleInventory: harnessBundleInventory,
+    note:
+      "Bundle timestamps and sha256 hashes below were captured from dist/ immediately after the harness-flag build, before dist/ was deleted for the clean build.",
     clientBundleSearch: harnessScan.clientHits,
     serverBundleSearch: harnessScan.serverHits,
     harnessRouteMatches: harnessRoutes.harnessRoutes,
@@ -148,6 +193,7 @@ const result = {
     command: "NODE_ENV=production bun run build (PHASE2_SAFE_QA_HARNESS absent)",
     exitStatus: cleanBuild.status,
     sanitizedOutputTail: cleanOutput.split("\n").slice(-20).join("\n"),
+    inspectedBundleInventory: cleanBundleInventory,
     serverBundleSha256: cleanServerHash,
     clientBundleSearch: cleanScan.clientHits,
     serverBundleSearch: cleanScan.serverHits,
