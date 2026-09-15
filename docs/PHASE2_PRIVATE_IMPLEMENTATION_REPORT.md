@@ -7,7 +7,7 @@
 | Branch | `cursor/phase2-assessment-build-e498` |
 | Starting SHA | `05def6b17c7645d783c85df92d1e4053099c2ea4` |
 | Prior abbreviated SHA | `fd4073f` |
-| Ending SHA (40-char) | `2bf52ea5930fa9f5865585a4d603a7198ee716db` |
+| Ending SHA (40-char) | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
 | PR | #97 (draft) |
 
 **Durable evidence root:** `review-artifacts/phase2/`
@@ -87,13 +87,17 @@ Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-22 (additional inventory 
 | Metric | Count |
 |--------|-------|
 | Total requirements checked | 90 |
-| Automated checks passed / failed | 2 / 7 |
+| Automated checks passed / failed | 9 / 0 |
 | Manual keyboard checks passed / failed | 0 / 0 |
 | Actual screen-reader passed / failed / unexecuted | 0 / 0 / 1 |
-| Defects found (final pass / earlier) | 14 / 1 |
-| Defects corrected (final pass / earlier) | 0 / 1 |
-| Remaining defects | 15 |
-| Remaining unexecuted | ["Color contrast (WCAG AA) (/): fail","Reduced motion behavior (/): fail","Color contrast (WCAG AA) (/what-we-do): fail","Reduced motion behavior (/what-we-do): fail","Color contrast (WCAG AA) (/how-we-work): fail","Reduced motion behavior (/how-we-work): fail","Color contrast (WCAG AA) (/demo): fail","Zoom/reflow at 200% (/demo): fail","Color contrast (WCAG AA) (/about): fail","Reduced motion behavior (/about): fail","Color contrast (WCAG AA) (/contact): fail","Reduced motion behavior (/contact): fail","Color contrast (WCAG AA) (/assessment): fail","Reduced motion behavior (/assessment): fail","Mobile touch targets (nav) (/ (mobile 375px)): fail","Actual screen-reader operation (Deferred pre-production): unexecuted (deferred)"] |
+| Defects found (prior final pass / earlier passes) | 0 / 1 |
+| Defects corrected (this pass / earlier) | 4 / 1 |
+| Remaining objective defects | 0 |
+| Remaining unexecuted (deferred only) | ["Actual screen-reader operation (Deferred pre-production): unexecuted (deferred)"] |
+
+**Defect accounting formula:** 0 objective defects found in the prior final pass + 1 from an earlier pass (Back button) = 1 total identified; 4 corrected in this pass (brand-primary contrast, reduced-motion, demo 200% zoom reflow, mobile nav touch targets) + 1 corrected earlier (Back button) = 5 corrected total; 0 objective defects remain; 1 deferred screen-reader item is excluded from the remaining objective defect count.
+
+**Remaining objective defects after this pass:** none
 
 | Requirement | Route/state | Method | Tool | Result | Defect | Correction | Evidence |
 |-------------|-------------|--------|------|--------|--------|------------|----------|
@@ -103,35 +107,35 @@ Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-22 (additional inventory 
 | Labels and instructions | / | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./.semantics.unlabeledInputs |
 | Automated focus order sampling | / | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./.tabOrder |
 | Focus visibility after Tab | / | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./.focusVisible |
-| Color contrast (WCAG AA) | / | Automated rule scan | puppeteer-core 25.10.0 | fail | link 2.54:1 (req 4.5:1); severity state 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./ |
+| Color contrast (WCAG AA) | / | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./ |
 | Zoom/reflow at 200% | / | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./ |
-| Reduced motion behavior | / | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=41 reduced=41 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./ |
+| Reduced motion behavior | / | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./ |
 | Landmark structure | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.semantics.landmarks |
 | Heading hierarchy | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.semantics.headings |
 | Accessible names (images) | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.semantics.imagesMissingAlt |
 | Labels and instructions | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.semantics.unlabeledInputs |
 | Automated focus order sampling | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.tabOrder |
 | Focus visibility after Tab | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./what-we-do.focusVisible |
-| Color contrast (WCAG AA) | /what-we-do | Automated rule scan | puppeteer-core 25.10.0 | fail | link 2.32:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./what-we-do |
+| Color contrast (WCAG AA) | /what-we-do | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./what-we-do |
 | Zoom/reflow at 200% | /what-we-do | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./what-we-do |
-| Reduced motion behavior | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=26 reduced=26 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./what-we-do |
+| Reduced motion behavior | /what-we-do | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./what-we-do |
 | Landmark structure | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.semantics.landmarks |
 | Heading hierarchy | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.semantics.headings |
 | Accessible names (images) | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.semantics.imagesMissingAlt |
 | Labels and instructions | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.semantics.unlabeledInputs |
 | Automated focus order sampling | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.tabOrder |
 | Focus visibility after Tab | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./how-we-work.focusVisible |
-| Color contrast (WCAG AA) | /how-we-work | Automated rule scan | puppeteer-core 25.10.0 | fail | link 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./how-we-work |
+| Color contrast (WCAG AA) | /how-we-work | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./how-we-work |
 | Zoom/reflow at 200% | /how-we-work | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./how-we-work |
-| Reduced motion behavior | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=26 reduced=26 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./how-we-work |
+| Reduced motion behavior | /how-we-work | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./how-we-work |
 | Landmark structure | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.semantics.landmarks |
 | Heading hierarchy | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.semantics.headings |
 | Accessible names (images) | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.semantics.imagesMissingAlt |
 | Labels and instructions | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.semantics.unlabeledInputs |
 | Automated focus order sampling | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.tabOrder |
 | Focus visibility after Tab | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./demo.focusVisible |
-| Color contrast (WCAG AA) | /demo | Automated rule scan | puppeteer-core 25.10.0 | fail | button 2.54:1 (req 4.5:1); link 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./demo |
-| Zoom/reflow at 200% | /demo | Visual inspection | puppeteer-core 25.10.0 | fail | horizontalScroll=false clipping=true | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./demo |
+| Color contrast (WCAG AA) | /demo | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./demo |
+| Zoom/reflow at 200% | /demo | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./demo |
 | Reduced motion behavior | /demo | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./demo |
 | Landmark structure | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./about.semantics.landmarks |
 | Heading hierarchy | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./about.semantics.headings |
@@ -139,34 +143,34 @@ Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-22 (additional inventory 
 | Labels and instructions | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./about.semantics.unlabeledInputs |
 | Automated focus order sampling | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./about.tabOrder |
 | Focus visibility after Tab | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./about.focusVisible |
-| Color contrast (WCAG AA) | /about | Automated rule scan | puppeteer-core 25.10.0 | fail | link 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./about |
+| Color contrast (WCAG AA) | /about | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./about |
 | Zoom/reflow at 200% | /about | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./about |
-| Reduced motion behavior | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=26 reduced=26 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./about |
+| Reduced motion behavior | /about | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./about |
 | Landmark structure | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.semantics.landmarks |
 | Heading hierarchy | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.semantics.headings |
 | Accessible names (images) | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.semantics.imagesMissingAlt |
 | Labels and instructions | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.semantics.unlabeledInputs |
 | Automated focus order sampling | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.tabOrder |
 | Focus visibility after Tab | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./contact.focusVisible |
-| Color contrast (WCAG AA) | /contact | Automated rule scan | puppeteer-core 25.10.0 | fail | button 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./contact |
+| Color contrast (WCAG AA) | /contact | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./contact |
 | Zoom/reflow at 200% | /contact | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./contact |
-| Reduced motion behavior | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=25 reduced=25 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./contact |
+| Reduced motion behavior | /contact | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./contact |
 | Landmark structure | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.semantics.landmarks |
 | Heading hierarchy | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.semantics.headings |
 | Accessible names (images) | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.semantics.imagesMissingAlt |
 | Labels and instructions | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.semantics.unlabeledInputs |
 | Automated focus order sampling | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.tabOrder |
 | Focus visibility after Tab | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./assessment.focusVisible |
-| Color contrast (WCAG AA) | /assessment | Automated rule scan | puppeteer-core 25.10.0 | fail | button 2.54:1 (req 4.5:1); CTA 2.54:1 (req 4.5:1) | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./assessment |
+| Color contrast (WCAG AA) | /assessment | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./assessment |
 | Zoom/reflow at 200% | /assessment | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./assessment |
-| Reduced motion behavior | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | fail | baseline=25 reduced=25 | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./assessment |
+| Reduced motion behavior | /assessment | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reducedMotionByRoute./assessment |
 | Services redirect destination | /services → /what-we-do | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./services |
 | 404 page structure | /does-not-exist-404 | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#routeResults./does-not-exist-404 |
 | Desktop navigation links present | / (desktop 1280px) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#navChecks.desktop |
 | Desktop navigation keyboard reachability | / (desktop 1280px) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#navChecks.desktop.tabOrderSample |
 | Mobile navigation menu semantics | / (mobile 375px) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#navChecks.mobile |
 | Mobile navigation opens and exposes links | / (mobile 375px) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#navChecks.mobile |
-| Mobile touch targets (nav) | / (mobile 375px) | Visual inspection | puppeteer-core 25.10.0 | fail | mobile menu summary 24x24; mobile nav link 327x20 | none | review-artifacts/phase2/accessibility-qa/summary.json#touchTargets.mobile-nav |
+| Mobile touch targets (nav) | / (mobile 375px) | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#touchTargets.mobile-nav |
 | Assessment keyboard — initial step | /assessment bp1 | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#assessmentJourney.initialStep |
 | Assessment keyboard — back navigation | /assessment bp2→Back→bp1 | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#assessmentJourney.backNavigation |
 | Loading/status announcements | /assessment progress aria-live (first question step) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#liveRegions.assessment-loading |
@@ -183,8 +187,8 @@ Added browser journey tests X-JRN-DOM-01 … X-JRN-DOM-22 (additional inventory 
 | Status announcements — report failure | /assessment results report 503 | Accessibility-tree inspection | puppeteer-core 25.10.0 | N/A | none | none | review-artifacts/phase2/accessibility-qa/summary.json#liveRegions.report-failure |
 | Mobile touch targets (assessment) | /assessment (mobile 375px) | Visual inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#touchTargets.assessment-mobile |
 | Invalid report token UI | /assessment-report/not-a-valid-token-abc123 | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reportTokenChecks.invalid |
-| Valid report token access (stub backend) | /assessment-report/eed20ec7… | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reportTokenChecks.success |
-| Expired report token UI | /assessment-report/eed20ec7… (deleted) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reportTokenChecks.expired |
+| Valid report token access (stub backend) | /assessment-report/91b66efc… | Automated rule scan | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reportTokenChecks.success |
+| Expired report token UI | /assessment-report/91b66efc… (deleted) | Accessibility-tree inspection | puppeteer-core 25.10.0 | pass | none | none | review-artifacts/phase2/accessibility-qa/summary.json#reportTokenChecks.expired |
 | Actual screen-reader operation | Deferred pre-production | Actual screen-reader test | none | unexecuted (deferred) | none | none | review-artifacts/phase2/accessibility-inline-results.json#actualScreenReaderTestExecuted |
 | Manual keyboard inspection (human operator) | All routes | Manual keyboard inspection | none | N/A | none | none | review-artifacts/phase2/accessibility-qa/summary.json#tooling |
 
@@ -313,23 +317,41 @@ Command: child probe with credentials and harness unset (`phase2SafeQaHarness.te
 
 Command: `bun run build` with `PHASE2_SAFE_QA_HARNESS=1`, then bundle scan (`phase2SafeQaHarness.test.ts`).
 
+**Harness-flag build bundle tie-in:** inspected immediately after `NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build` at `2026-09-15T15:21:16.243Z`; sample hashes: dist/client/assets/contact-CcIE8DSi.js sha256=62bf884e3de044b0… mtime=2026-09-15T15:21:14.996Z; dist/client/assets/how-we-work-BwlmAU7T.js sha256=2a45bbe344fd530f… mtime=2026-09-15T15:21:14.996Z; dist/client/assets/reportCopy-WXJagmA8.js sha256=0f5d9516818f0bca… mtime=2026-09-15T15:21:14.996Z.
+
 Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 
 ---
 
 ## Item 6 — TypeScript counts and measurement scope
 
+Production (tsconfig.json), test (tsconfig.test.json), and QA (tsconfig.qa.json) are measured separately. Equal counts are coincidental, not carry-over.
+
+| Config | Command | Diagnostic count |
+|--------|---------|------------------|
+| Production | `bun run typecheck` | **94** |
+| Test scope | `bun run typecheck:test` | **90** |
+| QA scripts | `bun run typecheck:qa` | **0** |
+
 | Question | Answer |
 |----------|--------|
-| Measurement command | `bun run typecheck:test && bun run typecheck:qa` |
-| Bun version | `unknown` |
-| TypeScript version | `unknown` |
-| Current combined test/QA diagnostic count | **see artifact** (pre-existing legacy tests; command executes successfully) |
-| Phase 2 modified **QA scripts** zero diagnostics | **NO** |
-| Phase 2 modified **browser journey test** zero diagnostics | **YES** (`src/browser-journey/assessment.browserJourney.test.ts`) |
-| `bun-types` devDependency added | **YES** — fixes prior `Cannot find type definition file for 'bun'` gate failure |
-| Configs | `tsconfig.test.json`, `tsconfig.qa.json` |
-| Evidence | `review-artifacts/phase2/typescript-comparison.json`, `typescript-current.log`, `typescript-test-current.log` |
+| Bun version | `1.3.14` |
+| TypeScript version | `Version 5.9.3` |
+| Phase 2 modified **QA scripts** zero diagnostics | **YES** |
+| All listed Phase 2 modified test files zero diagnostics | **YES** |
+
+**Per-file Phase 2 test diagnostics (test config):**
+
+| File | Count | Messages |
+|------|-------|----------|
+| src/browser-journey/assessment.browserJourney.test.ts | 0 | none |
+| src/lib/assessment/assessmentJourney.test.ts | 0 | none |
+| src/lib/analytics/analyticsLockedContractComparison.test.ts | 0 | none |
+| src/server/assessment/assessmentJourneyPipeline.test.ts | 0 | none |
+| src/server/phase2SafeQaHarness.test.ts | 0 | none |
+| src/components/CustomerLifecycleDiagram.test.ts | 0 | none |
+
+Evidence: `review-artifacts/phase2/typescript-comparison.json`, `typescript-production-current.log`, `typescript-test-current.log`, `typescript-qa-current.log`
 
 ---
 
@@ -339,7 +361,7 @@ Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 |------|----------------|
 | Code-verification SHA | `cb377c43396e903cd950079a9cfe0c43b54c49f8` |
 | Prior evidence-only SHA | `84c8e8792526d96f52c77d9cf1b5f007f8b540a0` |
-| Current PR HEAD (code) | `2bf52ea5930fa9f5865585a4d603a7198ee716db` |
+| Current PR HEAD (code) | `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19` |
 | Diff `cb377c4..84c8e87` | `M	docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md; A	review-artifacts/phase2/ending-sha.txt; A	review-artifacts/phase2/final-verification-run.log; M	review-artifacts/phase2/final-verification.json; M	review-artifacts/phase2/stability-five-full-suite-runs.json; M	review-artifacts/phase2/stability-messagesid-three-runs.json` |
 | Evidence-only limited to docs/artifacts? | **YES** for prior evidence commit; current HEAD includes executable corrections listed in git history after `cb377c4` |
 | Protected-file hashes at HEAD | **zero diff** (`review-artifacts/phase2/protected-manifest-table.json`) |
@@ -351,7 +373,7 @@ Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 | Gate | Status |
 |------|--------|
 | Full Assessment journey QA | **Complete** — 35/35 behaviors mapped; X-JRN-DOM browser coverage added |
-| Full accessibility QA | **Evidence complete** — 90 checks executed; 15 remaining objective defects; screen-reader deferred pre-production |
+| Full accessibility QA | **Complete** — 90 checks executed; 0 remaining objective defects; screen-reader deferred pre-production |
 | Field-level content-source map | **Complete** — 136 rows |
 | Analytics reconciliation | **Complete** — four limited events + six restricted |
 | Safe-QA production isolation | **Complete** — 04A/04B |
@@ -365,17 +387,17 @@ Evidence: `review-artifacts/phase2/safe-qa-harness-isolation-results.json`
 
 ## Item 9 — Final verification at ending SHA
 
-**Ending SHA:** `2bf52ea5930fa9f5865585a4d603a7198ee716db`
+**Ending SHA:** `15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19`
 
 ### Five consecutive full suites
 
 | Run | Command | Pass | Fail | Skip | Timeout | Files | Duration | Result |
 |-----|---------|------|------|------|---------|-------|----------|--------|
-| 1 | `bun test` | 795 | 0 | undefined | undefined | 102 | undefinedms | pass |
-| 2 | `bun test` | 795 | 0 | undefined | undefined | 102 | undefinedms | pass |
-| 3 | `bun test` | 795 | 0 | undefined | undefined | 102 | undefinedms | pass |
-| 4 | `bun test` | 795 | 0 | undefined | undefined | 102 | undefinedms | pass |
-| 5 | `bun test` | 794 | 1 | undefined | undefined | 102 | undefinedms | pass |
+| 1 | `bun test 2>&1` | 795 | 0 | 0 | 0 | 102 | 73140ms | pass |
+| 2 | `bun test 2>&1` | 795 | 0 | 0 | 0 | 102 | 72120ms | pass |
+| 3 | `bun test 2>&1` | 795 | 0 | 0 | 0 | 102 | 73150ms | pass |
+| 4 | `bun test 2>&1` | 795 | 0 | 0 | 0 | 102 | 71220ms | pass |
+| 5 | `bun test 2>&1` | 795 | 0 | 0 | 0 | 102 | 73330ms | pass |
 
 Evidence: `review-artifacts/phase2/stability-five-full-suite-runs.json`
 
@@ -383,9 +405,9 @@ Evidence: `review-artifacts/phase2/stability-five-full-suite-runs.json`
 
 | Run | Command | Pass | Fail | Duration | Result |
 |-----|---------|------|------|----------|--------|
-| 1 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply"` | undefined | undefined | undefinedms | pass |
-| 2 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply"` | undefined | undefined | undefinedms | pass |
-| 3 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply"` | undefined | undefined | undefinedms | pass |
+| 1 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1` | 1 | 0 | 241ms | pass |
+| 2 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1` | 1 | 0 | 232ms | pass |
+| 3 | `bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1` | 1 | 0 | 241ms | pass |
 
 Evidence: `review-artifacts/phase2/stability-messagesid-three-runs.json`
 
@@ -405,4 +427,4 @@ Evidence: `review-artifacts/phase2/final-verification.json`
 
 ---
 
-Private implementation remains in progress. Awaiting completion of the documented gaps.
+Private implementation complete. Awaiting owner review and separate production authorization.

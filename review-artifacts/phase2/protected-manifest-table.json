@@ -2,241 +2,79 @@
   {
     "baselinePath": "src/server/speed2Lead/reportTokens.ts",
     "baselineSha256": "597d51151dd6bac91a28114747757ea251630d97cdd1f30acfcfa4742f073cf7",
-    "currentPath": "src/server/speed2Lead/reportTokens.ts",
     "currentSha256": "597d51151dd6bac91a28114747757ea251630d97cdd1f30acfcfa4742f073cf7",
-    "match": true,
-    "manifestValue": "597d51151dd6bac91a28114747757ea251630d97cdd1f30acfcfa4742f073cf7"
+    "match": true
   },
   {
     "baselinePath": "src/routes/report/$token.ts",
     "baselineSha256": "20e5f44ee44a82efd8e159aa48ca4066633937542cb1b3df2554887638368bfb",
-    "currentPath": "src/routes/report/$token.ts",
     "currentSha256": "20e5f44ee44a82efd8e159aa48ca4066633937542cb1b3df2554887638368bfb",
-    "match": true,
-    "manifestValue": "20e5f44ee44a82efd8e159aa48ca4066633937542cb1b3df2554887638368bfb"
+    "match": true
   },
   {
     "baselinePath": "src/server/generateRoiPdfHandler.server.ts",
     "baselineSha256": "a136a9f088d1b13910fa58017d1fa8a06ca2f479c3358cc97bbc8d685ed40e10",
-    "currentPath": "src/server/generateRoiPdfHandler.server.ts",
     "currentSha256": "a136a9f088d1b13910fa58017d1fa8a06ca2f479c3358cc97bbc8d685ed40e10",
-    "match": true,
-    "manifestValue": "a136a9f088d1b13910fa58017d1fa8a06ca2f479c3358cc97bbc8d685ed40e10"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/agent/startConversation.ts",
     "baselineSha256": "5eaed6ff27319d7f0964fc36e0591d53dafe19afa6da9c72b65b8ab68bd31ecc",
-    "currentPath": "src/server/speed2Lead/agent/startConversation.ts",
     "currentSha256": "5eaed6ff27319d7f0964fc36e0591d53dafe19afa6da9c72b65b8ab68bd31ecc",
-    "match": true,
-    "manifestValue": "5eaed6ff27319d7f0964fc36e0591d53dafe19afa6da9c72b65b8ab68bd31ecc"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/agent/contactFlow/startConversation.ts",
     "baselineSha256": "9f5a4a559abc4aef8bbab65c2fa7f5f0a5faec936d6e661f595c224d1c17c11f",
-    "currentPath": "src/server/speed2Lead/agent/contactFlow/startConversation.ts",
     "currentSha256": "9f5a4a559abc4aef8bbab65c2fa7f5f0a5faec936d6e661f595c224d1c17c11f",
-    "match": true,
-    "manifestValue": "9f5a4a559abc4aef8bbab65c2fa7f5f0a5faec936d6e661f595c224d1c17c11f"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/agent/demoFlow/startConversation.ts",
     "baselineSha256": "1e9b10e8a40b151a8a53de48a3b6669148fb7078c694a58293224f5487e6ad28",
-    "currentPath": "src/server/speed2Lead/agent/demoFlow/startConversation.ts",
     "currentSha256": "1e9b10e8a40b151a8a53de48a3b6669148fb7078c694a58293224f5487e6ad28",
-    "match": true,
-    "manifestValue": "1e9b10e8a40b151a8a53de48a3b6669148fb7078c694a58293224f5487e6ad28"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/types.ts",
     "baselineSha256": "c0d180bc3af7803f647055dd892bb6bdd5d097c6edca6dc531415e7fcf3f6636",
-    "currentPath": "src/server/speed2Lead/types.ts",
     "currentSha256": "c0d180bc3af7803f647055dd892bb6bdd5d097c6edca6dc531415e7fcf3f6636",
-    "match": true,
-    "manifestValue": "c0d180bc3af7803f647055dd892bb6bdd5d097c6edca6dc531415e7fcf3f6636"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/inboundDisposition.ts",
     "baselineSha256": "42c7aa93c6046550c09e6d720ef9ba9710850d059542991a4d580bd048227181",
-    "currentPath": "src/server/speed2Lead/inboundDisposition.ts",
     "currentSha256": "42c7aa93c6046550c09e6d720ef9ba9710850d059542991a4d580bd048227181",
-    "match": true,
-    "manifestValue": "42c7aa93c6046550c09e6d720ef9ba9710850d059542991a4d580bd048227181"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/agent/handleInbound.ts",
     "baselineSha256": "e1c030165e0b0b64eebcaf75d64730ee5c937b075a4b44c2cde45dd8137d68ee",
-    "currentPath": "src/server/speed2Lead/agent/handleInbound.ts",
     "currentSha256": "e1c030165e0b0b64eebcaf75d64730ee5c937b075a4b44c2cde45dd8137d68ee",
-    "match": true,
-    "manifestValue": "e1c030165e0b0b64eebcaf75d64730ee5c937b075a4b44c2cde45dd8137d68ee"
+    "match": true
   },
   {
     "baselinePath": "src/server/speed2Lead/agent/state.ts",
     "baselineSha256": "a3b25f656661031b4522d8734a53fb5e7d46134d512c018930803bdf8217f4a8",
-    "currentPath": "src/server/speed2Lead/agent/state.ts",
     "currentSha256": "a3b25f656661031b4522d8734a53fb5e7d46134d512c018930803bdf8217f4a8",
-    "match": true,
-    "manifestValue": "a3b25f656661031b4522d8734a53fb5e7d46134d512c018930803bdf8217f4a8"
+    "match": true
   },
   {
     "baselinePath": "src/server/submitDemoLead.ts",
     "baselineSha256": "e4be4ed222efe9a9711f14071147efff9c69834782f41522cad0f0d792df81e7",
-    "currentPath": "src/server/submitDemoLead.ts",
     "currentSha256": "e4be4ed222efe9a9711f14071147efff9c69834782f41522cad0f0d792df81e7",
-    "match": true,
-    "manifestValue": "e4be4ed222efe9a9711f14071147efff9c69834782f41522cad0f0d792df81e7"
+    "match": true
   },
   {
     "baselinePath": "src/server/submitContactLead.ts",
     "baselineSha256": "1ae695ff5e9db08bf15a1d676159316a47e8ad79a157833b15181a03bc9400c9",
-    "currentPath": "src/server/submitContactLead.ts",
     "currentSha256": "1ae695ff5e9db08bf15a1d676159316a47e8ad79a157833b15181a03bc9400c9",
-    "match": true,
-    "manifestValue": "1ae695ff5e9db08bf15a1d676159316a47e8ad79a157833b15181a03bc9400c9"
+    "match": true
   },
   {
     "baselinePath": "docs/claude-handoff/CURRENT_SYSTEM_PROMPT.txt",
     "baselineSha256": "9a1b18827027cf5945461aed1a4533a6e95204eec9dc38679f1db6cafc615951",
-    "currentPath": "docs/claude-handoff/CURRENT_SYSTEM_PROMPT.txt",
     "currentSha256": "9a1b18827027cf5945461aed1a4533a6e95204eec9dc38679f1db6cafc615951",
-    "match": true,
-    "manifestValue": "9a1b18827027cf5945461aed1a4533a6e95204eec9dc38679f1db6cafc615951"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/08-BUG-HISTORY-AND-ROOT-CAUSES.md",
-    "baselineSha256": "a295b4a31dfd39be1c8d6c614220002a6820e8790bd254b70dd4f207864f6753",
-    "currentPath": "docs/claude-handoff/08-BUG-HISTORY-AND-ROOT-CAUSES.md",
-    "currentSha256": "a295b4a31dfd39be1c8d6c614220002a6820e8790bd254b70dd4f207864f6753",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/CLAUDE-MASTER-CONTEXT.md",
-    "baselineSha256": "4280c3dc34685c82d7df725276c4a8af5f34102b2f2c02be2869e7d0248ef6a6",
-    "currentPath": "docs/claude-handoff/CLAUDE-MASTER-CONTEXT.md",
-    "currentSha256": "4280c3dc34685c82d7df725276c4a8af5f34102b2f2c02be2869e7d0248ef6a6",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/11-TARGET-END-STATE.md",
-    "baselineSha256": "4feae2afd5a8adae6684174dc527935ed565b1417f6e2e6bb4ef04eea3e19e21",
-    "currentPath": "docs/claude-handoff/11-TARGET-END-STATE.md",
-    "currentSha256": "4feae2afd5a8adae6684174dc527935ed565b1417f6e2e6bb4ef04eea3e19e21",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/06-REMINDERS-AND-LIFECYCLE.md",
-    "baselineSha256": "9793a3ed4bc9da9c319ccca5c4bbb5421361a95e916ae0143e29ed280b557402",
-    "currentPath": "docs/claude-handoff/06-REMINDERS-AND-LIFECYCLE.md",
-    "currentSha256": "9793a3ed4bc9da9c319ccca5c4bbb5421361a95e916ae0143e29ed280b557402",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/07-SESSION-STATE-AND-PERSISTENCE.md",
-    "baselineSha256": "04f5198d378f038999c3a0590160a57b528c54cad342947580f2f6fe17d5d4e3",
-    "currentPath": "docs/claude-handoff/07-SESSION-STATE-AND-PERSISTENCE.md",
-    "currentSha256": "04f5198d378f038999c3a0590160a57b528c54cad342947580f2f6fe17d5d4e3",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/14-CLAUDE-OPERATING-INSTRUCTIONS.md",
-    "baselineSha256": "2e0d450b93d80bb3d2912e7f20e83c0d734f9e5f6461604d6e8984bd2c84504c",
-    "currentPath": "docs/claude-handoff/14-CLAUDE-OPERATING-INSTRUCTIONS.md",
-    "currentSha256": "2e0d450b93d80bb3d2912e7f20e83c0d734f9e5f6461604d6e8984bd2c84504c",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/10-CURRENT-STATUS-AND-BLOCKERS.md",
-    "baselineSha256": "8c4e03b5a91c9e81ddeeeebfa9b66559277d788e032378f6665095b755416ba6",
-    "currentPath": "docs/claude-handoff/10-CURRENT-STATUS-AND-BLOCKERS.md",
-    "currentSha256": "8c4e03b5a91c9e81ddeeeebfa9b66559277d788e032378f6665095b755416ba6",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/01-BUSINESS-AND-PRODUCT-CONTEXT.md",
-    "baselineSha256": "9052c76a8819db2b7b0854fe31c4848bf512ee571fc5bc4977ab31b4e431c71d",
-    "currentPath": "docs/claude-handoff/01-BUSINESS-AND-PRODUCT-CONTEXT.md",
-    "currentSha256": "9052c76a8819db2b7b0854fe31c4848bf512ee571fc5bc4977ab31b4e431c71d",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/09-ATTEMPTED-FIXES-AND-LESSONS.md",
-    "baselineSha256": "059d63a8f6656b6a65f8e546076192e79e8a0c02c43024b57674aaab9fbcf89d",
-    "currentPath": "docs/claude-handoff/09-ATTEMPTED-FIXES-AND-LESSONS.md",
-    "currentSha256": "059d63a8f6656b6a65f8e546076192e79e8a0c02c43024b57674aaab9fbcf89d",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/04-SCHEDULING-ARCHITECTURE.md",
-    "baselineSha256": "0f874085d1ec369537ec18b094f9627a99559fa917ac48da51041063acc06cff",
-    "currentPath": "docs/claude-handoff/04-SCHEDULING-ARCHITECTURE.md",
-    "currentSha256": "0f874085d1ec369537ec18b094f9627a99559fa917ac48da51041063acc06cff",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/05-CALENDAR-OAUTH-BOOKING.md",
-    "baselineSha256": "0c03a27b0fbb522efe7df4380616ea61f4189e1d0088ce798f498fde6803d502",
-    "currentPath": "docs/claude-handoff/05-CALENDAR-OAUTH-BOOKING.md",
-    "currentSha256": "0c03a27b0fbb522efe7df4380616ea61f4189e1d0088ce798f498fde6803d502",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/02-CURRENT-ARCHITECTURE.md",
-    "baselineSha256": "e39db2e60df09f78183eb20233ec8a2a765f7cef922d3f5a877b3928e501aaa3",
-    "currentPath": "docs/claude-handoff/02-CURRENT-ARCHITECTURE.md",
-    "currentSha256": "e39db2e60df09f78183eb20233ec8a2a765f7cef922d3f5a877b3928e501aaa3",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/03-CONVERSATION-AND-PROMPT.md",
-    "baselineSha256": "eecf636e035752783cd26f689c5fee903269a267480544a88920e76ffa604e1f",
-    "currentPath": "docs/claude-handoff/03-CONVERSATION-AND-PROMPT.md",
-    "currentSha256": "eecf636e035752783cd26f689c5fee903269a267480544a88920e76ffa604e1f",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/00-START-HERE.md",
-    "baselineSha256": "89d53497ce80e66c28dbafe7e20bc439dfee66dd477b719b35404e522ec5bbfb",
-    "currentPath": "docs/claude-handoff/00-START-HERE.md",
-    "currentSha256": "89d53497ce80e66c28dbafe7e20bc439dfee66dd477b719b35404e522ec5bbfb",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/12-VALIDATION-PLAN.md",
-    "baselineSha256": "7c7772ad59b676aef15b7d9810c594daf665e00ea7a3f477d28514e4d9b9365a",
-    "currentPath": "docs/claude-handoff/12-VALIDATION-PLAN.md",
-    "currentSha256": "7c7772ad59b676aef15b7d9810c594daf665e00ea7a3f477d28514e4d9b9365a",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/13-FILE-MAP.md",
-    "baselineSha256": "12b655b90c9ecf156fa60f9bb392b383b56dde69dd944f927a8eb78d7bdedcd9",
-    "currentPath": "docs/claude-handoff/13-FILE-MAP.md",
-    "currentSha256": "12b655b90c9ecf156fa60f9bb392b383b56dde69dd944f927a8eb78d7bdedcd9",
-    "match": true,
-    "manifestValue": "(not in manifest)"
-  },
-  {
-    "baselinePath": "docs/claude-handoff/connect-cowork-mac.sh",
-    "baselineSha256": "4a22c3ee50f139438eb88637ba139730cb39f94954982c70b68eebc32c61cec9",
-    "currentPath": "docs/claude-handoff/connect-cowork-mac.sh",
-    "currentSha256": "4a22c3ee50f139438eb88637ba139730cb39f94954982c70b68eebc32c61cec9",
-    "match": true,
-    "manifestValue": "(not in manifest)"
+    "match": true
   }
 ]
