@@ -755,8 +755,8 @@ After owner completes the checklist, record results in `accessibility-human-keyb
 | Verified executable SHA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
 | Post-verification evidence-script commit (`9412e9dea…`) | `9412e9d9b9b04b83d5e374bc33955a48e3e53f2f` |
 | Last reported PR HEAD | `c1e0551ea5dcff50dacf850b1f7c770e9affe758` |
-| Commits after `c1e0551` | **none** (this response updates HEAD) |
-| **Actual current PR #97 HEAD** | **pending this evidence commit** |
+| Commits after `c1e0551` | `b3e2283…`, `45dd665…` |
+| **Actual current PR #97 HEAD** | **`45dd66548d0d44493cfa6ab59ecc1ae96c0ad3d7`** |
 
 ```
 git log --oneline --decorate d54286ec9f875d7627c3a027bf7407664389f4e6..HEAD
