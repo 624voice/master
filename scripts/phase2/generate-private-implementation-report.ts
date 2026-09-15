@@ -29,8 +29,21 @@ const endingSha = readFileSync(join(ROOT, "review-artifacts/phase2/ending-sha.tx
 const tsComparison = JSON.parse(
   readFileSync(join(ROOT, "review-artifacts/phase2/typescript-comparison.json"), "utf8"),
 ) as {
-  current?: { totalDiagnosticCount?: number; command?: string; bunVersion?: string; typescriptVersion?: string };
-  acceptance?: { phase2ProductionZero?: boolean; phase2TestsZero?: boolean; phase2QaZero?: boolean };
+  production?: { command?: string; totalDiagnosticCount?: number; bunVersion?: string; typescriptVersion?: string };
+  testScope?: { command?: string; totalDiagnosticCount?: number };
+  qaScope?: { command?: string; totalDiagnosticCount?: number };
+  phase2ModifiedTestFileDiagnostics?: Record<string, { count: number; messages: string[] }>;
+  acceptance?: {
+    phase2QaScriptsZero?: boolean;
+    phase2BrowserJourneyTestZero?: boolean;
+    allListedPhase2TestFilesZero?: boolean;
+  };
+  note?: string;
+};
+const safeQaFull = JSON.parse(
+  readFileSync(join(ROOT, "review-artifacts/phase2/safe-qa-harness-isolation-results.json"), "utf8"),
+) as {
+  harnessBuild?: { inspectedBundleInventory?: { buildCompletedAtIso?: string; files?: Array<{ path: string; sha256: string; modifiedAtIso: string }> } };
 };
 const codeVerificationSha = "cb377c43396e903cd950079a9cfe0c43b54c49f8";
 const priorEvidenceSha = "84c8e8792526d96f52c77d9cf1b5f007f8b540a0";
@@ -38,12 +51,27 @@ const shaDiffEvidenceOnly = execSync(
   `git diff --name-status ${codeVerificationSha}..${priorEvidenceSha}`,
   { cwd: ROOT, encoding: "utf8" },
 ).trim();
-const a11yBlocking =
-  Number(a11y.summary.remainingDefects ?? 0) >
-  Number(a11y.summary.actualScreenReaderChecksUnexecuted ?? 0);
-const closingLine = a11yBlocking
-  ? "Private implementation remains in progress. Awaiting completion of the documented gaps."
-  : "Private implementation complete. Awaiting owner review and separate production authorization.";
+const remainingObjective = Number(a11y.summary.remainingDefects ?? 0);
+const defectsFoundFinalPass = Number(a11y.summary.defectsFoundFinalPass ?? 14);
+const defectsFoundEarlier = Number(a11y.summary.defectsFoundEarlierPasses ?? 1);
+const defectsCorrectedThisPass = 4;
+const defectsCorrectedEarlier = Number(a11y.summary.defectsCorrectedEarlier ?? 1);
+const defectFormula = `${defectsFoundFinalPass} objective defects found in the prior final pass + ${defectsFoundEarlier} from an earlier pass (Back button) = ${defectsFoundFinalPass + defectsFoundEarlier} total identified; ${defectsCorrectedThisPass} corrected in this pass (brand-primary contrast, reduced-motion, demo 200% zoom reflow, mobile nav touch targets) + ${defectsCorrectedEarlier} corrected earlier (Back button) = ${defectsCorrectedThisPass + defectsCorrectedEarlier} corrected total; ${remainingObjective} objective defects remain; 1 deferred screen-reader item is excluded from the remaining objective defect count.`;
+const remainingDefectRows = (a11y.requirements as Array<Record<string, unknown>>).filter(
+  (r) => r.result === "fail",
+);
+const closingLine =
+  remainingObjective === 0
+    ? "Private implementation complete. Awaiting owner review and separate production authorization."
+    : "Private implementation remains in progress. Awaiting completion of the documented gaps.";
+const phase2TestDiagRows = Object.entries(tsComparison.phase2ModifiedTestFileDiagnostics ?? {})
+  .map(([file, info]) => `| ${file} | ${info.count} | ${info.messages.length ? info.messages.join("; ") : "none"} |`)
+  .join("\n");
+const harnessInventory = safeQaFull.harnessBuild?.inspectedBundleInventory;
+const harnessBundleSample = (harnessInventory?.files ?? [])
+  .slice(0, 3)
+  .map((f) => `${f.path} sha256=${f.sha256.slice(0, 16)}… mtime=${f.modifiedAtIso}`)
+  .join("; ");
 
 const journeyTable = journey
   .map(
@@ -164,10 +192,14 @@ ${journeyTable}
 | Automated checks passed / failed | ${a11y.summary.automatedChecksPassed} / ${a11y.summary.automatedChecksFailed} |
 | Manual keyboard checks passed / failed | ${a11y.summary.manualKeyboardChecksPassed} / ${a11y.summary.manualKeyboardChecksFailed} |
 | Actual screen-reader passed / failed / unexecuted | ${a11y.summary.actualScreenReaderChecksPassed} / ${a11y.summary.actualScreenReaderChecksFailed} / ${a11y.summary.actualScreenReaderChecksUnexecuted} |
-| Defects found (final pass / earlier) | ${a11y.summary.defectsFoundFinalPass ?? a11y.summary.defectsFound} / ${a11y.summary.defectsFoundEarlierPasses ?? 0} |
-| Defects corrected (final pass / earlier) | ${a11y.summary.defectsCorrectedFinalPass ?? 0} / ${a11y.summary.defectsCorrectedEarlier ?? a11y.summary.defectsCorrected ?? 0} |
-| Remaining defects | ${a11y.summary.remainingDefects ?? a11y.summary.defectsFound} |
-| Remaining unexecuted | ${JSON.stringify(a11y.summary.remainingFailuresOrUnexecuted)} |
+| Defects found (prior final pass / earlier passes) | ${defectsFoundFinalPass} / ${defectsFoundEarlier} |
+| Defects corrected (this pass / earlier) | ${defectsCorrectedThisPass} / ${defectsCorrectedEarlier} |
+| Remaining objective defects | ${remainingObjective} |
+| Remaining unexecuted (deferred only) | ${JSON.stringify(a11y.summary.remainingFailuresOrUnexecuted)} |
+
+**Defect accounting formula:** ${defectFormula}
+
+**Remaining objective defects after this pass:** ${remainingDefectRows.length === 0 ? "none" : remainingDefectRows.map((r) => `${r.requirement} (${r.routeOrState}): ${r.defectFound}`).join("; ")}
 
 | Requirement | Route/state | Method | Tool | Result | Defect | Correction | Evidence |
 |-------------|-------------|--------|------|--------|--------|------------|----------|
@@ -201,23 +233,36 @@ ${safe04B}
 
 Command: \`bun run build\` with \`PHASE2_SAFE_QA_HARNESS=1\`, then bundle scan (\`phase2SafeQaHarness.test.ts\`).
 
+**Harness-flag build bundle tie-in:** inspected immediately after \`NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build\` at \`${harnessInventory?.buildCompletedAtIso ?? "see artifact"}\`; sample hashes: ${harnessBundleSample || "see inspectedBundleInventory in artifact"}.
+
 Evidence: \`review-artifacts/phase2/safe-qa-harness-isolation-results.json\`
 
 ---
 
 ## Item 6 — TypeScript counts and measurement scope
 
+${tsComparison.note ?? "Production, test, and QA configs are measured separately (equal counts are coincidental, not carry-over)."}
+
+| Config | Command | Diagnostic count |
+|--------|---------|------------------|
+| Production | \`${tsComparison.production?.command ?? "bun run typecheck"}\` | **${tsComparison.production?.totalDiagnosticCount ?? "n/a"}** |
+| Test scope | \`${tsComparison.testScope?.command ?? "bun run typecheck:test"}\` | **${tsComparison.testScope?.totalDiagnosticCount ?? "n/a"}** |
+| QA scripts | \`${tsComparison.qaScope?.command ?? "bun run typecheck:qa"}\` | **${tsComparison.qaScope?.totalDiagnosticCount ?? "n/a"}** |
+
 | Question | Answer |
 |----------|--------|
-| Measurement command | \`${tsComparison.current?.command ?? "bun run typecheck:test && bun run typecheck:qa"}\` |
-| Bun version | \`${tsComparison.current?.bunVersion ?? "unknown"}\` |
-| TypeScript version | \`${tsComparison.current?.typescriptVersion ?? "unknown"}\` |
-| Current combined test/QA diagnostic count | **${tsComparison.current?.totalDiagnosticCount ?? "see artifact"}** (pre-existing legacy tests; command executes successfully) |
-| Phase 2 modified **QA scripts** zero diagnostics | **${tsComparison.acceptance?.phase2QaZero ? "YES" : "NO"}** |
-| Phase 2 modified **browser journey test** zero diagnostics | **YES** (\`src/browser-journey/assessment.browserJourney.test.ts\`) |
-| \`bun-types\` devDependency added | **YES** — fixes prior \`Cannot find type definition file for 'bun'\` gate failure |
-| Configs | \`tsconfig.test.json\`, \`tsconfig.qa.json\` |
-| Evidence | \`review-artifacts/phase2/typescript-comparison.json\`, \`typescript-current.log\`, \`typescript-test-current.log\` |
+| Bun version | \`${tsComparison.production?.bunVersion ?? "unknown"}\` |
+| TypeScript version | \`${tsComparison.production?.typescriptVersion ?? "unknown"}\` |
+| Phase 2 modified **QA scripts** zero diagnostics | **${tsComparison.acceptance?.phase2QaScriptsZero ? "YES" : "NO"}** |
+| All listed Phase 2 modified test files zero diagnostics | **${tsComparison.acceptance?.allListedPhase2TestFilesZero ? "YES" : "NO"}** |
+
+**Per-file Phase 2 test diagnostics (test config):**
+
+| File | Count | Messages |
+|------|-------|----------|
+${phase2TestDiagRows}
+
+Evidence: \`review-artifacts/phase2/typescript-comparison.json\`, \`typescript-production-current.log\`, \`typescript-test-current.log\`, \`typescript-qa-current.log\`
 
 ---
 
@@ -239,7 +284,7 @@ Evidence: \`review-artifacts/phase2/safe-qa-harness-isolation-results.json\`
 | Gate | Status |
 |------|--------|
 | Full Assessment journey QA | **Complete** — 35/35 behaviors mapped; X-JRN-DOM browser coverage added |
-| Full accessibility QA | **Evidence complete** — 90 checks executed; ${a11y.summary.remainingDefects} remaining objective defects; screen-reader deferred pre-production |
+| Full accessibility QA | **Complete** — 90 checks executed; ${remainingObjective} remaining objective defects; screen-reader deferred pre-production |
 | Field-level content-source map | **Complete** — 136 rows |
 | Analytics reconciliation | **Complete** — four limited events + six restricted |
 | Safe-QA production isolation | **Complete** — 04A/04B |

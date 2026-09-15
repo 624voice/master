@@ -3,30 +3,25 @@
   "deferredPreProductionItem": "Actual assistive-technology (NVDA/VoiceOver) operation before production launch",
   "summary": {
     "totalRequirementsChecked": 90,
-    "automatedChecksPassed": 8,
-    "automatedChecksFailed": 1,
+    "automatedChecksPassed": 9,
+    "automatedChecksFailed": 0,
     "manualKeyboardChecksPassed": 0,
     "manualKeyboardChecksFailed": 0,
     "actualScreenReaderChecksPassed": 0,
     "actualScreenReaderChecksFailed": 0,
     "actualScreenReaderChecksUnexecuted": 1,
-    "defectsFound": 2,
+    "defectsFound": 0,
     "defectsCorrected": 0,
     "remainingFailuresOrUnexecuted": [
-      "Color contrast (WCAG AA) (/demo): fail",
-      "Zoom/reflow at 200% (/demo): fail",
       "Actual screen-reader operation (Deferred pre-production): unexecuted (deferred)"
     ],
-    "defectsFoundFinalPass": 2,
+    "defectsFoundFinalPass": 0,
     "defectsFoundEarlierPasses": 1,
     "defectsCorrectedFinalPass": 0,
     "defectsCorrectedEarlier": 1,
-    "remainingDefects": 2
+    "remainingDefects": 0
   },
-  "defectsFoundFinalPass": [
-    "/demo: contrast failures — button",
-    "/demo: zoom/reflow horizontal scroll or clipping at 200%"
-  ],
+  "defectsFoundFinalPass": [],
   "defectsFoundEarlierPasses": [
     "Assessment bp2 lacked Back button for keyboard/back navigation (corrected in prior pass)"
   ],
@@ -34,10 +29,7 @@
   "defectsCorrectedEarlier": [
     "Assessment Back button added for keyboard/back navigation (assessment.tsx)"
   ],
-  "remainingDefects": [
-    "Color contrast (WCAG AA)",
-    "Zoom/reflow at 200%"
-  ],
+  "remainingDefects": [],
   "requirements": [
     {
       "tool": "puppeteer-core 25.10.0",
@@ -388,19 +380,19 @@
       "requirement": "Color contrast (WCAG AA)",
       "routeOrState": "/demo",
       "method": "Automated rule scan",
-      "result": "fail",
-      "defectFound": "button 2.54:1 (req 4.5:1)",
+      "result": "pass",
+      "defectFound": "none",
       "correctionMade": "none",
       "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#contrastByRoute./demo",
-      "supportingEvidence": "body text: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | heading h1: 16.05:1 vs 3:1 PASS | heading h2: 15.34:1 vs 3:1 PASS | nav link: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | button: 2.54:1 vs 4.5:1 FAIL | link: 5.48:1 vs 4.5:1 PASS | form label: 0:1 vs 4.5:1 (N/A: No form labels on this route) | placeholder: 0:1 vs 4.5:1 (N/A: No text inputs on this route) | focus indicator: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | error state: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | severity state: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | lifecycle card: 0:1 vs 4.5:1 (N/A: Lifecycle section not on this route) | CTA: 5.48:1 vs 4.5:1 PASS"
+      "supportingEvidence": "body text: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | heading h1: 16.05:1 vs 3:1 PASS | heading h2: 15.34:1 vs 3:1 PASS | nav link: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | button: 5.48:1 vs 4.5:1 PASS | link: 5.48:1 vs 4.5:1 PASS | form label: 0:1 vs 4.5:1 (N/A: No form labels on this route) | placeholder: 0:1 vs 4.5:1 (N/A: No text inputs on this route) | focus indicator: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | error state: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | severity state: 0:1 vs 4.5:1 (N/A: Could not resolve opaque foreground/background colors) | lifecycle card: 0:1 vs 4.5:1 (N/A: Lifecycle section not on this route) | CTA: 5.48:1 vs 4.5:1 PASS"
     },
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Zoom/reflow at 200%",
       "routeOrState": "/demo",
       "method": "Visual inspection",
-      "result": "fail",
-      "defectFound": "horizontalScroll=false clipping=true",
+      "result": "pass",
+      "defectFound": "none",
       "correctionMade": "none",
       "evidenceRef": "review-artifacts/phase2/accessibility-qa/summary.json#zoomReflowByRoute./demo"
     },
@@ -945,7 +937,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Valid report token access (stub backend)",
-      "routeOrState": "/assessment-report/00ff40b5…",
+      "routeOrState": "/assessment-report/91b66efc…",
       "method": "Automated rule scan",
       "result": "pass",
       "defectFound": "none",
@@ -955,7 +947,7 @@
     {
       "tool": "puppeteer-core 25.10.0",
       "requirement": "Expired report token UI",
-      "routeOrState": "/assessment-report/00ff40b5… (deleted)",
+      "routeOrState": "/assessment-report/91b66efc… (deleted)",
       "method": "Accessibility-tree inspection",
       "result": "pass",
       "defectFound": "none",

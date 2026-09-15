@@ -2,19 +2,40 @@
   {
     "run": 1,
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
-    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [4.99ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [87.00ms]",
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "tests": null,
+    "files": null,
+    "durationMs": 198,
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.16ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [85.00ms]",
     "status": 0
   },
   {
     "run": 2,
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
-    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.03ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [106.00ms]",
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "tests": null,
+    "files": null,
+    "durationMs": 203,
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.07ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [90.00ms]",
     "status": 0
   },
   {
     "run": 3,
     "command": "bun test src/server/sms/sendState.duplication.test.ts -t \"inbound reply\"",
-    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [4.88ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [84.00ms]",
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "timeout": 0,
+    "tests": null,
+    "files": null,
+    "durationMs": 192,
+    "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/sms/sendState.duplication.test.ts:\n(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [5.81ms]\n\n 1 pass\n 12 filtered out\n 0 fail\n 1 expect() calls\nRan 1 test across 1 file. [80.00ms]",
     "status": 0
   }
 ]

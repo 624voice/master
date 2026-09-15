@@ -1,6 +1,6 @@
 {
   "tooling": "puppeteer-core 25.10.0 + @sparticuz/chromium; production build on port 3000 with Redis stub backend for assessment/report flows",
-  "probedAt": "2026-09-15T14:54:08.162Z",
+  "probedAt": "2026-09-15T15:14:19.783Z",
   "publicRoutes": [
     "/",
     "/what-we-do",
@@ -963,11 +963,11 @@
           "category": "button",
           "selector": "button",
           "foreground": "rgb(255, 255, 255)",
-          "background": "rgb(16, 185, 129)",
-          "ratio": 2.54,
+          "background": "rgb(4, 120, 87)",
+          "ratio": 5.48,
           "required": 4.5,
           "isLargeText": false,
-          "pass": false
+          "pass": true
         },
         {
           "category": "link",
@@ -1064,7 +1064,7 @@
         "scrollHeight": 3530,
         "clientHeight": 900,
         "hasHorizontalScroll": false,
-        "hasClipping": true
+        "hasClipping": false
       },
       "reducedMotion": {
         "route": "/demo",
@@ -1782,7 +1782,7 @@
       }
     },
     "reportAction": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/d995bf3e94a4901daa610bea67e885e8ca87ae619ead3c29",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/7da4ec378fa08f4d302be789add967c198bdff35941b12d7",
       "firstAttemptStatus": 503,
       "alertOnFailure": false,
       "resultsStillVisible": true
@@ -1794,7 +1794,7 @@
       "body": "This assessment report link has expired or is invalid."
     },
     "success": {
-      "reportUrl": "http://127.0.0.1:3000/assessment-report/00ff40b5586f374c4fce515c4d4bcd178eb2275b1c5ace04",
+      "reportUrl": "http://127.0.0.1:3000/assessment-report/91b66efc190a479bd4d59859bfbf1799127303ab3d6ed3e3",
       "status": 200,
       "pdfBytes": 111094,
       "contentType": "application/pdf",
@@ -2332,11 +2332,11 @@
         "category": "button",
         "selector": "button",
         "foreground": "rgb(255, 255, 255)",
-        "background": "rgb(16, 185, 129)",
-        "ratio": 2.54,
+        "background": "rgb(4, 120, 87)",
+        "ratio": 5.48,
         "required": 4.5,
         "isLargeText": false,
-        "pass": false
+        "pass": true
       },
       {
         "category": "link",
@@ -2888,7 +2888,7 @@
       "scrollHeight": 3530,
       "clientHeight": 900,
       "hasHorizontalScroll": false,
-      "hasClipping": true
+      "hasClipping": false
     },
     "/about": {
       "route": "/about",
@@ -3098,10 +3098,7 @@
       "elements": []
     }
   },
-  "defectsFoundFinalPass": [
-    "/demo: contrast failures — button",
-    "/demo: zoom/reflow horizontal scroll or clipping at 200%"
-  ],
+  "defectsFoundFinalPass": [],
   "defectsFoundEarlierPasses": [
     "Assessment bp2 lacked Back button for keyboard/back navigation (corrected in prior pass)"
   ],
