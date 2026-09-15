@@ -1,6 +1,6 @@
 {
   "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
-  "currentHeadSha": "ee5b3ac7409b5a31f57248ab09290d7c456a114c",
+  "currentHeadSha": "02fc3ffd9bd11766be0c6206ce08ee988431d69c",
   "note": "Production (tsconfig.json), test (tsconfig.test.json), and QA (tsconfig.qa.json) are measured separately. Equal counts are coincidental, not carry-over.",
   "production": {
     "label": "production-current",
@@ -595,7 +595,7 @@
     "bunVersion": "1.3.14",
     "typescriptVersion": "Version 5.9.3",
     "exitStatus": 2,
-    "totalDiagnosticCount": 93,
+    "totalDiagnosticCount": 90,
     "includedFileCount": 1739,
     "includedFilesSample": [
       "node_modules/typescript/lib/lib.es5.d.ts",
@@ -611,24 +611,6 @@
         "line": 38,
         "code": "TS2345",
         "message": "Argument of type '\"assessment_started\" | \"assessment_question_answered\" | \"assessment_branch_opened\" | \"assessment_teaser_viewed\" | \"lead_gate_complete\" | \"sms_consent_opt_in\" | \"assessment_complete\" | \"assessment_report_downloaded\" | \"roi_agent_triggered\" | \"roi_document_generated\"' is not assignable to parameter of type '\"lead_gate_complete\" | \"sms_consent_opt_in\" | \"assessment_complete\" | \"roi_agent_triggered\"'."
-      },
-      {
-        "file": "src/lib/assessment/assessmentJourney.test.ts",
-        "line": 36,
-        "code": "TS2345",
-        "message": "Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'."
-      },
-      {
-        "file": "src/lib/assessment/assessmentJourney.test.ts",
-        "line": 38,
-        "code": "TS2345",
-        "message": "Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'."
-      },
-      {
-        "file": "src/lib/assessment/assessmentJourney.test.ts",
-        "line": 41,
-        "code": "TS2345",
-        "message": "Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'."
       },
       {
         "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
@@ -1192,12 +1174,8 @@
       "messages": []
     },
     "src/lib/assessment/assessmentJourney.test.ts": {
-      "count": 3,
-      "messages": [
-        "src/lib/assessment/assessmentJourney.test.ts(36,1): error TS2345: Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'.",
-        "src/lib/assessment/assessmentJourney.test.ts(38,1): error TS2345: Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'.",
-        "src/lib/assessment/assessmentJourney.test.ts(41,1): error TS2345: Argument of type 'number | \"not_sure\"' is not assignable to parameter of type 'AnswerValue'."
-      ]
+      "count": 0,
+      "messages": []
     },
     "src/lib/analytics/analyticsLockedContractComparison.test.ts": {
       "count": 0,
@@ -1222,6 +1200,6 @@
     "qaConfigExecutes": true,
     "phase2QaScriptsZero": true,
     "phase2BrowserJourneyTestZero": true,
-    "allListedPhase2TestFilesZero": false
+    "allListedPhase2TestFilesZero": true
   }
 }

@@ -1,7 +1,4 @@
 src/lib/analytics/trackEvent.test.ts(38,1): error TS2345: Argument of type '"assessment_started" | "assessment_question_answered" | "assessment_branch_opened" | "assessment_teaser_viewed" | "lead_gate_complete" | "sms_consent_opt_in" | "assessment_complete" | "assessment_report_downloaded" | "roi_agent_triggered" | "roi_document_generated"' is not assignable to parameter of type '"lead_gate_complete" | "sms_consent_opt_in" | "assessment_complete" | "roi_agent_triggered"'.
-src/lib/assessment/assessmentJourney.test.ts(36,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
-src/lib/assessment/assessmentJourney.test.ts(38,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
-src/lib/assessment/assessmentJourney.test.ts(41,1): error TS2345: Argument of type 'number | "not_sure"' is not assignable to parameter of type 'AnswerValue'.
 src/lib/assessment/browserPiiBoundaries.test.ts(67,1): error TS2769: No overload matches this call.
 src/lib/report/buildReportViewModel.test.ts(64,1): error TS2345: Argument of type 'number' is not assignable to parameter of type 'ScenarioIndex'.
 src/lib/report/renderReportPdf.test.ts(39,1): error TS18046: 'annots.size' is of type 'unknown'.

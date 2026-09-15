@@ -10,7 +10,7 @@ export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardPro
     <div className={`mx-auto w-full max-w-[680px] overflow-hidden lg:mx-0 ${className}`}>
       <div className="relative w-full overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-0 rounded-[28px] bg-brand-primary/20 blur-2xl motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
+          className="pointer-events-none absolute inset-0 rounded-[28px] shadow-[0_0_48px_16px_rgba(4,120,87,0.12)] motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
           aria-hidden="true"
         />
         <div className="relative overflow-hidden rounded-[22px] border border-slate-200/80 bg-[#F8FAFC] shadow-[0_28px_80px_-20px_rgba(0,0,0,0.45)]">

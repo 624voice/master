@@ -106,35 +106,53 @@ function generateTestScopeComparison(): void {
   });
 }
 
+function parseTestSummary(output: string) {
+  const passMatch = output.match(/(\d+) pass/);
+  const failMatch = output.match(/(\d+) fail/);
+  const skipMatch = output.match(/(\d+) skip/);
+  const timeoutMatch = output.match(/(\d+) timeout/);
+  const fileMatch = output.match(/Ran (\d+) tests across (\d+) files\. \[([\d.]+)s\]/);
+  return {
+    pass: passMatch ? Number(passMatch[1]) : 0,
+    fail: failMatch ? Number(failMatch[1]) : 0,
+    skip: skipMatch ? Number(skipMatch[1]) : 0,
+    timeout: timeoutMatch ? Number(timeoutMatch[1]) : 0,
+    tests: fileMatch ? Number(fileMatch[1]) : null,
+    files: fileMatch ? Number(fileMatch[2]) : null,
+    durationMs: fileMatch ? Math.round(Number(fileMatch[3]) * 1000) : null,
+  };
+}
+
 function generateStabilityRuns(): void {
   const runs: Array<Record<string, unknown>> = [];
   for (let i = 1; i <= 5; i += 1) {
-    const result = run("bun test 2>&1 | tail -8");
-    const passMatch = result.stdout.match(/(\d+) pass/);
-    const failMatch = result.stdout.match(/(\d+) fail/);
-    const fileMatch = result.stdout.match(/Ran (\d+) tests across (\d+) files/);
+    const started = Date.now();
+    const result = run("bun test 2>&1");
+    const parsed = parseTestSummary(result.stdout);
     runs.push({
       run: i,
       command: "bun test",
-      pass: passMatch ? Number(passMatch[1]) : null,
-      fail: failMatch ? Number(failMatch[1]) : null,
-      tests: fileMatch ? Number(fileMatch[1]) : null,
-      files: fileMatch ? Number(fileMatch[2]) : null,
-      tail: result.stdout.trim(),
+      ...parsed,
+      durationMs: parsed.durationMs ?? Date.now() - started,
+      tail: result.stdout.split("\n").slice(-8).join("\n").trim(),
       status: result.status,
     });
   }
 
   const msgSidRuns: Array<Record<string, unknown>> = [];
   for (let i = 1; i <= 3; i += 1) {
+    const started = Date.now();
     const result = run(
-      'bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1 | tail -12',
+      'bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply" 2>&1',
     );
+    const parsed = parseTestSummary(result.stdout);
     msgSidRuns.push({
       run: i,
       command:
         'bun test src/server/sms/sendState.duplication.test.ts -t "inbound reply"',
-      tail: result.stdout.trim(),
+      ...parsed,
+      durationMs: parsed.durationMs ?? Date.now() - started,
+      tail: result.stdout.split("\n").slice(-12).join("\n").trim(),
       status: result.status,
     });
   }

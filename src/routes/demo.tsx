@@ -139,14 +139,14 @@ function DemoPage() {
         <DemoBackground />
 
         <div className="relative mx-auto max-w-[1450px] overflow-x-hidden">
-          <div className="grid items-start gap-6 overflow-x-hidden lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-14">
+          <div className="grid min-w-0 max-w-full grid-cols-1 items-start gap-6 overflow-x-hidden lg:grid-cols-2 lg:gap-8 xl:gap-10">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
               startDisabled={startDisabled}
               showCta={pageView === "gate" || pageView === "demo"}
             />
 
-            <div className="flex min-w-0 justify-center overflow-x-hidden pt-1 lg:justify-end lg:pt-2">
+            <div className="flex min-w-0 max-w-full justify-center overflow-x-hidden pt-1 lg:justify-end lg:pt-2">
               {pageView === "form" ? (
                 <DemoBrowserCard>
                   <h2 className="text-center text-xl font-bold text-[#18222f]">
