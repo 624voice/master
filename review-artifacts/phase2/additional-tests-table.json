@@ -1,422 +1,548 @@
 [
   {
-    "id": "X-LIFECYCLE-01",
-    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
-    "test": "X-LIFECYCLE-01: six stage label pairs",
-    "result": "pass"
-  },
-  {
-    "id": "X-LIFECYCLE-02",
-    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
-    "test": "X-LIFECYCLE-02: headline and note are em-dash-free",
-    "result": "pass"
-  },
-  {
-    "id": "X-LIFECYCLE-03",
-    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
-    "test": "X-LIFECYCLE-03: reference PNG hash",
-    "result": "pass"
-  },
-  {
-    "id": "X-LIFECYCLE-04",
-    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
-    "test": "X-LIFECYCLE-04: semantic ol/li structure",
-    "result": "pass"
-  },
-  {
-    "id": "X-LIFECYCLE-05",
-    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
-    "test": "X-LIFECYCLE-05: RGBA alpha transparency",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-01",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-01",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-02",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-03",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-03",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-04",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-04",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-05",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-05",
-    "result": "pass"
-  },
-  {
-    "id": "X-PII-06",
-    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
-    "test": "X-PII-06",
-    "result": "pass"
-  },
-  {
-    "id": "X-LUA-01",
-    "file": "src/server/assessment/rateLimitLua.test.ts",
-    "test": "X-LUA-01: phone idempotency Lua commands",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-06",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-06: AssessmentReport.tsx",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-07",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-07",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-08",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-08",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-09",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-09",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-10",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-10",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-11",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-11",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-12",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-12",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-13",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-13: token route isolated handler",
-    "result": "pass"
-  },
-  {
-    "id": "X-BND-14",
-    "file": "src/server/report/bundleBoundary.test.ts",
-    "test": "X-BND-14: isolated PDF pipeline",
-    "result": "pass"
-  },
-  {
     "id": "X-AN-01",
     "file": "src/lib/analytics/analyticsContract.test.ts",
-    "test": "X-AN-01",
-    "result": "pass"
+    "executableTestName": "X-AN-01: assessment route trackEvent calls exclude raw contact fields",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsContract.test.ts#X-AN-01: assessment route trackEvent calls exclude raw contact fields"
   },
   {
     "id": "X-AN-02",
     "file": "src/lib/analytics/analyticsContract.test.ts",
-    "test": "X-AN-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-SAFE-QA-01",
-    "file": "src/server/phase2SafeQaHarness.test.ts",
-    "test": "X-SAFE-QA-01",
-    "result": "pass"
-  },
-  {
-    "id": "X-SAFE-QA-02",
-    "file": "src/server/phase2SafeQaHarness.test.ts",
-    "test": "X-SAFE-QA-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-SAFE-QA-03",
-    "file": "src/server/phase2SafeQaHarness.test.ts",
-    "test": "X-SAFE-QA-03",
-    "result": "pass"
-  },
-  {
-    "id": "X-SAFE-QA-04A",
-    "file": "src/server/phase2SafeQaHarness.test.ts",
-    "test": "X-SAFE-QA-04A: missing credentials and unset harness do not enable fixture paths",
-    "result": "pass"
-  },
-  {
-    "id": "X-SAFE-QA-04B",
-    "file": "src/server/phase2SafeQaHarness.test.ts",
-    "test": "X-SAFE-QA-04B: production bundle ignores PHASE2_SAFE_QA_HARNESS",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-01",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-01",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-02",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-03",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-03",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-04",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-04",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-05",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-05",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-06",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-06",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-07",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-07",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-08",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-08",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-09",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-09",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-10",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-10",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-11",
-    "file": "src/lib/assessment/assessmentJourney.test.ts",
-    "test": "X-JRN-11",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-01",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-01",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-02",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-03",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-03",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-04",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-04",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-05",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-05",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-06",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-06",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-PIPE-07",
-    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-    "test": "X-JRN-PIPE-07",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-01",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-01",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-02",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-02",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-03",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-03",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-04",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-04",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-05",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-05",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-06",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-06",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-07",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-07",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-08",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-08",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-09",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-09",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-10",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-10",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-11",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-11",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-12",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-12",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-13",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-13",
-    "result": "pass"
-  },
-  {
-    "id": "X-JRN-DOM-14",
-    "file": "src/browser-journey/assessment.browserJourney.test.ts",
-    "test": "X-JRN-DOM-14",
-    "result": "pass"
-  },
-  {
-    "id": "X-AN-CMP positive lead_gate_complete",
-    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP positive lead_gate_complete: dispatched fields satisfy locked contract",
-    "result": "pass"
-  },
-  {
-    "id": "X-AN-CMP negative lead_gate_complete",
-    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP negative lead_gate_complete: prohibited contact fields rejected",
-    "result": "pass"
-  },
-  {
-    "id": "X-AN-CMP positive sms_consent_opt_in",
-    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP positive sms_consent_opt_in: dispatched fields satisfy locked contract",
-    "result": "pass"
-  },
-  {
-    "id": "X-AN-CMP negative sms_consent_opt_in",
-    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP negative sms_consent_opt_in: prohibited contact fields rejected",
-    "result": "pass"
-  },
-  {
-    "id": "X-AN-CMP positive assessment_complete",
-    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP positive assessment_complete: dispatched fields satisfy locked contract",
-    "result": "pass"
+    "executableTestName": "X-AN-02: server submit handler trackEvent calls exclude raw contact fields",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsContract.test.ts#X-AN-02: server submit handler trackEvent calls exclude raw contact fields"
   },
   {
     "id": "X-AN-CMP negative assessment_complete",
     "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP negative assessment_complete: prohibited contact fields rejected",
-    "result": "pass"
+    "executableTestName": "X-AN-CMP negative assessment_complete: prohibited contact fields rejected",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP negative assessment_complete: prohibited contact fields rejected"
   },
   {
-    "id": "X-AN-CMP positive roi_agent_triggered",
+    "id": "X-AN-CMP negative lead_gate_complete",
     "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP positive roi_agent_triggered: dispatched fields satisfy locked contract",
-    "result": "pass"
+    "executableTestName": "X-AN-CMP negative lead_gate_complete: prohibited contact fields rejected",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP negative lead_gate_complete: prohibited contact fields rejected"
   },
   {
     "id": "X-AN-CMP negative roi_agent_triggered",
     "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP negative roi_agent_triggered: prohibited contact fields rejected",
-    "result": "pass"
+    "executableTestName": "X-AN-CMP negative roi_agent_triggered: prohibited contact fields rejected",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP negative roi_agent_triggered: prohibited contact fields rejected"
+  },
+  {
+    "id": "X-AN-CMP negative sms_consent_opt_in",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "executableTestName": "X-AN-CMP negative sms_consent_opt_in: prohibited contact fields rejected",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP negative sms_consent_opt_in: prohibited contact fields rejected"
+  },
+  {
+    "id": "X-AN-CMP positive assessment_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "executableTestName": "X-AN-CMP positive assessment_complete: dispatched fields satisfy locked contract",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP positive assessment_complete: dispatched fields satisfy locked contract"
+  },
+  {
+    "id": "X-AN-CMP positive lead_gate_complete",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "executableTestName": "X-AN-CMP positive lead_gate_complete: dispatched fields satisfy locked contract",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP positive lead_gate_complete: dispatched fields satisfy locked contract"
+  },
+  {
+    "id": "X-AN-CMP positive roi_agent_triggered",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "executableTestName": "X-AN-CMP positive roi_agent_triggered: dispatched fields satisfy locked contract",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP positive roi_agent_triggered: dispatched fields satisfy locked contract"
+  },
+  {
+    "id": "X-AN-CMP positive sms_consent_opt_in",
+    "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
+    "executableTestName": "X-AN-CMP positive sms_consent_opt_in: dispatched fields satisfy locked contract",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP positive sms_consent_opt_in: dispatched fields satisfy locked contract"
   },
   {
     "id": "X-AN-CMP-05",
     "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP-05: durable comparison artifact exists for four limited events",
-    "result": "pass"
+    "executableTestName": "X-AN-CMP-05: durable comparison artifact exists for four limited events",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP-05: durable comparison artifact exists for four limited events"
   },
   {
     "id": "X-AN-CMP-06",
     "file": "src/lib/analytics/analyticsLockedContractComparison.test.ts",
-    "test": "X-AN-CMP-06: submit handler call-site lines recorded",
-    "result": "pass"
+    "executableTestName": "X-AN-CMP-06: submit handler call-site lines recorded",
+    "result": "pass",
+    "evidenceRef": "src/lib/analytics/analyticsLockedContractComparison.test.ts#X-AN-CMP-06: submit handler call-site lines recorded"
+  },
+  {
+    "id": "X-BND-06",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-06: components/report/AssessmentReport.tsx avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-06: components/report/AssessmentReport.tsx avoids server-only imports"
+  },
+  {
+    "id": "X-BND-07",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-07: lib/assessment/buildAssessmentReportViewModel.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-07: lib/assessment/buildAssessmentReportViewModel.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-08",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-08: lib/assessment/runAssessment.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-08: lib/assessment/runAssessment.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-09",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-09: lib/assessment/engine.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-09: lib/assessment/engine.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-10",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-10: lib/assessment/questions.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-10: lib/assessment/questions.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-11",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-11: lib/assessment/validateAssessmentAnswers.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-11: lib/assessment/validateAssessmentAnswers.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-12",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-12: lib/assessment/buildLeadSummary.ts avoids server-only imports",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-12: lib/assessment/buildLeadSummary.ts avoids server-only imports"
+  },
+  {
+    "id": "X-BND-13",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-13: assessment token route dynamically imports isolated server handler",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-13: assessment token route dynamically imports isolated server handler"
+  },
+  {
+    "id": "X-BND-14",
+    "file": "src/server/report/bundleBoundary.test.ts",
+    "executableTestName": "X-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline",
+    "result": "pass",
+    "evidenceRef": "src/server/report/bundleBoundary.test.ts#X-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline"
+  },
+  {
+    "id": "X-JRN-01",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-01: forward navigation covers all universal steps",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-01: forward navigation covers all universal steps"
+  },
+  {
+    "id": "X-JRN-02",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-02: back navigation preserves valid answers",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-02: back navigation preserves valid answers"
+  },
+  {
+    "id": "X-JRN-03",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-03: upstream branch change deletes stale follow-up answers",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-03: upstream branch change deletes stale follow-up answers"
+  },
+  {
+    "id": "X-JRN-04",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-04: respond assumptions review acceptance (modeled defaults)",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-04: respond assumptions review acceptance (modeled defaults)"
+  },
+  {
+    "id": "X-JRN-05",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-05: respond assumptions review with visitor edits",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-05: respond assumptions review with visitor edits"
+  },
+  {
+    "id": "X-JRN-06",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-06: mixed R1/R2/R3 provenance label",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-06: mixed R1/R2/R3 provenance label"
+  },
+  {
+    "id": "X-JRN-07",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-07: Low, Moderate, and High Respond outcomes",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-07: Low, Moderate, and High Respond outcomes"
+  },
+  {
+    "id": "X-JRN-08",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-08: needs-clarification outcome",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-08: needs-clarification outcome"
+  },
+  {
+    "id": "X-JRN-09",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-09: missing-Moderate-scenario degradation",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-09: missing-Moderate-scenario degradation"
+  },
+  {
+    "id": "X-JRN-10",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-10: priority ordering and tied priorities",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-10: priority ordering and tied priorities"
+  },
+  {
+    "id": "X-JRN-11",
+    "file": "src/lib/assessment/assessmentJourney.test.ts",
+    "executableTestName": "X-JRN-11: back from teaser returns to last question",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/assessmentJourney.test.ts#X-JRN-11: back from teaser returns to last question"
+  },
+  {
+    "id": "X-JRN-DOM-01",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-01: forward navigation through universal steps to gate",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-01: forward navigation through universal steps to gate"
+  },
+  {
+    "id": "X-JRN-DOM-02",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-02: back navigation from bp2 to bp1",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-02: back navigation from bp2 to bp1"
+  },
+  {
+    "id": "X-JRN-DOM-03",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-03: return after back preserves valid answers",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-03: return after back preserves valid answers"
+  },
+  {
+    "id": "X-JRN-DOM-04",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-04: conditional branch activation and removal in DOM",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-04: conditional branch activation and removal in DOM"
+  },
+  {
+    "id": "X-JRN-DOM-05",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-05: assumptions-review edit updates rendered field",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-05: assumptions-review edit updates rendered field"
+  },
+  {
+    "id": "X-JRN-DOM-06",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-06: lead-gate validation rejection in DOM",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-06: lead-gate validation rejection in DOM"
+  },
+  {
+    "id": "X-JRN-DOM-07",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-07: corrected resubmission reaches rendered results",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-07: corrected resubmission reaches rendered results"
+  },
+  {
+    "id": "X-JRN-DOM-08",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-08: SMS consent unchecked by default",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-08: SMS consent unchecked by default"
+  },
+  {
+    "id": "X-JRN-DOM-09",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-09: results render without SMS consent",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-09: results render without SMS consent"
+  },
+  {
+    "id": "X-JRN-DOM-10",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-10: results render with SMS consent checked",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-10: results render with SMS consent checked"
+  },
+  {
+    "id": "X-JRN-DOM-11",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-11: priority ordering presentation in results DOM",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-11: priority ordering presentation in results DOM"
+  },
+  {
+    "id": "X-JRN-DOM-12",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-12: invalid report token renders plain-text failure",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-12: invalid report token renders plain-text failure"
+  },
+  {
+    "id": "X-JRN-DOM-13",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-13: validation failure recovery enables resubmission",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-13: validation failure recovery enables resubmission"
+  },
+  {
+    "id": "X-JRN-DOM-14",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-14: results DOM omits Download button without reportUrl",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-14: results DOM omits Download button without reportUrl"
+  },
+  {
+    "id": "X-JRN-DOM-15",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-15: rendered stale-answer removal after branch downgrade",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-15: rendered stale-answer removal after branch downgrade"
+  },
+  {
+    "id": "X-JRN-DOM-16",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-16: successful report access through visitor UI",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-16: successful report access through visitor UI"
+  },
+  {
+    "id": "X-JRN-DOM-17",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-17: repeat report access through same visitor link",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-17: repeat report access through same visitor link"
+  },
+  {
+    "id": "X-JRN-DOM-18",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-18: invalid report-link UI state",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-18: invalid report-link UI state"
+  },
+  {
+    "id": "X-JRN-DOM-19",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-19: expired report-link UI state",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-19: expired report-link UI state"
+  },
+  {
+    "id": "X-JRN-DOM-20",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-20: retryable report failure and visitor recovery",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-20: retryable report failure and visitor recovery"
+  },
+  {
+    "id": "X-JRN-DOM-21",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-21: PDF access without SMS consent through rendered route",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-21: PDF access without SMS consent through rendered route"
+  },
+  {
+    "id": "X-JRN-DOM-22",
+    "file": "src/browser-journey/assessment.browserJourney.test.ts",
+    "executableTestName": "X-JRN-DOM-22: tied-priority presentation in rendered results",
+    "result": "pass",
+    "evidenceRef": "src/browser-journey/assessment.browserJourney.test.ts#X-JRN-DOM-22: tied-priority presentation in rendered results"
+  },
+  {
+    "id": "X-JRN-PIPE-01",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-01: lead-gate validation errors surface required fields",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-01: lead-gate validation errors surface required fields"
+  },
+  {
+    "id": "X-JRN-PIPE-02",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-02: corrected resubmission after validation failure succeeds",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-02: corrected resubmission after validation failure succeeds"
+  },
+  {
+    "id": "X-JRN-PIPE-03",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-03: results and PDF access with SMS consent unchecked",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-03: results and PDF access with SMS consent unchecked"
+  },
+  {
+    "id": "X-JRN-PIPE-04",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-04: consent checked but agent flag false still returns report",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-04: consent checked but agent flag false still returns report"
+  },
+  {
+    "id": "X-JRN-PIPE-05",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-05: repeat report access under approved token contract",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-05: repeat report access under approved token contract"
+  },
+  {
+    "id": "X-JRN-PIPE-06",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text"
+  },
+  {
+    "id": "X-JRN-PIPE-07",
+    "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+    "executableTestName": "X-JRN-PIPE-07: retryable report failure exposes visitor recovery message",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/assessmentJourneyPipeline.test.ts#X-JRN-PIPE-07: retryable report failure exposes visitor recovery message"
+  },
+  {
+    "id": "X-LIFECYCLE-01",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "executableTestName": "X-LIFECYCLE-01: six stage label pairs match approved verbatim list",
+    "result": "pass",
+    "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx#X-LIFECYCLE-01: six stage label pairs match approved verbatim list"
+  },
+  {
+    "id": "X-LIFECYCLE-02",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "executableTestName": "X-LIFECYCLE-02: headline and note are em-dash-free",
+    "result": "pass",
+    "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx#X-LIFECYCLE-02: headline and note are em-dash-free"
+  },
+  {
+    "id": "X-LIFECYCLE-03",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "executableTestName": "X-LIFECYCLE-03: reference PNG hash matches approved asset identity",
+    "result": "pass",
+    "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx#X-LIFECYCLE-03: reference PNG hash matches approved asset identity"
+  },
+  {
+    "id": "X-LIFECYCLE-04",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "executableTestName": "X-LIFECYCLE-04: component source uses semantic ol/li structure",
+    "result": "pass",
+    "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx#X-LIFECYCLE-04: component source uses semantic ol/li structure"
+  },
+  {
+    "id": "X-LIFECYCLE-05",
+    "file": "src/components/CustomerLifecycleDiagram.test.tsx",
+    "executableTestName": "X-LIFECYCLE-05: reference PNG is RGBA with actual alpha transparency",
+    "result": "pass",
+    "evidenceRef": "src/components/CustomerLifecycleDiagram.test.tsx#X-LIFECYCLE-05: reference PNG is RGBA with actual alpha transparency"
+  },
+  {
+    "id": "X-LUA-01",
+    "file": "src/server/assessment/rateLimitLua.test.ts",
+    "executableTestName": "X-LUA-01: phone idempotency Lua contains idempotency and rate-limit commands",
+    "result": "pass",
+    "evidenceRef": "src/server/assessment/rateLimitLua.test.ts#X-LUA-01: phone idempotency Lua contains idempotency and rate-limit commands"
+  },
+  {
+    "id": "X-PII-01",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-01: Assessment client code does not persist PII in browser storage",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-01: Assessment client code does not persist PII in browser storage"
+  },
+  {
+    "id": "X-PII-02",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-02: AssessmentGate keeps contact fields in transient React state only",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-02: AssessmentGate keeps contact fields in transient React state only"
+  },
+  {
+    "id": "X-PII-03",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-03: report token URL carries opaque token only, no query-string PII",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-03: report token URL carries opaque token only, no query-string PII"
+  },
+  {
+    "id": "X-PII-04",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-04: four limited-payload events; six prohibit contact/answer/token; dispatch excludes raw contact",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-04: four limited-payload events; six prohibit contact/answer/token; dispatch excludes raw contact"
+  },
+  {
+    "id": "X-PII-05",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-05: server-side Redis identifiers use domain-separated HMAC, not raw PII",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-05: server-side Redis identifiers use domain-separated HMAC, not raw PII"
+  },
+  {
+    "id": "X-PII-06",
+    "file": "src/lib/assessment/browserPiiBoundaries.test.ts",
+    "executableTestName": "X-PII-06: Assessment submission uses POST body transport, not URL query parameters",
+    "result": "pass",
+    "evidenceRef": "src/lib/assessment/browserPiiBoundaries.test.ts#X-PII-06: Assessment submission uses POST body transport, not URL query parameters"
+  },
+  {
+    "id": "X-SAFE-QA-01",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "executableTestName": "X-SAFE-QA-01: no fixture mode query param or public route in source",
+    "result": "pass",
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts#X-SAFE-QA-01: no fixture mode query param or public route in source"
+  },
+  {
+    "id": "X-SAFE-QA-02",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "executableTestName": "X-SAFE-QA-02: harness requires explicit env; missing credential alone does not enable it",
+    "result": "pass",
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts#X-SAFE-QA-02: harness requires explicit env; missing credential alone does not enable it"
+  },
+  {
+    "id": "X-SAFE-QA-03",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "executableTestName": "X-SAFE-QA-03: safe QA script strips production provider credentials in child env",
+    "result": "pass",
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts#X-SAFE-QA-03: safe QA script strips production provider credentials in child env"
+  },
+  {
+    "id": "X-SAFE-QA-04A",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "executableTestName": "X-SAFE-QA-04A: missing credentials and unset harness do not enable fixture paths",
+    "result": "pass",
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts#X-SAFE-QA-04A: missing credentials and unset harness do not enable fixture paths"
+  },
+  {
+    "id": "X-SAFE-QA-04B",
+    "file": "src/server/phase2SafeQaHarness.test.ts",
+    "executableTestName": "X-SAFE-QA-04B: production bundle ignores PHASE2_SAFE_QA_HARNESS",
+    "result": "pass",
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts#X-SAFE-QA-04B: production bundle ignores PHASE2_SAFE_QA_HARNESS"
   }
 ]

@@ -12,6 +12,16 @@ src/components/RoiCalculator.tsx(524,20): error TS7053: Element implicitly has a
   Property '' does not exist on type '{ readonly Plumbers: { readonly label: "Plumbers"; readonly callsPerTruckPerMonth: 60; }; readonly Electricians: { readonly label: "Electricians"; readonly callsPerTruckPerMonth: 30; }; readonly HVAC: { ...; }; readonly Roofers: { ...; }; readonly PestControl: { ...; }; }'.
 src/components/VoiceDemo.tsx(154,9): error TS2322: Type 'string[]' is not assignable to type '"assistant.started" | "conversation-update" | "end-of-call-report" | "function-call" | "hang" | "language-changed" | "language-change-detected" | "model-output" | "phone-call-control" | ... 17 more ... | undefined'.
 src/hooks/useVoiceDemo.ts(170,9): error TS2322: Type 'string[]' is not assignable to type '"assistant.started" | "conversation-update" | "end-of-call-report" | "function-call" | "hang" | "language-changed" | "language-change-detected" | "model-output" | "phone-call-control" | ... 17 more ... | undefined'.
+src/routes/about.tsx(4,3): error TS6133: 'VoiceWaveIcon' is declared but its value is never read.
+src/routes/about.tsx(5,3): error TS6133: 'PhoneRingIcon' is declared but its value is never read.
+src/routes/index.tsx(3,3): error TS6133: 'PlumbingIcon' is declared but its value is never read.
+src/routes/index.tsx(4,3): error TS6133: 'HVACIcon' is declared but its value is never read.
+src/routes/index.tsx(5,3): error TS6133: 'ElectricalIcon' is declared but its value is never read.
+src/routes/index.tsx(6,3): error TS6133: 'PestControlIcon' is declared but its value is never read.
+src/routes/index.tsx(7,3): error TS6133: 'RoofingIcon' is declared but its value is never read.
+src/routes/index.tsx(8,3): error TS6133: 'PoolIcon' is declared but its value is never read.
+src/routes/index.tsx(9,3): error TS6133: 'LawnIcon' is declared but its value is never read.
+src/routes/index.tsx(11,3): error TS6133: 'VoiceWaveIcon' is declared but its value is never read.
 src/server/appointmentLifecycle/calendarBookingSmoke.ts(151,9): error TS2783: 'startIso' is specified more than once, so this usage will be overwritten.
 src/server/appointmentLifecycle/calendarCapabilityProbe.ts(185,7): error TS2322: Type 'GoogleCalendarResource' is not assignable to type 'string | T'.
   Type 'GoogleCalendarResource' is not assignable to type 'T'.
@@ -96,7 +106,7 @@ src/server/speed2Lead/agent/scheduling/intentParser.ts(108,5): error TS2322: Typ
 src/server/speed2Lead/agent/scheduling/intentParser.ts(497,71): error TS2345: Argument of type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.
   Type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string; availabilityPreference?: AvailabilityPreference; exactTimeMinutes?: number; ... 16 more ...; availabilityAttempts?: number; }' is not assignable to type 'SchedulingState'.
     Types of property 'availabilityPreference' are incompatible.
-      Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+      Type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
         Type '"evening"' is not assignable to type 'AvailabilityPreference | undefined'.
 src/server/speed2Lead/agent/scheduling/intentParser.ts(584,5): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
   Type '{ op: "replace"; value: unknown; }' is not assignable to type 'RejectedSlotUpdate | undefined'.
@@ -106,7 +116,7 @@ src/server/speed2Lead/agent/scheduling/provider.ts(204,29): error TS2339: Proper
   Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess'.
 src/server/speed2Lead/agent/scheduling/provider.ts(206,41): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
   Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess'.
-src/server/speed2Lead/agent/scheduling/state.ts(91,5): error TS2322: Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+src/server/speed2Lead/agent/scheduling/state.ts(91,5): error TS2322: Type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
   Type '"evening"' is not assignable to type 'AvailabilityPreference | undefined'.
 src/server/speed2Lead/agent/schedulingContext.ts(55,7): error TS6133: 'REJECT_OFFERED_RE' is declared but its value is never read.
 src/server/speed2Lead/agent/schedulingContext.ts(66,7): error TS6133: 'BARE_TIME_PREFERENCE_RE' is declared but its value is never read.

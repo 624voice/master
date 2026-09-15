@@ -106,7 +106,7 @@ src/server/speed2Lead/agent/scheduling/intentParser.ts(108,5): error TS2322: Typ
 src/server/speed2Lead/agent/scheduling/intentParser.ts(497,71): error TS2345: Argument of type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string | undefined; availabilityPreference?: AvailabilityPreference | undefined; ... 17 more ...; availabilityAttempts?: number | undefined; } | undefined' is not assignable to parameter of type 'SchedulingState | undefined'.
   Type '{ offeredSlots: string[] | undefined; status: "idle" | "slots_offered" | "confirmed"; requestedDate?: string; availabilityPreference?: AvailabilityPreference; exactTimeMinutes?: number; ... 16 more ...; availabilityAttempts?: number; }' is not assignable to type 'SchedulingState'.
     Types of property 'availabilityPreference' are incompatible.
-      Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+      Type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
         Type '"evening"' is not assignable to type 'AvailabilityPreference | undefined'.
 src/server/speed2Lead/agent/scheduling/intentParser.ts(584,5): error TS2322: Type 'FieldUpdate<unknown>' is not assignable to type 'RejectedSlotUpdate | undefined'.
   Type '{ op: "replace"; value: unknown; }' is not assignable to type 'RejectedSlotUpdate | undefined'.
@@ -116,7 +116,7 @@ src/server/speed2Lead/agent/scheduling/provider.ts(204,29): error TS2339: Proper
   Property 'selectedStart' does not exist on type 'CreateConsultationEventSuccess'.
 src/server/speed2Lead/agent/scheduling/provider.ts(206,41): error TS2339: Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess | BookConsultationSuccess'.
   Property 'lifecycle' does not exist on type 'CreateConsultationEventSuccess'.
-src/server/speed2Lead/agent/scheduling/state.ts(91,5): error TS2322: Type 'import("/workspace/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
+src/server/speed2Lead/agent/scheduling/state.ts(91,5): error TS2322: Type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("/workspace/.phase2-ts-baseline-worktree/src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.
   Type '"evening"' is not assignable to type 'AvailabilityPreference | undefined'.
 src/server/speed2Lead/agent/schedulingContext.ts(963,14): error TS2367: This comparison appears to be unintentional because the types 'AvailabilityPreference | undefined' and '"evening"' have no overlap.
 src/server/speed2Lead/memory.ts(145,15): error TS2339: Property 'detectedPains' does not exist on type 'AnyConversationContext'.
@@ -127,12 +127,12 @@ src/server/speed2Lead/memory.ts(148,45): error TS2339: Property 'detectedPains' 
   Property 'detectedPains' does not exist on type 'DemoConversationContext'.
 src/server/speed2Lead/nurtureFollowUp.ts(41,53): error TS2339: Property 'primaryOpportunity' does not exist on type '(SessionMemoryFields & { flow: "demo"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; ... 14 more ...; updatedAt: string; } & { ...; }) | (SessionMemoryFields & ... 1 more ... & { ...; })'.
   Property 'primaryOpportunity' does not exist on type 'SessionMemoryFields & { flow: "demo"; phone: string; firstName: string; lastName: string; businessName?: string | undefined; email: string; hasWebsite: boolean; smsConsent: boolean; ... 13 more ...; updatedAt: string; } & { ...; }'.
-src/server/speed2Lead/session.memory.test.ts(51,7): error TS2353: Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.
+src/server/speed2Lead/session.memory.test.ts(51,7): error TS2353: Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.
 src/server/speed2Lead/session.memory.test.ts(62,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
 src/server/speed2Lead/session.memory.test.ts(63,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
 src/server/speed2Lead/session.memory.test.ts(64,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
 src/server/speed2Lead/session.memory.test.ts(65,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
-src/server/speed2Lead/session.memory.test.ts(75,7): error TS2322: Type '"plumbing"' is not assignable to type '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined'.
+src/server/speed2Lead/session.memory.test.ts(75,7): error TS2322: Type '"plumbing"' is not assignable to type '"Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined'.
 src/server/speed2Lead/session.memory.test.ts(82,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
 src/server/speed2Lead/session.memory.test.ts(83,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
 src/server/speed2Lead/session.memory.test.ts(84,12): error TS18048: 'session.knownFacts' is possibly 'undefined'.
