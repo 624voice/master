@@ -1,7 +1,7 @@
 {
   "applicationBehaviorSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "finalPreviewSha": "6b345a25c1e72cc35f950c4f95b7ec633178cbe8",
-  "diffCommandExecuted": "git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..6b345a25c1e72cc35f950c4f95b7ec633178cbe8",
+  "finalPreviewSha": "6264315379d24f92b63f6dcd05c2b7f9d31a5fa8",
+  "diffCommandExecuted": "git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..6264315379d24f92b63f6dcd05c2b7f9d31a5fa8",
   "diffOutputRaw": "M\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nA\treview-artifacts/phase2/accessibility-automated-keyboard-supplement.json\nA\treview-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json\nM\treview-artifacts/phase2/accessibility-inline-results.json\nM\treview-artifacts/phase2/accessibility-qa/summary.json\nM\treview-artifacts/phase2/accessibility-reconciliation.json\nM\treview-artifacts/phase2/ending-sha.txt\nM\treview-artifacts/phase2/final-verification-run.log\nM\treview-artifacts/phase2/final-verification.json\nA\treview-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt\nA\treview-artifacts/phase2/git-diff-4a714b3-to-d54286e.txt\nA\treview-artifacts/phase2/git-diff-9d14121-to-final-executable.txt\nA\treview-artifacts/phase2/git-diff-final-executable-to-pr-head.txt\nA\treview-artifacts/phase2/git-sha-reconciliation.json\nA\treview-artifacts/phase2/post-verification-commit-classification.json\nA\treview-artifacts/phase2/preview-checkout-verification.json\nA\treview-artifacts/phase2/safe-preview-adapter-isolation.json\nA\treview-artifacts/phase2/safe-preview-isolation-results.json\nM\treview-artifacts/phase2/safe-qa-harness-isolation-results.json\nM\treview-artifacts/phase2/stability-five-full-suite-runs.json\nM\treview-artifacts/phase2/stability-messagesid-three-runs.json\nM\treview-artifacts/phase2/typescript-baseline-reconciliation.json\nM\treview-artifacts/phase2/typescript-comparison.json\nA\treview-artifacts/phase2/typescript-measurement-chronology.json\nM\treview-artifacts/phase2/typescript-production-baseline-included-files.txt\nM\treview-artifacts/phase2/typescript-production-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current.log\nA\treview-artifacts/phase2/typescript-test-scope-canonical-pairing.json\nA\treview-artifacts/phase2/x-inventory-delta-reconciliation.json\nM\tscripts/phase2/generate-accessibility-reconciliation.ts\nA\tscripts/phase2/generate-preview-checkout-verification.ts\nM\tscripts/phase2/run-accessibility-qa.ts\nM\tscripts/phase2/run-final-verification.ts\nM\tscripts/phase2/run-human-keyboard-qa.ts\nM\tscripts/phase2/run-typescript-baseline-reconciliation.ts\nA\tscripts/phase2/safePreviewEnvironment.ts\nA\tscripts/phase2/safePreviewNetworkGuard.ts\nA\tscripts/phase2/safePreviewNetworkProbe.ts\nA\tscripts/phase2/start-safe-assessment-preview.test.ts\nA\tscripts/phase2/start-safe-assessment-preview.ts",
   "classifiedFiles": [
     {
@@ -258,8 +258,8 @@
     "bunLockSha256Before": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
     "bunLockSha256After": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
     "lockfileUnchanged": true,
-    "gitStatusPorcelainAfter": "",
-    "workingTreeClean": true
+    "gitStatusPorcelainAfter": "M review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+    "workingTreeClean": false
   },
   "enforcedPreviewFiles": {
     "safePreviewEnvironment": {
