@@ -21,13 +21,13 @@
   },
   "safeProcedure": {
     "summary": "Checkout safe-startup SHA (contains hardened preview script). Application routes match d54286e; script builds isolated child env.",
-    "startupCommand": "git checkout 6b345a25c1e72cc35f950c4f95b7ec633178cbe8 && bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "startupCommand": "git checkout 6264315379d24f92b63f6dcd05c2b7f9d31a5fa8 && bun install --frozen-lockfile && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
     "confirmSafeMode": "Terminal prints adapter summary, 'Child environment verified', then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser; keyboard only.",
     "shutdownCommand": "Press Ctrl+C in the terminal running the preview script",
     "steps": [
-      "git checkout 6b345a25c1e72cc35f950c4f95b7ec633178cbe8 (NOT bare d54286e — preview script did not exist there)",
-      "bun install",
+      "git checkout 6264315379d24f92b63f6dcd05c2b7f9d31a5fa8 (NOT bare d54286e — preview script did not exist there)",
+      "bun install --frozen-lockfile",
       "bun run build",
       "bun run scripts/phase2/start-safe-assessment-preview.ts",
       "Open http://127.0.0.1:3000 in a browser",
