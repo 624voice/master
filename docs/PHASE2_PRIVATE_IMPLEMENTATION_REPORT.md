@@ -805,12 +805,12 @@ Complete raw output and per-file categories (final report, sanitized review arti
 
 ## Section 8 — Owner safe-preview instructions (internal; do not send walkthrough until authorized)
 
-Replace `<FINAL_PREVIEW_SHA>` with value from `preview-checkout-verification.json`.
+**Final preview SHA:** `6264315379d24f92b63f6dcd05c2b7f9d31a5fa8`
 
 **Startup:**
 
 ```bash
-git checkout <FINAL_PREVIEW_SHA>
+git checkout 6264315379d24f92b63f6dcd05c2b7f9d31a5fa8
 bun install --frozen-lockfile
 bun run build
 bun run scripts/phase2/start-safe-assessment-preview.ts

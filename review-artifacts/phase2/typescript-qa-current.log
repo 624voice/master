@@ -1,15 +1,29 @@
-scripts/phase2/run-typescript-baseline-reconciliation.ts(430,25): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(430,62): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(431,25): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(431,66): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(432,25): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(432,66): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(433,25): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(433,67): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
-scripts/phase2/safePreviewNetworkGuard.ts(40,59): error TS2339: Property 'host' does not exist on type 'NetConnectOpts'.
-  Property 'host' does not exist on type 'IpcNetConnectOpts'.
-scripts/phase2/start-safe-assessment-preview.test.ts(260,47): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"): void', gave the following error.
-    Argument of type 'string' is not assignable to parameter of type '"TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"'.
-  Overload 2 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"): void', gave the following error.
-    Argument of type 'string' is not assignable to parameter of type '"TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"'.
+scripts/phase2/probe-services-redirect.ts(34,20): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/probe-services-redirect.ts(48,20): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/probe-services-redirect.ts(58,21): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(373,25): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(373,62): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(374,25): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(374,66): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(375,25): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(375,66): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(376,25): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(376,67): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/safe-preview-serve.ts(39,11): error TS2339: Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safe-preview-serve.ts(41,5): error TS2339: Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safe-preview-serve.ts(44,15): error TS7006: Parameter 'req' implicitly has an 'any' type.
+scripts/phase2/safe-preview-serve.ts(47,24): error TS2339: Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safePreviewNetworkGuard.ts(65,24): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+scripts/phase2/safePreviewNetworkGuard.ts(69,20): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+scripts/phase2/start-safe-assessment-preview.test.ts(250,47): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 33 more ... | "REDIS_URL"): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 33 more ... | "REDIS_URL"'.
+  Overload 2 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 33 more ... | "REDIS_URL"): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 33 more ... | "REDIS_URL"'.
+scripts/phase2/start-safe-assessment-preview.ts(83,14): error TS2345: Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.
+  Types of property 'kill' are incompatible.
+    Type '(signal?: number | Signals | undefined) => boolean' is not assignable to type '(signal: string) => void'.
+      Types of parameters 'signal' and 'signal' are incompatible.
+        Type 'string' is not assignable to type 'number | Signals | undefined'.
+scripts/phase2/upstash-redis-stub.ts(38,20): error TS2339: Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/upstash-redis-stub.ts(40,15): error TS7006: Parameter 'req' implicitly has an 'any' type.

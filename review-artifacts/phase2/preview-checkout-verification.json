@@ -1,8 +1,8 @@
 {
   "applicationBehaviorSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "finalPreviewSha": "6264315379d24f92b63f6dcd05c2b7f9d31a5fa8",
-  "diffCommandExecuted": "git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..6264315379d24f92b63f6dcd05c2b7f9d31a5fa8",
-  "diffOutputRaw": "M\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nA\treview-artifacts/phase2/accessibility-automated-keyboard-supplement.json\nA\treview-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json\nM\treview-artifacts/phase2/accessibility-inline-results.json\nM\treview-artifacts/phase2/accessibility-qa/summary.json\nM\treview-artifacts/phase2/accessibility-reconciliation.json\nM\treview-artifacts/phase2/ending-sha.txt\nM\treview-artifacts/phase2/final-verification-run.log\nM\treview-artifacts/phase2/final-verification.json\nA\treview-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt\nA\treview-artifacts/phase2/git-diff-4a714b3-to-d54286e.txt\nA\treview-artifacts/phase2/git-diff-9d14121-to-final-executable.txt\nA\treview-artifacts/phase2/git-diff-final-executable-to-pr-head.txt\nA\treview-artifacts/phase2/git-sha-reconciliation.json\nA\treview-artifacts/phase2/post-verification-commit-classification.json\nA\treview-artifacts/phase2/preview-checkout-verification.json\nA\treview-artifacts/phase2/safe-preview-adapter-isolation.json\nA\treview-artifacts/phase2/safe-preview-isolation-results.json\nM\treview-artifacts/phase2/safe-qa-harness-isolation-results.json\nM\treview-artifacts/phase2/stability-five-full-suite-runs.json\nM\treview-artifacts/phase2/stability-messagesid-three-runs.json\nM\treview-artifacts/phase2/typescript-baseline-reconciliation.json\nM\treview-artifacts/phase2/typescript-comparison.json\nA\treview-artifacts/phase2/typescript-measurement-chronology.json\nM\treview-artifacts/phase2/typescript-production-baseline-included-files.txt\nM\treview-artifacts/phase2/typescript-production-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current.log\nA\treview-artifacts/phase2/typescript-test-scope-canonical-pairing.json\nA\treview-artifacts/phase2/x-inventory-delta-reconciliation.json\nM\tscripts/phase2/generate-accessibility-reconciliation.ts\nA\tscripts/phase2/generate-preview-checkout-verification.ts\nM\tscripts/phase2/run-accessibility-qa.ts\nM\tscripts/phase2/run-final-verification.ts\nM\tscripts/phase2/run-human-keyboard-qa.ts\nM\tscripts/phase2/run-typescript-baseline-reconciliation.ts\nA\tscripts/phase2/safePreviewEnvironment.ts\nA\tscripts/phase2/safePreviewNetworkGuard.ts\nA\tscripts/phase2/safePreviewNetworkProbe.ts\nA\tscripts/phase2/start-safe-assessment-preview.test.ts\nA\tscripts/phase2/start-safe-assessment-preview.ts",
+  "finalPreviewSha": "f3b09acc95a5f21144d5d9ee174cc4e4aead42b0",
+  "diffCommandExecuted": "git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..f3b09acc95a5f21144d5d9ee174cc4e4aead42b0",
+  "diffOutputRaw": "M\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nA\treview-artifacts/phase2/accessibility-automated-keyboard-supplement.json\nA\treview-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json\nM\treview-artifacts/phase2/accessibility-inline-results.json\nM\treview-artifacts/phase2/accessibility-qa/summary.json\nM\treview-artifacts/phase2/accessibility-reconciliation.json\nM\treview-artifacts/phase2/ending-sha.txt\nM\treview-artifacts/phase2/final-verification-run.log\nM\treview-artifacts/phase2/final-verification.json\nA\treview-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt\nA\treview-artifacts/phase2/git-diff-4a714b3-to-d54286e.txt\nA\treview-artifacts/phase2/git-diff-9d14121-to-final-executable.txt\nA\treview-artifacts/phase2/git-diff-final-executable-to-pr-head.txt\nA\treview-artifacts/phase2/git-sha-reconciliation.json\nA\treview-artifacts/phase2/post-verification-commit-classification.json\nA\treview-artifacts/phase2/preview-checkout-verification.json\nA\treview-artifacts/phase2/safe-preview-adapter-isolation.json\nA\treview-artifacts/phase2/safe-preview-isolation-results.json\nM\treview-artifacts/phase2/safe-qa-harness-isolation-results.json\nM\treview-artifacts/phase2/stability-five-full-suite-runs.json\nM\treview-artifacts/phase2/stability-messagesid-three-runs.json\nM\treview-artifacts/phase2/typescript-baseline-reconciliation.json\nM\treview-artifacts/phase2/typescript-comparison.json\nA\treview-artifacts/phase2/typescript-measurement-chronology.json\nM\treview-artifacts/phase2/typescript-production-baseline-included-files.txt\nM\treview-artifacts/phase2/typescript-production-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current.log\nA\treview-artifacts/phase2/typescript-test-scope-canonical-pairing.json\nA\treview-artifacts/phase2/x-inventory-delta-reconciliation.json\nM\tscripts/phase2/generate-accessibility-reconciliation.ts\nA\tscripts/phase2/generate-preview-checkout-verification.ts\nA\tscripts/phase2/generate-safe-preview-adapter-isolation.ts\nM\tscripts/phase2/run-accessibility-qa.ts\nM\tscripts/phase2/run-final-verification.ts\nM\tscripts/phase2/run-human-keyboard-qa.ts\nM\tscripts/phase2/run-typescript-baseline-reconciliation.ts\nA\tscripts/phase2/safe-preview-serve.ts\nA\tscripts/phase2/safePreviewBuild.ts\nA\tscripts/phase2/safePreviewEnvironment.ts\nA\tscripts/phase2/safePreviewHttpGetProbe.ts\nA\tscripts/phase2/safePreviewHttpsGetProbe.ts\nA\tscripts/phase2/safePreviewIsolation.ts\nA\tscripts/phase2/safePreviewNetConnectProbe.ts\nA\tscripts/phase2/safePreviewNetworkGuard.ts\nA\tscripts/phase2/safePreviewNetworkNamespace.ts\nA\tscripts/phase2/safePreviewNetworkProbe.ts\nA\tscripts/phase2/safePreviewTransportProbes.ts\nA\tscripts/phase2/start-safe-assessment-preview.test.ts\nA\tscripts/phase2/start-safe-assessment-preview.ts",
   "classifiedFiles": [
     {
       "status": "M",
@@ -197,6 +197,12 @@
       "altersKeyboardTestedRoutes": false
     },
     {
+      "status": "A",
+      "path": "scripts/phase2/generate-safe-preview-adapter-isolation.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
       "status": "M",
       "path": "scripts/phase2/run-accessibility-qa.ts",
       "category": "QA script",
@@ -222,7 +228,43 @@
     },
     {
       "status": "A",
+      "path": "scripts/phase2/safe-preview-serve.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewBuild.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
       "path": "scripts/phase2/safePreviewEnvironment.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewHttpGetProbe.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewHttpsGetProbe.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewIsolation.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewNetConnectProbe.ts",
       "category": "QA script",
       "altersKeyboardTestedRoutes": false
     },
@@ -234,7 +276,19 @@
     },
     {
       "status": "A",
+      "path": "scripts/phase2/safePreviewNetworkNamespace.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
       "path": "scripts/phase2/safePreviewNetworkProbe.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewTransportProbes.ts",
       "category": "QA script",
       "altersKeyboardTestedRoutes": false
     },
@@ -258,17 +312,16 @@
     "bunLockSha256Before": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
     "bunLockSha256After": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
     "lockfileUnchanged": true,
-    "gitStatusPorcelainAfter": "M review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+    "gitStatusPorcelainAfter": "M docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\n M review-artifacts/phase2/safe-preview-adapter-isolation.json\n M review-artifacts/phase2/typescript-production-baseline-included-files.txt\n M review-artifacts/phase2/typescript-qa-current-included-files.txt\n M review-artifacts/phase2/typescript-qa-current.log",
     "workingTreeClean": false
   },
   "enforcedPreviewFiles": {
     "safePreviewEnvironment": {
       "path": "scripts/phase2/safePreviewEnvironment.ts",
-      "sha256": "2f056fb72c3704c15bcf1e997b70ce4bb1ae07fefd8e3cbb8d7959fc438128ca",
+      "sha256": "e8aa944540fc97332a82f10906a72ec3d8c3f1550f7d5543792b076347fafc41",
       "usesAllowlist": true,
       "bootstrapKeys": [
         "PATH",
-        "HOME",
         "USER",
         "LOGNAME",
         "SHELL",
@@ -276,10 +329,8 @@
         "LC_ALL",
         "LC_CTYPE",
         "TERM",
-        "TMPDIR",
         "PWD",
         "BUN_INSTALL",
-        "XDG_RUNTIME_DIR",
         "DISPLAY"
       ],
       "containsBuildIsolatedSafePreviewEnvironment": true,
@@ -287,7 +338,7 @@
     },
     "startSafeAssessmentPreview": {
       "path": "scripts/phase2/start-safe-assessment-preview.ts",
-      "sha256": "e10ab2e920dbe7a0c76ba524886bdeb61f3b24527394c8636b5e87a7fe07fa0d",
+      "sha256": "5593b4c8685a0c16e814fab2942a4a7e0710c1afd4e6683cea4f42d934843e6f",
       "containsAssertBeforeSpawn": true,
       "lacksManualUnsetComment": true
     }
@@ -299,13 +350,23 @@
       "X-SAFE-PREVIEW-02: negative probe — parent fake credentials do not reach child",
       "X-SAFE-PREVIEW-03: fail closed when prohibited variable injected after sanitization",
       "X-SAFE-PREVIEW-04: caller cannot override ASSESSMENT_ROI_AGENT_LIVE_ENABLED via parent",
-      "X-SAFE-PREVIEW-05: script source constructs isolated env and asserts before spawn",
+      "X-SAFE-PREVIEW-05: launcher performs frozen install and sanitized build inside boundary",
       "X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters",
       "X-SAFE-PREVIEW-07: no visitor-controlled activation path in assessment route",
-      "X-SAFE-PREVIEW-09: outbound non-loopback network is blocked in safe preview child",
+      "X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars",
+      "X-SAFE-PREVIEW-09: fetch non-loopback blocked with exit 0 meaning block observed",
       "X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build",
       "X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only",
-      "X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars"
+      "X-SAFE-PREVIEW-12: parent HOME and credential file paths are not reused",
+      "X-SAFE-PREVIEW-13: local .env secrets do not load into sanitized build child",
+      "X-SAFE-PREVIEW-14: startup aborts when Redis stub script missing",
+      "X-SAFE-PREVIEW-15: node:http non-loopback request is blocked",
+      "X-SAFE-PREVIEW-16: node:https non-loopback request is blocked",
+      "X-SAFE-PREVIEW-17: node:net non-loopback connect is blocked",
+      "X-SAFE-PREVIEW-18: child_process curl command is blocked by loopback-only namespace",
+      "X-SAFE-PREVIEW-19: safe preview serve binds loopback and sets CSP",
+      "X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build",
+      "X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock"
     ],
     "hasNegativeInjectionTest": true,
     "hasFailurePathTest": true,
