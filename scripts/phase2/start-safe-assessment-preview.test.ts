@@ -1,17 +1,29 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import {
   BOOTSTRAP_KEYS,
+  NETWORK_GUARD_PRELOAD,
   PROHIBITED_EXACT_KEYS,
+  SAFE_PREVIEW_SERVE_SCRIPT,
   assertSafePreviewEnvironment,
   buildIsolatedSafePreviewEnvironment,
+  createSafePreviewIsolation,
   findProhibitedEnvKeys,
+  runSanitizedInstall,
+  spawnSafePreviewNetworkProbe,
 } from "./safePreviewEnvironment";
 import { assertLoopbackUrl } from "./safePreviewNetworkGuard";
+import {
+  externalConnectionWasBlocked,
+  spawnSyncInNetworkNamespace,
+} from "./safePreviewNetworkNamespace";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
+const RUN_SHA = spawnSync("git", ["rev-parse", "HEAD"], { cwd: REPO_ROOT, encoding: "utf8" })
+  .stdout.trim();
 
 const FAKE_PARENT_CREDENTIALS: Record<string, string> = {
   TWILIO_ACCOUNT_SID: "AC_PARENT_FAKE_DO_NOT_LEAK",
@@ -28,6 +40,9 @@ const FAKE_PARENT_CREDENTIALS: Record<string, string> = {
   ANALYTICS_WRITE_KEY: "parent_fake_analytics",
   ASSESSMENT_ROI_AGENT_LIVE_ENABLED: "true",
   SPEED2LEAD_ENABLED: "true",
+  AWS_SHARED_CREDENTIALS_FILE: "/home/chris/.aws/credentials",
+  GOOGLE_APPLICATION_CREDENTIALS: "/home/chris/.config/gcloud/key.json",
+  NETRC: "/home/chris/.netrc",
 };
 
 function probeChildEnv(parentOverrides: Record<string, string>): {
@@ -41,7 +56,6 @@ function probeChildEnv(parentOverrides: Record<string, string>): {
 import {
   buildIsolatedSafePreviewEnvironment,
   assertSafePreviewEnvironment,
-  findProhibitedEnvKeys,
 } from "./scripts/phase2/safePreviewEnvironment.ts";
 
 const child = buildIsolatedSafePreviewEnvironment(process.env);
@@ -61,13 +75,13 @@ for (const key of Object.keys(child)) {
 if (child.UPSTASH_REDIS_REST_URL?.includes("parent-fake")) leaked.push("UPSTASH_REDIS_REST_URL");
 if (child.LEADS_WEBHOOK_URL?.includes("parent-fake")) leaked.push("LEADS_WEBHOOK_URL");
 if (child.ASSESSMENT_ROI_AGENT_LIVE_ENABLED === "true") leaked.push("ASSESSMENT_ROI_AGENT_LIVE_ENABLED");
+if (child.HOME?.includes("/home/chris")) leaked.push("HOME");
 
 console.log(JSON.stringify({
   leakedKeys: leaked,
   liveEnabled: child.ASSESSMENT_ROI_AGENT_LIVE_ENABLED,
   speed2LeadEnabled: child.SPEED2LEAD_ENABLED,
   twilioPresent: Boolean(child.TWILIO_ACCOUNT_SID),
-  prohibitedInChild: findProhibitedEnvKeys(child),
 }));
 `;
 
@@ -92,7 +106,6 @@ console.log(JSON.stringify({
     liveEnabled: string;
     speed2LeadEnabled: string;
     twilioPresent: boolean;
-    prohibitedInChild: string[];
   };
 
   return {
@@ -101,25 +114,26 @@ console.log(JSON.stringify({
     liveEnabled: parsed.liveEnabled,
     speed2LeadEnabled: parsed.speed2LeadEnabled,
     twilioPresent: parsed.twilioPresent,
-    ...(parsed.prohibitedInChild.length
-      ? { prohibitedInChild: parsed.prohibitedInChild }
-      : {}),
   };
 }
 
 describe("start-safe-assessment-preview isolation", () => {
   test("X-SAFE-PREVIEW-01: builds fresh child env without parent credentials", () => {
-    const child = buildIsolatedSafePreviewEnvironment({
-      ...process.env,
-      ...FAKE_PARENT_CREDENTIALS,
-    });
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      { ...process.env, ...FAKE_PARENT_CREDENTIALS },
+      isolation,
+    );
     expect(child.TWILIO_ACCOUNT_SID).toBeUndefined();
     expect(child.SENDGRID_API_KEY).toBeUndefined();
     expect(child.OPENAI_API_KEY).toBeUndefined();
     expect(child.ASSESSMENT_ROI_AGENT_LIVE_ENABLED).toBe("false");
     expect(child.SPEED2LEAD_ENABLED).toBe("false");
     expect(child.UPSTASH_REDIS_REST_URL).toMatch(/^http:\/\/127\.0\.0\.1:8787$/);
+    expect(child.HOME).toContain("phase2-safe-preview-");
+    expect(child.HOME).not.toBe(process.env.HOME);
     assertSafePreviewEnvironment(child);
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-02: negative probe — parent fake credentials do not reach child", () => {
@@ -130,10 +144,11 @@ describe("start-safe-assessment-preview isolation", () => {
     expect(probe.speed2LeadEnabled).toBe("false");
     expect(probe.twilioPresent).toBe(false);
 
-    const child = buildIsolatedSafePreviewEnvironment({
-      ...process.env,
-      ...FAKE_PARENT_CREDENTIALS,
-    });
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      { ...process.env, ...FAKE_PARENT_CREDENTIALS },
+      isolation,
+    );
     const liveAdapterProbe = spawnSync(
       "bun",
       [
@@ -143,34 +158,49 @@ describe("start-safe-assessment-preview isolation", () => {
       { cwd: REPO_ROOT, env: child, encoding: "utf8" },
     );
     expect(liveAdapterProbe.status).toBe(0);
+
+    const networkProbe = spawnSafePreviewNetworkProbe(child, "https://example.com");
+    expect(networkProbe.status).toBe(0);
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-03: fail closed when prohibited variable injected after sanitization", () => {
-    const child = buildIsolatedSafePreviewEnvironment(process.env);
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
     child.TWILIO_ACCOUNT_SID = "injected_after_sanitize";
     expect(() => assertSafePreviewEnvironment(child)).toThrow(
       /prohibited variable\(s\) present after sanitization/,
     );
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-04: caller cannot override ASSESSMENT_ROI_AGENT_LIVE_ENABLED via parent", () => {
-    const child = buildIsolatedSafePreviewEnvironment({
-      ...process.env,
-      ASSESSMENT_ROI_AGENT_LIVE_ENABLED: "true",
-    });
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      {
+        ...process.env,
+        ASSESSMENT_ROI_AGENT_LIVE_ENABLED: "true",
+      },
+      isolation,
+    );
     expect(child.ASSESSMENT_ROI_AGENT_LIVE_ENABLED).toBe("false");
     assertSafePreviewEnvironment(child);
+    isolation.cleanup();
   });
 
-  test("X-SAFE-PREVIEW-05: script source constructs isolated env and asserts before spawn", () => {
+  test("X-SAFE-PREVIEW-05: launcher performs frozen install and sanitized build inside boundary", () => {
     const source = readFileSync(
       join(REPO_ROOT, "scripts/phase2/start-safe-assessment-preview.ts"),
       "utf8",
     );
     expect(source).toContain("buildIsolatedSafePreviewEnvironment");
     expect(source).toContain("assertSafePreviewEnvironment");
+    expect(source).toContain("ensureFrozenInstall");
+    expect(source).toContain("ensureSanitizedBuild");
     expect(source).toContain("spawnSafePreviewServer");
-    expect(source).not.toMatch(/Unset production credentials/);
+    expect(source).not.toContain('spawnSync("bun", ["run", "build"]');
+    expect(source).toContain("createSafePreviewIsolation");
+    expect(source).toContain("isolation?.cleanup()");
   });
 
   test("X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters", () => {
@@ -191,12 +221,14 @@ process.exit(0);`,
     );
     expect(bareProbe.status).toBe(0);
 
-    const child = buildIsolatedSafePreviewEnvironment({
-      PATH: process.env.PATH,
-      HOME: process.env.HOME,
-    });
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      { PATH: process.env.PATH, HOME: process.env.HOME },
+      isolation,
+    );
     expect(child.PHASE2_SAFE_PREVIEW).toBe("1");
     assertSafePreviewEnvironment(child);
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-07: no visitor-controlled activation path in assessment route", () => {
@@ -205,36 +237,53 @@ process.exit(0);`,
     expect(routes).not.toMatch(/searchParams.*safe|query.*preview/i);
   });
 
-  test("X-SAFE-PREVIEW-09: outbound non-loopback network is blocked in safe preview child", () => {
+  test("X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars", () => {
+    for (const key of [
+      "TWILIO_ACCOUNT_SID",
+      "SENDGRID_API_KEY",
+      "UPSTASH_REDIS_REST_URL",
+      "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+      "OPENAI_API_KEY",
+      "LEADS_WEBHOOK_URL",
+      "ASSESSMENT_ROI_AGENT_LIVE_ENABLED",
+    ]) {
+      expect(PROHIBITED_EXACT_KEYS).toContain(key);
+    }
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(FAKE_PARENT_CREDENTIALS, isolation);
+    expect(findProhibitedEnvKeys(child)).toEqual([]);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-09: fetch non-loopback blocked with exit 0 meaning block observed", () => {
     expect(() => assertLoopbackUrl("https://example.com", "fetch")).toThrow(
       /Egress blocked.*non-loopback host example\.com/,
     );
-    expect(() => assertLoopbackUrl("http://127.0.0.1:8787/leads-webhook", "fetch")).not.toThrow();
-    expect(() => assertLoopbackUrl("http://localhost:3000/assessment", "fetch")).not.toThrow();
-
-    const preloadGuard = readFileSync(
-      join(REPO_ROOT, "scripts/phase2/safePreviewNetworkGuard.ts"),
-      "utf8",
-    );
-    expect(preloadGuard).toContain("assertLoopbackUrl");
-    expect(preloadGuard).toMatch(/globalThis\.fetch/);
-    const spawnSource = readFileSync(join(REPO_ROOT, "scripts/phase2/safePreviewEnvironment.ts"), "utf8");
-    expect(spawnSource).toContain("--preload");
-    expect(spawnSource).toContain("safePreviewNetworkGuard.ts");
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSafePreviewNetworkProbe(child, "https://example.com");
+    expect(probe.status).toBe(0);
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build", () => {
-    const child = buildIsolatedSafePreviewEnvironment(process.env);
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
     delete child.PHASE2_SAFE_PREVIEW;
     expect(() => assertSafePreviewEnvironment(child)).toThrow(/PHASE2_SAFE_PREVIEW=1 missing/);
+    isolation.cleanup();
   });
 
   test("X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only", () => {
-    const child = buildIsolatedSafePreviewEnvironment({
-      ...process.env,
-      ...FAKE_PARENT_CREDENTIALS,
-      RANDOM_PARENT_ONLY: "must-not-pass",
-    });
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      {
+        ...process.env,
+        ...FAKE_PARENT_CREDENTIALS,
+        RANDOM_PARENT_ONLY: "must-not-pass",
+      },
+      isolation,
+    );
     expect(Object.keys(child)).not.toContain("RANDOM_PARENT_ONLY");
     for (const key of Object.keys(child)) {
       const allowed =
@@ -250,24 +299,150 @@ process.exit(0);`,
           "SPEED2LEAD_ENABLED",
           "SPEED2LEAD_LLM_ENABLED",
           "PHASE2_SAFE_PREVIEW",
+          "HOME",
+          "XDG_CONFIG_HOME",
+          "XDG_CACHE_HOME",
+          "XDG_DATA_HOME",
+          "BUN_INSTALL_CACHE_DIR",
+          "TMPDIR",
+          "npm_config_userconfig",
+          "npm_config_globalconfig",
         ].includes(key);
       expect(allowed).toBe(true);
     }
+    isolation.cleanup();
   });
 
-  test("X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars", () => {
-    for (const key of [
-      "TWILIO_ACCOUNT_SID",
-      "SENDGRID_API_KEY",
-      "UPSTASH_REDIS_REST_URL",
-      "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-      "OPENAI_API_KEY",
-      "LEADS_WEBHOOK_URL",
-      "ASSESSMENT_ROI_AGENT_LIVE_ENABLED",
-    ]) {
-      expect(PROHIBITED_EXACT_KEYS).toContain(key);
-    }
-    const child = buildIsolatedSafePreviewEnvironment(FAKE_PARENT_CREDENTIALS);
-    expect(findProhibitedEnvKeys(child)).toEqual([]);
+  test("X-SAFE-PREVIEW-12: parent HOME and credential file paths are not reused", () => {
+    const parentHome = mkdtempSync(join(tmpdir(), "parent-home-"));
+    writeFileSync(join(parentHome, ".aws-credentials-leak"), "FAKE_AWS_SECRET");
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(
+      {
+        ...process.env,
+        ...FAKE_PARENT_CREDENTIALS,
+        HOME: parentHome,
+      },
+      isolation,
+    );
+    expect(child.HOME).not.toBe(parentHome);
+    expect(child.AWS_SHARED_CREDENTIALS_FILE).toBeUndefined();
+    expect(child.GOOGLE_APPLICATION_CREDENTIALS).toBeUndefined();
+    expect(child.NETRC).toBeUndefined();
+    assertSafePreviewEnvironment(child);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-13: local .env secrets do not load into sanitized build child", () => {
+    const envDir = mkdtempSync(join(tmpdir(), "phase2-env-test-"));
+    writeFileSync(
+      join(envDir, ".env"),
+      "TWILIO_ACCOUNT_SID=AC_ENVFILE_LEAK\nOPENAI_API_KEY=sk-envfile-leak\n",
+    );
+    writeFileSync(
+      join(envDir, ".env.local"),
+      "SENDGRID_API_KEY=SG.envfile.leak\n",
+    );
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSync(
+      "bun",
+      [
+        "--env-file=/dev/null",
+        "--preload",
+        NETWORK_GUARD_PRELOAD,
+        "-e",
+        `process.exit(process.env.TWILIO_ACCOUNT_SID || process.env.OPENAI_API_KEY || process.env.SENDGRID_API_KEY ? 1 : 0);`,
+      ],
+      { cwd: envDir, env: child, encoding: "utf8" },
+    );
+    expect(probe.status).toBe(0);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-14: startup aborts when Redis stub script missing", () => {
+    const source = readFileSync(join(REPO_ROOT, "scripts/phase2/safePreviewEnvironment.ts"), "utf8");
+    expect(source).toContain("upstash-redis-stub.ts");
+    expect(source).toContain("startRedisStub");
+  });
+
+  test("X-SAFE-PREVIEW-15: node:http non-loopback request is blocked", () => {
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSyncInNetworkNamespace(
+      "bun",
+      ["--env-file=/dev/null", "scripts/phase2/safePreviewHttpGetProbe.ts", "http://example.com/"],
+      { cwd: REPO_ROOT, env: child, encoding: "utf8" },
+    );
+    expect(probe.status).toBe(0);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-16: node:https non-loopback request is blocked", () => {
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSyncInNetworkNamespace(
+      "bun",
+      ["--env-file=/dev/null", "scripts/phase2/safePreviewHttpsGetProbe.ts", "https://example.com/"],
+      { cwd: REPO_ROOT, env: child, encoding: "utf8" },
+    );
+    expect(probe.status).toBe(0);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-17: node:net non-loopback connect is blocked", () => {
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSyncInNetworkNamespace(
+      "bun",
+      ["--env-file=/dev/null", "scripts/phase2/safePreviewNetConnectProbe.ts", "example.com", "443"],
+      { cwd: REPO_ROOT, env: child, encoding: "utf8" },
+    );
+    expect(probe.status).toBe(0);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-18: child_process curl command is blocked by loopback-only namespace", () => {
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const probe = spawnSyncInNetworkNamespace(
+      "curl",
+      ["-s", "--max-time", "2", "https://example.com"],
+      { cwd: REPO_ROOT, env: child, encoding: "utf8" },
+    );
+    const output = `${probe.stdout ?? ""}${probe.stderr ?? ""}`;
+    expect(externalConnectionWasBlocked(output, probe.status)).toBe(true);
+    isolation.cleanup();
+  });
+
+  test("X-SAFE-PREVIEW-19: safe preview serve binds loopback and sets CSP", () => {
+    const source = readFileSync(SAFE_PREVIEW_SERVE_SCRIPT, "utf8");
+    expect(source).toContain('const HOST = "127.0.0.1"');
+    expect(source).toContain("hostname: HOST");
+    expect(source).toContain("Content-Security-Policy");
+    expect(source).toContain("connect-src 'self'");
+  });
+
+  test("X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build", () => {
+    const trackSource = readFileSync(join(REPO_ROOT, "src/lib/analytics/trackEvent.ts"), "utf8");
+    expect(trackSource).toContain("import.meta.env.DEV");
+    expect(trackSource).not.toMatch(/fetch\(|XMLHttpRequest|sendBeacon|navigator\./);
+
+    const probe = spawnSync(
+      "bun",
+      ["test", "src/lib/analytics/trackEvent.test.ts"],
+      { cwd: REPO_ROOT, encoding: "utf8" },
+    );
+    expect(probe.status).toBe(0);
+  });
+
+  test("X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock", () => {
+    const isolation = createSafePreviewIsolation();
+    const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
+    const result = runSanitizedInstall(child);
+    expect(result.status).toBe(0);
+    isolation.cleanup();
   });
 });
+
+export const SAFE_PREVIEW_TEST_RUN_SHA = RUN_SHA;

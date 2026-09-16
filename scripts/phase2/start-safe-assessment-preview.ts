@@ -1,51 +1,75 @@
 /**
  * Safe local preview for owner human keyboard QA (A11Y-090).
- * Builds an isolated child-process environment — parent shell credentials never pass through.
+ * Single wrapper: frozen install, sanitized build, and loopback-only preview
+ * inside an isolated temporary HOME — parent shell credentials never pass through.
  *
  * Run: bun run scripts/phase2/start-safe-assessment-preview.ts
  */
-import { spawnSync } from "node:child_process";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   SAFE_PREVIEW_ADAPTERS,
   SAFE_PREVIEW_BASE_URL,
   assertSafePreviewEnvironment,
   buildIsolatedSafePreviewEnvironment,
+  createSafePreviewIsolation,
+  runSanitizedBuild,
+  runSanitizedInstall,
   spawnSafePreviewServer,
   stopPreviewServer,
   stopRedisStub,
+  type SafePreviewIsolation,
 } from "./safePreviewEnvironment";
 import { waitForServer } from "../../src/browser-journey/assessmentBrowserJourneySupport";
 
-const REPO_ROOT = join(fileURLToPath(new URL("../..", import.meta.url)));
+let isolation: SafePreviewIsolation | null = null;
 
-function ensureBuild(): void {
-  const result = spawnSync("bun", ["run", "build"], {
-    cwd: REPO_ROOT,
-    stdio: "pipe",
-  });
+function ensureFrozenInstall(childEnv: Record<string, string>): void {
+  const result = runSanitizedInstall(childEnv);
   if (result.status !== 0) {
     throw new Error(
-      `Production build failed: ${result.stderr?.toString() ?? "unknown error"}`,
+      `Frozen lockfile install failed:\n${result.stdout ?? ""}${result.stderr ?? ""}`,
     );
   }
+}
+
+function ensureSanitizedBuild(childEnv: Record<string, string>): void {
+  const result = runSanitizedBuild(childEnv);
+  if (result.status !== 0) {
+    throw new Error(
+      `Sanitized production build failed:\n${result.stdout ?? ""}${result.stderr ?? ""}`,
+    );
+  }
+}
+
+function shutdown(server?: { kill: (signal: string) => void }): void {
+  server?.kill("SIGTERM");
+  stopPreviewServer();
+  stopRedisStub();
+  isolation?.cleanup();
+  isolation = null;
 }
 
 async function main(): Promise<void> {
   console.log("Phase 2 safe owner preview — human keyboard QA only");
   console.log("Do NOT use Puppeteer, Playwright, scripted input, or AI browser control.");
 
-  const childEnv = buildIsolatedSafePreviewEnvironment(process.env);
+  isolation = createSafePreviewIsolation();
+  const childEnv = buildIsolatedSafePreviewEnvironment(process.env, isolation);
   assertSafePreviewEnvironment(childEnv);
 
   console.log("Safe preview adapters:");
   for (const [integration, adapter] of Object.entries(SAFE_PREVIEW_ADAPTERS)) {
     console.log(`  ${integration}: ${adapter}`);
   }
+  console.log(`Isolated HOME: ${childEnv.HOME}`);
+  console.log(`Isolated XDG_CONFIG_HOME: ${childEnv.XDG_CONFIG_HOME}`);
   console.log("Child environment verified: no prohibited credentials or live-enable flags.");
 
-  await ensureBuild();
+  console.log("Running bun install --frozen-lockfile inside safe boundary...");
+  ensureFrozenInstall(childEnv);
+
+  console.log("Running sanitized production build inside safe boundary...");
+  ensureSanitizedBuild(childEnv);
+
   const server = spawnSafePreviewServer(childEnv);
 
   server.stdout?.on("data", (chunk: Buffer) => {
@@ -55,25 +79,22 @@ async function main(): Promise<void> {
     process.stderr.write(chunk);
   });
 
-  const shutdown = (): void => {
-    server.kill("SIGTERM");
-    stopPreviewServer();
-    stopRedisStub();
+  const onSignal = (): void => {
+    shutdown(server);
     process.exit(0);
   };
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", onSignal);
+  process.on("SIGTERM", onSignal);
 
   await waitForServer(`${SAFE_PREVIEW_BASE_URL}/assessment`);
   console.log(`Safe preview ready: ${SAFE_PREVIEW_BASE_URL}`);
-  console.log("Confirmed: isolated child env, Redis stub, no live external providers.");
-  console.log("Press Ctrl+C to stop the preview server.");
+  console.log("Confirmed: isolated child env, Redis stub, loopback-only egress, no live external providers.");
+  console.log("Press Ctrl+C to stop the preview server and remove temporary HOME/config directories.");
   await new Promise(() => {});
 }
 
 main().catch((err) => {
-  stopPreviewServer();
-  stopRedisStub();
+  shutdown();
   console.error(err instanceof Error ? err.message : err);
   process.exit(1);
 });

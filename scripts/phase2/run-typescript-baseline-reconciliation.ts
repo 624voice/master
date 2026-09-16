@@ -186,26 +186,6 @@ function ensureBaselineWorktree(): void {
   execSync("bun run build", { cwd: WORKTREE, stdio: "pipe" });
 }
 
-function fileByteIdenticalAtBothShas(repoPath: string): boolean {
-  try {
-    const baseline = execSync(`git show ${BASELINE_SHA}:${repoPath}`, {
-      cwd: ROOT,
-      encoding: "buffer",
-    });
-    const current = execSync(`git show ${CURRENT_SHA}:${repoPath}`, {
-      cwd: ROOT,
-      encoding: "buffer",
-    });
-    return Buffer.compare(baseline, current) === 0;
-  } catch {
-    return false;
-  }
-}
-
-function structuralKey(d: Pick<Diagnostic, "file" | "line" | "column" | "code">): string {
-  return `${toCanonicalRepoPath(d.file)}:${d.line}:${d.column}:${d.code}`;
-}
-
 function finalClassifyDiagnostics(
   baseline: Diagnostic[],
   current: Diagnostic[],
@@ -219,22 +199,7 @@ function finalClassifyDiagnostics(
   const currentByCanonical = new Map<string, Diagnostic>();
   for (const d of currentEnriched) currentByCanonical.set(d.canonicalKey, d);
 
-  const baselineByStructural = new Map<string, Diagnostic[]>();
-  for (const d of baselineEnriched) {
-    const sk = structuralKey(d);
-    if (!baselineByStructural.has(sk)) baselineByStructural.set(sk, []);
-    baselineByStructural.get(sk)!.push(d);
-  }
-  const currentByStructural = new Map<string, Diagnostic[]>();
-  for (const d of currentEnriched) {
-    const sk = structuralKey(d);
-    if (!currentByStructural.has(sk)) currentByStructural.set(sk, []);
-    currentByStructural.get(sk)!.push(d);
-  }
-
   const classified = new Map<string, { disposition: string; baseline?: Diagnostic; current?: Diagnostic; note?: string }>();
-  const usedBaseline = new Set<string>();
-  const usedCurrent = new Set<string>();
 
   for (const [key, b] of baselineByCanonical) {
     const c = currentByCanonical.get(key);
@@ -245,37 +210,15 @@ function finalClassifyDiagnostics(
         current: c,
         note: b.key !== c.key ? "raw key differed; canonical message match after path-only canonicalization" : undefined,
       });
-      usedBaseline.add(b.key);
-      usedCurrent.add(c.key);
     }
   }
 
   for (const b of baselineEnriched) {
-    if (usedBaseline.has(b.key)) continue;
-    const sk = structuralKey(b);
-    const candidates = (currentByStructural.get(sk) ?? []).filter((c) => !usedCurrent.has(c.key));
-    if (candidates.length !== 1) continue;
-    const c = candidates[0]!;
-    const repoPath = toCanonicalRepoPath(b.file);
-    if (!fileByteIdenticalAtBothShas(repoPath)) continue;
-    const pairKey = `structural:${sk}`;
-    classified.set(pairKey, {
-      disposition: "unchanged",
-      baseline: b,
-      current: c,
-      note:
-        "structural match (file:line:column:code) with byte-identical source; canonical message text differs only in TypeScript union-member print order",
-    });
-    usedBaseline.add(b.key);
-    usedCurrent.add(c.key);
-  }
-
-  for (const b of baselineEnriched) {
-    if (usedBaseline.has(b.key)) continue;
+    if (currentByCanonical.has(b.canonicalKey)) continue;
     classified.set(`removed:${b.key}`, { disposition: "removed", baseline: b });
   }
   for (const c of currentEnriched) {
-    if (usedCurrent.has(c.key)) continue;
+    if (baselineByCanonical.has(c.canonicalKey)) continue;
     classified.set(`introduced:${c.key}`, { disposition: "introduced", current: c });
   }
 
@@ -447,16 +390,9 @@ function buildCanonicalPairingTable(
   const pairs: Array<Record<string, unknown>> = [];
   const usedCurrent = new Set<string>();
   for (const b of rawRemoved) {
-    let c = currentEnriched.find(
-      (x) => x.canonicalKey === b.canonicalKey && !usedCurrent.has(x.key),
+    const c = currentEnriched.find(
+      (x) => structuralKey(x) === structuralKey(b) && !usedCurrent.has(x.key),
     );
-    if (!c) {
-      const sk = structuralKey(b);
-      const candidates = rawIntroduced.filter(
-        (x) => structuralKey(x) === sk && !usedCurrent.has(x.key),
-      );
-      if (candidates.length === 1) c = candidates[0]!;
-    }
     if (!c) continue;
     usedCurrent.add(c.key);
     const canonicalPath = toCanonicalRepoPath(b.file);
@@ -483,23 +419,17 @@ function buildCanonicalPairingTable(
       canonicalizedMessagesMatch;
     const unionPrintOrderOnlyDiff =
       !canonicalizedMessagesMatch &&
-      structuralKey(b) === structuralKey(c) &&
-      !phase2Modified;
+      structuralKey(b) === structuralKey(c);
 
     let finalClassification: string;
-    if (phase2Modified) {
-      finalClassification = "phase2-modified-file-diagnostic";
-    } else if (onlyWorkspacePrefixDiff) {
-      finalClassification = "unchanged legacy diagnostic (raw key differed by workspace prefix only)";
-    } else if (unionPrintOrderOnlyDiff && fileByteIdenticalAtBothShas(canonicalPath)) {
-      finalClassification =
-        "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)";
+    if (canonicalizedMessagesMatch) {
+      finalClassification = onlyWorkspacePrefixDiff
+        ? "unchanged legacy diagnostic (raw key differed by workspace prefix only)"
+        : "unchanged legacy diagnostic";
     } else if (unionPrintOrderOnlyDiff) {
-      finalClassification = "removed (baseline) / introduced (current) — source file differs between SHAs";
-    } else if (canonicalizedMessagesMatch) {
-      finalClassification = "unchanged legacy diagnostic";
+      finalClassification = "removed (baseline form) / introduced (current form) — canonicalized message text differs";
     } else {
-      finalClassification = "review required";
+      finalClassification = "removed (baseline form) / introduced (current form)";
     }
 
     pairs.push({
@@ -523,7 +453,7 @@ function buildCanonicalPairingTable(
       onlyRawDifferenceIsWorkspacePrefix: onlyWorkspacePrefixDiff,
       unionMemberPrintOrderDiffers: unionPrintOrderOnlyDiff,
       substantiveMessageDifferenceNote: unionPrintOrderOnlyDiff
-        ? "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string"
+        ? "Approved canonicalization removes path prefixes only; union literal print order differs so baseline form is removed and current form is introduced"
         : null,
       toolchainComparable,
       fileExistedAtStartingSha,
@@ -768,10 +698,44 @@ const phase2Introduced = introduced.filter(
     [...phase2Paths].some((p) => r.file.endsWith(p)),
 );
 
+const tradeKeyUnionOrderInvestigation = {
+  declarationChain: [
+    "src/lib/roi/callVolume.ts — CALL_VOLUME_TRADES object; TradeKey = keyof typeof CALL_VOLUME_TRADES",
+    "src/lib/roi/roiModel.ts — re-exports TradeKey from ./callVolume",
+    "src/server/speed2Lead/session.ts — createSession(input.trade?: import('~/lib/roi/roiModel').TradeKey)",
+    "src/server/speed2Lead/session.memory.test.ts — diagnostics at lines 51 and 75 reference rendered TradeKey union in createSession parameter type",
+  ],
+  callVolumeByteIdenticalAtBothShas:
+    execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- src/lib/roi/callVolume.ts`, {
+      cwd: ROOT,
+      encoding: "utf8",
+    }).trim() === "",
+  sessionMemoryTestByteIdenticalAtBothShas:
+    execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- src/server/speed2Lead/session.memory.test.ts`, {
+      cwd: ROOT,
+      encoding: "utf8",
+    }).trim() === "",
+  phase2ModifiedSourceBetweenShasAffectingModuleGraph: execSync(
+    `git diff --name-only ${BASELINE_SHA} ${CURRENT_SHA} -- src/lib/lead/validateLead.ts src/lib/roi/callVolume.ts src/lib/roi/roiModel.ts src/server/speed2Lead/session.ts`,
+    { cwd: ROOT, encoding: "utf8" },
+  )
+    .trim()
+    .split("\n")
+    .filter(Boolean),
+  baselineUnionPrintOrderExample:
+    '"Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl"',
+  currentUnionPrintOrderExample: '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl"',
+  conclusion:
+    "Pinned-toolchain remeasurement shows canonicalized message text differs only in TradeKey union member print order at session.memory.test.ts:51 and :75. Under approved identity (path-prefix removal only), baseline forms are removed and current forms are introduced. callVolume.ts and session.memory.test.ts are byte-identical between 05def6b and d54286e; validateLead.ts is Phase-2-modified legacy source between those SHAs and is the only changed file in the direct roi/lead chain list. Broader Phase-2 module-graph expansion (many src/ files changed 05def6b→d54286e) can affect TypeScript union rendering order without altering TradeKey semantics.",
+  phase2OwnedIntroducedDiagnostics:
+    "Zero introduced diagnostics originate from scripts/phase2/** or other Phase-2-created QA paths; the two introduced forms are repo-wide legacy test-scope diagnostics at byte-identical session.memory.test.ts.",
+};
+
 const result = {
   baselineSha: BASELINE_SHA,
   currentVerificationSha: CURRENT_SHA,
   configDiffEvidence,
+  tradeKeyUnionOrderInvestigation,
   finalClassificationSummary: {
     testScope: {
       baseline: testScopeFinalClassification.baselineTotal,

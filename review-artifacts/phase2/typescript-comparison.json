@@ -1614,101 +1614,200 @@
     "config": "tsconfig.qa.json",
     "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
     "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-    "includedFileCount": 413,
+    "includedFileCount": 1488,
     "exitStatus": 2,
-    "totalDiagnosticCount": 10,
+    "totalDiagnosticCount": 21,
     "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
     "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
     "diagnostics": [
       {
-        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 430,
-        "column": 25,
+        "file": "scripts/phase2/probe-services-redirect.ts",
+        "line": 34,
+        "column": 20,
         "code": "TS2339",
-        "message": "Property 'bunLockSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+        "message": "Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/probe-services-redirect.ts:34:20:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/probe-services-redirect.ts:34:20:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/probe-services-redirect.ts",
+        "line": 48,
+        "column": 20,
+        "code": "TS2339",
+        "message": "Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/probe-services-redirect.ts:48:20:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/probe-services-redirect.ts:48:20:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/probe-services-redirect.ts",
+        "line": 58,
+        "column": 21,
+        "code": "TS2339",
+        "message": "Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/probe-services-redirect.ts:58:21:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/probe-services-redirect.ts:58:21:TS2339:Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 430,
+        "line": 373,
+        "column": 25,
+        "code": "TS2339",
+        "message": "Property 'bunLockSha256' does not exist on type '{}'.",
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:373:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:373:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "line": 373,
         "column": 62,
         "code": "TS2339",
         "message": "Property 'bunLockSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:373:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:373:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 431,
+        "line": 374,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:374:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:374:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 431,
+        "line": 374,
         "column": 66,
         "code": "TS2339",
         "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:374:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:374:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 432,
+        "line": 375,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'typescriptVersion' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:375:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:375:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 432,
+        "line": 375,
         "column": 66,
         "code": "TS2339",
         "message": "Property 'typescriptVersion' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:375:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:375:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 433,
+        "line": 376,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:376:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:376:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 433,
+        "line": 376,
         "column": 67,
         "code": "TS2339",
         "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:376:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:376:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/safe-preview-serve.ts",
+        "line": 39,
+        "column": 11,
+        "code": "TS2339",
+        "message": "Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/safe-preview-serve.ts",
+        "line": 41,
+        "column": 5,
+        "code": "TS2339",
+        "message": "Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/safe-preview-serve.ts",
+        "line": 44,
+        "column": 15,
+        "code": "TS7006",
+        "message": "Parameter 'req' implicitly has an 'any' type.",
+        "key": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type."
+      },
+      {
+        "file": "scripts/phase2/safe-preview-serve.ts",
+        "line": 47,
+        "column": 24,
+        "code": "TS2339",
+        "message": "Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
       },
       {
         "file": "scripts/phase2/safePreviewNetworkGuard.ts",
-        "line": 40,
-        "column": 59,
-        "code": "TS2339",
-        "message": "Property 'host' does not exist on type 'NetConnectOpts'.",
-        "key": "scripts/phase2/safePreviewNetworkGuard.ts:40:59:TS2339:Property 'host' does not exist on type 'NetConnectOpts'.",
-        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:40:59:TS2339:Property 'host' does not exist on type 'NetConnectOpts'."
+        "line": 65,
+        "column": 24,
+        "code": "TS2556",
+        "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "key": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
+      },
+      {
+        "file": "scripts/phase2/safePreviewNetworkGuard.ts",
+        "line": 69,
+        "column": 20,
+        "code": "TS2556",
+        "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "key": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
       },
       {
         "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
-        "line": 260,
+        "line": 250,
         "column": 47,
         "code": "TS2769",
         "message": "No overload matches this call.",
-        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:260:47:TS2769:No overload matches this call.",
-        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:260:47:TS2769:No overload matches this call."
+        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call.",
+        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call."
+      },
+      {
+        "file": "scripts/phase2/start-safe-assessment-preview.ts",
+        "line": 83,
+        "column": 14,
+        "code": "TS2345",
+        "message": "Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
+        "key": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
+        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'."
+      },
+      {
+        "file": "scripts/phase2/upstash-redis-stub.ts",
+        "line": 38,
+        "column": 20,
+        "code": "TS2339",
+        "message": "Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "key": "scripts/phase2/upstash-redis-stub.ts:38:20:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/upstash-redis-stub.ts:38:20:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/upstash-redis-stub.ts",
+        "line": 40,
+        "column": 15,
+        "code": "TS7006",
+        "message": "Parameter 'req' implicitly has an 'any' type.",
+        "key": "scripts/phase2/upstash-redis-stub.ts:40:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
+        "canonicalKey": "scripts/phase2/upstash-redis-stub.ts:40:15:TS7006:Parameter 'req' implicitly has an 'any' type."
       }
     ]
   },

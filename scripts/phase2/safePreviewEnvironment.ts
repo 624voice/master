@@ -2,9 +2,18 @@
  * Isolated child-process environment for Phase 2 owner keyboard preview.
  * Constructs a fresh env object — never passes parent credentials through.
  */
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from "node:child_process";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  applyIsolationPaths,
+  createSafePreviewIsolation,
+  type SafePreviewIsolation,
+} from "./safePreviewIsolation";
+import {
+  spawnInNetworkNamespace,
+  spawnSyncInNetworkNamespace,
+} from "./safePreviewNetworkNamespace";
 
 const REPO_ROOT = join(fileURLToPath(new URL("../..", import.meta.url)));
 
@@ -12,10 +21,9 @@ export const SAFE_PREVIEW_BASE_URL = "http://127.0.0.1:3000";
 export const REDIS_STUB_PORT = 8787;
 export const REDIS_STUB_URL = `http://127.0.0.1:${REDIS_STUB_PORT}`;
 
-/** Bootstrap keys copied from parent (non-secret runtime plumbing only). Allowlist — only these pass through. */
+/** Bootstrap keys copied from parent (non-secret runtime plumbing only). HOME is never copied. */
 export const BOOTSTRAP_KEYS = [
   "PATH",
-  "HOME",
   "USER",
   "LOGNAME",
   "SHELL",
@@ -23,10 +31,8 @@ export const BOOTSTRAP_KEYS = [
   "LC_ALL",
   "LC_CTYPE",
   "TERM",
-  "TMPDIR",
   "PWD",
   "BUN_INSTALL",
-  "XDG_RUNTIME_DIR",
   "DISPLAY",
 ] as const;
 
@@ -66,6 +72,13 @@ export const PROHIBITED_EXACT_KEYS = [
   "SPEED2LEAD_LIVE_SMOKE",
   "SPEED2LEAD_ENABLED",
   "PHASE2_SAFE_QA_HARNESS",
+  "AWS_SHARED_CREDENTIALS_FILE",
+  "AWS_CONFIG_FILE",
+  "GOOGLE_APPLICATION_CREDENTIALS",
+  "NETRC",
+  "NPM_CONFIG_USERCONFIG",
+  "NPM_CONFIG_GLOBALCONFIG",
+  "BUN_AUTH_TOKEN",
 ] as const;
 
 /** Prefixes that must never appear in the child env (values are never logged). */
@@ -123,6 +136,10 @@ const FORCED_SAFE_VALUES: Record<string, string> = {
   PHASE2_SAFE_PREVIEW: "1",
 };
 
+export const NETWORK_GUARD_PRELOAD = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkGuard.ts");
+export const SAFE_PREVIEW_SERVE_SCRIPT = join(REPO_ROOT, "scripts/phase2/safe-preview-serve.ts");
+export const NETWORK_PROBE_SCRIPT = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkProbe.ts");
+
 export function isProhibitedEnvKey(key: string): boolean {
   if ((PROHIBITED_EXACT_KEYS as readonly string[]).includes(key)) return true;
   return PROHIBITED_PREFIXES.some((prefix) => key.startsWith(prefix));
@@ -130,13 +147,16 @@ export function isProhibitedEnvKey(key: string): boolean {
 
 export function buildIsolatedSafePreviewEnvironment(
   parentEnv: NodeJS.ProcessEnv = process.env,
+  isolation?: SafePreviewIsolation,
 ): Record<string, string> {
+  const iso = isolation ?? createSafePreviewIsolation();
   const child: Record<string, string> = {};
   for (const key of BOOTSTRAP_KEYS) {
     const value = parentEnv[key];
     if (value != null && value !== "") child[key] = value;
   }
   Object.assign(child, FORCED_SAFE_VALUES);
+  applyIsolationPaths(child, iso);
   return child;
 }
 
@@ -152,6 +172,9 @@ function isAllowedSafeOverride(key: string, value: string): boolean {
   if (key === "SPEED2LEAD_LLM_ENABLED") return value === "false";
   if (key === "PHASE2_SAFE_PREVIEW") return value === "1";
   if (key === "SITE_ORIGIN") return value === SAFE_PREVIEW_BASE_URL;
+  if (key === "HOME" || key === "XDG_CONFIG_HOME" || key === "XDG_CACHE_HOME" || key === "XDG_DATA_HOME") {
+    return value.includes("phase2-safe-preview-");
+  }
   return false;
 }
 
@@ -177,6 +200,27 @@ export function assertSafePreviewEnvironment(env: Record<string, string>): void 
   if (env.PHASE2_SAFE_PREVIEW !== "1") {
     throw new Error("Safe preview boundary marker PHASE2_SAFE_PREVIEW=1 missing");
   }
+  if (!env.HOME?.includes("phase2-safe-preview-")) {
+    throw new Error("Safe preview HOME isolation failed: HOME must point to temporary directory");
+  }
+}
+
+export function runSanitizedInstall(childEnv: Record<string, string>): SpawnSyncReturns<string> {
+  assertSafePreviewEnvironment(childEnv);
+  return spawnSyncInNetworkNamespace(
+    "bun",
+    ["--env-file=/dev/null", "install", "--frozen-lockfile"],
+    { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
+  );
+}
+
+export function runSanitizedBuild(childEnv: Record<string, string>): SpawnSyncReturns<string> {
+  assertSafePreviewEnvironment(childEnv);
+  return spawnSyncInNetworkNamespace(
+    "bun",
+    ["--env-file=/dev/null", "scripts/phase2/safePreviewBuild.ts"],
+    { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
+  );
 }
 
 let redisStubProcess: ChildProcess | null = null;
@@ -196,15 +240,18 @@ export function stopRedisStub(): void {
   ]);
 }
 
-export function startRedisStub(): void {
+export function startRedisStub(childEnv: Record<string, string>): void {
   stopRedisStub();
-  const stubEnv = buildIsolatedSafePreviewEnvironment(process.env);
-  stubEnv.PHASE2_REDIS_STUB_PORT = String(REDIS_STUB_PORT);
-  redisStubProcess = spawn("bun", ["scripts/phase2/upstash-redis-stub.ts"], {
-    cwd: REPO_ROOT,
-    stdio: "ignore",
-    env: stubEnv,
-  });
+  const stubEnv = { ...childEnv, PHASE2_REDIS_STUB_PORT: String(REDIS_STUB_PORT) };
+  redisStubProcess = spawnInNetworkNamespace(
+    "bun",
+    ["--env-file=/dev/null", "scripts/phase2/upstash-redis-stub.ts"],
+    {
+      cwd: REPO_ROOT,
+      stdio: "ignore",
+      env: stubEnv,
+    },
+  );
 }
 
 export function stopPreviewServer(): void {
@@ -214,30 +261,30 @@ export function stopPreviewServer(): void {
   ]);
 }
 
-const NETWORK_GUARD_PRELOAD = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkGuard.ts");
-
 export function spawnSafePreviewServer(
   childEnv: Record<string, string>,
 ): ChildProcess {
   assertSafePreviewEnvironment(childEnv);
   stopPreviewServer();
-  startRedisStub();
-  return spawn("bun", ["--preload", NETWORK_GUARD_PRELOAD, "run", "start"], {
-    cwd: REPO_ROOT,
-    env: childEnv,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  startRedisStub(childEnv);
+  return spawnInNetworkNamespace(
+    "bun",
+    ["--env-file=/dev/null", SAFE_PREVIEW_SERVE_SCRIPT],
+    {
+      cwd: REPO_ROOT,
+      env: childEnv,
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
 }
-
-const NETWORK_PROBE_SCRIPT = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkProbe.ts");
 
 export function spawnSafePreviewNetworkProbe(
   childEnv: Record<string, string>,
   targetUrl: string,
 ): ReturnType<typeof spawnSync> {
-  return spawnSync(
+  return spawnSyncInNetworkNamespace(
     "bun",
-    ["--preload", NETWORK_GUARD_PRELOAD, NETWORK_PROBE_SCRIPT, targetUrl],
+    ["--env-file=/dev/null", NETWORK_PROBE_SCRIPT, targetUrl],
     { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
   );
 }
@@ -245,25 +292,7 @@ export function spawnSafePreviewNetworkProbe(
 export function spawnSafePreviewLoopbackAllowedProbe(
   childEnv: Record<string, string>,
 ): ReturnType<typeof spawnSync> {
-  return spawnSync(
-    "bun",
-    ["--preload", NETWORK_GUARD_PRELOAD, NETWORK_PROBE_SCRIPT, "http://127.0.0.1:1"],
-    { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
-  );
+  return spawnSafePreviewNetworkProbe(childEnv, "http://127.0.0.1:1");
 }
 
-/** Test hook: assert sanitization even when a prohibited key is injected post-build. */
-export function assertSafePreviewEnvironmentStrict(
-  env: Record<string, string>,
-  options?: { allowInjectionTest?: boolean },
-): void {
-  if (!options?.allowInjectionTest) {
-    assertSafePreviewEnvironment(env);
-    return;
-  }
-  const violations = findProhibitedEnvKeys(env);
-  if (violations.length === 0) return;
-  throw new Error(
-    `Expected failure-path detection: prohibited variable(s): ${violations.join(", ")}`,
-  );
-}
+export { createSafePreviewIsolation, type SafePreviewIsolation };

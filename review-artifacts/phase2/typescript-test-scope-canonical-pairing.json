@@ -72,11 +72,11 @@
       "canonicalizedMessagesMatch": false,
       "onlyRawDifferenceIsWorkspacePrefix": false,
       "unionMemberPrintOrderDiffers": true,
-      "substantiveMessageDifferenceNote": "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string",
+      "substantiveMessageDifferenceNote": "Approved canonicalization removes path prefixes only; union literal print order differs so baseline form is removed and current form is introduced",
       "toolchainComparable": true,
       "fileExistedAtStartingSha": true,
       "phase2CreatedOrModifiedFile": false,
-      "finalClassification": "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)"
+      "finalClassification": "removed (baseline form) / introduced (current form) — canonicalized message text differs"
     },
     {
       "pairId": "P-3",
@@ -98,11 +98,11 @@
       "canonicalizedMessagesMatch": false,
       "onlyRawDifferenceIsWorkspacePrefix": false,
       "unionMemberPrintOrderDiffers": true,
-      "substantiveMessageDifferenceNote": "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string",
+      "substantiveMessageDifferenceNote": "Approved canonicalization removes path prefixes only; union literal print order differs so baseline form is removed and current form is introduced",
       "toolchainComparable": true,
       "fileExistedAtStartingSha": true,
       "phase2CreatedOrModifiedFile": false,
-      "finalClassification": "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)"
+      "finalClassification": "removed (baseline form) / introduced (current form) — canonicalized message text differs"
     }
   ],
   "unmatchedRawRemoved": [],
