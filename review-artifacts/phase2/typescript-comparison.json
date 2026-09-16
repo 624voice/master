@@ -1,7 +1,7 @@
 {
   "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
   "currentHeadSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "note": "Baseline measurements run in detached worktree at 05def6b with bun install and temporary bun-types@1.3.14 added only in the worktree (baseline Git tree unmodified). Current measurements run at verification SHA with existing bun-types devDependency. Same bun 1.3.14 and tsc invocation for both sides.",
+  "note": "Pinned toolchain remeasurement: both sides use d54286e package.json, bun.lock, tsconfig.json, and tsconfig.test.json with bun install --frozen-lockfile. Baseline source tree remains 05def6b; current source tree is d54286e.",
   "production": {
     "available": true,
     "label": "production-current",
@@ -1614,92 +1614,101 @@
     "config": "tsconfig.qa.json",
     "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
     "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-    "includedFileCount": 411,
+    "includedFileCount": 413,
     "exitStatus": 2,
-    "totalDiagnosticCount": 9,
+    "totalDiagnosticCount": 10,
     "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
     "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
     "diagnostics": [
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 299,
+        "line": 430,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'bunLockSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:25:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 299,
+        "line": 430,
         "column": 62,
         "code": "TS2339",
         "message": "Property 'bunLockSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:299:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:430:62:TS2339:Property 'bunLockSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 300,
+        "line": 431,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:25:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 300,
+        "line": 431,
         "column": 66,
         "code": "TS2339",
         "message": "Property 'packageJsonSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:300:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:431:66:TS2339:Property 'packageJsonSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 301,
+        "line": 432,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'typescriptVersion' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:25:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 301,
+        "line": 432,
         "column": 66,
         "code": "TS2339",
         "message": "Property 'typescriptVersion' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:301:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:432:66:TS2339:Property 'typescriptVersion' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 302,
+        "line": 433,
         "column": 25,
         "code": "TS2339",
         "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:25:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
       },
       {
         "file": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
-        "line": 302,
+        "line": 433,
         "column": 67,
         "code": "TS2339",
         "message": "Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
-        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:302:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+        "key": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'.",
+        "canonicalKey": "scripts/phase2/run-typescript-baseline-reconciliation.ts:433:67:TS2339:Property 'tsconfigTestSha256' does not exist on type '{}'."
+      },
+      {
+        "file": "scripts/phase2/safePreviewNetworkGuard.ts",
+        "line": 40,
+        "column": 59,
+        "code": "TS2339",
+        "message": "Property 'host' does not exist on type 'NetConnectOpts'.",
+        "key": "scripts/phase2/safePreviewNetworkGuard.ts:40:59:TS2339:Property 'host' does not exist on type 'NetConnectOpts'.",
+        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:40:59:TS2339:Property 'host' does not exist on type 'NetConnectOpts'."
       },
       {
         "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
-        "line": 187,
+        "line": 260,
         "column": 47,
         "code": "TS2769",
         "message": "No overload matches this call.",
-        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:187:47:TS2769:No overload matches this call.",
-        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:187:47:TS2769:No overload matches this call."
+        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:260:47:TS2769:No overload matches this call.",
+        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:260:47:TS2769:No overload matches this call."
       }
     ]
   },

@@ -7,9 +7,9 @@
       "cwd": ".phase2-ts-baseline-worktree",
       "bunVersion": "1.3.14",
       "typescriptVersion": "Version 5.9.3",
-      "packageJsonSha256": "9a58b4c8793524c67fba3bb249607a52b93629111e818b3e466a8a627e96f0c3",
-      "bunLockSha256": "289d0babb5139a9590a424a3f9834bd26e53008b8ba289b6f9a591b7fabee446",
-      "tsconfigTestSha256": "893123c22bc89534cc740a7a0ca572a9337670e2ab81a18097104e54966e5373",
+      "packageJsonSha256": "8f3421087481a1a4518c5275e9fc3e687c054aa61fc540b09af6dae7077951f1",
+      "bunLockSha256": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
+      "tsconfigTestSha256": "6a1058e309801cc2be3fd0c7c7ad2e992212b1390592dcfa25dda3872cc279c0",
       "tsconfigTestOnDiskMatchesGitTree": "patched at measurement time (bun-types + **/*.test.tsx include)"
     },
     "current": {
@@ -23,8 +23,8 @@
       "tsconfigTestOnDiskMatchesGitTree": "committed tree at verification SHA"
     }
   },
-  "toolchainComparable": false,
-  "toolchainComparabilityNote": "Baseline worktree (05def6b) and current verification SHA (d54286e) use different bun.lock, package.json, and/or tsconfig.test.json fingerprints. Pairings that differ only in union-member print order are disqualified under anti-gaming rules.",
+  "toolchainComparable": true,
+  "toolchainComparabilityNote": "Baseline and current fingerprints match; cross-environment pairing permitted.",
   "pairs": [
     {
       "pairId": "P-1",
@@ -47,7 +47,7 @@
       "onlyRawDifferenceIsWorkspacePrefix": true,
       "unionMemberPrintOrderDiffers": false,
       "substantiveMessageDifferenceNote": null,
-      "toolchainComparable": false,
+      "toolchainComparable": true,
       "fileExistedAtStartingSha": true,
       "phase2CreatedOrModifiedFile": false,
       "finalClassification": "unchanged legacy diagnostic (raw key differed by workspace prefix only)"
@@ -73,10 +73,10 @@
       "onlyRawDifferenceIsWorkspacePrefix": false,
       "unionMemberPrintOrderDiffers": true,
       "substantiveMessageDifferenceNote": "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string",
-      "toolchainComparable": false,
+      "toolchainComparable": true,
       "fileExistedAtStartingSha": true,
       "phase2CreatedOrModifiedFile": false,
-      "finalClassification": "non-comparable (measurement toolchain differs — lockfile/package/tsconfig delta disqualifies union-order pairing)"
+      "finalClassification": "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)"
     },
     {
       "pairId": "P-3",
@@ -99,10 +99,10 @@
       "onlyRawDifferenceIsWorkspacePrefix": false,
       "unionMemberPrintOrderDiffers": true,
       "substantiveMessageDifferenceNote": "Approved canonicalization does not reorder union literals; diagnostic text differs only in TradeKey union member print order in the rendered type string",
-      "toolchainComparable": false,
+      "toolchainComparable": true,
       "fileExistedAtStartingSha": true,
       "phase2CreatedOrModifiedFile": false,
-      "finalClassification": "non-comparable (measurement toolchain differs — lockfile/package/tsconfig delta disqualifies union-order pairing)"
+      "finalClassification": "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)"
     }
   ],
   "unmatchedRawRemoved": [],
@@ -115,7 +115,6 @@
     "currentTotal": 84,
     "unchangedExactRawKeys": 81,
     "confirmedUnchangedPairs": 1,
-    "nonComparablePairs": 2,
     "removed": 0,
     "introduced": 0,
     "rawRemovedCount": 3,

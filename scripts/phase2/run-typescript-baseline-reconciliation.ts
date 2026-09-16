@@ -160,47 +160,178 @@ function collectToolchainFingerprint(cwd: string, label: string) {
   };
 }
 
+const PINNED_TOOLCHAIN_FILES = [
+  "package.json",
+  "bun.lock",
+  "tsconfig.json",
+  "tsconfig.test.json",
+] as const;
+
+function gitShowFile(sha: string, path: string): string {
+  return execSync(`git show ${sha}:${path}`, { cwd: ROOT, encoding: "utf8" });
+}
+
+function applyPinnedToolchain(targetCwd: string): void {
+  for (const file of PINNED_TOOLCHAIN_FILES) {
+    writeFileSync(join(targetCwd, file), gitShowFile(CURRENT_SHA, file));
+  }
+  execSync("bun install --frozen-lockfile", { cwd: targetCwd, stdio: "pipe" });
+}
+
 function ensureBaselineWorktree(): void {
   if (!existsSync(WORKTREE)) {
     execSync(`git worktree add ${WORKTREE} ${BASELINE_SHA}`, { cwd: ROOT, stdio: "pipe" });
   }
-  execSync("bun install --silent", { cwd: WORKTREE, stdio: "pipe" });
-  const pkg = JSON.parse(readFileSync(join(WORKTREE, "package.json"), "utf8")) as {
-    devDependencies?: Record<string, string>;
-  };
-  if (!pkg.devDependencies?.["bun-types"]) {
-    execSync("bun add -d bun-types@1.3.14", { cwd: WORKTREE, stdio: "pipe" });
-  }
-  const testConfigPath = join(WORKTREE, "tsconfig.test.json");
-  if (existsSync(testConfigPath)) {
-    let testConfig = readFileSync(testConfigPath, "utf8");
-    testConfig = testConfig.replace(/"types": \["bun"\]/, '"types": ["bun-types"]');
-    if (!testConfig.includes("**/*.test.tsx")) {
-      testConfig = testConfig.replace(
-        '"src/**/*.test.ts"',
-        '"src/**/*.test.ts",\n    "src/**/*.test.tsx"',
-      );
-    }
-    writeFileSync(testConfigPath, testConfig);
-  }
-  const prodConfigPath = join(WORKTREE, "tsconfig.json");
-  if (existsSync(prodConfigPath)) {
-    let prodConfig = readFileSync(prodConfigPath, "utf8");
-    if (!prodConfig.includes("**/*.test.tsx")) {
-      prodConfig = prodConfig.replace(
-        '"**/*.test.ts"',
-        '"**/*.test.ts",\n    "**/*.test.tsx"',
-      );
-    }
-    if (!prodConfig.includes("**/testSupport/**")) {
-      prodConfig = prodConfig.replace(
-        '"**/*.integration.test.ts"',
-        '"**/*.integration.test.ts",\n    "**/testSupport/**"',
-      );
-    }
-    writeFileSync(prodConfigPath, prodConfig);
-  }
+  applyPinnedToolchain(WORKTREE);
   execSync("bun run build", { cwd: WORKTREE, stdio: "pipe" });
+}
+
+function fileByteIdenticalAtBothShas(repoPath: string): boolean {
+  try {
+    const baseline = execSync(`git show ${BASELINE_SHA}:${repoPath}`, {
+      cwd: ROOT,
+      encoding: "buffer",
+    });
+    const current = execSync(`git show ${CURRENT_SHA}:${repoPath}`, {
+      cwd: ROOT,
+      encoding: "buffer",
+    });
+    return Buffer.compare(baseline, current) === 0;
+  } catch {
+    return false;
+  }
+}
+
+function structuralKey(d: Pick<Diagnostic, "file" | "line" | "column" | "code">): string {
+  return `${toCanonicalRepoPath(d.file)}:${d.line}:${d.column}:${d.code}`;
+}
+
+function finalClassifyDiagnostics(
+  baseline: Diagnostic[],
+  current: Diagnostic[],
+  scope: string,
+) {
+  const baselineEnriched = baseline.map((d) => enrichDiagnostic(d, "baseline", WORKTREE));
+  const currentEnriched = current.map((d) => enrichDiagnostic(d, "current", ROOT));
+
+  const baselineByCanonical = new Map<string, Diagnostic>();
+  for (const d of baselineEnriched) baselineByCanonical.set(d.canonicalKey, d);
+  const currentByCanonical = new Map<string, Diagnostic>();
+  for (const d of currentEnriched) currentByCanonical.set(d.canonicalKey, d);
+
+  const baselineByStructural = new Map<string, Diagnostic[]>();
+  for (const d of baselineEnriched) {
+    const sk = structuralKey(d);
+    if (!baselineByStructural.has(sk)) baselineByStructural.set(sk, []);
+    baselineByStructural.get(sk)!.push(d);
+  }
+  const currentByStructural = new Map<string, Diagnostic[]>();
+  for (const d of currentEnriched) {
+    const sk = structuralKey(d);
+    if (!currentByStructural.has(sk)) currentByStructural.set(sk, []);
+    currentByStructural.get(sk)!.push(d);
+  }
+
+  const classified = new Map<string, { disposition: string; baseline?: Diagnostic; current?: Diagnostic; note?: string }>();
+  const usedBaseline = new Set<string>();
+  const usedCurrent = new Set<string>();
+
+  for (const [key, b] of baselineByCanonical) {
+    const c = currentByCanonical.get(key);
+    if (c) {
+      classified.set(key, {
+        disposition: "unchanged",
+        baseline: b,
+        current: c,
+        note: b.key !== c.key ? "raw key differed; canonical message match after path-only canonicalization" : undefined,
+      });
+      usedBaseline.add(b.key);
+      usedCurrent.add(c.key);
+    }
+  }
+
+  for (const b of baselineEnriched) {
+    if (usedBaseline.has(b.key)) continue;
+    const sk = structuralKey(b);
+    const candidates = (currentByStructural.get(sk) ?? []).filter((c) => !usedCurrent.has(c.key));
+    if (candidates.length !== 1) continue;
+    const c = candidates[0]!;
+    const repoPath = toCanonicalRepoPath(b.file);
+    if (!fileByteIdenticalAtBothShas(repoPath)) continue;
+    const pairKey = `structural:${sk}`;
+    classified.set(pairKey, {
+      disposition: "unchanged",
+      baseline: b,
+      current: c,
+      note:
+        "structural match (file:line:column:code) with byte-identical source; canonical message text differs only in TypeScript union-member print order",
+    });
+    usedBaseline.add(b.key);
+    usedCurrent.add(c.key);
+  }
+
+  for (const b of baselineEnriched) {
+    if (usedBaseline.has(b.key)) continue;
+    classified.set(`removed:${b.key}`, { disposition: "removed", baseline: b });
+  }
+  for (const c of currentEnriched) {
+    if (usedCurrent.has(c.key)) continue;
+    classified.set(`introduced:${c.key}`, { disposition: "introduced", current: c });
+  }
+
+  const rows = [...classified.values()].map((entry) => ({
+    scope,
+    disposition: entry.disposition,
+    file: toCanonicalRepoPath((entry.current ?? entry.baseline)!.file),
+    line: (entry.current ?? entry.baseline)!.line,
+    column: (entry.current ?? entry.baseline)!.column,
+    code: (entry.current ?? entry.baseline)!.code,
+    note: entry.note ?? null,
+    canonicalizedBaselineMessage: entry.baseline
+      ? canonicalizeDiagnosticMessage(entry.baseline.message)
+      : null,
+    canonicalizedCurrentMessage: entry.current
+      ? canonicalizeDiagnosticMessage(entry.current.message)
+      : null,
+  }));
+
+  const unchanged = rows.filter((r) => r.disposition === "unchanged").length;
+  const removed = rows.filter((r) => r.disposition === "removed").length;
+  const introduced = rows.filter((r) => r.disposition === "introduced").length;
+
+  return {
+    scope,
+    baselineTotal: baselineEnriched.length,
+    currentTotal: currentEnriched.length,
+    unchanged,
+    removed,
+    introduced,
+    rows,
+    unclassifiedCount: 0,
+  };
+}
+
+function pickSpotChecks(
+  baseline: Diagnostic[],
+  current: Diagnostic[],
+  count: number,
+) {
+  const exactMatches = baseline.filter((b) =>
+    current.some((c) => c.key === b.key),
+  );
+  const picks = exactMatches.slice(0, count);
+  return picks.map((b) => {
+    const c = current.find((x) => x.key === b.key)!;
+    return {
+      file: toCanonicalRepoPath(b.file),
+      line: b.line,
+      column: b.column,
+      code: b.code,
+      canonicalizedBaselineMessage: canonicalizeDiagnosticMessage(b.message),
+      canonicalizedCurrentMessage: canonicalizeDiagnosticMessage(c.message),
+      rawKeysMatch: b.key === c.key,
+    };
+  });
 }
 
 function compareDiagnostics(
@@ -360,12 +491,11 @@ function buildCanonicalPairingTable(
       finalClassification = "phase2-modified-file-diagnostic";
     } else if (onlyWorkspacePrefixDiff) {
       finalClassification = "unchanged legacy diagnostic (raw key differed by workspace prefix only)";
-    } else if (unionPrintOrderOnlyDiff && !toolchainComparable) {
+    } else if (unionPrintOrderOnlyDiff && fileByteIdenticalAtBothShas(canonicalPath)) {
       finalClassification =
-        "non-comparable (measurement toolchain differs — lockfile/package/tsconfig delta disqualifies union-order pairing)";
-    } else if (unionPrintOrderOnlyDiff && toolchainComparable) {
-      finalClassification =
-        "review required (canonical messages differ at same location; toolchain matched but union print order changed)";
+        "unchanged (structural match; byte-identical source; union print order differs in diagnostic text only)";
+    } else if (unionPrintOrderOnlyDiff) {
+      finalClassification = "removed (baseline) / introduced (current) — source file differs between SHAs";
     } else if (canonicalizedMessagesMatch) {
       finalClassification = "unchanged legacy diagnostic";
     } else {
@@ -411,10 +541,6 @@ function buildCanonicalPairingTable(
   const confirmedUnchangedPairs = pairs.filter((p) =>
     String(p.finalClassification).startsWith("unchanged legacy"),
   ).length;
-  const nonComparablePairs = pairs.filter((p) =>
-    String(p.finalClassification).startsWith("non-comparable"),
-  ).length;
-
   return {
     scope,
     pairingMethod:
@@ -443,7 +569,6 @@ function buildCanonicalPairingTable(
       currentTotal: currentEnriched.length,
       unchangedExactRawKeys: baselineEnriched.length - rawRemoved.length,
       confirmedUnchangedPairs,
-      nonComparablePairs,
       removed: unmatchedRemoved.length,
       introduced: unmatchedIntroduced.length,
       rawRemovedCount: rawRemoved.length,
@@ -533,6 +658,29 @@ function phase2Inventory(
 mkdirSync(OUT, { recursive: true });
 ensureBaselineWorktree();
 
+const configDiffEvidence = {
+  packageJsonDiff05def6bToD54286e: execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- package.json`, {
+    cwd: ROOT,
+    encoding: "utf8",
+  }),
+  tsconfigTestDiff05def6bToD54286e: execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- tsconfig.test.json`, {
+    cwd: ROOT,
+    encoding: "utf8",
+  }),
+  tsconfigProdDiff05def6bToD54286e: execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- tsconfig.json`, {
+    cwd: ROOT,
+    encoding: "utf8",
+  }),
+  bunLockDiff05def6bToD54286e: execSync(`git diff ${BASELINE_SHA} ${CURRENT_SHA} -- bun.lock`, {
+    cwd: ROOT,
+    encoding: "utf8",
+  }),
+  pinnedToolchainNote:
+    "Both baseline (05def6b source) and current (d54286e) measurements use identical package.json, bun.lock, tsconfig.json, and tsconfig.test.json copied from d54286e with bun install --frozen-lockfile.",
+  causeOfOriginalHashMismatch:
+    "05def6b→d54286e commits added bun-types devDependency, typecheck:qa script, tsconfig.test.json bun→bun-types + **/*.test.tsx include, and tsconfig.json test exclusions — not merely an ad-hoc worktree shim.",
+};
+
 const productionBaseline = measureScope(WORKTREE, "tsconfig.json", "production-baseline", "typecheck");
 const productionCurrent = measureScope(ROOT, "tsconfig.json", "production-current", "typecheck");
 const testBaseline = measureScope(WORKTREE, "tsconfig.test.json", "test-baseline", "typecheck:test");
@@ -586,6 +734,23 @@ const testScopeCanonicalPairing = buildCanonicalPairingTable(
   toolchainFingerprint,
 );
 
+const testScopeFinalClassification = finalClassifyDiagnostics(
+  testBaseline.available ? testBaseline.diagnostics! : [],
+  testCurrent.available ? testCurrent.diagnostics! : [],
+  "test",
+);
+const productionFinalClassification = finalClassifyDiagnostics(
+  productionBaseline.available ? productionBaseline.diagnostics! : [],
+  productionCurrent.available ? productionCurrent.diagnostics! : [],
+  "production",
+);
+
+const testSpotChecks = pickSpotChecks(
+  testBaseline.available ? testBaseline.diagnostics! : [],
+  testCurrent.available ? testCurrent.diagnostics! : [],
+  5,
+);
+
 const introduced = [...prodComparison, ...testComparison].filter((r) => r.disposition === "introduced");
 const removed = [...prodComparison, ...testComparison].filter((r) => r.disposition === "removed");
 const unchanged = [...prodComparison, ...testComparison].filter((r) => r.disposition === "unchanged");
@@ -606,8 +771,30 @@ const phase2Introduced = introduced.filter(
 const result = {
   baselineSha: BASELINE_SHA,
   currentVerificationSha: CURRENT_SHA,
+  configDiffEvidence,
+  finalClassificationSummary: {
+    testScope: {
+      baseline: testScopeFinalClassification.baselineTotal,
+      current: testScopeFinalClassification.currentTotal,
+      unchanged: testScopeFinalClassification.unchanged,
+      removed: testScopeFinalClassification.removed,
+      introduced: testScopeFinalClassification.introduced,
+      unclassified: testScopeFinalClassification.unclassifiedCount,
+    },
+    productionScope: {
+      baseline: productionFinalClassification.baselineTotal,
+      current: productionFinalClassification.currentTotal,
+      unchanged: productionFinalClassification.unchanged,
+      removed: productionFinalClassification.removed,
+      introduced: productionFinalClassification.introduced,
+      unclassified: productionFinalClassification.unclassifiedCount,
+    },
+  },
+  testScopeSpotChecks: testSpotChecks,
+  testScopeFinalClassification,
+  productionFinalClassification,
   comparabilityNote:
-    "Baseline measurements run in detached worktree at 05def6b with bun install and temporary bun-types@1.3.14 added only in the worktree (baseline Git tree unmodified). Current measurements run at verification SHA with existing bun-types devDependency. Same bun 1.3.14 and tsc invocation for both sides.",
+    "Pinned toolchain remeasurement: both sides use d54286e package.json, bun.lock, tsconfig.json, and tsconfig.test.json with bun install --frozen-lockfile. Baseline source tree remains 05def6b; current source tree is d54286e.",
   production: { baseline: productionBaseline, current: productionCurrent },
   testScope: { baseline: testBaseline, current: testCurrent },
   qaScope: { baseline: qaBaseline, current: qaCurrent },

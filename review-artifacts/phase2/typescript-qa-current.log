@@ -1,12 +1,14 @@
-scripts/phase2/run-typescript-baseline-reconciliation.ts(299,25): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(299,62): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(300,25): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(300,66): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(301,25): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(301,66): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(302,25): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
-scripts/phase2/run-typescript-baseline-reconciliation.ts(302,67): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
-scripts/phase2/start-safe-assessment-preview.test.ts(187,47): error TS2769: No overload matches this call.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(430,25): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(430,62): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(431,25): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(431,66): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(432,25): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(432,66): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(433,25): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(433,67): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/safePreviewNetworkGuard.ts(40,59): error TS2339: Property 'host' does not exist on type 'NetConnectOpts'.
+  Property 'host' does not exist on type 'IpcNetConnectOpts'.
+scripts/phase2/start-safe-assessment-preview.test.ts(260,47): error TS2769: No overload matches this call.
   Overload 1 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"): void', gave the following error.
     Argument of type 'string' is not assignable to parameter of type '"TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"'.
   Overload 2 of 2, '(expected: "TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN" | "TWILIO_FROM_NUMBER" | "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "OPENAI_API_KEY" | ... 26 more ... | "REDIS_URL"): void', gave the following error.

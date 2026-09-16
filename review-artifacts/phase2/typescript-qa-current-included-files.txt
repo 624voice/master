@@ -359,6 +359,7 @@ src/server/report/generateAssessmentPdfBytes.server.ts
 scripts/phase2/generate-pdf-checklist.ts
 scripts/phase2/generate-pdf-visual-inspection.ts
 scripts/phase2/generate-pr-head-reconciliation.ts
+scripts/phase2/generate-preview-checkout-verification.ts
 scripts/phase2/generate-private-implementation-report.ts
 tests/fixtures/phase2-baseline/protected-manifest.json
 scripts/phase2/generate-review-artifacts.ts
@@ -378,6 +379,7 @@ scripts/phase2/run-typescript-measurement-chronology.ts
 scripts/phase2/run-typescript-measurement.ts
 scripts/phase2/safe-public-qa.ts
 scripts/phase2/safePreviewEnvironment.ts
+scripts/phase2/safePreviewNetworkGuard.ts
 scripts/phase2/start-safe-assessment-preview.test.ts
 scripts/phase2/start-safe-assessment-preview.ts
 scripts/phase2/upstash-redis-stub.ts
