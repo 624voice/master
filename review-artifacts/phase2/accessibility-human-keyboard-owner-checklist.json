@@ -3,8 +3,8 @@
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
   "purpose": "Human-operated keyboard-only QA across all public routes and the full assessment journey. Automated Puppeteer coverage in accessibility-automated-keyboard-supplement.json does NOT satisfy this row.",
   "applicationBehaviorGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "safeStartupGitSha": "f3b09acc95a5f21144d5d9ee174cc4e4aead42b0",
-  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..b1705353756d8bed26b194ab4878b90e39fcdd06 -- src/ returns empty",
+  "safeStartupGitSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
+  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd -- src/ returns empty",
   "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
   "operatorInstructions": {
     "who": "Chris (owner) — a real person, not automation",
@@ -20,19 +20,26 @@
     "credentialRule": "Do not expose, print, copy, or edit production credentials. The safe preview script programmatically excludes parent-shell credentials — manual unset is not required."
   },
   "safeProcedure": {
-    "summary": "Checkout safe-startup SHA (contains hardened preview script). Application routes match d54286e; script builds isolated child env.",
-    "startupCommand": "git checkout f3b09acc95a5f21144d5d9ee174cc4e4aead42b0 && bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "summary": "Checkout final executable preview SHA. Docker bridge network publishes 127.0.0.1:3000; container iptables deny external egress. Application routes match d54286e.",
+    "environment": "macOS with Docker Desktop running (Chris). No password prompt expected on macOS.",
+    "preflight": [
+      "Install Docker Desktop and start it",
+      "Install Bun if not present",
+      "One-time (network allowed): bun run scripts/phase2/prepare-safe-preview-deps.ts"
+    ],
+    "startupCommand": "git checkout 9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd && bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
-    "confirmSafeMode": "Terminal prints adapter summary, 'Child environment verified', then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser; keyboard only.",
+    "confirmSafeMode": "Terminal prints Isolation lines (Docker invoked: yes, unshare: no), adapter summary, then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser on the same Mac; keyboard only.",
     "shutdownCommand": "Press Ctrl+C in the terminal running the preview script",
     "steps": [
-      "git checkout f3b09acc95a5f21144d5d9ee174cc4e4aead42b0 (safe wrapper includes frozen install + sanitized build)",
+      "git checkout 9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
+      "If first run: bun run scripts/phase2/prepare-safe-preview-deps.ts",
       "bun run scripts/phase2/start-safe-assessment-preview.ts",
-      "Open http://127.0.0.1:3000 in a browser",
+      "Open http://127.0.0.1:3000 in Safari or Chrome on the same Mac",
       "Using only a physical keyboard, complete every check below",
       "Record PASS or FAIL and notes; save completed results as accessibility-human-keyboard-owner-attestation.json"
     ],
-    "safeEnvironment": "scripts/phase2/start-safe-assessment-preview.ts — single wrapper: temporary HOME/XDG, frozen install, sanitized build, loopback-only network namespace, Redis stub, ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false"
+    "safeEnvironment": "scripts/phase2/start-safe-assessment-preview.ts — Docker bridge + 127.0.0.1 publish, container iptables egress deny, frozen install, sanitized build, Redis stub, ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false"
   },
   "operatorFields": {
     "operatorRoleOrIdentifier": "NOT YET EXECUTED",

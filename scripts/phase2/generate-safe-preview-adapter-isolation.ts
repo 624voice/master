@@ -14,10 +14,16 @@ function sha256(path: string): string {
   return createHash("sha256").update(readFileSync(join(ROOT, path))).digest("hex");
 }
 
-const testRun = spawnSync("bun", ["test", "scripts/phase2/start-safe-assessment-preview.test.ts"], {
-  cwd: ROOT,
-  encoding: "utf8",
-});
+const testRun = spawnSync(
+  "bun",
+  [
+    "test",
+    "scripts/phase2/start-safe-assessment-preview.test.ts",
+    "scripts/phase2/safePreviewReachability.test.ts",
+    "scripts/phase2/safePreviewBrowserCsp.test.ts",
+  ],
+  { cwd: ROOT, encoding: "utf8", timeout: 900000 },
+);
 const transportRun = spawnSync("bun", ["scripts/phase2/safePreviewTransportProbes.ts"], {
   cwd: ROOT,
   encoding: "utf8",

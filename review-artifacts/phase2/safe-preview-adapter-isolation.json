@@ -1,17 +1,17 @@
 {
-  "gitSha": "f3b09acc95a5f21144d5d9ee174cc4e4aead42b0",
+  "gitSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
   "safePreviewTestSuite": {
     "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
     "command": "bun test scripts/phase2/start-safe-assessment-preview.test.ts",
     "exitStatus": 0,
     "pass": true,
-    "outputTail": "(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build [11.96ms]\n(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock [32.74ms]\n\n 21 pass\n 0 fail\n 86 expect() calls\nRan 21 tests across 1 file. [339.00ms]\n"
+    "outputTail": "(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build [17.51ms]\n(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock [149.22ms]\n\n 36 pass\n 0 fail\n 114 expect() calls\nRan 36 tests across 3 files. [148.14s]\n"
   },
   "transportProbes": {
     "command": "bun scripts/phase2/safePreviewTransportProbes.ts",
     "exitStatus": 0,
     "pass": true,
-    "output": "{\n  \"probes\": [\n    {\n      \"transport\": \"fetch\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:http\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:https\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:net\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"child_process:curl\",\n      \"blocked\": true,\n      \"exitStatus\": 6,\n      \"detail\": \"exit=6\"\n    },\n    {\n      \"transport\": \"Bun.connect\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    }\n  ],\n  \"loopbackProbe\": {\n    \"exitStatus\": 0,\n    \"detail\": \"\"\n  },\n  \"failures\": 0\n}"
+    "output": "{\n  \"probes\": [\n    {\n      \"transport\": \"fetch\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"PASS: non-loopback request was blocked\"\n    },\n    {\n      \"transport\": \"node:http\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:https\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:net\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:tls\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"WebSocket-guard\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"child_process:curl\",\n      \"blocked\": true,\n      \"exitStatus\": 6,\n      \"detail\": \"exit=6\"\n    },\n    {\n      \"transport\": \"Bun.connect\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    }\n  ],\n  \"loopbackProbe\": {\n    \"exitStatus\": 0,\n    \"detail\": \"\"\n  },\n  \"failures\": 0\n}"
   },
   "environmentAllowlist": {
     "bootstrapKeys": [
@@ -142,12 +142,12 @@
     }
   ],
   "fileHashes": {
-    "safePreviewEnvironment": "e8aa944540fc97332a82f10906a72ec3d8c3f1550f7d5543792b076347fafc41",
+    "safePreviewEnvironment": "874e00f3c13bb882325a5251669b373dfd2634f245eb8e23cb7a891810ebd9b7",
     "safePreviewIsolation": "bee1c4d0c82eae79d94929f92e7c00c4d48f408d581589b0f7a2a7723b7e5355",
-    "safePreviewNetworkGuard": "cb7c2e4f2508ef066acab83c3c0118f27766a47fcdf3a2b6591286273f34faaf",
+    "safePreviewNetworkGuard": "9393cff084cecfb86c32ac3053d3262fa419b3496c41992e7ea94a7018e0d3ed",
     "safePreviewNetworkNamespace": "10c30380a6fa39830f754b12d4a6ce0821fcf5497154daff8bb13dda15234973",
-    "startSafeAssessmentPreview": "5593b4c8685a0c16e814fab2942a4a7e0710c1afd4e6683cea4f42d934843e6f",
-    "safePreviewServe": "3ef1da5ca1377439ae412cf2d703a764036ac30a2fcaefdbef95dff1377a2730",
-    "safePreviewTests": "3977fbef07d013dbce079b34d2eadbdd7304914ee6ed0e8ce1ee9ef79de95ce9"
+    "startSafeAssessmentPreview": "432bdea96759baf27c97069890032e0c88be61e57a799ebd14e94198c4dd89ba",
+    "safePreviewServe": "0113e3c92d4aa3052f7a94cba1ef327d03fb05c6fb59e43deecad1a7eed50621",
+    "safePreviewTests": "d8f502f08b5e67ef2e6ed43c41e559858a83bca6e3b904b69670d03271a8d0fb"
   }
 }

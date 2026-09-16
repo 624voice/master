@@ -1,6 +1,6 @@
 {
   "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
-  "currentVerificationSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "currentVerificationSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
   "configDiffEvidence": {
     "packageJsonDiff05def6bToD54286e": "diff --git a/package.json b/package.json\nindex 47c5829..3c3fcdb 100644\n--- a/package.json\n+++ b/package.json\n@@ -13,6 +13,7 @@\n     \"test:smoke\": \"SPEED2LEAD_LIVE_SMOKE=1 bun test src\",\n     \"typecheck\": \"tsc -p tsconfig.json\",\n     \"typecheck:test\": \"tsc -p tsconfig.test.json\",\n+    \"typecheck:qa\": \"tsc -p tsconfig.qa.json\",\n     \"reset-s2l-test-phone\": \"bun run scripts/reset-s2l-test-phone.ts\"\n   },\n   \"dependencies\": {\n@@ -38,6 +39,7 @@\n     \"@types/react\": \"^19.2.13\",\n     \"@types/react-dom\": \"^19.2.3\",\n     \"@vitejs/plugin-react\": \"^5.1.3\",\n+    \"bun-types\": \"^1.4.2\",\n     \"pdf-parse\": \"^2.4.5\",\n     \"prettier\": \"^3.8.1\",\n     \"tailwindcss\": \"^4.1.18\",\n",
     "tsconfigTestDiff05def6bToD54286e": "diff --git a/tsconfig.test.json b/tsconfig.test.json\nindex e8c5ef0..df0f366 100644\n--- a/tsconfig.test.json\n+++ b/tsconfig.test.json\n@@ -4,7 +4,7 @@\n     \"jsx\": \"react-jsx\",\n     \"module\": \"ESNext\",\n     \"lib\": [\"ES2022\", \"DOM\", \"DOM.Iterable\"],\n-    \"types\": [\"bun\"],\n+    \"types\": [\"bun-types\"],\n     \"moduleResolution\": \"bundler\",\n     \"allowImportingTsExtensions\": true,\n     \"verbatimModuleSyntax\": true,\n@@ -24,6 +24,10 @@\n     \"allowJs\": true,\n     \"forceConsistentCasingInFileNames\": true\n   },\n-  \"include\": [\"src/**/*.test.ts\", \"src/**/*.integration.test.ts\"],\n+  \"include\": [\n+    \"src/**/*.test.ts\",\n+    \"src/**/*.test.tsx\",\n+    \"src/**/*.integration.test.ts\"\n+  ],\n   \"exclude\": [\"node_modules\", \"bisect-*\"]\n }\n",
@@ -8,6 +8,25 @@
     "bunLockDiff05def6bToD54286e": "diff --git a/bun.lock b/bun.lock\nindex 4b78bc1..1aaed66 100644\n--- a/bun.lock\n+++ b/bun.lock\n@@ -27,6 +27,7 @@\n         \"@types/react\": \"^19.2.13\",\n         \"@types/react-dom\": \"^19.2.3\",\n         \"@vitejs/plugin-react\": \"^5.1.3\",\n+        \"bun-types\": \"^1.4.2\",\n         \"pdf-parse\": \"^2.4.5\",\n         \"prettier\": \"^3.8.1\",\n         \"tailwindcss\": \"^4.1.18\",\n@@ -831,6 +832,8 @@\n \n     \"buffer-from\": [\"buffer-from@1.1.2\", \"\", {}, \"sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==\"],\n \n+    \"bun-types\": [\"bun-types@1.4.2\", \"\", { \"dependencies\": { \"@types/node\": \"*\" } }, \"sha512-bxV1FgK7yBIzjRe5zBozIM4Bem11ZJcCXSrjWRG3YWLt8yFDePu4cLjpebO8OvPeIE9trbyPF4fuj3Cia4Fj3w==\"],\n+\n     \"bundle-name\": [\"bundle-name@4.1.0\", \"\", { \"dependencies\": { \"run-applescript\": \"^7.0.0\" } }, \"sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==\"],\n \n     \"byline\": [\"byline@5.0.0\", \"\", {}, \"sha512-s6webAy+R4SR8XVuJWt2V2rGvhnrhxN+9S15GNuTK3wKPOXFF6RNc+8ug2XhH+2s4f+uudG4kUVYmYOQWL2g0Q==\"],\n",
     "pinnedToolchainNote": "Both baseline (05def6b source) and current (d54286e) measurements use identical package.json, bun.lock, tsconfig.json, and tsconfig.test.json copied from d54286e with bun install --frozen-lockfile.",
     "causeOfOriginalHashMismatch": "05def6b→d54286e commits added bun-types devDependency, typecheck:qa script, tsconfig.test.json bun→bun-types + **/*.test.tsx include, and tsconfig.json test exclusions — not merely an ad-hoc worktree shim."
+  },
+  "tradeKeyUnionOrderInvestigation": {
+    "declarationChain": [
+      "src/lib/roi/callVolume.ts — CALL_VOLUME_TRADES object; TradeKey = keyof typeof CALL_VOLUME_TRADES",
+      "src/lib/roi/roiModel.ts — re-exports TradeKey from ./callVolume",
+      "src/server/speed2Lead/session.ts — createSession(input.trade?: import('~/lib/roi/roiModel').TradeKey)",
+      "src/server/speed2Lead/session.memory.test.ts — diagnostics at lines 51 and 75 reference rendered TradeKey union in createSession parameter type"
+    ],
+    "callVolumeByteIdenticalAtBothShas": true,
+    "sessionMemoryTestByteIdenticalAtBothShas": true,
+    "validateLeadInTradeKeyChain": false,
+    "validateLeadTradeKeyChainEvidence": "TradeKey chain: callVolume.ts (CALL_VOLUME_TRADES) → roiModel.ts re-export → session.ts createSession(). validateLead.ts exports ContactTrade/LeadInfo for contact flow only; session.ts imports TradeKey from roiModel, not validateLead. Grep: no validateLead import on TradeKey declaration path for P-2/P-3 diagnostics.",
+    "phase2ModifiedSourceBetweenShasInTradeKeyChain": true,
+    "baselineUnionPrintOrderExample": "\"Plumbers\" | \"Electricians\" | \"HVAC\" | \"Roofers\" | \"PestControl\"",
+    "currentUnionPrintOrderExample": "\"HVAC\" | \"Plumbers\" | \"Electricians\" | \"Roofers\" | \"PestControl\"",
+    "causalClassification": "B-unresolved-compiler-rendering",
+    "conclusion": "Pinned-toolchain remeasurement shows canonicalized message text differs only in TradeKey union member print order at byte-identical session.memory.test.ts:51 and :75. Under approved identity (path-prefix removal only), baseline forms are removed and current forms are introduced. No single source file change between 05def6b and d54286e has been proven to flip the union print order (callVolume.ts, roiModel.ts, session.ts, session.memory.test.ts are byte-identical). validateLead.ts is NOT part of the TradeKey declaration/import chain for createSession. Conservative removed/introduced classification stands. Zero diagnostics in new or modified Phase-2-owned files; two repo-wide legacy test-scope introduced forms remain.",
+    "phase2OwnedIntroducedDiagnostics": 0,
+    "repoWideIntroducedDiagnostics": 2
   },
   "finalClassificationSummary": {
     "testScope": {
@@ -5448,7 +5467,7 @@
       "config": "tsconfig.qa.json",
       "reason": "tsconfig.qa.json and scripts/phase2/** did not exist at starting SHA 05def6b; no direct baseline diagnostic count",
       "currentFilesCovered": "{\n  \"extends\": \"./tsconfig.test.json\",\n  \"include\": [\"scripts/phase2/**/*.ts\"]\n}\n",
-      "currentDiagnosticCount": 21
+      "currentDiagnosticCount": 23
     },
     "current": {
       "available": true,
@@ -5460,9 +5479,9 @@
       "config": "tsconfig.qa.json",
       "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
       "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-      "includedFileCount": 1488,
+      "includedFileCount": 1498,
       "exitStatus": 2,
-      "totalDiagnosticCount": 21,
+      "totalDiagnosticCount": 23,
       "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
       "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
       "diagnostics": [
@@ -5567,75 +5586,93 @@
         },
         {
           "file": "scripts/phase2/safe-preview-serve.ts",
-          "line": 39,
+          "line": 30,
           "column": 11,
           "code": "TS2339",
           "message": "Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "key": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+          "key": "scripts/phase2/safe-preview-serve.ts:30:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:30:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
         },
         {
           "file": "scripts/phase2/safe-preview-serve.ts",
-          "line": 41,
+          "line": 32,
           "column": 5,
           "code": "TS2339",
           "message": "Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "key": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+          "key": "scripts/phase2/safe-preview-serve.ts:32:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:32:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
         },
         {
           "file": "scripts/phase2/safe-preview-serve.ts",
-          "line": 44,
+          "line": 35,
           "column": 15,
           "code": "TS7006",
           "message": "Parameter 'req' implicitly has an 'any' type.",
-          "key": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
-          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type."
+          "key": "scripts/phase2/safe-preview-serve.ts:35:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
+          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:35:15:TS7006:Parameter 'req' implicitly has an 'any' type."
         },
         {
           "file": "scripts/phase2/safe-preview-serve.ts",
-          "line": 47,
+          "line": 38,
           "column": 24,
           "code": "TS2339",
           "message": "Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "key": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+          "key": "scripts/phase2/safe-preview-serve.ts:38:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+          "canonicalKey": "scripts/phase2/safe-preview-serve.ts:38:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+        },
+        {
+          "file": "scripts/phase2/safePreviewDocker.ts",
+          "line": 178,
+          "column": 34,
+          "code": "TS2339",
+          "message": "Property 'trim' does not exist on type 'string | NonSharedBuffer'.",
+          "key": "scripts/phase2/safePreviewDocker.ts:178:34:TS2339:Property 'trim' does not exist on type 'string | NonSharedBuffer'.",
+          "canonicalKey": "scripts/phase2/safePreviewDocker.ts:178:34:TS2339:Property 'trim' does not exist on type 'string | NonSharedBuffer'."
+        },
+        {
+          "file": "scripts/phase2/safePreviewIsolationRuntime.ts",
+          "line": 88,
+          "column": 7,
+          "code": "TS2322",
+          "message": "Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+          "key": "scripts/phase2/safePreviewIsolationRuntime.ts:88:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+          "canonicalKey": "scripts/phase2/safePreviewIsolationRuntime.ts:88:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'."
+        },
+        {
+          "file": "scripts/phase2/safePreviewIsolationRuntime.ts",
+          "line": 105,
+          "column": 7,
+          "code": "TS2322",
+          "message": "Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+          "key": "scripts/phase2/safePreviewIsolationRuntime.ts:105:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+          "canonicalKey": "scripts/phase2/safePreviewIsolationRuntime.ts:105:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'."
         },
         {
           "file": "scripts/phase2/safePreviewNetworkGuard.ts",
-          "line": 65,
+          "line": 66,
           "column": 24,
           "code": "TS2556",
           "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
-          "key": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
-          "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
+          "key": "scripts/phase2/safePreviewNetworkGuard.ts:66:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+          "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:66:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
         },
         {
           "file": "scripts/phase2/safePreviewNetworkGuard.ts",
-          "line": 69,
+          "line": 70,
           "column": 20,
           "code": "TS2556",
           "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
-          "key": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
-          "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
+          "key": "scripts/phase2/safePreviewNetworkGuard.ts:70:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+          "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:70:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
         },
         {
           "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
-          "line": 250,
+          "line": 248,
           "column": 47,
           "code": "TS2769",
           "message": "No overload matches this call.",
-          "key": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call.",
-          "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call."
-        },
-        {
-          "file": "scripts/phase2/start-safe-assessment-preview.ts",
-          "line": 83,
-          "column": 14,
-          "code": "TS2345",
-          "message": "Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
-          "key": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
-          "canonicalKey": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'."
+          "key": "scripts/phase2/start-safe-assessment-preview.test.ts:248:47:TS2769:No overload matches this call.",
+          "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:248:47:TS2769:No overload matches this call."
         },
         {
           "file": "scripts/phase2/upstash-redis-stub.ts",
@@ -9457,6 +9494,15 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/generate-preview-checkout-verification.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/generate-private-implementation-report.ts",
       "newOrModified": "new",
       "category": "qa-script",
@@ -9484,7 +9530,25 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/generate-safe-preview-adapter-isolation.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
       "path": "scripts/phase2/generate-x-test-inventory.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/prepare-safe-preview-deps.ts",
       "newOrModified": "new",
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",
@@ -9574,7 +9638,196 @@
       "result": "pass"
     },
     {
+      "path": "scripts/phase2/safe-preview-serve.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 4,
+      "result": "fail"
+    },
+    {
       "path": "scripts/phase2/safe-public-qa.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewBrowserCsp.test.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewBuild.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewCsp.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewDocker.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 1,
+      "result": "fail"
+    },
+    {
+      "path": "scripts/phase2/safePreviewDockerWait.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewEnvironment.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewHttpGetProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewHttpsGetProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewIsolation.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewIsolationRuntime.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 2,
+      "result": "fail"
+    },
+    {
+      "path": "scripts/phase2/safePreviewNetConnectProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewNetworkGuard.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 2,
+      "result": "fail"
+    },
+    {
+      "path": "scripts/phase2/safePreviewNetworkNamespace.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewNetworkProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewReachability.test.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewTlsProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewTransportProbes.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/safePreviewWebSocketProbe.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 0,
+      "result": "pass"
+    },
+    {
+      "path": "scripts/phase2/start-safe-assessment-preview.test.ts",
+      "newOrModified": "new",
+      "category": "qa-script",
+      "coveringConfiguration": "tsconfig.qa.json",
+      "includedInMeasurement": "yes",
+      "diagnosticCount": 1,
+      "result": "fail"
+    },
+    {
+      "path": "scripts/phase2/start-safe-assessment-preview.ts",
       "newOrModified": "new",
       "category": "qa-script",
       "coveringConfiguration": "tsconfig.qa.json",

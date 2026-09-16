@@ -1,6 +1,6 @@
 {
   "baselineSha": "05def6b17c7645d783c85df92d1e4053099c2ea4",
-  "currentHeadSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "currentHeadSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
   "note": "Pinned toolchain remeasurement: both sides use d54286e package.json, bun.lock, tsconfig.json, and tsconfig.test.json with bun install --frozen-lockfile. Baseline source tree remains 05def6b; current source tree is d54286e.",
   "production": {
     "available": true,
@@ -1614,9 +1614,9 @@
     "config": "tsconfig.qa.json",
     "configSha256": "8e64b559e0134138731a43d81313b9e072f499a5bd3dc6610572da3b735e6c4d",
     "dependencyConditions": "Current package.json/lockfile including bun-types devDependency",
-    "includedFileCount": 1488,
+    "includedFileCount": 1498,
     "exitStatus": 2,
-    "totalDiagnosticCount": 21,
+    "totalDiagnosticCount": 23,
     "artifactLogPath": "review-artifacts/phase2/typescript-qa-current.log",
     "includedFilesInventoryPath": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
     "diagnostics": [
@@ -1721,75 +1721,93 @@
       },
       {
         "file": "scripts/phase2/safe-preview-serve.ts",
-        "line": 39,
+        "line": 30,
         "column": 11,
         "code": "TS2339",
         "message": "Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "key": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:39:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+        "key": "scripts/phase2/safe-preview-serve.ts:30:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:30:11:TS2339:Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
       },
       {
         "file": "scripts/phase2/safe-preview-serve.ts",
-        "line": 41,
+        "line": 32,
         "column": 5,
         "code": "TS2339",
         "message": "Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "key": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:41:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+        "key": "scripts/phase2/safe-preview-serve.ts:32:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:32:5:TS2339:Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
       },
       {
         "file": "scripts/phase2/safe-preview-serve.ts",
-        "line": 44,
+        "line": 35,
         "column": 15,
         "code": "TS7006",
         "message": "Parameter 'req' implicitly has an 'any' type.",
-        "key": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
-        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:44:15:TS7006:Parameter 'req' implicitly has an 'any' type."
+        "key": "scripts/phase2/safe-preview-serve.ts:35:15:TS7006:Parameter 'req' implicitly has an 'any' type.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:35:15:TS7006:Parameter 'req' implicitly has an 'any' type."
       },
       {
         "file": "scripts/phase2/safe-preview-serve.ts",
-        "line": 47,
+        "line": 38,
         "column": 24,
         "code": "TS2339",
         "message": "Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "key": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
-        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:47:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+        "key": "scripts/phase2/safe-preview-serve.ts:38:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.",
+        "canonicalKey": "scripts/phase2/safe-preview-serve.ts:38:24:TS2339:Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'."
+      },
+      {
+        "file": "scripts/phase2/safePreviewDocker.ts",
+        "line": 178,
+        "column": 34,
+        "code": "TS2339",
+        "message": "Property 'trim' does not exist on type 'string | NonSharedBuffer'.",
+        "key": "scripts/phase2/safePreviewDocker.ts:178:34:TS2339:Property 'trim' does not exist on type 'string | NonSharedBuffer'.",
+        "canonicalKey": "scripts/phase2/safePreviewDocker.ts:178:34:TS2339:Property 'trim' does not exist on type 'string | NonSharedBuffer'."
+      },
+      {
+        "file": "scripts/phase2/safePreviewIsolationRuntime.ts",
+        "line": 88,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+        "key": "scripts/phase2/safePreviewIsolationRuntime.ts:88:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+        "canonicalKey": "scripts/phase2/safePreviewIsolationRuntime.ts:88:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'."
+      },
+      {
+        "file": "scripts/phase2/safePreviewIsolationRuntime.ts",
+        "line": 105,
+        "column": 7,
+        "code": "TS2322",
+        "message": "Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+        "key": "scripts/phase2/safePreviewIsolationRuntime.ts:105:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'.",
+        "canonicalKey": "scripts/phase2/safePreviewIsolationRuntime.ts:105:7:TS2322:Type '\"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress\"' is not assignable to type '\"Docker publishes container:3000 to host 127.0.0.1:3000 only\"'."
       },
       {
         "file": "scripts/phase2/safePreviewNetworkGuard.ts",
-        "line": 65,
+        "line": 66,
         "column": 24,
         "code": "TS2556",
         "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
-        "key": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
-        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:65:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
+        "key": "scripts/phase2/safePreviewNetworkGuard.ts:66:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:66:24:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
       },
       {
         "file": "scripts/phase2/safePreviewNetworkGuard.ts",
-        "line": 69,
+        "line": 70,
         "column": 20,
         "code": "TS2556",
         "message": "A spread argument must either have a tuple type or be passed to a rest parameter.",
-        "key": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
-        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:69:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
+        "key": "scripts/phase2/safePreviewNetworkGuard.ts:70:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter.",
+        "canonicalKey": "scripts/phase2/safePreviewNetworkGuard.ts:70:20:TS2556:A spread argument must either have a tuple type or be passed to a rest parameter."
       },
       {
         "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
-        "line": 250,
+        "line": 248,
         "column": 47,
         "code": "TS2769",
         "message": "No overload matches this call.",
-        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call.",
-        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:250:47:TS2769:No overload matches this call."
-      },
-      {
-        "file": "scripts/phase2/start-safe-assessment-preview.ts",
-        "line": 83,
-        "column": 14,
-        "code": "TS2345",
-        "message": "Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
-        "key": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'.",
-        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.ts:83:14:TS2345:Argument of type 'ChildProcess' is not assignable to parameter of type '{ kill: (signal: string) => void; }'."
+        "key": "scripts/phase2/start-safe-assessment-preview.test.ts:248:47:TS2769:No overload matches this call.",
+        "canonicalKey": "scripts/phase2/start-safe-assessment-preview.test.ts:248:47:TS2769:No overload matches this call."
       },
       {
         "file": "scripts/phase2/upstash-redis-stub.ts",
