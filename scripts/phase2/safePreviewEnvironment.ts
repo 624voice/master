@@ -12,8 +12,8 @@ export const SAFE_PREVIEW_BASE_URL = "http://127.0.0.1:3000";
 export const REDIS_STUB_PORT = 8787;
 export const REDIS_STUB_URL = `http://127.0.0.1:${REDIS_STUB_PORT}`;
 
-/** Bootstrap keys copied from parent (non-secret runtime plumbing only). */
-const BOOTSTRAP_KEYS = [
+/** Bootstrap keys copied from parent (non-secret runtime plumbing only). Allowlist — only these pass through. */
+export const BOOTSTRAP_KEYS = [
   "PATH",
   "HOME",
   "USER",
@@ -214,17 +214,42 @@ export function stopPreviewServer(): void {
   ]);
 }
 
+const NETWORK_GUARD_PRELOAD = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkGuard.ts");
+
 export function spawnSafePreviewServer(
   childEnv: Record<string, string>,
 ): ChildProcess {
   assertSafePreviewEnvironment(childEnv);
   stopPreviewServer();
   startRedisStub();
-  return spawn("bun", ["run", "start"], {
+  return spawn("bun", ["--preload", NETWORK_GUARD_PRELOAD, "run", "start"], {
     cwd: REPO_ROOT,
     env: childEnv,
     stdio: ["ignore", "pipe", "pipe"],
   });
+}
+
+const NETWORK_PROBE_SCRIPT = join(REPO_ROOT, "scripts/phase2/safePreviewNetworkProbe.ts");
+
+export function spawnSafePreviewNetworkProbe(
+  childEnv: Record<string, string>,
+  targetUrl: string,
+): ReturnType<typeof spawnSync> {
+  return spawnSync(
+    "bun",
+    ["--preload", NETWORK_GUARD_PRELOAD, NETWORK_PROBE_SCRIPT, targetUrl],
+    { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
+  );
+}
+
+export function spawnSafePreviewLoopbackAllowedProbe(
+  childEnv: Record<string, string>,
+): ReturnType<typeof spawnSync> {
+  return spawnSync(
+    "bun",
+    ["--preload", NETWORK_GUARD_PRELOAD, NETWORK_PROBE_SCRIPT, "http://127.0.0.1:1"],
+    { cwd: REPO_ROOT, env: childEnv, encoding: "utf8" },
+  );
 }
 
 /** Test hook: assert sanitization even when a prohibited key is injected post-build. */

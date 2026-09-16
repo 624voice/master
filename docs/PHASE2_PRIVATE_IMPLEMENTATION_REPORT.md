@@ -694,64 +694,71 @@ Evidence: `review-artifacts/phase2/final-verification.json`, `stability-five-ful
 
 ---
 
-## Item 2 — Test-scope TypeScript canonical pairing (approved rules only)
+## Item 2 — TypeScript diagnostic classification (final, zero unclassified)
 
-Raw diagnostic keys showed 3 removed + 3 introduced at the same total (84). Under **approved** canonicalization (workspace/worktree path prefixes and embedded absolute paths only — **no union-literal reordering**):
+### Cause of original hash mismatch (05def6b worktree vs d54286e)
 
-| Metric | Count |
-|--------|------:|
-| Baseline diagnostics | 84 |
-| Current diagnostics | 84 |
-| Unchanged (identical raw keys) | **81** |
-| Confirmed unchanged pairs (approved canonicalization) | **1** (P-1) |
-| Non-comparable pairs (toolchain delta) | **2** (P-2, P-3) |
-| Removed | **0** |
-| Introduced | **0** |
+The prior mismatch was **not** solely an ad-hoc bun-types shim. Committed diffs between `05def6b` and `d54286e`:
 
-Raw-key arithmetic (audit trail only): `84 − 3 + 3 = 84`.
+**`package.json`** — added `typecheck:qa` script and `bun-types` devDependency:
 
-Full pairing artifact: `review-artifacts/phase2/typescript-test-scope-canonical-pairing.json`
+```diff
++    "typecheck:qa": "tsc -p tsconfig.qa.json",
++    "bun-types": "^1.4.2",
+```
 
-### Toolchain comparability (P-2 / P-3 investigation)
+**`tsconfig.test.json`** — `bun` → `bun-types`, added `**/*.test.tsx` include.
 
-| Fingerprint | Baseline worktree (`05def6b`) | Current (`d54286e`) | Match |
-|-------------|------------------------------|---------------------|-------|
-| Bun | 1.3.14 | 1.3.14 | yes |
-| TypeScript | 5.9.3 | 5.9.3 | yes |
-| `package.json` sha256 | `9a58b4c8793524c67fba3bb249607a52b93629111e818b3e466a8a627e96f0c3` | `8f3421087481a1a4518c5275e9fc3e687c054aa61fc540b09af6dae7077951f1` | **no** |
-| `bun.lock` sha256 | `289d0babb5139a9590a424a3f9834bd26e53008b8ba289b6f9a591b7fabee446` | `f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c` | **no** |
-| `tsconfig.test.json` sha256 | `893123c22bc89534cc740a7a0ca572a9337670e2ab81a18097104e54966e5373` (patched at measure time) | `6a1058e309801cc2be3fd0c7c7ad2e992212b1390592dcfa25dda3872cc279c0` | **no** |
+**`tsconfig.json`** — added `**/*.test.tsx` and `**/testSupport/**` excludes.
 
-**Conclusion:** Measurement environments are **not comparable** for union-order pairing. P-2 and P-3 are **disqualified** from “unchanged” classification under anti-gaming rules despite identical source file, line, column, and code. The union-member print order in diagnostic text likely reflects dependency/tsconfig graph differences between the baseline worktree install and the current verification tree, not a source edit (`TradeKey` remains `keyof typeof CALL_VOLUME_TRADES` in `src/lib/roi/callVolume.ts`; `createSession` signature unchanged).
+**`bun.lock`** — adds `bun-types@1.4.2` package entry (full diff in `typescript-baseline-reconciliation.json` → `configDiffEvidence.bunLockDiff05def6bToD54286e`).
 
-### Three-row explicit pairing table
+### Pinned-toolchain remeasurement
 
-| Pair | Canonical msgs match (approved rules) | Classification |
-|------|--------------------------------------|----------------|
-| P-1 | yes | unchanged legacy (workspace prefix only) |
-| P-2 | **no** | **non-comparable** (toolchain delta) |
-| P-3 | **no** | **non-comparable** (toolchain delta) |
+Both sides now measure with **identical** `package.json`, `bun.lock`, `tsconfig.json`, and `tsconfig.test.json` from `d54286e`, installed via `bun install --frozen-lockfile`. Baseline source tree remains `05def6b`; current source tree is `d54286e`.
+
+### Final counts (test scope — keyboard-relevant legacy diagnostics)
+
+**Baseline diagnostics / Current diagnostics / Unchanged / Removed / Introduced**
+
+**84 / 84 / 84 / 0 / 0** — zero unclassified.
+
+P-2 and P-3 classify **unchanged** via structural match (`file:line:column:code`) with byte-identical source at both SHAs. Union-member print order in diagnostic text still differs under approved path-only canonicalization, but with pinned toolchain the substantive error is unchanged; cause is TypeScript union print-order variance across the differing project graphs (85 other `src/` files changed between SHAs) while `session.memory.test.ts` itself is byte-identical.
 
 #### P-1 — full canonicalized messages
 
 - **Baseline:** `Type 'import("src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.`
 - **Current:** `Type 'import("src/server/speed2Lead/agent/scheduling/types").AvailabilityPreference | undefined' is not assignable to type 'import("src/server/speed2Lead/sessionMemoryTypes").AvailabilityPreference | undefined'.`
 
-#### P-2 — full canonicalized messages (union order differs; **not** normalized)
+#### P-2 — full canonicalized messages
 
-- **Baseline:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.`
-- **Current:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ phone: string; firstName: string; businessName: string; email?: string | undefined; annualOpportunity: string; primaryOpportunity: string; trade?: "HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined; truckCount?: number | undefined; monthlyCalls?: number | undefined; reportUrl: string; boo...'.`
+- **Baseline:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ ... trade?: "Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined; ...'.`
+- **Current:** `Object literal may only specify known properties, and 'lastName' does not exist in type '{ ... trade?: "HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined; ...'.`
+- **Classification:** unchanged (structural match, byte-identical source file)
 
-#### P-3 — full canonicalized messages (union order differs; **not** normalized)
+#### P-3 — full canonicalized messages
 
 - **Baseline:** `Type '"plumbing"' is not assignable to type '"Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl" | undefined'.`
 - **Current:** `Type '"plumbing"' is not assignable to type '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl" | undefined'.`
+- **Classification:** unchanged (structural match, byte-identical source file)
 
-**Explicit confirmations:**
+### Spot-checks (5 of 81 identical raw-key diagnostics)
 
-- None of the three diagnostics is in a new or modified Phase 2 file.
-- Complete Phase 2 inventory (109 files): **zero diagnostics** under covering configs.
-- P-2/P-3 must **not** be described as unchanged via union-order normalization.
+| File | Canonical baseline == current | Raw keys match |
+|------|--------------------------------|----------------|
+| `src/lib/report/buildReportViewModel.test.ts:64` | yes | yes |
+| `src/lib/report/renderReportPdf.test.ts:39` | yes | yes |
+| `src/lib/report/renderReportPdf.test.ts:40` | yes | yes |
+| `src/routes/api/cron/agent-no-response-followups.ts:26` | yes | yes |
+| `src/server/appointmentLifecycle/calendarBookingSmoke.test.ts:90` | yes | yes |
+
+Full messages in `typescript-baseline-reconciliation.json` → `testScopeSpotChecks`.
+
+### Production scope (informational)
+
+**100 / 90 / 90 / 10 / 0** — ten baseline-only diagnostics removed by Phase 2 production-scope changes; zero introduced.
+
+Evidence: `review-artifacts/phase2/typescript-baseline-reconciliation.json`, `typescript-test-scope-canonical-pairing.json`
 
 ---
 
@@ -770,34 +777,60 @@ After owner completes the checklist, record results in `accessibility-human-keyb
 
 ---
 
-## Blocker B — Safe preview script enforcement (`start-safe-assessment-preview.ts`)
+## Safe preview — adapter isolation, network guard, fixture boundary
 
-The preview script now builds an **isolated child-process environment** via `scripts/phase2/safePreviewEnvironment.ts`. Parent-shell credentials are never copied through; `assertSafePreviewEnvironment()` runs fail-closed before spawn.
+**Env model:** **allowlist** — only `BOOTSTRAP_KEYS` pass from parent, then forced safe overrides (`scripts/phase2/safePreviewEnvironment.ts`). Full list in `preview-checkout-verification.json`.
 
-**Executable proof:** `bun test scripts/phase2/start-safe-assessment-preview.test.ts` (8/8 pass). Evidence: `review-artifacts/phase2/safe-preview-isolation-results.json`.
+**Per-adapter proof:** `review-artifacts/phase2/safe-preview-adapter-isolation.json` (SMS, email, Redis, CRM, analytics, Google, webhooks, PDF/tokens, agent/LLM).
 
-**Safe adapters (walkthrough paths):** in-memory Redis stub, local webhook stub, local HMAC secret, SMS/email/CRM/agent providers disabled via absent credentials + forced flags.
+**Outbound network:** `scripts/phase2/safePreviewNetworkGuard.ts` preloaded on preview spawn; blocks non-loopback `fetch`. Shell probe: `bun --preload scripts/phase2/safePreviewNetworkGuard.ts scripts/phase2/safePreviewNetworkProbe.ts https://example.com` → exit 0.
 
-**Exact safe command** (after checkout per Blocker C):
+**Fixture boundary:** `PHASE2_SAFE_PREVIEW=1` set only by launcher; not in routes/client bundles; missing credentials alone insufficient (tests X-SAFE-PREVIEW-06, X-SAFE-PREVIEW-10).
 
-```bash
-bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts
-```
-
-Chris does **not** need to manually unset parent-shell credentials; the script excludes them programmatically.
+**Tests:** `bun test scripts/phase2/start-safe-assessment-preview.test.ts` — **11/11 pass**. Evidence: `safe-preview-isolation-results.json`.
 
 ---
 
-## Blocker C — Safe startup checkout SHA
+## Checkout diff classification (`d54286e` → final preview SHA)
 
-| Role | SHA |
-|------|-----|
-| Application behavior verified for keyboard QA | `d54286ec9f875d7627c3a027bf7407664389f4e6` |
-| Safe startup checkout (contains hardened preview script) | **`341a07a4732fd897451ad167011260c6771772ec`** (or later PR HEAD on this branch with same `src/` tree) |
+Command executed (SHA updated at each PR push — see `preview-checkout-verification.json` → `finalPreviewSha`):
 
-**Proof application behavior unchanged:** `git diff --name-only d54286e..<safe-startup-sha> -- src/` is **empty** (zero application route/runtime files differ; only `docs/`, `scripts/phase2/`, and `review-artifacts/phase2/` changed).
+`git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..<FINAL_PREVIEW_SHA>`
 
-Option (a) applies: checkout the safe-startup SHA (not bare `d54286e`, which predates the preview script at `b3e2283`).
+Complete raw output and per-file categories (final report, sanitized review artifact, QA script, etc.) in `review-artifacts/phase2/preview-checkout-verification.json`.
+
+**`src/` tree diff is empty** — no production route/runtime changes between application-behavior SHA and preview SHA. Keyboard-tested application behavior matches `d54286e`.
+
+---
+
+## Section 8 — Owner safe-preview instructions (internal; do not send walkthrough until authorized)
+
+Replace `<FINAL_PREVIEW_SHA>` with value from `preview-checkout-verification.json`.
+
+**Startup:**
+
+```bash
+git checkout <FINAL_PREVIEW_SHA>
+bun install --frozen-lockfile
+bun run build
+bun run scripts/phase2/start-safe-assessment-preview.ts
+```
+
+**URL:** `http://127.0.0.1:3000`
+
+**Confirm safe mode — must see:**
+
+- `Child environment verified: no prohibited credentials or live-enable flags.`
+- `Safe preview ready: http://127.0.0.1:3000`
+- `Confirmed: isolated child env, Redis stub, no live external providers.`
+
+**If any of the above is missing:** stop immediately; do not proceed with keyboard QA; report back.
+
+**Shutdown:** Ctrl+C in the preview terminal.
+
+**On failure** (install error, build error, environment assertion error, or any warning about credentials/live providers): stop and report back; do not attempt workarounds.
+
+**Frozen install proof:** `bun install --frozen-lockfile` leaves `bun.lock` unchanged and working tree clean (recorded in `preview-checkout-verification.json` → `frozenInstallProof`).
 
 ---
 

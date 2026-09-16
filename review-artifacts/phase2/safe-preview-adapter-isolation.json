@@ -1,0 +1,83 @@
+{
+  "boundaryMarker": "PHASE2_SAFE_PREVIEW=1 (set only by scripts/phase2/safePreviewEnvironment.ts in launcher child env; not readable from visitor input)",
+  "adapters": [
+    {
+      "integration": "SMS (Twilio)",
+      "stubOrDisabled": "SPEED2LEAD_ENABLED=false; Twilio env keys stripped; isSpeed2LeadEnabled() false",
+      "selectionGate": "src/server/submitAssessmentLead.server.ts requires ASSESSMENT_ROI_AGENT_LIVE_ENABLED && isSpeed2LeadEnabled()",
+      "liveEndpointUnreachableProof": "No TWILIO_* in child env; src/server/sms/twilio.ts throws if credentials missing; network guard blocks non-loopback",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-02", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "Email (SendGrid)",
+      "stubOrDisabled": "SENDGRID_* keys absent from child env",
+      "selectionGate": "No assessment journey code path sends email without SendGrid credentials",
+      "liveEndpointUnreachableProof": "Allowlist env excludes SENDGRID_*; egress guard blocks external hosts",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-02", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "Redis (Upstash)",
+      "stubOrDisabled": "scripts/phase2/upstash-redis-stub.ts in-memory Map at http://127.0.0.1:8787",
+      "selectionGate": "UPSTASH_REDIS_REST_URL forced to loopback stub URL in child env",
+      "liveEndpointUnreachableProof": "Child env UPSTASH_REDIS_REST_URL=127.0.0.1:8787 only; egress guard blocks upstash.io",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-01", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "CRM / leads webhook",
+      "stubOrDisabled": "LEADS_WEBHOOK_URL forced to http://127.0.0.1:8787/leads-webhook (stub returns {ok:true})",
+      "selectionGate": "src/server/leads.ts posts only to process.env.LEADS_WEBHOOK_URL",
+      "liveEndpointUnreachableProof": "Stub URL only in child env; egress guard blocks external CRM hosts",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-02", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "Analytics",
+      "stubOrDisabled": "No analytics provider write keys in child env; trackEvent is client-side only in assessment route",
+      "selectionGate": "No server-side analytics SDK env keys in allowlisted child env",
+      "liveEndpointUnreachableProof": "ANALYTICS_* / SEGMENT_* / POSTHOG_* stripped; egress guard",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-07", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "Google APIs",
+      "stubOrDisabled": "GOOGLE_* credentials stripped from child env",
+      "selectionGate": "Calendar/booking modules require GOOGLE_* env vars",
+      "liveEndpointUnreachableProof": "Keys absent + egress guard blocks googleapis.com",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-02", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "Webhooks (generic)",
+      "stubOrDisabled": "CRM_WEBHOOK_URL and external LEADS_WEBHOOK_URL stripped; loopback stub only",
+      "selectionGate": "process.env.LEADS_WEBHOOK_URL only",
+      "liveEndpointUnreachableProof": "Allowlist + forced stub URL + egress guard",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-02", "X-SAFE-PREVIEW-09"]
+    },
+    {
+      "integration": "PDF / report token storage",
+      "stubOrDisabled": "Local ASSESSMENT_SECURITY_HMAC_SECRET; Redis stub for token persistence",
+      "selectionGate": "src/server/assessment/reportTokens.ts uses getRedis() → stub",
+      "liveEndpointUnreachableProof": "No production Redis URL in child env",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-01"]
+    },
+    {
+      "integration": "Agent / LLM provider",
+      "stubOrDisabled": "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false (compile-time false in src/config/features.ts); OPENAI_* stripped; SPEED2LEAD_LLM_ENABLED=false",
+      "selectionGate": "submitAssessmentLead.server.ts line 139-146 requires ASSESSMENT_ROI_AGENT_LIVE_ENABLED && isSpeed2LeadEnabled()",
+      "liveEndpointUnreachableProof": "Triple gate + no OPENAI_API_KEY + egress guard",
+      "visitorControlled": false,
+      "evidenceTests": ["X-SAFE-PREVIEW-04", "X-SAFE-PREVIEW-06"]
+    }
+  ],
+  "fixtureModeRequiresExplicitBoundary": {
+    "missingCredentialsAloneInsufficient": true,
+    "requiredMarker": "PHASE2_SAFE_PREVIEW=1",
+    "visitorCannotSetMarker": "Not referenced in src/routes/assessment.tsx or client bundles",
+    "evidenceTests": ["X-SAFE-PREVIEW-06", "X-SAFE-PREVIEW-07", "X-SAFE-PREVIEW-10"]
+  }
+}

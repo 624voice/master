@@ -3,11 +3,13 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  BOOTSTRAP_KEYS,
   PROHIBITED_EXACT_KEYS,
   assertSafePreviewEnvironment,
   buildIsolatedSafePreviewEnvironment,
   findProhibitedEnvKeys,
 } from "./safePreviewEnvironment";
+import { assertLoopbackUrl } from "./safePreviewNetworkGuard";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 
@@ -201,6 +203,56 @@ process.exit(0);`,
     const routes = readFileSync(join(REPO_ROOT, "src/routes/assessment.tsx"), "utf8");
     expect(routes).not.toMatch(/PHASE2_SAFE_PREVIEW|fixtureMode|qaMode/i);
     expect(routes).not.toMatch(/searchParams.*safe|query.*preview/i);
+  });
+
+  test("X-SAFE-PREVIEW-09: outbound non-loopback network is blocked in safe preview child", () => {
+    expect(() => assertLoopbackUrl("https://example.com", "fetch")).toThrow(
+      /Egress blocked.*non-loopback host example\.com/,
+    );
+    expect(() => assertLoopbackUrl("http://127.0.0.1:8787/leads-webhook", "fetch")).not.toThrow();
+    expect(() => assertLoopbackUrl("http://localhost:3000/assessment", "fetch")).not.toThrow();
+
+    const preloadGuard = readFileSync(
+      join(REPO_ROOT, "scripts/phase2/safePreviewNetworkGuard.ts"),
+      "utf8",
+    );
+    expect(preloadGuard).toContain("assertLoopbackUrl");
+    expect(preloadGuard).toMatch(/globalThis\.fetch/);
+    const spawnSource = readFileSync(join(REPO_ROOT, "scripts/phase2/safePreviewEnvironment.ts"), "utf8");
+    expect(spawnSource).toContain("--preload");
+    expect(spawnSource).toContain("safePreviewNetworkGuard.ts");
+  });
+
+  test("X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build", () => {
+    const child = buildIsolatedSafePreviewEnvironment(process.env);
+    delete child.PHASE2_SAFE_PREVIEW;
+    expect(() => assertSafePreviewEnvironment(child)).toThrow(/PHASE2_SAFE_PREVIEW=1 missing/);
+  });
+
+  test("X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only", () => {
+    const child = buildIsolatedSafePreviewEnvironment({
+      ...process.env,
+      ...FAKE_PARENT_CREDENTIALS,
+      RANDOM_PARENT_ONLY: "must-not-pass",
+    });
+    expect(Object.keys(child)).not.toContain("RANDOM_PARENT_ONLY");
+    for (const key of Object.keys(child)) {
+      const allowed =
+        (BOOTSTRAP_KEYS as readonly string[]).includes(key) ||
+        [
+          "NODE_ENV",
+          "SITE_ORIGIN",
+          "UPSTASH_REDIS_REST_URL",
+          "UPSTASH_REDIS_REST_TOKEN",
+          "LEADS_WEBHOOK_URL",
+          "ASSESSMENT_SECURITY_HMAC_SECRET",
+          "ASSESSMENT_ROI_AGENT_LIVE_ENABLED",
+          "SPEED2LEAD_ENABLED",
+          "SPEED2LEAD_LLM_ENABLED",
+          "PHASE2_SAFE_PREVIEW",
+        ].includes(key);
+      expect(allowed).toBe(true);
+    }
   });
 
   test("X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars", () => {
