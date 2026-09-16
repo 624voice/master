@@ -4,26 +4,17 @@
  */
 import "./safePreviewNetworkGuard.ts";
 import handler from "../../dist/server/server.js";
+import { SAFE_PREVIEW_CSP_HEADER } from "./safePreviewCsp.ts";
 
 const PORT = 3000;
-const HOST = "127.0.0.1";
+const HOST = process.env.PHASE2_DOCKER_RUNTIME === "1" ? "0.0.0.0" : "127.0.0.1";
 const CLIENT_DIR = `${import.meta.dir}/../../dist/client`;
 const IS_SAFE_PREVIEW = process.env.PHASE2_SAFE_PREVIEW === "1";
-
-const SAFE_PREVIEW_CSP = [
-  "default-src 'self' http://127.0.0.1:* http://localhost:* data: blob:",
-  "connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*",
-  "img-src 'self' data: http://127.0.0.1:* http://localhost:*",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:* http://localhost:*",
-  "style-src 'self' 'unsafe-inline'",
-  "font-src 'self' data:",
-  "frame-ancestors 'none'",
-].join("; ");
 
 function withSafeHeaders(response: Response): Response {
   if (!IS_SAFE_PREVIEW) return response;
   const headers = new Headers(response.headers);
-  headers.set("Content-Security-Policy", SAFE_PREVIEW_CSP);
+  headers.set("Content-Security-Policy", SAFE_PREVIEW_CSP_HEADER);
   headers.set("X-Phase2-Safe-Preview", "1");
   return new Response(response.body, {
     status: response.status,

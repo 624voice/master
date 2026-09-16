@@ -715,20 +715,22 @@ const tradeKeyUnionOrderInvestigation = {
       cwd: ROOT,
       encoding: "utf8",
     }).trim() === "",
-  phase2ModifiedSourceBetweenShasAffectingModuleGraph: execSync(
-    `git diff --name-only ${BASELINE_SHA} ${CURRENT_SHA} -- src/lib/lead/validateLead.ts src/lib/roi/callVolume.ts src/lib/roi/roiModel.ts src/server/speed2Lead/session.ts`,
+  validateLeadInTradeKeyChain: false,
+  validateLeadTradeKeyChainEvidence:
+    "TradeKey chain: callVolume.ts (CALL_VOLUME_TRADES) → roiModel.ts re-export → session.ts createSession(). validateLead.ts exports ContactTrade/LeadInfo for contact flow only; session.ts imports TradeKey from roiModel, not validateLead. Grep: no validateLead import on TradeKey declaration path for P-2/P-3 diagnostics.",
+  phase2ModifiedSourceBetweenShasInTradeKeyChain: execSync(
+    `git diff --name-only ${BASELINE_SHA} ${CURRENT_SHA} -- src/lib/roi/callVolume.ts src/lib/roi/roiModel.ts src/server/speed2Lead/session.ts src/server/speed2Lead/session.memory.test.ts`,
     { cwd: ROOT, encoding: "utf8" },
   )
-    .trim()
-    .split("\n")
-    .filter(Boolean),
+    .trim() === "",
   baselineUnionPrintOrderExample:
     '"Plumbers" | "Electricians" | "HVAC" | "Roofers" | "PestControl"',
   currentUnionPrintOrderExample: '"HVAC" | "Plumbers" | "Electricians" | "Roofers" | "PestControl"',
+  causalClassification: "B-unresolved-compiler-rendering",
   conclusion:
-    "Pinned-toolchain remeasurement shows canonicalized message text differs only in TradeKey union member print order at session.memory.test.ts:51 and :75. Under approved identity (path-prefix removal only), baseline forms are removed and current forms are introduced. callVolume.ts and session.memory.test.ts are byte-identical between 05def6b and d54286e; validateLead.ts is Phase-2-modified legacy source between those SHAs and is the only changed file in the direct roi/lead chain list. Broader Phase-2 module-graph expansion (many src/ files changed 05def6b→d54286e) can affect TypeScript union rendering order without altering TradeKey semantics.",
-  phase2OwnedIntroducedDiagnostics:
-    "Zero introduced diagnostics originate from scripts/phase2/** or other Phase-2-created QA paths; the two introduced forms are repo-wide legacy test-scope diagnostics at byte-identical session.memory.test.ts.",
+    "Pinned-toolchain remeasurement shows canonicalized message text differs only in TradeKey union member print order at byte-identical session.memory.test.ts:51 and :75. Under approved identity (path-prefix removal only), baseline forms are removed and current forms are introduced. No single source file change between 05def6b and d54286e has been proven to flip the union print order (callVolume.ts, roiModel.ts, session.ts, session.memory.test.ts are byte-identical). validateLead.ts is NOT part of the TradeKey declaration/import chain for createSession. Conservative removed/introduced classification stands. Zero diagnostics in new or modified Phase-2-owned files; two repo-wide legacy test-scope introduced forms remain.",
+  phase2OwnedIntroducedDiagnostics: 0,
+  repoWideIntroducedDiagnostics: 2,
 };
 
 const result = {

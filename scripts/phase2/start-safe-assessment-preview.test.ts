@@ -188,19 +188,17 @@ describe("start-safe-assessment-preview isolation", () => {
     isolation.cleanup();
   });
 
-  test("X-SAFE-PREVIEW-05: launcher performs frozen install and sanitized build inside boundary", () => {
+  test("X-SAFE-PREVIEW-05: launcher uses Docker internal network and fail-closed preflight", () => {
     const source = readFileSync(
       join(REPO_ROOT, "scripts/phase2/start-safe-assessment-preview.ts"),
       "utf8",
     );
-    expect(source).toContain("buildIsolatedSafePreviewEnvironment");
-    expect(source).toContain("assertSafePreviewEnvironment");
-    expect(source).toContain("ensureFrozenInstall");
-    expect(source).toContain("ensureSanitizedBuild");
-    expect(source).toContain("spawnSafePreviewServer");
+    expect(source).toContain("resolveIsolationRuntime");
+    expect(source).toContain("startDockerPreview");
+    expect(source).toContain("depsCacheReady");
     expect(source).not.toContain('spawnSync("bun", ["run", "build"]');
-    expect(source).toContain("createSafePreviewIsolation");
-    expect(source).toContain("isolation?.cleanup()");
+    expect(source).not.toContain("unshare");
+    expect(source).toContain("stopDockerPreview");
   });
 
   test("X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters", () => {
@@ -263,6 +261,7 @@ process.exit(0);`,
     const child = buildIsolatedSafePreviewEnvironment(process.env, isolation);
     const probe = spawnSafePreviewNetworkProbe(child, "https://example.com");
     expect(probe.status).toBe(0);
+    expect(`${probe.stdout ?? ""}${probe.stderr ?? ""}`).toContain("PASS: non-loopback request was blocked");
     isolation.cleanup();
   });
 
@@ -417,10 +416,12 @@ process.exit(0);`,
 
   test("X-SAFE-PREVIEW-19: safe preview serve binds loopback and sets CSP", () => {
     const source = readFileSync(SAFE_PREVIEW_SERVE_SCRIPT, "utf8");
-    expect(source).toContain('const HOST = "127.0.0.1"');
-    expect(source).toContain("hostname: HOST");
+    expect(source).toContain('process.env.PHASE2_DOCKER_RUNTIME === "1" ? "0.0.0.0" : "127.0.0.1"');
+    expect(source).toContain("SAFE_PREVIEW_CSP_HEADER");
     expect(source).toContain("Content-Security-Policy");
-    expect(source).toContain("connect-src 'self'");
+    const cspSource = readFileSync(join(REPO_ROOT, "scripts/phase2/safePreviewCsp.ts"), "utf8");
+    expect(cspSource).toContain("connect-src");
+    expect(cspSource).toContain("form-action");
   });
 
   test("X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build", () => {

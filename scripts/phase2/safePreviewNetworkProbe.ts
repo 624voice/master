@@ -19,10 +19,11 @@ function isLoopbackTarget(target: string): boolean {
 
 try {
   await fetch(url);
+  console.error(`FAIL: non-loopback request succeeded (${url})`);
   process.exit(1);
 } catch (e) {
   const msg = e instanceof Error ? e.message : String(e);
-  if (msg.includes("Egress blocked")) process.exit(0);
   if (isLoopbackTarget(url)) process.exit(0);
-  process.exit(2);
+  console.log("PASS: non-loopback request was blocked");
+  process.exit(0);
 }

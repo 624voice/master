@@ -261,6 +261,45 @@ export function stopPreviewServer(): void {
   ]);
 }
 
+/** Host-bound preview (owner browser on host loopback). Used for Linux iptables fallback. */
+export function spawnSafePreviewServerOnHost(
+  childEnv: Record<string, string>,
+): ChildProcess {
+  assertSafePreviewEnvironment(childEnv);
+  stopPreviewServer();
+  stopRedisStub();
+  const stubEnv = { ...childEnv, PHASE2_REDIS_STUB_PORT: String(REDIS_STUB_PORT) };
+  spawn("bun", ["--env-file=/dev/null", "scripts/phase2/upstash-redis-stub.ts"], {
+    cwd: REPO_ROOT,
+    stdio: "ignore",
+    env: stubEnv,
+    detached: true,
+  }).unref();
+  return spawn("bun", ["--env-file=/dev/null", SAFE_PREVIEW_SERVE_SCRIPT], {
+    cwd: REPO_ROOT,
+    env: childEnv,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+}
+
+export function runSanitizedInstallOnHost(childEnv: Record<string, string>): SpawnSyncReturns<string> {
+  assertSafePreviewEnvironment(childEnv);
+  return spawnSync("bun", ["--env-file=/dev/null", "install", "--frozen-lockfile"], {
+    cwd: REPO_ROOT,
+    env: childEnv,
+    encoding: "utf8",
+  });
+}
+
+export function runSanitizedBuildOnHost(childEnv: Record<string, string>): SpawnSyncReturns<string> {
+  assertSafePreviewEnvironment(childEnv);
+  return spawnSync("bun", ["--env-file=/dev/null", "scripts/phase2/safePreviewBuild.ts"], {
+    cwd: REPO_ROOT,
+    env: childEnv,
+    encoding: "utf8",
+  });
+}
+
 export function spawnSafePreviewServer(
   childEnv: Record<string, string>,
 ): ChildProcess {

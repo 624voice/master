@@ -57,6 +57,18 @@ const probes: ProbeResult[] = [
     childEnv,
   ),
   runProbe(
+    "node:tls",
+    "bun",
+    ["--env-file=/dev/null", "scripts/phase2/safePreviewTlsProbe.ts", "example.com"],
+    childEnv,
+  ),
+  runProbe(
+    "WebSocket-guard",
+    "bun",
+    ["--env-file=/dev/null", "scripts/phase2/safePreviewWebSocketProbe.ts"],
+    childEnv,
+  ),
+  runProbe(
     "child_process:curl",
     "curl",
     ["-s", "--max-time", "2", "https://example.com"],

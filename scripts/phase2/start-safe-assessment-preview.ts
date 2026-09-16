@@ -1,86 +1,69 @@
 /**
  * Safe local preview for owner human keyboard QA (A11Y-090).
- * Single wrapper: frozen install, sanitized build, and loopback-only preview
- * inside an isolated temporary HOME — parent shell credentials never pass through.
- *
- * Run: bun run scripts/phase2/start-safe-assessment-preview.ts
+ * Fail-closed Docker internal-network isolation; host browser reaches 127.0.0.1:3000.
  */
 import {
   SAFE_PREVIEW_ADAPTERS,
   SAFE_PREVIEW_BASE_URL,
-  assertSafePreviewEnvironment,
-  buildIsolatedSafePreviewEnvironment,
-  createSafePreviewIsolation,
-  runSanitizedBuild,
-  runSanitizedInstall,
-  spawnSafePreviewServer,
-  stopPreviewServer,
-  stopRedisStub,
-  type SafePreviewIsolation,
 } from "./safePreviewEnvironment";
+import {
+  depsCacheReady,
+  dockerImageReady,
+  buildDockerPreviewImage,
+  runPrepareDepsOnHost,
+  startDockerPreview,
+  stopDockerPreview,
+} from "./safePreviewDocker";
+import {
+  SafePreviewIsolationError,
+  describeIsolationForOwner,
+  resolveIsolationRuntime,
+} from "./safePreviewIsolationRuntime";
 import { waitForServer } from "../../src/browser-journey/assessmentBrowserJourneySupport";
 
-let isolation: SafePreviewIsolation | null = null;
+let dockerChild: ReturnType<typeof startDockerPreview> | null = null;
 
-function ensureFrozenInstall(childEnv: Record<string, string>): void {
-  const result = runSanitizedInstall(childEnv);
-  if (result.status !== 0) {
-    throw new Error(
-      `Frozen lockfile install failed:\n${result.stdout ?? ""}${result.stderr ?? ""}`,
-    );
+function shutdown(): void {
+  if (dockerChild) {
+    dockerChild.kill("SIGTERM");
+    stopDockerPreview();
+    dockerChild = null;
   }
-}
-
-function ensureSanitizedBuild(childEnv: Record<string, string>): void {
-  const result = runSanitizedBuild(childEnv);
-  if (result.status !== 0) {
-    throw new Error(
-      `Sanitized production build failed:\n${result.stdout ?? ""}${result.stderr ?? ""}`,
-    );
-  }
-}
-
-function shutdown(server?: { kill: (signal: string) => void }): void {
-  server?.kill("SIGTERM");
-  stopPreviewServer();
-  stopRedisStub();
-  isolation?.cleanup();
-  isolation = null;
 }
 
 async function main(): Promise<void> {
   console.log("Phase 2 safe owner preview — human keyboard QA only");
   console.log("Do NOT use Puppeteer, Playwright, scripted input, or AI browser control.");
 
-  isolation = createSafePreviewIsolation();
-  const childEnv = buildIsolatedSafePreviewEnvironment(process.env, isolation);
-  assertSafePreviewEnvironment(childEnv);
+  const preflight = resolveIsolationRuntime();
+  for (const line of describeIsolationForOwner(preflight)) {
+    console.log(`Isolation: ${line}`);
+  }
+  if (preflight.passwordlessSudoRequired) {
+    console.log("Note: this Linux host uses 'sudo docker' (passwordless sudo expected; no prompt).");
+  }
+
+  if (!depsCacheReady()) {
+    console.log("Dependencies not cached. Running one-time frozen lockfile install (network allowed for install only)...");
+    runPrepareDepsOnHost();
+  }
+  if (!dockerImageReady()) {
+    console.log("Docker preview image not built. Building once (network allowed for base image + iptables)...");
+    buildDockerPreviewImage();
+  }
 
   console.log("Safe preview adapters:");
   for (const [integration, adapter] of Object.entries(SAFE_PREVIEW_ADAPTERS)) {
     console.log(`  ${integration}: ${adapter}`);
   }
-  console.log(`Isolated HOME: ${childEnv.HOME}`);
-  console.log(`Isolated XDG_CONFIG_HOME: ${childEnv.XDG_CONFIG_HOME}`);
-  console.log("Child environment verified: no prohibited credentials or live-enable flags.");
 
-  console.log("Running bun install --frozen-lockfile inside safe boundary...");
-  ensureFrozenInstall(childEnv);
-
-  console.log("Running sanitized production build inside safe boundary...");
-  ensureSanitizedBuild(childEnv);
-
-  const server = spawnSafePreviewServer(childEnv);
-
-  server.stdout?.on("data", (chunk: Buffer) => {
-    process.stdout.write(chunk);
-  });
-  server.stderr?.on("data", (chunk: Buffer) => {
-    process.stderr.write(chunk);
-  });
+  console.log("Starting Docker internal-network preview (published to host 127.0.0.1:3000 only)...");
+  dockerChild = startDockerPreview(true);
+  dockerChild.stdout?.on("data", (c: Buffer) => process.stdout.write(c));
+  dockerChild.stderr?.on("data", (c: Buffer) => process.stdout.write(c));
 
   const onSignal = (): void => {
-    shutdown(server);
+    shutdown();
     process.exit(0);
   };
   process.on("SIGINT", onSignal);
@@ -88,13 +71,14 @@ async function main(): Promise<void> {
 
   await waitForServer(`${SAFE_PREVIEW_BASE_URL}/assessment`);
   console.log(`Safe preview ready: ${SAFE_PREVIEW_BASE_URL}`);
-  console.log("Confirmed: isolated child env, Redis stub, loopback-only egress, no live external providers.");
-  console.log("Press Ctrl+C to stop the preview server and remove temporary HOME/config directories.");
+  console.log("Open this URL in your normal browser on this machine (browser is outside the container).");
+  console.log("Confirmed: container has no external egress; host publish is loopback only.");
+  console.log("Press Ctrl+C to stop and remove the container.");
   await new Promise(() => {});
 }
 
 main().catch((err) => {
   shutdown();
-  console.error(err instanceof Error ? err.message : err);
+  console.error(err instanceof SafePreviewIsolationError ? err.message : err instanceof Error ? err.message : err);
   process.exit(1);
 });

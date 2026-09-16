@@ -3,6 +3,7 @@
  */
 import http from "node:http";
 import https from "node:https";
+import tls from "node:tls";
 import { fileURLToPath } from "node:url";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
@@ -72,6 +73,17 @@ function patchHttpModule(mod: typeof http | typeof https, label: string): void {
 
 patchHttpModule(http, "node:http");
 patchHttpModule(https, "node:https");
+
+const originalTlsConnect = tls.connect.bind(tls);
+(tls as { connect: typeof tls.connect }).connect = function patchedTlsConnect(...args: unknown[]) {
+  if (typeof args[0] === "object" && args[0] != null) {
+    const opts = args[0] as { host?: string; hostname?: string; servername?: string };
+    assertLoopbackHost(opts.host ?? opts.hostname ?? opts.servername, "node:tls");
+  } else if (typeof args[1] === "string") {
+    assertLoopbackHost(args[1], "node:tls");
+  }
+  return originalTlsConnect(...(args as Parameters<typeof tls.connect>));
+} as typeof tls.connect;
 
 if (typeof globalThis.WebSocket !== "undefined") {
   const OriginalWebSocket = globalThis.WebSocket;
