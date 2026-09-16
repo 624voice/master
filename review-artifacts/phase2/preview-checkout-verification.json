@@ -1,0 +1,308 @@
+{
+  "applicationBehaviorSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "finalPreviewSha": "0bd9708a9e2744071bf6aec0740164602ccb0ef4",
+  "diffCommandExecuted": "git diff --name-status d54286ec9f875d7627c3a027bf7407664389f4e6..0bd9708a9e2744071bf6aec0740164602ccb0ef4",
+  "diffOutputRaw": "M\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nA\treview-artifacts/phase2/accessibility-automated-keyboard-supplement.json\nA\treview-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json\nM\treview-artifacts/phase2/accessibility-inline-results.json\nM\treview-artifacts/phase2/accessibility-qa/summary.json\nM\treview-artifacts/phase2/accessibility-reconciliation.json\nM\treview-artifacts/phase2/ending-sha.txt\nM\treview-artifacts/phase2/final-verification-run.log\nM\treview-artifacts/phase2/final-verification.json\nA\treview-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt\nA\treview-artifacts/phase2/git-diff-4a714b3-to-d54286e.txt\nA\treview-artifacts/phase2/git-diff-9d14121-to-final-executable.txt\nA\treview-artifacts/phase2/git-diff-final-executable-to-pr-head.txt\nA\treview-artifacts/phase2/git-sha-reconciliation.json\nA\treview-artifacts/phase2/post-verification-commit-classification.json\nA\treview-artifacts/phase2/safe-preview-adapter-isolation.json\nA\treview-artifacts/phase2/safe-preview-isolation-results.json\nM\treview-artifacts/phase2/safe-qa-harness-isolation-results.json\nM\treview-artifacts/phase2/stability-five-full-suite-runs.json\nM\treview-artifacts/phase2/stability-messagesid-three-runs.json\nM\treview-artifacts/phase2/typescript-baseline-reconciliation.json\nM\treview-artifacts/phase2/typescript-comparison.json\nA\treview-artifacts/phase2/typescript-measurement-chronology.json\nM\treview-artifacts/phase2/typescript-production-baseline-included-files.txt\nM\treview-artifacts/phase2/typescript-production-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current-included-files.txt\nM\treview-artifacts/phase2/typescript-qa-current.log\nA\treview-artifacts/phase2/typescript-test-scope-canonical-pairing.json\nA\treview-artifacts/phase2/x-inventory-delta-reconciliation.json\nM\tscripts/phase2/generate-accessibility-reconciliation.ts\nA\tscripts/phase2/generate-preview-checkout-verification.ts\nM\tscripts/phase2/run-accessibility-qa.ts\nM\tscripts/phase2/run-final-verification.ts\nM\tscripts/phase2/run-human-keyboard-qa.ts\nM\tscripts/phase2/run-typescript-baseline-reconciliation.ts\nA\tscripts/phase2/safePreviewEnvironment.ts\nA\tscripts/phase2/safePreviewNetworkGuard.ts\nA\tscripts/phase2/safePreviewNetworkProbe.ts\nA\tscripts/phase2/start-safe-assessment-preview.test.ts\nA\tscripts/phase2/start-safe-assessment-preview.ts",
+  "classifiedFiles": [
+    {
+      "status": "M",
+      "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md",
+      "category": "final report",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/accessibility-automated-keyboard-supplement.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/accessibility-inline-results.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/accessibility-qa/summary.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/accessibility-reconciliation.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/ending-sha.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/final-verification-run.log",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/final-verification.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/git-diff-4a714b3-to-d54286e.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/git-diff-9d14121-to-final-executable.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/git-diff-final-executable-to-pr-head.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/git-sha-reconciliation.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/post-verification-commit-classification.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/safe-preview-adapter-isolation.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/safe-preview-isolation-results.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/safe-qa-harness-isolation-results.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/stability-five-full-suite-runs.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/stability-messagesid-three-runs.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-baseline-reconciliation.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-comparison.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-measurement-chronology.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-production-baseline-included-files.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-production-current-included-files.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-qa-current.log",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-test-scope-canonical-pairing.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/x-inventory-delta-reconciliation.json",
+      "category": "sanitized review artifact",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "scripts/phase2/generate-accessibility-reconciliation.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-preview-checkout-verification.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "scripts/phase2/run-accessibility-qa.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "scripts/phase2/run-final-verification.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "scripts/phase2/run-human-keyboard-qa.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "M",
+      "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewEnvironment.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewNetworkGuard.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/safePreviewNetworkProbe.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/start-safe-assessment-preview.test.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/start-safe-assessment-preview.ts",
+      "category": "QA script",
+      "altersKeyboardTestedRoutes": false
+    }
+  ],
+  "srcTreeDiffEmpty": true,
+  "keyboardRouteBehaviorUnchanged": true,
+  "frozenInstallProof": {
+    "command": "bun install --frozen-lockfile",
+    "bunLockSha256Before": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
+    "bunLockSha256After": "f0b56a7248af1632abac4ba435bfb24d633dc4fe71ffdff686a3007cefe95b1c",
+    "lockfileUnchanged": true,
+    "gitStatusPorcelainAfter": "M review-artifacts/phase2/accessibility-human-keyboard-owner-checklist.json\n?? review-artifacts/phase2/preview-checkout-verification.json",
+    "workingTreeClean": false
+  },
+  "enforcedPreviewFiles": {
+    "safePreviewEnvironment": {
+      "path": "scripts/phase2/safePreviewEnvironment.ts",
+      "sha256": "2f056fb72c3704c15bcf1e997b70ce4bb1ae07fefd8e3cbb8d7959fc438128ca",
+      "usesAllowlist": true,
+      "bootstrapKeys": [
+        "PATH",
+        "HOME",
+        "USER",
+        "LOGNAME",
+        "SHELL",
+        "LANG",
+        "LC_ALL",
+        "LC_CTYPE",
+        "TERM",
+        "TMPDIR",
+        "PWD",
+        "BUN_INSTALL",
+        "XDG_RUNTIME_DIR",
+        "DISPLAY"
+      ],
+      "containsBuildIsolatedSafePreviewEnvironment": true,
+      "containsNetworkGuardReference": true
+    },
+    "startSafeAssessmentPreview": {
+      "path": "scripts/phase2/start-safe-assessment-preview.ts",
+      "sha256": "e10ab2e920dbe7a0c76ba524886bdeb61f3b24527394c8636b5e87a7fe07fa0d",
+      "containsAssertBeforeSpawn": true,
+      "lacksManualUnsetComment": true
+    }
+  },
+  "testInventory": {
+    "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
+    "testNames": [
+      "X-SAFE-PREVIEW-01: builds fresh child env without parent credentials",
+      "X-SAFE-PREVIEW-02: negative probe — parent fake credentials do not reach child",
+      "X-SAFE-PREVIEW-03: fail closed when prohibited variable injected after sanitization",
+      "X-SAFE-PREVIEW-04: caller cannot override ASSESSMENT_ROI_AGENT_LIVE_ENABLED via parent",
+      "X-SAFE-PREVIEW-05: script source constructs isolated env and asserts before spawn",
+      "X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters",
+      "X-SAFE-PREVIEW-07: no visitor-controlled activation path in assessment route",
+      "X-SAFE-PREVIEW-09: outbound non-loopback network is blocked in safe preview child",
+      "X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build",
+      "X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only",
+      "X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars"
+    ],
+    "hasNegativeInjectionTest": true,
+    "hasFailurePathTest": true,
+    "hasNetworkBlockTest": true
+  }
+}

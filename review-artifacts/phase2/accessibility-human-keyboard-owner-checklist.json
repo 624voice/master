@@ -3,8 +3,8 @@
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
   "purpose": "Human-operated keyboard-only QA across all public routes and the full assessment journey. Automated Puppeteer coverage in accessibility-automated-keyboard-supplement.json does NOT satisfy this row.",
   "applicationBehaviorGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "safeStartupGitSha": "341a07a4732fd897451ad167011260c6771772ec",
-  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..341a07a4732fd897451ad167011260c6771772ec -- src/ returns empty",
+  "safeStartupGitSha": "0bd9708a9e2744071bf6aec0740164602ccb0ef4",
+  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..0bd9708a9e2744071bf6aec0740164602ccb0ef4 -- src/ returns empty",
   "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
   "operatorInstructions": {
     "who": "Chris (owner) — a real person, not automation",
@@ -21,12 +21,12 @@
   },
   "safeProcedure": {
     "summary": "Checkout safe-startup SHA (contains hardened preview script). Application routes match d54286e; script builds isolated child env.",
-    "startupCommand": "git checkout 341a07a4732fd897451ad167011260c6771772ec && bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "startupCommand": "git checkout 0bd9708a9e2744071bf6aec0740164602ccb0ef4 && bun install && bun run build && bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
     "confirmSafeMode": "Terminal prints adapter summary, 'Child environment verified', then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser; keyboard only.",
     "shutdownCommand": "Press Ctrl+C in the terminal running the preview script",
     "steps": [
-      "git checkout 341a07a4732fd897451ad167011260c6771772ec (NOT bare d54286e — preview script did not exist there)",
+      "git checkout 0bd9708a9e2744071bf6aec0740164602ccb0ef4 (NOT bare d54286e — preview script did not exist there)",
       "bun install",
       "bun run build",
       "bun run scripts/phase2/start-safe-assessment-preview.ts",
