@@ -10,7 +10,6 @@ import {
   depsCacheReady,
   dockerImageReady,
   buildDockerPreviewImage,
-  runPrepareDepsOnHost,
   startDockerPreview,
   stopDockerPreview,
 } from "./safePreviewDocker";
@@ -44,8 +43,9 @@ async function main(): Promise<void> {
   }
 
   if (!depsCacheReady()) {
-    console.log("Dependencies not cached. Running one-time frozen lockfile install (network allowed for install only)...");
-    runPrepareDepsOnHost();
+    console.log("Dependencies not cached. Run once: bun run scripts/phase2/prepare-safe-preview-deps.ts");
+    console.error("ERROR: Safe preview cannot start without secret-safe preparation. Do NOT continue.");
+    process.exit(1);
   }
   if (!dockerImageReady()) {
     console.log("Docker preview image not built. Building once (network allowed for base image + iptables)...");

@@ -196,6 +196,9 @@ describe("start-safe-assessment-preview isolation", () => {
     expect(source).toContain("resolveIsolationRuntime");
     expect(source).toContain("startDockerPreview");
     expect(source).toContain("depsCacheReady");
+    expect(source).toContain("prepare-safe-preview-deps");
+    expect(source).toContain("Do NOT continue");
+    expect(source).not.toContain("runPrepareDepsOnHost");
     expect(source).not.toContain('spawnSync("bun", ["run", "build"]');
     expect(source).not.toContain("unshare");
     expect(source).toContain("stopDockerPreview");

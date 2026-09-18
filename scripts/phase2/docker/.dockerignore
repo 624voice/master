@@ -1,0 +1,2 @@
+# Minimal safe-preview Docker context — deny everything (Dockerfile uses no COPY/ADD).
+**

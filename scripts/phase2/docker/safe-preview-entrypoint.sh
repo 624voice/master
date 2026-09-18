@@ -4,6 +4,7 @@ set -euo pipefail
 cd /app
 
 export PHASE2_SAFE_PREVIEW=1
+export PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1
 export NODE_ENV=production
 export SITE_ORIGIN=http://127.0.0.1:3000
 export UPSTASH_REDIS_REST_URL=http://127.0.0.1:8787

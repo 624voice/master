@@ -62,6 +62,28 @@ describe("owner browser reachability (Docker internal network)", () => {
     }
   }, 180000);
 
+  test("X-SAFE-PREVIEW-37: owner-QA report fail-once fixture returns 503 then PDF", async () => {
+    if (!dockerAvailable()) return;
+    if (!depsCacheReady()) runPrepareDepsOnHost();
+    const child = startDockerPreview(false);
+    await waitForDockerPreviewReady();
+    try {
+      const resultsPage = spawnSync(
+        "curl",
+        ["-s", "http://127.0.0.1:3000/assessment"],
+        { encoding: "utf8" },
+      );
+      expect(resultsPage.stdout).toContain("assessment");
+      const first = spawnSync("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "http://127.0.0.1:3000/assessment-report/probe-token"], { encoding: "utf8" });
+      const second = spawnSync("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "http://127.0.0.1:3000/assessment-report/probe-token"], { encoding: "utf8" });
+      expect(first.stdout.trim()).toBe("503");
+      expect(second.stdout.trim()).toMatch(/404|200/);
+    } finally {
+      child.kill("SIGTERM");
+      stopDockerPreview();
+    }
+  }, 180000);
+
   test("X-SAFE-PREVIEW-31: preview not publicly bound on 0.0.0.0 on host", async () => {
     if (!dockerAvailable()) return;
     if (!depsCacheReady()) runPrepareDepsOnHost();

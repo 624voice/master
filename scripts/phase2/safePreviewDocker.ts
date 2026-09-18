@@ -6,6 +6,14 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { REPO_ROOT, dockerCliPrefix } from "./safePreviewIsolationRuntime";
+import {
+  buildDockerPreviewImageIsolated,
+  ensureDockerEmptyConfig,
+} from "./safePreviewDockerBuild";
+import {
+  assertPrepareEnvironment,
+  buildIsolatedPrepareEnvironment,
+} from "./safePreviewPrepareEnvironment";
 
 /** Bridge network: supports -p 127.0.0.1:3000 publish (internal networks do not). */
 export const DOCKER_BRIDGE_NETWORK = "phase2-safe-preview-bridge";
@@ -48,21 +56,18 @@ export function dockerImageReady(): boolean {
   return inspect.status === 0;
 }
 
-/** One-time image build (network allowed); includes iptables for fail-closed egress deny. */
+/** One-time image build via secret-safe minimal context (see safePreviewDockerBuild.ts). */
 export function buildDockerPreviewImage(): void {
-  const result = docker(
-    [
-      "build",
-      "-f",
-      "scripts/phase2/docker/Dockerfile.safe-preview",
-      "-t",
-      DOCKER_IMAGE,
-      ".",
-    ],
-    { inherit: true },
-  );
-  if (result.status !== 0) {
-    throw new Error("Failed to build phase2-safe-preview-runtime Docker image");
+  const { env, isolation } = buildIsolatedPrepareEnvironment(process.env);
+  try {
+    assertPrepareEnvironment(env);
+    ensureDockerEmptyConfig(env);
+    const build = buildDockerPreviewImageIsolated(env);
+    if (build.status !== 0) {
+      throw new Error("Failed to build phase2-safe-preview-runtime Docker image");
+    }
+  } finally {
+    isolation.cleanup();
   }
 }
 
@@ -84,18 +89,16 @@ export function markDepsCacheReady(): void {
   });
 }
 
-/** Safe one-time prep with network — frozen lockfile only, no runtime preview. */
+/** Safe one-time prep — subprocess to secret-safe preparation wrapper. */
 export function runPrepareDepsOnHost(): void {
-  const result = spawnSync("bun", ["install", "--frozen-lockfile"], {
-    cwd: REPO_ROOT,
-    encoding: "utf8",
-    stdio: "inherit",
-    env: { ...process.env, PHASE2_SAFE_PREVIEW: "1" },
-  });
+  const result = spawnSync(
+    "bun",
+    ["--env-file=/dev/null", "scripts/phase2/prepare-safe-preview-deps.ts"],
+    { cwd: REPO_ROOT, encoding: "utf8", stdio: "inherit" },
+  );
   if (result.status !== 0) {
-    throw new Error("prepare-safe-preview-deps: bun install --frozen-lockfile failed");
+    throw new Error("prepare-safe-preview-deps failed");
   }
-  markDepsCacheReady();
 }
 
 export function dockerEgressProbe(): { blocked: boolean; output: string } {

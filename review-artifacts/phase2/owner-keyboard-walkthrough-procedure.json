@@ -1,0 +1,38 @@
+{
+  "procedureId": "A11Y-090-owner-procedure-v2",
+  "browser": "Google Chrome on macOS only",
+  "executableCheckoutSha": "PENDING_COMMIT",
+  "safeFixtureData": {
+    "firstName": "Alex",
+    "lastName": "Testowner",
+    "businessName": "Owner QA Fake HVAC Co",
+    "email": "owner-qa-fake@example.invalid",
+    "phone": "5550100199",
+    "trade": "HVAC",
+    "fleetSize": "3-7",
+    "assumptionMonthlyCalls": "450",
+    "conditionalAnswer1": "Consistently / always",
+    "conditionalAnswer2": "Yes, consistently",
+    "defaultChoiceForRemainingQuestions": "Not at all / rarely",
+    "noRealPii": true,
+    "isolatedFakeSinkOnly": true,
+    "cannotTriggerLiveWorkflows": true
+  },
+  "chromeSetup": [
+    "Open Google Chrome (not Safari).",
+    "Press Command+L, type http://127.0.0.1:3000, press Enter.",
+    "For desktop checks: press Command+0 to reset zoom to 100%. Close DevTools if open.",
+    "For mobile checks: press Command+Option+I, click the device toolbar icon, choose Responsive, set width 375 and height 800.",
+    "Return to desktop: close DevTools or set responsive width to 1280.",
+    "After all checks: close DevTools; leave preview terminal running until shutdown step."
+  ],
+  "reportErrorFixture": {
+    "approach": "A",
+    "activation": "PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1 set only in safe preview container entrypoint (not visitor-controlled)",
+    "firstDownloadExpected": "503 with alert text: Report temporarily unavailable. Please try again in a moment.",
+    "retryControlLabel": "Try downloading report again",
+    "secondDownloadExpected": "PDF opens or downloads successfully"
+  },
+  "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
+  "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts"
+}

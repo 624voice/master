@@ -10,6 +10,9 @@ const PORT = 3000;
 const HOST = process.env.PHASE2_DOCKER_RUNTIME === "1" ? "0.0.0.0" : "127.0.0.1";
 const CLIENT_DIR = `${import.meta.dir}/../../dist/client`;
 const IS_SAFE_PREVIEW = process.env.PHASE2_SAFE_PREVIEW === "1";
+const OWNER_QA_REPORT_FAIL_ONCE =
+  IS_SAFE_PREVIEW && process.env.PHASE2_OWNER_QA_REPORT_FAIL_ONCE === "1";
+const reportDownloadAttempts = new Map<string, number>();
 
 function withSafeHeaders(response: Response): Response {
   if (!IS_SAFE_PREVIEW) return response;
@@ -34,6 +37,19 @@ Bun.serve({
   hostname: HOST,
   async fetch(req) {
     const { pathname } = new URL(req.url);
+    if (OWNER_QA_REPORT_FAIL_ONCE && pathname.startsWith("/assessment-report/")) {
+      const token = pathname.split("/").filter(Boolean).pop() ?? "unknown";
+      const attempt = (reportDownloadAttempts.get(token) ?? 0) + 1;
+      reportDownloadAttempts.set(token, attempt);
+      if (attempt === 1) {
+        return withSafeHeaders(
+          new Response("Report temporarily unavailable", {
+            status: 503,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+          }),
+        );
+      }
+    }
     if (pathname !== "/") {
       const file = Bun.file(CLIENT_DIR + pathname);
       if (await file.exists()) return withSafeHeaders(new Response(file));
