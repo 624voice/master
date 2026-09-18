@@ -3,7 +3,10 @@
  *
  * Run: bun run scripts/phase2/prepare-safe-preview-deps.ts
  */
-import "./safePreviewPrepareNetworkGuard.ts";
+import {
+  formatAllowedPrepHostsMessage,
+} from "./safePreviewPrepareNetworkGuard.ts";
+import "./safePreviewPrepareNetworkGuard.ts"; // side-effect: patches fetch/http
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -61,9 +64,7 @@ export function runSecurePrepareDeps(options?: {
       console.log("Phase 2 safe preview — secret-safe one-time preparation");
       console.log(`Lockfile SHA-256 (before): ${lockBefore}`);
       console.log("Lifecycle scripts: disabled (--ignore-scripts); package.json defines no install scripts.");
-      console.log(
-        "Allowed network: exact prep hosts only (registry.npmjs.org, bun.sh, auth.docker.io, registry-1.docker.io, production.cloudflare.docker.com, deb.debian.org, security.debian.org, ftp.debian.org, localhost).",
-      );
+      console.log(formatAllowedPrepHostsMessage());
     }
 
     const integrationProbe = spawnSync(

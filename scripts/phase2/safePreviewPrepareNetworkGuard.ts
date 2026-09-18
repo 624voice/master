@@ -81,4 +81,8 @@ function patchHttp(mod: typeof http | typeof https, label: string): void {
 patchHttp(http, "node:http");
 patchHttp(https, "node:https");
 
+export function formatAllowedPrepHostsMessage(): string {
+  return `Allowed network: exact prep hosts only (${ALLOWED_PREP_HOSTS.join(", ")}).`;
+}
+
 export { hostAllowed };

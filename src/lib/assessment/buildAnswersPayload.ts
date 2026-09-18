@@ -1,17 +1,8 @@
-/**
- * Mirrors src/routes/assessment.tsx buildAnswersPayload for executable tests.
- */
-import type { AssessmentAnswerMap } from "../../src/lib/assessment/types";
-import type { AssessmentEngine } from "../../src/lib/assessment/engine";
-import type { FleetSizeRange, TradeKey } from "../../src/lib/assessment/types";
+import type { AssessmentEngine, VisitorRespondEdits } from "~/lib/assessment/engine";
+import type { AssessmentAnswerMap } from "~/lib/assessment/runAssessment";
+import type { FleetSizeRange, TradeKey } from "~/lib/lead/validateLead";
 
-export type VisitorRespondEdits = {
-  monthlyCalls?: number;
-  missedCallRatePct?: number;
-  avgJobValue?: number;
-};
-
-export function buildAnswersPayloadMirror(
+export function buildAnswersPayload(
   trade: TradeKey,
   fleetSize: FleetSizeRange,
   respondEdits: VisitorRespondEdits,

@@ -27,6 +27,10 @@ import {
   buildIsolatedPrepareEnvironment,
 } from "./safePreviewPrepareEnvironment";
 import { runSecurePrepareDeps } from "./prepare-safe-preview-deps";
+import {
+  ALLOWED_PREP_HOSTS,
+  formatAllowedPrepHostsMessage,
+} from "./safePreviewPrepareNetworkGuard";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 
@@ -73,6 +77,30 @@ describe("prepare-safe-preview-deps secret safety", () => {
     } finally {
       isolation.cleanup();
     }
+  });
+
+  test("X-SAFE-PREP-06: preparation message lists exact enforced allowlist hosts", () => {
+    const message = formatAllowedPrepHostsMessage();
+    for (const host of ALLOWED_PREP_HOSTS) {
+      expect(message).toContain(host);
+    }
+    const run = spawnSync(
+      "bun",
+      ["--env-file=/dev/null", "scripts/phase2/prepare-safe-preview-deps.ts"],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf8",
+        env: {
+          PATH: process.env.PATH ?? "/usr/bin:/bin",
+          PHASE2_PREP_SKIP_DOCKER: "1",
+        },
+      },
+    );
+    const output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
+    for (const host of ALLOWED_PREP_HOSTS) {
+      expect(output).toContain(host);
+    }
+    expect(output).toContain(formatAllowedPrepHostsMessage());
   });
 
   test("X-SAFE-PREP-03: prep egress blocks Twilio, SendGrid, Upstash, Google, CRM, analytics, agent destinations", () => {
