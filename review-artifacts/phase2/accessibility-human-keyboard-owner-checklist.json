@@ -3,7 +3,7 @@
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
   "purpose": "Human-operated keyboard-only QA across all public routes and the full assessment journey. Automated Puppeteer coverage in accessibility-automated-keyboard-supplement.json does NOT satisfy this row.",
   "applicationBehaviorGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "safeStartupGitSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
+  "safeStartupGitSha": "c8e92da4674b3077d4dc598c6c154f75b1658d52",
   "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd -- src/ returns empty",
   "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
   "operatorInstructions": {
