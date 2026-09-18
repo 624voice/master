@@ -1,22 +1,16 @@
 # PHASE 2 — OWNER KEYBOARD QA HANDOFF (A11Y-090 v5)
 
-## SHA TABLE
+## EXECUTABLE CHECKOUT SHA
 
-| Field | Value |
-|---|---|
-| Previous executable preview SHA | `c8e92da4674b3077d4dc598c6c154f75b1658d52` |
-| New final executable preview SHA | `93673a9ba366244b850a56291f07a9c4b8a1082b` |
-| Supersedes (prior closeout executable) | `3109ad77d25a864b5a38cb248b14421b554d54ef` |
-| Full evidence-only HEAD built on final executable SHA | `19465cab9eeed0b3bc821b7a54a3cb200599a9b9` |
-| Actual current PR #97 HEAD | `19465cab9eeed0b3bc821b7a54a3cb200599a9b9` |
-| Evidence-only HEAD and PR HEAD same commit? | **Yes** |
-| Historical/superseded SHA (prior f3b09ac round; not Chris checkout chain) | `491e4adbcc3df96cc524e95c7232c5d95473c6d7` |
+**Final executable preview checkout SHA:** `24c0b8f89792ad83fb1fec1766877f24bd67f005`
 
 ## CHECKOUT
 
 ```bash
-git checkout 93673a9ba366244b850a56291f07a9c4b8a1082b
+git checkout 24c0b8f89792ad83fb1fec1766877f24bd67f005
 ```
+
+Canonical owner handoff Markdown is versioned separately in evidence commits. After checkout, extract the audited handoff without modifying tracked files (see outer delivery report for canonical commit SHA, extraction command, and SHA-256 verification).
 
 ## PREREQUISITES
 
@@ -483,20 +477,25 @@ From 624 Voice header link:
   3. Press ArrowDown. Verify selected option: 1–2 vehicles.
   4. Press ArrowDown. Verify selected option: 3–7 vehicles.
   5. Press Tab. Verify focused element: Back button.
-  6. Press Enter. Verify rendered screen: BP1 trade select visible.
-  7. Press Tab. Verify focused element: Continue button.
-  8. Press Enter. Verify rendered screen: BP2 fleet select visible.
-  9. Press Shift+Tab. Verify focused element: Fleet size select.
-  10. Press ArrowDown. Verify selected option: 1–2 vehicles.
-  11. Press ArrowDown. Verify selected option: 3–7 vehicles.
-  12. Press Tab. Verify focused element: Back button.
-  13. Press Tab. Verify focused element: Continue button.
-  14. Press Enter.
+  6. Press Enter.
+  7. Verify rendered screen: BP1 trade select visible.
+  8. Verify focused element immediately after BP1 render: Document body (no control focused). Verified by X-SAFE-PREVIEW-FOCUS-04 browser capture.
+  9. Press Tab. Verify focused element: Continue button.
+  10. Press Enter.
+  11. Verify rendered screen: BP2 fleet select visible.
+  12. Verify focused element immediately after BP2 render: Continue button. Verified by X-SAFE-PREVIEW-FOCUS-04 browser capture.
+  13. Press Shift+Tab. Verify focused element: Back button.
+  14. Press Shift+Tab. Verify focused element: Fleet size select (native SELECT; selected option 3–7 vehicles).
+  15. Press Tab. Verify focused element: Back button.
+  16. Press Tab. Verify focused element: Continue button.
+  17. Press Enter.
+  18. Verify rendered screen: Respond review screen with Monthly inbound calls field visible.
+  19. Verify focused element immediately after respond review render: Continue button. Verified by X-SAFE-PREVIEW-FOCUS-04 browser capture.
 - **Expected rendered state:** Respond review screen with Monthly inbound calls field visible.
 - **Final focused element:** Continue button on respond review screen
 - **State deliberately left for next check:** Respond review visible; fleet=3–7; focus on Continue button.
-- **PASS:** Back returns to BP1; forward path reaches respond review with focus on Continue button.
-- **FAIL:** Back/Continue path does not reach respond review or fleet is not 3–7.
+- **PASS:** Each render transition states verified focus; Back returns to BP1; forward path reaches respond review with focus on Continue button and fleet 3–7.
+- **FAIL:** Any post-render focus is unstated or wrong; Back/Continue path does not reach respond review; fleet is not 3–7.
 
 ### Check 23 — Assessment respond — enter 450 and Continue to GF-S
 
@@ -930,7 +929,7 @@ Press Ctrl+C in the preview terminal. Confirm the Docker container stops.
 
 | Field | Value |
 |---|---|
-| Tested SHA | 93673a9ba366244b850a56291f07a9c4b8a1082b |
+| Tested SHA | 24c0b8f89792ad83fb1fec1766877f24bd67f005 |
 | Operator | |
 | Executed at (ISO) | |
 | Confirmed physical keyboard only | |
