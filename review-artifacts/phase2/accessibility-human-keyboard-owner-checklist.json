@@ -1,8 +1,8 @@
 {
-  "checklistId": "A11Y-090-owner-human-keyboard-v4",
+  "checklistId": "A11Y-090-owner-human-keyboard-v5",
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
   "purpose": "Human-operated keyboard-only QA. Automated supplements (X-SAFE-PREVIEW-FOCUS-01/02/03) do NOT satisfy this row.",
-  "procedureArtifact": "review-artifacts/phase2/owner-keyboard-walkthrough-procedure.json",
+  "procedureArtifact": "review-artifacts/phase2/owner-keyboard-walkthrough-v5.md",
   "totalChecks": 34,
   "operatorInstructions": {
     "who": "Chris (owner) — physical keyboard only",
@@ -15,11 +15,7 @@
     ]
   },
   "safeProcedure": {
-<<<<<<< Updated upstream
-    "checkoutCommand": "git checkout <final-executable-preview-sha>",
-=======
-    "checkoutCommand": "git checkout e17a72b99f8dc37930fe381bd2293af15a551720",
->>>>>>> Stashed changes
+    "checkoutCommand": "git checkout 3109ad77d25a864b5a38cb248b14421b554d54ef",
     "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
     "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
@@ -28,11 +24,7 @@
   "attestationTemplate": {
     "operatorRoleOrIdentifier": "",
     "executedAtIso": "",
-<<<<<<< Updated upstream
-    "testedGitSha": "<final-executable-preview-sha>",
-=======
-    "testedGitSha": "e17a72b99f8dc37930fe381bd2293af15a551720",
->>>>>>> Stashed changes
+    "testedGitSha": "3109ad77d25a864b5a38cb248b14421b554d54ef",
     "confirmedPhysicalKeyboardOnly": "",
     "confirmedNoProductionCredentials": "",
     "confirmedNoLiveExternalSideEffects": "",
