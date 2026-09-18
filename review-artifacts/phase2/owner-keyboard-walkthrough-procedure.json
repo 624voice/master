@@ -2,7 +2,7 @@
   "procedureId": "A11Y-090-owner-procedure-v4",
   "totalChecks": 34,
   "browser": "Google Chrome on macOS only",
-  "executableCheckoutSha": "de112ea7c75cfa88f0adf203fc29834b68f9b1a3",
+  "executableCheckoutSha": "bbf9784055bfe32237d5649b3de5b7273b51fcb3",
   "chromeViewportSetup": {
     "desktop": "Command+Option+I → click device toolbar → Responsive → width 1280 height 900 → close DevTools for checks unless inspecting focus",
     "mobile": "Command+Option+I → device toolbar → Responsive → width 375 height 800",
@@ -616,7 +616,7 @@
       "title": "Assessment CV-S through MI-S to teaser",
       "viewport": "Chrome DevTools Responsive mode: width 1280 CSS px, height 900 CSS px (Command+Option+I → device toolbar → Responsive → enter 1280 × 900)",
       "startUrl": null,
-      "startState": "Check 23 final state",
+      "startState": "Check 24 final state",
       "startFocus": "Document body on CV-S step",
       "steps": [
         "Choice answers are BUTTON elements with aria-pressed (not native radio). Use Tab between choices and Space to select the focused button.",
@@ -957,7 +957,7 @@
   "attestation": {
     "operator": "",
     "executedAtIso": "",
-    "testedSha": "de112ea7c75cfa88f0adf203fc29834b68f9b1a3",
+    "testedSha": "bbf9784055bfe32237d5649b3de5b7273b51fcb3",
     "confirmedPhysicalKeyboardOnly": "",
     "confirmedNoProductionCredentials": "",
     "confirmedNoLiveExternalSideEffects": "",
