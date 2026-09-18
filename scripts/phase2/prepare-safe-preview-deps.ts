@@ -61,7 +61,9 @@ export function runSecurePrepareDeps(options?: {
       console.log("Phase 2 safe preview — secret-safe one-time preparation");
       console.log(`Lockfile SHA-256 (before): ${lockBefore}`);
       console.log("Lifecycle scripts: disabled (--ignore-scripts); package.json defines no install scripts.");
-      console.log("Allowed network: package registries + Docker base image pull only.");
+      console.log(
+        "Allowed network: exact prep hosts only (registry.npmjs.org, bun.sh, auth.docker.io, registry-1.docker.io, production.cloudflare.docker.com, deb.debian.org, security.debian.org, ftp.debian.org, localhost).",
+      );
     }
 
     const integrationProbe = spawnSync(

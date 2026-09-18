@@ -1,39 +1,34 @@
 /**
- * Preparation-time egress guard: allow package/container registries only.
- * Blocks representative production-integration destinations during prep.
+ * Preparation-time egress guard: exact allowlisted hosts only.
+ * Blocks all production-integration destinations during prep.
  */
 import http from "node:http";
 import https from "node:https";
 
-const ALLOWED_HOST_SUFFIXES = [
+/** Exact hostnames required for frozen Bun install, Docker auth/pull, and Debian base packages. */
+export const ALLOWED_PREP_HOSTS = [
   "registry.npmjs.org",
   "registry.yarnpkg.com",
   "bun.sh",
-  "github.com",
-  "objects.githubusercontent.com",
-  "docker.io",
   "auth.docker.io",
   "registry-1.docker.io",
   "production.cloudflare.docker.com",
   "deb.debian.org",
   "security.debian.org",
   "ftp.debian.org",
-  "azureedge.net",
-  "cloudfront.net",
-  "amazonaws.com",
-  "googleapis.com",
-  "gcr.io",
-  "ghcr.io",
   "localhost",
   "127.0.0.1",
-];
+] as const;
+
+export type AllowedPrepHost = (typeof ALLOWED_PREP_HOSTS)[number];
+
+/** @deprecated Use ALLOWED_PREP_HOSTS — kept for tests referencing suffix list shape. */
+export const ALLOWED_HOST_SUFFIXES = [...ALLOWED_PREP_HOSTS];
 
 function hostAllowed(host: string | undefined): boolean {
   const normalized = (host ?? "").toLowerCase().replace(/^\[/, "").replace(/\]$/, "");
   if (!normalized) return false;
-  return ALLOWED_HOST_SUFFIXES.some(
-    (suffix) => normalized === suffix || normalized.endsWith(`.${suffix}`),
-  );
+  return (ALLOWED_PREP_HOSTS as readonly string[]).includes(normalized);
 }
 
 function assertAllowedHost(host: string | undefined, label: string): void {
@@ -86,4 +81,4 @@ function patchHttp(mod: typeof http | typeof https, label: string): void {
 patchHttp(http, "node:http");
 patchHttp(https, "node:https");
 
-export { ALLOWED_HOST_SUFFIXES, hostAllowed };
+export { hostAllowed };

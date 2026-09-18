@@ -82,13 +82,31 @@ describe("prepare-safe-preview-deps secret safety", () => {
       { cwd: REPO_ROOT, encoding: "utf8" },
     );
     expect(probe.status).toBe(0);
-    expect(probe.stdout).toContain("PASS: blocked Twilio");
-    expect(probe.stdout).toContain("PASS: blocked SendGrid");
-    expect(probe.stdout).toContain("PASS: blocked Upstash");
-    expect(probe.stdout).toContain("PASS: blocked Google");
-    expect(probe.stdout).toContain("PASS: blocked CRM webhook");
-    expect(probe.stdout).toContain("PASS: blocked Analytics");
-    expect(probe.stdout).toContain("PASS: blocked Agent provider");
+    const jsonLine = probe.stdout.split("\n").find((l) => l.startsWith("PHASE2_EGRESS_PROBE_JSON:"));
+    expect(jsonLine).toBeTruthy();
+    const parsed = JSON.parse(jsonLine!.slice("PHASE2_EGRESS_PROBE_JSON:".length)) as {
+      results: Array<{
+        label: string;
+        url: string;
+        hostname: string;
+        networkApi: string;
+        outcome: string;
+        errorMessage: string | null;
+      }>;
+      blocked: number;
+      total: number;
+    };
+    expect(parsed.total).toBe(7);
+    expect(parsed.blocked).toBe(7);
+    for (const dest of parsed.results) {
+      expect(dest.networkApi).toBe("fetch");
+      expect(dest.outcome).toBe("policy_blocked");
+      expect(dest.errorMessage).toContain("Prep egress blocked");
+      expect(dest.errorMessage).toContain(dest.hostname);
+    }
+    expect(probe.stdout).toContain(
+      "PASS: preparation blocked 7/7 integration destinations via Prep egress blocked",
+    );
   });
 
   test("X-SAFE-PREP-04: Docker build uses minimal context; Dockerfile has no COPY/ADD", () => {
