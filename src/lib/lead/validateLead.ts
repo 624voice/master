@@ -6,6 +6,24 @@ export type LeadInfo = {
   phone: string;
 };
 
+export const FLEET_SIZE_RANGES = [
+  "1-2",
+  "3-7",
+  "8-20",
+  "21-50",
+  "50+",
+] as const;
+
+export type FleetSizeRange = (typeof FLEET_SIZE_RANGES)[number];
+
+export const FLEET_SIZE_LABELS: Record<FleetSizeRange, string> = {
+  "1-2": "1–2 vehicles",
+  "3-7": "3–7 vehicles",
+  "8-20": "8–20 vehicles",
+  "21-50": "21–50 vehicles",
+  "50+": "50+ vehicles",
+};
+
 export const CONTACT_TRADES = [
   "Plumbing",
   "Electrical",

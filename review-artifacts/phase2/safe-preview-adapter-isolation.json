@@ -1,0 +1,153 @@
+{
+  "gitSha": "9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
+  "safePreviewTestSuite": {
+    "file": "scripts/phase2/start-safe-assessment-preview.test.ts",
+    "command": "bun test scripts/phase2/start-safe-assessment-preview.test.ts",
+    "exitStatus": 0,
+    "pass": true,
+    "outputTail": "(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build [17.51ms]\n(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock [149.22ms]\n\n 36 pass\n 0 fail\n 114 expect() calls\nRan 36 tests across 3 files. [148.14s]\n"
+  },
+  "transportProbes": {
+    "command": "bun scripts/phase2/safePreviewTransportProbes.ts",
+    "exitStatus": 0,
+    "pass": true,
+    "output": "{\n  \"probes\": [\n    {\n      \"transport\": \"fetch\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"PASS: non-loopback request was blocked\"\n    },\n    {\n      \"transport\": \"node:http\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:https\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:net\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"node:tls\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"WebSocket-guard\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    },\n    {\n      \"transport\": \"child_process:curl\",\n      \"blocked\": true,\n      \"exitStatus\": 6,\n      \"detail\": \"exit=6\"\n    },\n    {\n      \"transport\": \"Bun.connect\",\n      \"blocked\": true,\n      \"exitStatus\": 0,\n      \"detail\": \"exit=0\"\n    }\n  ],\n  \"loopbackProbe\": {\n    \"exitStatus\": 0,\n    \"detail\": \"\"\n  },\n  \"failures\": 0\n}"
+  },
+  "environmentAllowlist": {
+    "bootstrapKeys": [
+      "PATH",
+      "USER",
+      "LOGNAME",
+      "SHELL",
+      "LANG",
+      "LC_ALL",
+      "LC_CTYPE",
+      "TERM",
+      "PWD",
+      "BUN_INSTALL",
+      "DISPLAY"
+    ],
+    "forcedSafeKeys": [
+      "NODE_ENV",
+      "SITE_ORIGIN",
+      "UPSTASH_REDIS_REST_URL",
+      "UPSTASH_REDIS_REST_TOKEN",
+      "LEADS_WEBHOOK_URL",
+      "ASSESSMENT_SECURITY_HMAC_SECRET",
+      "ASSESSMENT_ROI_AGENT_LIVE_ENABLED",
+      "SPEED2LEAD_ENABLED",
+      "SPEED2LEAD_LLM_ENABLED",
+      "PHASE2_SAFE_PREVIEW",
+      "HOME",
+      "XDG_CONFIG_HOME",
+      "XDG_CACHE_HOME",
+      "XDG_DATA_HOME",
+      "BUN_INSTALL_CACHE_DIR",
+      "TMPDIR",
+      "npm_config_userconfig",
+      "npm_config_globalconfig"
+    ],
+    "note": "HOME and XDG_* must point to isolated temporary directories created by createSafePreviewIsolation(), never the parent HOME."
+  },
+  "adapterTable": [
+    {
+      "integration": "Twilio/SMS",
+      "productionAdapter": "Twilio REST via TWILIO_* env + isSpeed2LeadEnabled()",
+      "safeAdapter": "SPEED2LEAD_ENABLED=false; Twilio keys stripped; SMS paths gated",
+      "forcedSelection": "buildIsolatedSafePreviewEnvironment + assertSafePreviewEnvironment",
+      "visitorCannotChange": "No route/query/body flag selects Twilio; config reads process.env only",
+      "selectionTest": "X-SAFE-PREVIEW-02, X-SAFE-PREVIEW-04",
+      "networkTest": "X-SAFE-PREVIEW-09, X-SAFE-PREVIEW-18, transport probes"
+    },
+    {
+      "integration": "SendGrid/email",
+      "productionAdapter": "SENDGRID_API_KEY",
+      "safeAdapter": "Key absent; email send paths unreachable without credentials",
+      "forcedSelection": "Prohibited env key list",
+      "visitorCannotChange": "No visitor-facing email provider toggle",
+      "selectionTest": "X-SAFE-PREVIEW-01, X-SAFE-PREVIEW-08",
+      "networkTest": "transport probes"
+    },
+    {
+      "integration": "Redis/Upstash",
+      "productionAdapter": "UPSTASH_REDIS_REST_URL/TOKEN production values",
+      "safeAdapter": "Local stub http://127.0.0.1:8787 + phase2-safe-preview-stub-token",
+      "forcedSelection": "Forced safe values override parent",
+      "visitorCannotChange": "Redis URL not client-controlled",
+      "selectionTest": "X-SAFE-PREVIEW-01",
+      "networkTest": "loopback probe + X-SAFE-PREVIEW-09"
+    },
+    {
+      "integration": "CRM",
+      "productionAdapter": "CRM_WEBHOOK_URL / HUBSPOT_* / SALESFORCE_*",
+      "safeAdapter": "CRM keys stripped; webhooks disabled",
+      "forcedSelection": "Prohibited prefixes CRM_, HUBSPOT_, SALESFORCE_",
+      "visitorCannotChange": "No assessment route CRM override",
+      "selectionTest": "X-SAFE-PREVIEW-02",
+      "networkTest": "transport probes"
+    },
+    {
+      "integration": "Webhooks",
+      "productionAdapter": "LEADS_WEBHOOK_URL external URL",
+      "safeAdapter": "http://127.0.0.1:8787/leads-webhook local stub",
+      "forcedSelection": "Forced LEADS_WEBHOOK_URL safe value",
+      "visitorCannotChange": "Server-side env only",
+      "selectionTest": "X-SAFE-PREVIEW-02",
+      "networkTest": "X-SAFE-PREVIEW-15–18"
+    },
+    {
+      "integration": "Analytics",
+      "productionAdapter": "External analytics keys (SEGMENT_/POSTHOG_/etc.)",
+      "safeAdapter": "trackEvent default sink: console.info in DEV only; production build no-op; no keys in child env",
+      "forcedSelection": "Analytics keys prohibited; NODE_ENV=production in safe preview",
+      "visitorCannotChange": "No setAnalyticsSink from routes",
+      "selectionTest": "X-SAFE-PREVIEW-20",
+      "networkTest": "CSP connect-src loopback-only in safe-preview-serve.ts"
+    },
+    {
+      "integration": "Google APIs",
+      "productionAdapter": "GOOGLE_* service account / calendar env",
+      "safeAdapter": "All GOOGLE_* keys stripped",
+      "forcedSelection": "Prohibited GOOGLE_ prefix",
+      "visitorCannotChange": "No client calendar override",
+      "selectionTest": "X-SAFE-PREVIEW-08, X-SAFE-PREVIEW-12",
+      "networkTest": "transport probes"
+    },
+    {
+      "integration": "Report tokens",
+      "productionAdapter": "Production ASSESSMENT_SECURITY_HMAC_SECRET",
+      "safeAdapter": "Local-only phase2-safe-preview-local-hmac-secret",
+      "forcedSelection": "Forced safe HMAC secret",
+      "visitorCannotChange": "Token minting server-side only",
+      "selectionTest": "X-SAFE-PREVIEW-01",
+      "networkTest": "loopback-only serving"
+    },
+    {
+      "integration": "PDF generation/delivery",
+      "productionAdapter": "Server PDF bytes + optional external delivery",
+      "safeAdapter": "Local render; no external PDF delivery credentials",
+      "forcedSelection": "No SendGrid/Twilio for PDF path in safe preview",
+      "visitorCannotChange": "Download route uses server env only",
+      "selectionTest": "X-SAFE-PREVIEW-06",
+      "networkTest": "transport probes"
+    },
+    {
+      "integration": "Agent/LLM providers",
+      "productionAdapter": "OPENAI_API_KEY + ASSESSMENT_ROI_AGENT_LIVE_ENABLED",
+      "safeAdapter": "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false; OPENAI absent; SPEED2LEAD_LLM_ENABLED=false",
+      "forcedSelection": "Forced false live flag + prohibited OPENAI_ keys",
+      "visitorCannotChange": "No visitor agent-live toggle in assessment route",
+      "selectionTest": "X-SAFE-PREVIEW-04, X-SAFE-PREVIEW-07",
+      "networkTest": "transport probes"
+    }
+  ],
+  "fileHashes": {
+    "safePreviewEnvironment": "874e00f3c13bb882325a5251669b373dfd2634f245eb8e23cb7a891810ebd9b7",
+    "safePreviewIsolation": "bee1c4d0c82eae79d94929f92e7c00c4d48f408d581589b0f7a2a7723b7e5355",
+    "safePreviewNetworkGuard": "9393cff084cecfb86c32ac3053d3262fa419b3496c41992e7ea94a7018e0d3ed",
+    "safePreviewNetworkNamespace": "10c30380a6fa39830f754b12d4a6ce0821fcf5497154daff8bb13dda15234973",
+    "startSafeAssessmentPreview": "432bdea96759baf27c97069890032e0c88be61e57a799ebd14e94198c4dd89ba",
+    "safePreviewServe": "0113e3c92d4aa3052f7a94cba1ef327d03fb05c6fb59e43deecad1a7eed50621",
+    "safePreviewTests": "d8f502f08b5e67ef2e6ed43c41e559858a83bca6e3b904b69670d03271a8d0fb"
+  }
+}

@@ -7,10 +7,10 @@ type DemoBrowserCardProps = {
 
 export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardProps) {
   return (
-    <div className={`mx-auto w-full max-w-[680px] overflow-visible lg:mx-0 ${className}`}>
-      <div className="relative w-full overflow-visible">
+    <div className={`mx-auto w-full max-w-[680px] overflow-hidden lg:mx-0 ${className}`}>
+      <div className="relative w-full overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-0 rounded-[28px] bg-[#10b981]/20 blur-2xl motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
+          className="pointer-events-none absolute inset-0 rounded-[28px] shadow-[0_0_48px_16px_rgba(4,120,87,0.12)] motion-safe:animate-[pulse-glow_3s_ease-in-out_infinite]"
           aria-hidden="true"
         />
         <div className="relative overflow-hidden rounded-[22px] border border-slate-200/80 bg-[#F8FAFC] shadow-[0_28px_80px_-20px_rgba(0,0,0,0.45)]">
@@ -18,7 +18,7 @@ export function DemoBrowserCard({ children, className = "" }: DemoBrowserCardPro
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="" aria-hidden="true" className="h-7 w-7" />
               <span className="text-sm font-bold text-[#18222f]">
-                624 <span className="text-[#10b981]">Voice</span>
+                624 <span className="text-brand-primary">Voice</span>
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm font-medium text-[#18222f]">

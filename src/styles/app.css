@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #10b981;
-  --color-brand-primary-dark: #059669;
+  /* WCAG AA: #047857 passes 4.5:1 on white and with white button text. */
+  --color-brand-primary: #047857;
+  --color-brand-primary-dark: #065f46;
   --color-brand-primary-light: #d1fae5;
+  --color-brand-primary-bright: #10b981;
   --color-brand-secondary: #162736;
   --color-brand-secondary-light: #1e3a5f;
   --color-brand-accent: #94a3b8;
@@ -69,18 +71,27 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .motion-safe\:animate-\[wave-breathe_3s_ease-in-out_infinite\],
-  .motion-safe\:animate-\[wave-pulse_1\.2s_ease-in-out_infinite\],
-  .motion-safe\:animate-\[wave-speak_0\.6s_ease-in-out_infinite\],
-  .motion-safe\:animate-\[pulse-glow_2s_ease-in-out_infinite\],
-  .motion-safe\:animate-\[pulse-glow_3s_ease-in-out_infinite\] {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
     animation: none !important;
+    transition: none !important;
   }
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
   body {
     @apply bg-white text-gray-900 antialiased;

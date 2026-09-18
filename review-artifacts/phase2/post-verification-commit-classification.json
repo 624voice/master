@@ -1,0 +1,85 @@
+{
+  "verifiedExecutableSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "strictEvidenceOnlyRule": "Commit is strictly evidence-only only if it changes exclusively docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md and sanitized review-artifacts/phase2/*",
+  "rangeNotStrictlyEvidenceOnly": true,
+  "reason": "scripts/phase2/* changed after d54286e for accessibility label correction and TypeScript canonical pairing — classified as post-verification evidence-tooling corrections, not application executable changes",
+  "commits": [
+    {
+      "sha": "31056e0c29b5007b404175568a0dae0ca5107772",
+      "subject": "Phase 2 final acceptance: evidence, verification at d54286e, report",
+      "strictEvidenceOnly": false,
+      "classification": "mixed — review artifacts + report; temporarily added misleading accessibility-human-keyboard-qa.json (later removed)",
+      "files": [
+        { "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md", "category": "Final report" },
+        { "path": "review-artifacts/phase2/*", "category": "Sanitized review artifact" }
+      ]
+    },
+    {
+      "sha": "f2cf13de6468a673359acf7610c3458ba94bd9c6",
+      "subject": "Record evidence-only PR HEAD SHA and final-executable diff",
+      "strictEvidenceOnly": true,
+      "files": [
+        { "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md", "category": "Final report" },
+        { "path": "review-artifacts/phase2/git-diff-final-executable-to-pr-head.txt", "category": "Sanitized review artifact" }
+      ]
+    },
+    {
+      "sha": "9412e9d9b9b04b83d5e374bc33955a48e3e53f2f",
+      "subject": "Correct A11Y-090 evidence scripts: unexecuted until human attestation",
+      "strictEvidenceOnly": false,
+      "classification": "post-verification evidence-tooling correction",
+      "scriptChanges": [
+        {
+          "path": "scripts/phase2/generate-accessibility-reconciliation.ts",
+          "category": "Other script/tool",
+          "why": "A11Y-090 unexecuted reason text in reconciliation generator",
+          "participatedInAcceptedGate": "generates accessibility-reconciliation.json (labeling only post-d54286e)",
+          "affectsApplicationBehavior": false,
+          "affectsAcceptedGateResultAtD54286e": false,
+          "artifactVersionUsedForAcceptedGates": "before — verification at d54286e ran prior script version; inline results manually corrected in c1e0551 artifacts"
+        },
+        {
+          "path": "scripts/phase2/run-accessibility-qa.ts",
+          "category": "QA script",
+          "why": "Mark human keyboard row unexecuted unless owner attestation file exists",
+          "participatedInAcceptedGate": "accessibility QA runner",
+          "affectsApplicationBehavior": false,
+          "affectsAcceptedGateResultAtD54286e": false,
+          "artifactVersionUsedForAcceptedGates": "before at d54286e verification; after for regenerated labeling"
+        },
+        {
+          "path": "scripts/phase2/run-final-verification.ts",
+          "category": "Other script/tool",
+          "why": "Gate counts 88 pass + 1 unexecuted for A11Y-090",
+          "participatedInAcceptedGate": "final verification orchestrator",
+          "affectsApplicationBehavior": false,
+          "affectsAcceptedGateResultAtD54286e": false,
+          "artifactVersionUsedForAcceptedGates": "before at d54286e five-suite/MessageSid runs"
+        },
+        {
+          "path": "scripts/phase2/run-human-keyboard-qa.ts",
+          "category": "QA script",
+          "why": "Rename output to automated supplement; remove false human operator label",
+          "participatedInAcceptedGate": "supplementary only — not accepted as A11Y-090 human evidence",
+          "affectsApplicationBehavior": false,
+          "affectsAcceptedGateResultAtD54286e": false,
+          "artifactVersionUsedForAcceptedGates": "N/A — mislabeled artifact superseded"
+        }
+      ]
+    },
+    {
+      "sha": "c1e0551ea5dcff50dacf850b1f7c770e9affe758",
+      "subject": "Phase 2 final substantiation: d54286e verification, A11Y-090 gap, TS rows",
+      "strictEvidenceOnly": false,
+      "classification": "report + review-artifacts substantiation; no src/ or test file changes",
+      "filesSummary": "docs + review-artifacts/phase2 only (deleted accessibility-human-keyboard-qa.json; added owner checklist)"
+    }
+  ],
+  "typescriptComparisonCorrectionInThisPass": {
+    "changed": ["scripts/phase2/run-typescript-baseline-reconciliation.ts", "review-artifacts/phase2/typescript-*"],
+    "classification": "evidence-generation script + regenerated comparison artifacts only",
+    "affectsTypeScriptMeasurementCommandOrScope": false,
+    "affectsApplicationOrTestOutcomes": false,
+    "reran": "TypeScript baseline/current comparison only (PHASE2_CURRENT_SHA=d54286e); not full application suite"
+  }
+}

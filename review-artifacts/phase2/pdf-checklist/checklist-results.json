@@ -1,0 +1,506 @@
+[
+  {
+    "fixture": "01-all-modeled",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=3"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Estimate based on your business type and size."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=3"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$362,409"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "111959 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 111959,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/01-all-modeled.pdf"
+  },
+  {
+    "fixture": "02-all-visitor",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=4"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=4"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$217,021"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "112855 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 112855,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/02-all-visitor.pdf"
+  },
+  {
+    "fixture": "03-mixed-provenance",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=4"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using your information and modeled assumptions."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=4"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$101,071"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "112846 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 112846,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/03-mixed-provenance.pdf"
+  },
+  {
+    "fixture": "04-low-respond",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=2"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=2"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$70,816"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "110453 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 110453,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/04-low-respond.pdf"
+  },
+  {
+    "fixture": "05-moderate-respond",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=3"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=3"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$194,817"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "112152 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 112152,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/05-moderate-respond.pdf"
+  },
+  {
+    "fixture": "06-high-respond",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=3"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=3"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$431,755"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "111652 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 111652,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/06-high-respond.pdf"
+  },
+  {
+    "fixture": "07-needs-clarification",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=3"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=3"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=1"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$194,817"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "112751 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 112751,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/07-needs-clarification.pdf"
+  },
+  {
+    "fixture": "08-missing-moderate",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=2"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=2"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$18,000"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "109969 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 109969,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/08-missing-moderate.pdf"
+  },
+  {
+    "fixture": "09-longest-realistic",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "dimensions",
+        "label": "Required result dimensions present",
+        "pass": true,
+        "evidence": "rankedGroups=3"
+      },
+      {
+        "id": "provenance",
+        "label": "Provenance/combined label",
+        "pass": true,
+        "evidence": "Calculated using the numbers you provided."
+      },
+      {
+        "id": "priority_order",
+        "label": "Priority order preserved",
+        "pass": true,
+        "evidence": "groups=3"
+      },
+      {
+        "id": "clarify",
+        "label": "Needs-clarification treatment",
+        "pass": true,
+        "evidence": "clarify=0"
+      },
+      {
+        "id": "cta_disclaimer",
+        "label": "CTA and disclaimer text",
+        "pass": true,
+        "evidence": "This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "moderate_isolation",
+        "label": "Moderate scenario isolation",
+        "pass": true,
+        "evidence": "$935,038"
+      },
+      {
+        "id": "page_count",
+        "label": "Single page, no blank artifacts",
+        "pass": true,
+        "evidence": "111973 bytes"
+      },
+      {
+        "id": "no_debug",
+        "label": "No internal/debug leakage in view model",
+        "pass": true,
+        "evidence": "view model JSON scan"
+      }
+    ],
+    "pdfBytes": 111973,
+    "pdfPath": "review-artifacts/phase2/pdf-checklist/09-longest-realistic.pdf"
+  }
+]

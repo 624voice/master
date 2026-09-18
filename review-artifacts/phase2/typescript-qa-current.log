@@ -1,0 +1,28 @@
+scripts/phase2/probe-services-redirect.ts(34,20): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/probe-services-redirect.ts(48,20): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/probe-services-redirect.ts(58,21): error TS2339: Property 'spawn' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(373,25): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(373,62): error TS2339: Property 'bunLockSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(374,25): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(374,66): error TS2339: Property 'packageJsonSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(375,25): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(375,66): error TS2339: Property 'typescriptVersion' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(376,25): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/run-typescript-baseline-reconciliation.ts(376,67): error TS2339: Property 'tsconfigTestSha256' does not exist on type '{}'.
+scripts/phase2/safe-preview-serve.ts(30,11): error TS2339: Property '$' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safe-preview-serve.ts(32,5): error TS2339: Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safe-preview-serve.ts(35,15): error TS7006: Parameter 'req' implicitly has an 'any' type.
+scripts/phase2/safe-preview-serve.ts(38,24): error TS2339: Property 'file' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/safePreviewDocker.ts(178,34): error TS2339: Property 'trim' does not exist on type 'string | NonSharedBuffer'.
+  Property 'trim' does not exist on type 'NonSharedBuffer'.
+scripts/phase2/safePreviewIsolationRuntime.ts(88,7): error TS2322: Type '"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress"' is not assignable to type '"Docker publishes container:3000 to host 127.0.0.1:3000 only"'.
+scripts/phase2/safePreviewIsolationRuntime.ts(105,7): error TS2322: Type '"Docker bridge network publishes container:3000 to host 127.0.0.1:3000 only; container iptables denies external egress"' is not assignable to type '"Docker publishes container:3000 to host 127.0.0.1:3000 only"'.
+scripts/phase2/safePreviewNetworkGuard.ts(66,24): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+scripts/phase2/safePreviewNetworkGuard.ts(70,20): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+scripts/phase2/start-safe-assessment-preview.test.ts(248,47): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(expected: "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "LEADS_WEBHOOK_URL" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "ASSESSMENT_ROI_AGENT_LIVE_ENABLED" | "SPEED2LEAD_ENABLED" | ... 34 more ... | "REDIS_URL"): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "LEADS_WEBHOOK_URL" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "ASSESSMENT_ROI_AGENT_LIVE_ENABLED" | "SPEED2LEAD_ENABLED" | ... 34 more ... | "REDIS_URL"'.
+  Overload 2 of 2, '(expected: "UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "LEADS_WEBHOOK_URL" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "ASSESSMENT_ROI_AGENT_LIVE_ENABLED" | "SPEED2LEAD_ENABLED" | ... 34 more ... | "REDIS_URL"): void', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"UPSTASH_REDIS_REST_URL" | "UPSTASH_REDIS_REST_TOKEN" | "LEADS_WEBHOOK_URL" | "ASSESSMENT_SECURITY_HMAC_SECRET" | "ASSESSMENT_ROI_AGENT_LIVE_ENABLED" | "SPEED2LEAD_ENABLED" | ... 34 more ... | "REDIS_URL"'.
+scripts/phase2/upstash-redis-stub.ts(38,20): error TS2339: Property 'serve' does not exist on type '{ connect?: ((options: { hostname?: string | undefined; port?: number | undefined; }) => unknown) | undefined; }'.
+scripts/phase2/upstash-redis-stub.ts(40,15): error TS7006: Parameter 'req' implicitly has an 'any' type.

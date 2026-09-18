@@ -78,7 +78,7 @@ export function DemoHeroLeft({
             onClick={onStartDemo}
             disabled={startDisabled}
             aria-label="Start your demo with Jessica"
-            className="inline-flex h-16 w-full max-w-[336px] items-center justify-center gap-3 rounded-xl bg-[#10b981] px-6 text-lg font-semibold text-white shadow-lg shadow-[#10b981]/30 transition-all hover:bg-[#059669] hover:shadow-xl hover:shadow-[#10b981]/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#10b981]/40 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[66px] sm:text-xl"
+            className="inline-flex h-16 w-full max-w-[336px] items-center justify-center gap-3 rounded-xl bg-brand-primary px-6 text-lg font-semibold text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[66px] sm:text-xl"
           >
             <SparkleIcon />
             Start Your Demo

@@ -7,7 +7,25 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { FEATURE_FLAGS } from "~/config/features";
 import appCss from "~/styles/app.css?url";
+
+function NotFoundPage() {
+  return (
+    <main className="flex min-h-[60vh] flex-col items-center justify-center px-6 pt-32 text-center">
+      <h1 className="text-3xl font-bold text-brand-secondary">Page not found</h1>
+      <p className="mt-4 max-w-md text-gray-600">
+        The page you requested is not available. Return home or contact us for help.
+      </p>
+      <a
+        href="/"
+        className="mt-8 rounded-[10px] bg-brand-primary px-6 py-3 text-sm font-semibold text-white"
+      >
+        Back to Home
+      </a>
+    </main>
+  );
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -40,7 +58,7 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  notFoundComponent: () => <div>Page not found</div>,
+  notFoundComponent: NotFoundPage,
   component: RootComponent,
 });
 
@@ -100,36 +118,36 @@ function Nav() {
           </span>
         </a>
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="/" className={linkClassName}>
-            Home
+          <a href="/what-we-do" className={linkClassName}>
+            What We Do
           </a>
-          <a href="/about" className={linkClassName}>
-            About
-          </a>
-          <a href="/services" className={linkClassName}>
-            Services
-          </a>
-          <a href="/roi-calculator" className={linkClassName}>
-            See What You&apos;re Missing
+          <a href="/how-we-work" className={linkClassName}>
+            How We Work
           </a>
           <a href="/demo" className={demoLinkClassName}>
             Live Demo
+          </a>
+          <a href="/assessment" className={linkClassName}>
+            Free Assessment
+          </a>
+          <a href="/about" className={linkClassName}>
+            About
           </a>
           <a
             href="/contact"
             className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
           >
-            Get Started
+            Book Your AI Growth Systems Consultation
           </a>
         </nav>
         <details className="group md:hidden">
           <summary
-            className={`flex cursor-pointer list-none items-center gap-2 ${
+            className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-lg p-2 ${
               isDemoPage ? "text-white/80" : "text-gray-600"
             }`}
           >
             <svg
-              className="h-6 w-6"
+              className="h-6 w-6 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -157,27 +175,27 @@ function Nav() {
                 : "border-gray-100 bg-white"
             }`}
           >
-            <div className="flex flex-col gap-4">
-              <a href="/" className={linkClassName}>
-                Home
+            <div className="flex flex-col gap-1">
+              <a href="/what-we-do" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                What We Do
               </a>
-              <a href="/about" className={linkClassName}>
-                About
+              <a href="/how-we-work" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                How We Work
               </a>
-              <a href="/services" className={linkClassName}>
-                Services
-              </a>
-              <a href="/roi-calculator" className={linkClassName}>
-                See What You&apos;re Missing
-              </a>
-              <a href="/demo" className={demoLinkClassName}>
+              <a href="/demo" className={`${demoLinkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 Live Demo
+              </a>
+              <a href="/assessment" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                Free Assessment
+              </a>
+              <a href="/about" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                About
               </a>
               <a
                 href="/contact"
-                className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="flex min-h-11 items-center justify-center rounded-[10px] bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
               >
-                Get Started
+                Book Your AI Growth Systems Consultation
               </a>
             </div>
           </div>
@@ -200,8 +218,8 @@ function Footer() {
               </span>
             </a>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-400">
-              Helping home services companies answer every call 24/7/365 on the
-              first ring — so owners can serve what matters most.
+              AI growth systems for home services: get found, respond, convert,
+              retain, reduce manual work, and measure what is working.
             </p>
           </div>
           <div>
@@ -210,10 +228,28 @@ function Footer() {
             </h4>
             <div className="flex flex-col gap-3">
               <a
-                href="/"
+                href="/what-we-do"
                 className="text-sm text-gray-400 transition-colors hover:text-white"
               >
-                Home
+                What We Do
+              </a>
+              <a
+                href="/how-we-work"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                How We Work
+              </a>
+              <a
+                href="/assessment"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                Free Assessment
+              </a>
+              <a
+                href="/demo"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                Live Demo
               </a>
               <a
                 href="/about"
@@ -222,22 +258,16 @@ function Footer() {
                 About
               </a>
               <a
-                href="/services"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Services
-              </a>
-              <a
-                href="/roi-calculator"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                See What You&apos;re Missing
-              </a>
-              <a
                 href="/contact"
                 className="text-sm text-gray-400 transition-colors hover:text-white"
               >
                 Contact
+              </a>
+              <a
+                href="/book"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                Book a Time
               </a>
               <a
                 href="/privacy"
@@ -258,7 +288,18 @@ function Footer() {
               Contact
             </h4>
             <div className="flex flex-col gap-3 text-sm text-gray-400">
-              <span>info@624voice.com</span>
+              {FEATURE_FLAGS.SHOW_FOOTER_CONTACT_DETAILS ? (
+                <span>info@624voice.com</span>
+              ) : (
+                <>
+                  <a href="/contact" className="transition-colors hover:text-white">
+                    Contact us
+                  </a>
+                  <a href="/book" className="transition-colors hover:text-white">
+                    Book a Time
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>

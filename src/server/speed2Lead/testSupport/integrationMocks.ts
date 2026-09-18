@@ -91,6 +91,12 @@ export function resetSpeed2LeadIntegrationMocks(): void {
   fakeSendSms = defaultFakeSendSms;
 }
 
+/** Reapply integration mocks after unrelated tests replace ~/server/speed2Lead/redis. */
+export function forceReinstallSpeed2LeadIntegrationMocks(): void {
+  installed = false;
+  installSpeed2LeadIntegrationMocks();
+}
+
 export function resetCapturedOutboundSms(): void {
   capturedOutboundSms.length = 0;
 }

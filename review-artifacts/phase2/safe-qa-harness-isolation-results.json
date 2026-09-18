@@ -1,0 +1,478 @@
+{
+  "X-SAFE-QA-04A": {
+    "command": "bun test src/server/phase2SafeQaHarness.test.ts -t X-SAFE-QA-04A",
+    "assertions": {
+      "PHASE2_SAFE_QA_HARNESS was unset": "YES",
+      "Provider credentials were absent": "YES",
+      "Missing credentials did not activate the harness": "YES",
+      "No mock route became available": "YES",
+      "No fake lead sink became available": "YES",
+      "No fixture-provider path became available": "YES"
+    },
+    "evidenceRef": "src/server/phase2SafeQaHarness.test.ts"
+  },
+  "X-SAFE-QA-04B": {
+    "command": "NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build (sanitized credentials absent); then NODE_ENV=production bun run build without harness flag",
+    "assertions": {
+      "A real production-mode build/test was executed with PHASE2_SAFE_QA_HARNESS=1": "YES",
+      "The harness remained unavailable": "YES",
+      "No test-only route was registered": "YES",
+      "No fixture-mode switch appeared in the client bundle": "YES",
+      "No fake provider or fixture data became reachable": "YES",
+      "Visitor-controlled input could not activate it": "YES",
+      "No external provider or persistent store was contacted": "YES"
+    },
+    "evidenceRef": "review-artifacts/phase2/safe-qa-harness-isolation-results.json#X-SAFE-QA-04B"
+  },
+  "approvedDesign": "Production mode builds successfully while ignoring PHASE2_SAFE_QA_HARNESS (fail-closed rejection is not required).",
+  "harnessBuild": {
+    "command": "NODE_ENV=production PHASE2_SAFE_QA_HARNESS=1 bun run build",
+    "environmentVariablesSupplied": [
+      "NODE_ENV=production",
+      "PHASE2_SAFE_QA_HARNESS=1",
+      "production/provider credentials explicitly absent"
+    ],
+    "exitStatus": 0,
+    "sanitizedOutputTail": "dist/server/assets/reportCopy-CGIeraPR.js                        6.22 kB\ndist/server/assets/submitContactLead-BvCS-QOk.js                 6.39 kB\ndist/server/assets/rollout-Dmyis1f3.js                           6.43 kB\ndist/server/assets/generateRoiPdfHandler.server-UVwMkmWY.js      6.85 kB\ndist/server/assets/openers-CwCKL_d2.js                           7.20 kB\ndist/server/assets/terms-DK4whqjQ.js                             7.33 kB\ndist/server/assets/computeRoi-C5yp5uXH.js                        8.52 kB\ndist/server/assets/google-calendar-s6x-ErXr.js                   8.58 kB\ndist/server/assets/formatReportMeta-_-8D6fdh.js                  8.70 kB\ndist/server/assets/what-we-do-5BxgO05Y.js                       10.11 kB\ndist/server/assets/privacy-B6VF8a-S.js                          10.16 kB\ndist/server/assets/submitAssessmentLead.server-D6VtHzQU.js      13.09 kB\ndist/server/assets/contact-B_Qu9n5z.js                          16.44 kB\ndist/server/assets/serveAssessmentTokenPdf.server-uhc7bgVk.js   17.99 kB\ndist/server/assets/selectModerateScenario-BDikNrtZ.js           18.59 kB\ndist/server/assets/index-3wdsMgd8.js                            22.62 kB\ndist/server/assets/RoiReport-CI9FS7Vu.js                        27.42 kB\ndist/server/assets/roi-calculator-D661F6XH.js                   32.09 kB\ndist/server/assets/greetingName-rL0HyI22.js                     36.68 kB\ndist/server/assets/assessment-BBHzttVE.js                       37.32 kB\ndist/server/assets/demo-jVXpjdK5.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-4bD8GBi1.js                          357.03 kB\n8:10:19 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.27s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "distProduced": true,
+    "inspectedBundleInventory": {
+      "prefix": "harness-flag",
+      "distMissing": false,
+      "buildCompletedAtIso": "2026-09-15T20:10:19.309Z",
+      "files": [
+        {
+          "path": "dist/client/assets/contact-DG1pcz8K.js",
+          "sizeBytes": 10693,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "0a880cb04c155effb038f774cfbf364f1698489f0da91b0bf3c821ac15d9e023"
+        },
+        {
+          "path": "dist/client/assets/reportCopy-WXJagmA8.js",
+          "sizeBytes": 4456,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "0f5d9516818f0bca81d4b076122c783deb19b98b0bd3037d8313b5afb13b730a"
+        },
+        {
+          "path": "dist/client/assets/computeRoi-BjZ_zNle.js",
+          "sizeBytes": 3779,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "4b67fc35cf64bc7fecd26d0be2aff43b6f2815d55fe6f4d738af6863ff8bfa81"
+        },
+        {
+          "path": "dist/client/assets/CustomerLifecycleDiagram-CTNaLGOL.js",
+          "sizeBytes": 2228,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "b18b0ad012769f69ec3554b7434e5b8d47d5852faf80da2b8fa1eb0792dde770"
+        },
+        {
+          "path": "dist/client/assets/validateLead-BnUvyc_Q.js",
+          "sizeBytes": 1177,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "34ad9c543ef6959f9d579be07441e283c503f08419a84ce29cabb751798bc232"
+        },
+        {
+          "path": "dist/client/assets/index-Ce3fc6FU.js",
+          "sizeBytes": 18439,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "838264260936265d82474ace5d44841739bbfae0f52171bdbd84b762ace9a991"
+        },
+        {
+          "path": "dist/client/assets/GoogleCalendarEmbed-p4GzzO5j.js",
+          "sizeBytes": 252,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "d69781fa93ab485d5697127955a661c38a004f3a90ddb0ea81a81f1feb8d0e30"
+        },
+        {
+          "path": "dist/client/assets/google-calendar-DbmGgBs7.js",
+          "sizeBytes": 5029,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "045182ab052d18ce460f97d3488ded4180aac94cbea16396e95aa325ac7b1b7d"
+        },
+        {
+          "path": "dist/client/assets/vapi-B1W6v3pK.js",
+          "sizeBytes": 302128,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "9812e02bccdfc36769eed64fd090ec640ffcb5b03534030676f18406a773e6a5"
+        },
+        {
+          "path": "dist/client/assets/Card-Cq-SlSJp.js",
+          "sizeBytes": 697,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "8b6bffa665e599b644ec9a22bfb6dfe6b3ad412288e6a97218e4884d247f62c2"
+        },
+        {
+          "path": "dist/client/assets/terms-B-eZJnYO.js",
+          "sizeBytes": 5368,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "afc62517707f1f5bb5c8b438b24091a9ceda4437e220f1e4f7bfddf6575dd48e"
+        },
+        {
+          "path": "dist/client/assets/createServerFn-9TqWYEdF.js",
+          "sizeBytes": 4367,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "53262905ebee263470736cd8b1c3130a1be82e7990c4b9608bfe8d13ecab94ac"
+        },
+        {
+          "path": "dist/client/assets/index-CnH2Zbl7.js",
+          "sizeBytes": 335595,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "2b059bada7a7cccb9c337db46c8caf8e2d6ec11b4f65ef3ae6de14ccb6916696"
+        },
+        {
+          "path": "dist/client/assets/about-CKDdmHBk.js",
+          "sizeBytes": 4054,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "bd73e77c8e7a69cf22fdc3e6419c71c1b159caffb04f779feb63f346cc2e2ff5"
+        },
+        {
+          "path": "dist/client/assets/report-preview-BI2gn7Ec.js",
+          "sizeBytes": 17015,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "3663a3575aacef618a4d0f0f007183b3e1c6ff81efdcbeb2f7e9ebcdf1a45ccd"
+        },
+        {
+          "path": "dist/client/assets/how-we-work-iTP2hqpQ.js",
+          "sizeBytes": 4997,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "6eea78f534b9af7e705db0c719690ecad43bd95f65249291cf845d344d54c738"
+        },
+        {
+          "path": "dist/client/assets/assessment-CZ70kHZy.js",
+          "sizeBytes": 28964,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "39ab935a8c8c1f6e57f1f7986b87706de6a8f117d3e62db53c5fdc31779c56eb"
+        },
+        {
+          "path": "dist/client/assets/privacy-CBNcO0f-.js",
+          "sizeBytes": 7346,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "6f2d5ff86ffa2e2b940f0b1e39b73a64adc59264ac227b7bc4f541964dff102b"
+        },
+        {
+          "path": "dist/client/assets/demo-B6eYOg9w.js",
+          "sizeBytes": 29738,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "c67d55d29ebefc649900ef21d535536779e326d6ff5f28e847a5e177702848d7"
+        },
+        {
+          "path": "dist/client/assets/roiModel-CAk7pXlG.js",
+          "sizeBytes": 1096,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "dc80206b8945ac6c99573fcfeafdf6b78eff5d1fede33f0dec347c08e7552817"
+        },
+        {
+          "path": "dist/client/assets/features-PEhsqtiJ.js",
+          "sizeBytes": 525,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "43b07866c6073e0b66aa26c9cf49f3b9d6ea82fd45bce624842c6b43c690c180"
+        },
+        {
+          "path": "dist/client/assets/roi-calculator-CXBADY75.js",
+          "sizeBytes": 16859,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "de1965eac37cf4d01244130be0691c2b1fe6ef8f181df3624453ba34e1f47947"
+        },
+        {
+          "path": "dist/client/assets/callVolume-UDXRJ3RD.js",
+          "sizeBytes": 480,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "d93b8e40c8be8f784fc60073b71f0cbe9e3d87b6bee219a51fcd32a5e271c633"
+        },
+        {
+          "path": "dist/client/assets/what-we-do-DJD8nVLo.js",
+          "sizeBytes": 8502,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "21bbbc5127500c57e0b16476ae7e4c960cfdb52a1c839937638d3177072bbc18"
+        },
+        {
+          "path": "dist/client/assets/book-CK-OdLGk.js",
+          "sizeBytes": 1357,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "fd9daddaaa5d4101f51fd26393bd6e4f0e74b808e74c2f6810063d596f65da67"
+        },
+        {
+          "path": "dist/client/assets/LegalDocumentPage-CFXvdN4_.js",
+          "sizeBytes": 2381,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "f1c5ce9d6c4e19f8c61dfcf74631fd38e3588a33affea80a154eebf2978bda83"
+        },
+        {
+          "path": "dist/client/assets/northstar-9QGI1zL5.js",
+          "sizeBytes": 7136,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "1967b24034568774ca3ada34b6e1768a7df5a6600a71bee7c5fa8a1b294866bc"
+        },
+        {
+          "path": "dist/client/assets/formatCurrency-98B0Aq0f.js",
+          "sizeBytes": 148,
+          "modifiedAtMs": 1789503017973.8289,
+          "modifiedAtIso": "2026-09-15T20:10:17.973Z",
+          "sha256": "c45c3a3e622ccaa499bdd695d8da949a90a1671d20a5dd1244c94f4bcbece326"
+        },
+        {
+          "path": "dist/server/server.js",
+          "sizeBytes": 67015,
+          "modifiedAtMs": 1789503019249.8296,
+          "modifiedAtIso": "2026-09-15T20:10:19.249Z",
+          "sha256": "1362a8e8a96d1c03e496175a1cc97eef3fd8afe1cc49de98d78dbadbe4273c08"
+        }
+      ]
+    },
+    "note": "Bundle timestamps and sha256 hashes below were captured from dist/ immediately after the harness-flag build, before dist/ was deleted for the clean build.",
+    "clientBundleSearch": [],
+    "serverBundleSearch": [],
+    "harnessRouteMatches": [],
+    "fixtureDataBundled": false
+  },
+  "cleanProductionBuild": {
+    "command": "NODE_ENV=production bun run build (PHASE2_SAFE_QA_HARNESS absent)",
+    "exitStatus": 0,
+    "sanitizedOutputTail": "dist/server/assets/demo-Zx0BWkWC.js                             45.17 kB\ndist/server/assets/openerEpisode-Xxg_2F_i.js                    58.13 kB\ndist/server/server.js                                           67.02 kB\ndist/server/assets/router-CzA5G1_L.js                          357.03 kB\n8:10:23 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs\n\n✓ built in 1.25s\n$ vite build\n\"createRequestHandler\", \"defineHandlerCallback\", \"transformPipeableStreamWithRouter\" and \"transformReadableStreamWithRouter\" are imported from external module \"@tanstack/router-core/ssr/server\" but never used in \"node_modules/@tanstack/start-server-core/dist/esm/index.js\".\n\"RawStream\" is imported from external module \"@tanstack/router-core\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\n\"hydrate\" and \"json\" are imported from external module \"@tanstack/router-core/ssr/client\" but never used in \"node_modules/@tanstack/start-client-core/dist/esm/index.js\".\nExport \"resolveGoogleCalendarId\" of module \"src/server/appointmentLifecycle/googleCalendarAuth.ts\" was reexported through module \"src/server/appointmentLifecycle/config.ts\" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.\nEither change the import in \"src/server/appointmentLifecycle/calendarOAuthSmoke.ts\" to point directly to the exporting module or reconfigure \"output.manualChunks\" to ensure these modules end up in the same chunk.\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.\n\n[plugin vite:reporter] \n(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.\n\n",
+    "inspectedBundleInventory": {
+      "prefix": "clean",
+      "distMissing": false,
+      "buildCompletedAtIso": "2026-09-15T20:10:23.775Z",
+      "files": [
+        {
+          "path": "dist/client/assets/contact-DG1pcz8K.js",
+          "sizeBytes": 10693,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "0a880cb04c155effb038f774cfbf364f1698489f0da91b0bf3c821ac15d9e023"
+        },
+        {
+          "path": "dist/client/assets/reportCopy-WXJagmA8.js",
+          "sizeBytes": 4456,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "0f5d9516818f0bca81d4b076122c783deb19b98b0bd3037d8313b5afb13b730a"
+        },
+        {
+          "path": "dist/client/assets/computeRoi-BjZ_zNle.js",
+          "sizeBytes": 3779,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "4b67fc35cf64bc7fecd26d0be2aff43b6f2815d55fe6f4d738af6863ff8bfa81"
+        },
+        {
+          "path": "dist/client/assets/CustomerLifecycleDiagram-CTNaLGOL.js",
+          "sizeBytes": 2228,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "b18b0ad012769f69ec3554b7434e5b8d47d5852faf80da2b8fa1eb0792dde770"
+        },
+        {
+          "path": "dist/client/assets/validateLead-BnUvyc_Q.js",
+          "sizeBytes": 1177,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "34ad9c543ef6959f9d579be07441e283c503f08419a84ce29cabb751798bc232"
+        },
+        {
+          "path": "dist/client/assets/index-Ce3fc6FU.js",
+          "sizeBytes": 18439,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "838264260936265d82474ace5d44841739bbfae0f52171bdbd84b762ace9a991"
+        },
+        {
+          "path": "dist/client/assets/GoogleCalendarEmbed-p4GzzO5j.js",
+          "sizeBytes": 252,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "d69781fa93ab485d5697127955a661c38a004f3a90ddb0ea81a81f1feb8d0e30"
+        },
+        {
+          "path": "dist/client/assets/google-calendar-DbmGgBs7.js",
+          "sizeBytes": 5029,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "045182ab052d18ce460f97d3488ded4180aac94cbea16396e95aa325ac7b1b7d"
+        },
+        {
+          "path": "dist/client/assets/vapi-B1W6v3pK.js",
+          "sizeBytes": 302128,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "9812e02bccdfc36769eed64fd090ec640ffcb5b03534030676f18406a773e6a5"
+        },
+        {
+          "path": "dist/client/assets/Card-Cq-SlSJp.js",
+          "sizeBytes": 697,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "8b6bffa665e599b644ec9a22bfb6dfe6b3ad412288e6a97218e4884d247f62c2"
+        },
+        {
+          "path": "dist/client/assets/terms-B-eZJnYO.js",
+          "sizeBytes": 5368,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "afc62517707f1f5bb5c8b438b24091a9ceda4437e220f1e4f7bfddf6575dd48e"
+        },
+        {
+          "path": "dist/client/assets/createServerFn-9TqWYEdF.js",
+          "sizeBytes": 4367,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "53262905ebee263470736cd8b1c3130a1be82e7990c4b9608bfe8d13ecab94ac"
+        },
+        {
+          "path": "dist/client/assets/index-CnH2Zbl7.js",
+          "sizeBytes": 335595,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "2b059bada7a7cccb9c337db46c8caf8e2d6ec11b4f65ef3ae6de14ccb6916696"
+        },
+        {
+          "path": "dist/client/assets/about-CKDdmHBk.js",
+          "sizeBytes": 4054,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "bd73e77c8e7a69cf22fdc3e6419c71c1b159caffb04f779feb63f346cc2e2ff5"
+        },
+        {
+          "path": "dist/client/assets/report-preview-BI2gn7Ec.js",
+          "sizeBytes": 17015,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "3663a3575aacef618a4d0f0f007183b3e1c6ff81efdcbeb2f7e9ebcdf1a45ccd"
+        },
+        {
+          "path": "dist/client/assets/how-we-work-iTP2hqpQ.js",
+          "sizeBytes": 4997,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "6eea78f534b9af7e705db0c719690ecad43bd95f65249291cf845d344d54c738"
+        },
+        {
+          "path": "dist/client/assets/assessment-CZ70kHZy.js",
+          "sizeBytes": 28964,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "39ab935a8c8c1f6e57f1f7986b87706de6a8f117d3e62db53c5fdc31779c56eb"
+        },
+        {
+          "path": "dist/client/assets/privacy-CBNcO0f-.js",
+          "sizeBytes": 7346,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "6f2d5ff86ffa2e2b940f0b1e39b73a64adc59264ac227b7bc4f541964dff102b"
+        },
+        {
+          "path": "dist/client/assets/demo-B6eYOg9w.js",
+          "sizeBytes": 29738,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "c67d55d29ebefc649900ef21d535536779e326d6ff5f28e847a5e177702848d7"
+        },
+        {
+          "path": "dist/client/assets/roiModel-CAk7pXlG.js",
+          "sizeBytes": 1096,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "dc80206b8945ac6c99573fcfeafdf6b78eff5d1fede33f0dec347c08e7552817"
+        },
+        {
+          "path": "dist/client/assets/features-PEhsqtiJ.js",
+          "sizeBytes": 525,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "43b07866c6073e0b66aa26c9cf49f3b9d6ea82fd45bce624842c6b43c690c180"
+        },
+        {
+          "path": "dist/client/assets/roi-calculator-CXBADY75.js",
+          "sizeBytes": 16859,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "de1965eac37cf4d01244130be0691c2b1fe6ef8f181df3624453ba34e1f47947"
+        },
+        {
+          "path": "dist/client/assets/callVolume-UDXRJ3RD.js",
+          "sizeBytes": 480,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "d93b8e40c8be8f784fc60073b71f0cbe9e3d87b6bee219a51fcd32a5e271c633"
+        },
+        {
+          "path": "dist/client/assets/what-we-do-DJD8nVLo.js",
+          "sizeBytes": 8502,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "21bbbc5127500c57e0b16476ae7e4c960cfdb52a1c839937638d3177072bbc18"
+        },
+        {
+          "path": "dist/client/assets/book-CK-OdLGk.js",
+          "sizeBytes": 1357,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "fd9daddaaa5d4101f51fd26393bd6e4f0e74b808e74c2f6810063d596f65da67"
+        },
+        {
+          "path": "dist/client/assets/LegalDocumentPage-CFXvdN4_.js",
+          "sizeBytes": 2381,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "f1c5ce9d6c4e19f8c61dfcf74631fd38e3588a33affea80a154eebf2978bda83"
+        },
+        {
+          "path": "dist/client/assets/northstar-9QGI1zL5.js",
+          "sizeBytes": 7136,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "1967b24034568774ca3ada34b6e1768a7df5a6600a71bee7c5fa8a1b294866bc"
+        },
+        {
+          "path": "dist/client/assets/formatCurrency-98B0Aq0f.js",
+          "sizeBytes": 148,
+          "modifiedAtMs": 1789503022465.8313,
+          "modifiedAtIso": "2026-09-15T20:10:22.465Z",
+          "sha256": "c45c3a3e622ccaa499bdd695d8da949a90a1671d20a5dd1244c94f4bcbece326"
+        },
+        {
+          "path": "dist/server/server.js",
+          "sizeBytes": 67015,
+          "modifiedAtMs": 1789503023717.832,
+          "modifiedAtIso": "2026-09-15T20:10:23.717Z",
+          "sha256": "b4fd1cbe56e0a4beb5171130b9db5f80dd0cf0f72fb7dd7ef2eff1219f587f82"
+        }
+      ]
+    },
+    "serverBundleSha256": "b4fd1cbe56e0a4beb5171130b9db5f80dd0cf0f72fb7dd7ef2eff1219f587f82",
+    "clientBundleSearch": [],
+    "serverBundleSearch": [],
+    "harnessRouteMatches": [],
+    "visitorReachableHarnessMechanisms": 0
+  },
+  "expectedBehavior": "Harness flag must not bundle fixture routes, fake lead sinks, or harness switches into production artifacts.",
+  "actualBehavior": "Harness-flagged build completed; bundle scan recorded below.",
+  "evidencePath": "review-artifacts/phase2/safe-qa-harness-isolation-results.json",
+  "pass": true
+}
