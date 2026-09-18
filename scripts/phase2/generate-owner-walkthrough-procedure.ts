@@ -9,9 +9,7 @@ const REPO_ROOT = join(import.meta.dir, "../..");
 const FOCUS_PATH = join(REPO_ROOT, "review-artifacts/phase2/owner-focus-order-sequences.json");
 const OUT = join(REPO_ROOT, "review-artifacts/phase2/owner-keyboard-walkthrough-procedure.json");
 
-/** Pin at generation time; regenerate after each executable commit. */
 const EXECUTABLE_SHA =
-  process.env.PHASE2_EXECUTABLE_SHA?.trim() ||
   spawnSync("git", ["rev-parse", "HEAD"], { cwd: REPO_ROOT, encoding: "utf8" }).stdout.trim();
 
 const FAKE = {
