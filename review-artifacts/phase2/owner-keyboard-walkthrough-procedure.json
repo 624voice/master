@@ -1,7 +1,44 @@
 {
-  "procedureId": "A11Y-090-owner-procedure-v2",
+  "procedureId": "A11Y-090-owner-procedure-v3",
+  "totalChecks": 35,
   "browser": "Google Chrome on macOS only",
-  "executableCheckoutSha": "PENDING_COMMIT",
+  "executableCheckoutSha": "11121323c229a653872f73107ad5562dbd510e03",
+  "applicationBehaviorSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "resetFixture": {
+    "name": "standard-page-reset",
+    "steps": [
+      "Command+L, type the check URL, Enter.",
+      "Tab once.",
+      "Verify focus is the 624 Voice header link (home logo link)."
+    ],
+    "firstTabFocus": "624 Voice header link"
+  },
+  "focusOrderEvidence": {
+    "steps": [
+      "Load the stated URL in Chrome.",
+      "Press Tab once (first Tab after load).",
+      "Expected focus: 624 Voice header link (logo/home link)."
+    ],
+    "firstTabFocus": {
+      "tag": "A",
+      "role": null,
+      "name": "624 Voice",
+      "id": null,
+      "href": "/"
+    }
+  },
+  "desktopNavTabCounts": {
+    "tabCountToAbout": 5,
+    "tabCountToBookConsultation": 6,
+    "sequence": [
+      "A: What We Do",
+      "A: How We Work",
+      "A: Live Demo",
+      "A: Free Assessment",
+      "A: About",
+      "A: Book Your AI Growth Systems Consultation"
+    ]
+  },
   "safeFixtureData": {
     "firstName": "Alex",
     "lastName": "Testowner",
@@ -10,29 +47,807 @@
     "phone": "5550100199",
     "trade": "HVAC",
     "fleetSize": "3-7",
-    "assumptionMonthlyCalls": "450",
-    "conditionalAnswer1": "Consistently / always",
-    "conditionalAnswer2": "Yes, consistently",
-    "defaultChoiceForRemainingQuestions": "Not at all / rarely",
-    "noRealPii": true,
-    "isolatedFakeSinkOnly": true,
-    "cannotTriggerLiveWorkflows": true
+    "monthlyCalls": "450",
+    "noRealPii": true
   },
-  "chromeSetup": [
-    "Open Google Chrome (not Safari).",
-    "Press Command+L, type http://127.0.0.1:3000, press Enter.",
-    "For desktop checks: press Command+0 to reset zoom to 100%. Close DevTools if open.",
-    "For mobile checks: press Command+Option+I, click the device toolbar icon, choose Responsive, set width 375 and height 800.",
-    "Return to desktop: close DevTools or set responsive width to 1280.",
-    "After all checks: close DevTools; leave preview terminal running until shutdown step."
-  ],
   "reportErrorFixture": {
-    "approach": "A",
-    "activation": "PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1 set only in safe preview container entrypoint (not visitor-controlled)",
-    "firstDownloadExpected": "503 with alert text: Report temporarily unavailable. Please try again in a moment.",
-    "retryControlLabel": "Try downloading report again",
-    "secondDownloadExpected": "PDF opens or downloads successfully"
+    "activation": "Automatic in approved preview launcher: container entrypoint sets PHASE2_SAFE_PREVIEW=1 and PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1. Chris sets no environment variable.",
+    "guardCode": "IS_SAFE_PREVIEW && PHASE2_OWNER_QA_REPORT_FAIL_ONCE === \"1\"",
+    "productionSafe": "PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1 alone (without PHASE2_SAFE_PREVIEW=1) does not activate fixture.",
+    "firstButtonLabel": "Download Assessment Report",
+    "alertText": "Report temporarily unavailable. Please try again in a moment.",
+    "retryButtonLabel": "Try downloading report again",
+    "pdfDelivery": "Chrome opens new tab with PDF viewer via blob URL"
   },
   "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
-  "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts"
+  "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts",
+  "checks": [
+    {
+      "id": 1,
+      "title": "Desktop header nav — Tab count to About is 5",
+      "viewport": "1280×900 desktop (Command+0, DevTools closed)",
+      "startState": "Fresh load of http://127.0.0.1:3000/",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab → What We Do.",
+        "Tab → How We Work.",
+        "Tab → Live Demo.",
+        "Tab → Free Assessment.",
+        "Tab → About."
+      ],
+      "finalFocusOrState": "About header link",
+      "pass": "After exactly 5 Tab presses from 624 Voice, focus is the About link.",
+      "fail": "About is not focused after 5 Tabs, or any intermediate link is skipped or out of order."
+    },
+    {
+      "id": 2,
+      "title": "Desktop header nav — Book consultation is Tab 6",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 1 final state (focus on About)",
+      "steps": [
+        "Tab → Book Your AI Growth Systems Consultation."
+      ],
+      "finalFocusOrState": "Book Your AI Growth Systems Consultation header link",
+      "pass": "One Tab from About focuses Book Your AI Growth Systems Consultation.",
+      "fail": "Book consultation link is not focused."
+    },
+    {
+      "id": 3,
+      "title": "Mobile nav — Enter opens menu",
+      "viewport": "375×800 mobile (DevTools device toolbar, Responsive 375×800)",
+      "startState": "Fresh load of http://127.0.0.1:3000/",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab → Mobile navigation menu summary control.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Mobile navigation menu summary (menu open)",
+      "pass": "Menu panel is visible and summary retains focus after Enter.",
+      "fail": "Menu panel does not open, or Enter navigates away."
+    },
+    {
+      "id": 4,
+      "title": "Mobile nav links after open",
+      "viewport": "375×800 mobile",
+      "startState": "Check 3 final state (mobile menu open, focus on summary)",
+      "steps": [
+        "Tab → What We Do.",
+        "Tab → How We Work.",
+        "Tab → Live Demo.",
+        "Tab → Free Assessment.",
+        "Tab → About.",
+        "Tab → Book Your AI Growth Systems Consultation."
+      ],
+      "finalFocusOrState": "Book Your AI Growth Systems Consultation mobile nav link",
+      "pass": "All six mobile nav links are focused in order with one Tab each.",
+      "fail": "Any listed link is skipped or not focusable."
+    },
+    {
+      "id": 5,
+      "title": "Mobile nav — Escape closes without trap",
+      "viewport": "375×800 mobile",
+      "startState": "Check 4 final state",
+      "steps": [
+        "Escape."
+      ],
+      "finalFocusOrState": "Mobile navigation menu summary (menu closed)",
+      "pass": "Menu closes and focus remains on the summary control.",
+      "fail": "Focus is trapped or lost outside header."
+    },
+    {
+      "id": 6,
+      "title": "/ keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab → What We Do.",
+        "Tab → How We Work.",
+        "Tab → Live Demo.",
+        "Tab → Free Assessment.",
+        "Tab → About.",
+        "Tab → Book Your AI Growth Systems Consultation.",
+        "Tab → Book Your AI Growth Systems Consultation (hero).",
+        "Tab → Get Your Free Assessment.",
+        "Tab → See the System Work."
+      ],
+      "finalFocusOrState": "See the System Work link",
+      "pass": "Each named control receives focus in order; final focus is See the System Work link.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 7,
+      "title": "Home / focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 6 final state (focus on See the System Work)",
+      "steps": [
+        "Observe focus ring or focus-visible styling on the focused link."
+      ],
+      "finalFocusOrState": "Visible focus indicator on See the System Work",
+      "pass": "Focus indicator is visibly distinct on the focused control.",
+      "fail": "No visible focus indicator on the focused control."
+    },
+    {
+      "id": 8,
+      "title": "/what-we-do keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/what-we-do",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab → What We Do.",
+        "Tab → How We Work.",
+        "Tab → Live Demo.",
+        "Tab → Free Assessment.",
+        "Tab → About.",
+        "Tab → Book Your AI Growth Systems Consultation.",
+        "Tab → See How the Journey Fits Together."
+      ],
+      "finalFocusOrState": "See How the Journey Fits Together link",
+      "pass": "Each named control receives focus in order; final focus is See How the Journey Fits Together link.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 9,
+      "title": "/what-we-do focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 8 final state",
+      "steps": [
+        "Observe focus indicator on focused link."
+      ],
+      "finalFocusOrState": "Visible focus on See How the Journey Fits Together",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 10,
+      "title": "/how-we-work keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/how-we-work",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab through header to Book Your AI Growth Systems Consultation (6 Tabs from 624 Voice).",
+        "Tab → Book Your AI Growth Systems Consultation (page CTA).",
+        "Tab → Get Your Free Assessment."
+      ],
+      "finalFocusOrState": "Get Your Free Assessment link",
+      "pass": "Each named control receives focus in order; final focus is Get Your Free Assessment link.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 11,
+      "title": "/how-we-work focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 10 final state",
+      "steps": [
+        "Observe focus indicator."
+      ],
+      "finalFocusOrState": "Visible focus on Get Your Free Assessment",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 12,
+      "title": "/demo keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/demo",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab through header to Book Your AI Growth Systems Consultation (6 Tabs from 624 Voice).",
+        "Tab → Start your demo with Jessica button.",
+        "Tab → Start live demo with Jessica button."
+      ],
+      "finalFocusOrState": "Start live demo with Jessica button",
+      "pass": "Each named control receives focus in order; final focus is Start live demo with Jessica button.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 13,
+      "title": "/demo focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 12 final state",
+      "steps": [
+        "Observe focus indicator on Start live demo with Jessica."
+      ],
+      "finalFocusOrState": "Visible focus on demo button",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 14,
+      "title": "/about keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/about",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab through header to Book Your AI Growth Systems Consultation (6 Tabs from 624 Voice).",
+        "Tab → Book Your AI Growth Systems Consultation (page CTA).",
+        "Tab → Get Your Free Assessment."
+      ],
+      "finalFocusOrState": "Get Your Free Assessment link",
+      "pass": "Each named control receives focus in order; final focus is Get Your Free Assessment link.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 15,
+      "title": "/about focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 14 final state",
+      "steps": [
+        "Observe focus indicator."
+      ],
+      "finalFocusOrState": "Visible focus on Get Your Free Assessment",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 16,
+      "title": "/contact keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/contact",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab through header to Book Your AI Growth Systems Consultation (6 Tabs from 624 Voice).",
+        "Tab → First name field (#firstName).",
+        "Tab → Last name field (#lastName).",
+        "Tab → Business name field (#businessName).",
+        "Tab → Trade select (#trade)."
+      ],
+      "finalFocusOrState": "Trade select (#trade)",
+      "pass": "Each named control receives focus in order; final focus is Trade select (#trade).",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 17,
+      "title": "/contact focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 16 final state (focus on #trade)",
+      "steps": [
+        "Observe focus indicator on trade select."
+      ],
+      "finalFocusOrState": "Visible focus on #trade",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 18,
+      "title": "/services redirect",
+      "viewport": "1280×900 desktop",
+      "startState": "Any page",
+      "steps": [
+        "Command+L, type http://127.0.0.1:3000/services, Enter.",
+        "Command+L, read address bar."
+      ],
+      "finalFocusOrState": "Address bar shows http://127.0.0.1:3000/what-we-do",
+      "pass": "Browser URL is /what-we-do after loading /services.",
+      "fail": "URL is not /what-we-do."
+    },
+    {
+      "id": 19,
+      "title": "/does-not-exist-404 keyboard reachability",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/does-not-exist-404",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab through header to Book Your AI Growth Systems Consultation (6 Tabs from 624 Voice).",
+        "Tab → Back to Home."
+      ],
+      "finalFocusOrState": "Back to Home link",
+      "pass": "Each named control receives focus in order; final focus is Back to Home link.",
+      "fail": "Any named control is missing, out of order, or not focusable."
+    },
+    {
+      "id": 20,
+      "title": "404 focus visible",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 19 final state",
+      "steps": [
+        "Observe focus indicator on Back to Home."
+      ],
+      "finalFocusOrState": "Visible focus on Back to Home",
+      "pass": "Focus indicator visible.",
+      "fail": "Focus indicator not visible."
+    },
+    {
+      "id": 21,
+      "title": "Assessment BP1 — select HVAC",
+      "viewport": "1280×900 desktop",
+      "startState": "Fresh load of http://127.0.0.1:3000/assessment",
+      "steps": [
+        "Command+L, type the check URL, Enter.",
+        "Tab once.",
+        "Verify focus is the 624 Voice header link (home logo link).",
+        "Tab → What We Do.",
+        "Tab → How We Work.",
+        "Tab → Live Demo.",
+        "Tab → Free Assessment.",
+        "Tab → About.",
+        "Tab → Book Your AI Growth Systems Consultation.",
+        "Tab → #assessment-bp1 trade select (7 Tabs from 624 Voice).",
+        "ArrowDown → Plumbers.",
+        "ArrowDown → Electricians.",
+        "ArrowDown → HVAC.",
+        "Tab → Continue button.",
+        "Enter."
+      ],
+      "finalFocusOrState": "BP2 fleet select (#assessment-bp2) visible; step shows fleet question",
+      "pass": "Fleet size question is displayed after Continue.",
+      "fail": "BP2 not shown or trade is not HVAC.",
+      "leavesStateForNext": "BP2 step, trade=HVAC"
+    },
+    {
+      "id": 22,
+      "title": "Assessment BP2 — select 3-7 and Back to BP1",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 21 final state (BP2 visible, trade=HVAC)",
+      "steps": [
+        "Tab to #assessment-bp2 if not focused.",
+        "ArrowDown → 1–2 vehicles.",
+        "ArrowDown → 3–7 vehicles.",
+        "Tab → Back button.",
+        "Enter."
+      ],
+      "finalFocusOrState": "BP1 trade select (#assessment-bp1) visible",
+      "pass": "Back returns to BP1 with HVAC still selected.",
+      "fail": "BP1 not shown.",
+      "leavesStateForNext": "BP1, trade=HVAC"
+    },
+    {
+      "id": 23,
+      "title": "Assessment BP2 — select 3-7 and Continue to respond review",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 22 final state (BP1, trade=HVAC)",
+      "steps": [
+        "Tab → Continue.",
+        "Enter (BP2).",
+        "ArrowDown → 1–2 vehicles.",
+        "ArrowDown → 3–7 vehicles.",
+        "Tab → Continue.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Respond review with #respond-R1 visible",
+      "pass": "Review your respond assumptions screen shows Monthly inbound calls field.",
+      "fail": "Respond review not displayed.",
+      "leavesStateForNext": "Respond review, fleet=3-7"
+    },
+    {
+      "id": 24,
+      "title": "Assessment respond — set monthly calls to 450",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 23 final state",
+      "steps": [
+        "Tab to #respond-R1 if needed.",
+        "Select all text in field (Command+A).",
+        "Type 450.",
+        "Tab → Continue.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Screening question: How consistently do new customers find your business when they need your services?",
+      "pass": "GF-S question text is visible; R1 value is 450.",
+      "fail": "GF-S question not shown or R1 not 450.",
+      "leavesStateForNext": "GF-S question, R1=450"
+    },
+    {
+      "id": 25,
+      "title": "Assessment GF-S and conditional follow-ups",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 24 final state (GF-S question)",
+      "steps": [
+        "Tab → Not at all / rarely.",
+        "Tab → Somewhat / occasionally.",
+        "Tab → Mostly / often.",
+        "Tab → Consistently / always.",
+        "Space (select Consistently / always).",
+        "Tab → Continue.",
+        "Enter.",
+        "Answer GF-F1 Do you track where new leads come from (calls, web, referrals, ads)?: Tab×3 → Mostly / often, Space, Tab → Continue, Enter.",
+        "Answer GF-F2 Is your Google Business Profile complete, current, and actively managed?: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "Answer GF-F3 Do you have a simple way for prospects to request service online or after hours?: Tab → Not at all / rarely, Space, Tab → Continue, Enter."
+      ],
+      "finalFocusOrState": "CV-S question: How consistently do inbound leads convert into booked jobs or appointments?",
+      "pass": "CV-S question displayed after GF follow-ups.",
+      "fail": "CV-S not reached or GF follow-up labels missing.",
+      "leavesStateForNext": "CV-S question, GF follow-ups answered"
+    },
+    {
+      "id": 26,
+      "title": "Assessment remaining screening questions",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 25 final state (CV-S)",
+      "steps": [
+        "CV-S: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "RG-S How consistently do you stay in touch with past customers to earn repeat business?: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "RM-S How much manual admin work still falls on your team for scheduling and follow-up?: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "MI-S How clearly can you see which marketing and operations efforts are working?: Tab → Not at all / rarely, Space, Tab → Continue, Enter."
+      ],
+      "finalFocusOrState": "Teaser screen with Unlock Full Results button",
+      "pass": "Teaser shows Your top priority and Unlock Full Results button.",
+      "fail": "Teaser not displayed.",
+      "leavesStateForNext": "Teaser screen"
+    },
+    {
+      "id": 27,
+      "title": "Assessment mandatory stale-answer removal",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 26 final state (teaser visible)",
+      "steps": [
+        "Tab → Back, Enter (MI-S).",
+        "Tab → Back, Enter (RM-S).",
+        "Tab → Back, Enter (RG-S).",
+        "Tab → Back, Enter (CV-S).",
+        "Tab → Back, Enter (GF-F3).",
+        "Tab → Back, Enter (GF-F2).",
+        "Tab → Back, Enter (GF-F1).",
+        "Tab → Back, Enter (GF-S).",
+        "On GF-S: Tab → Not at all / rarely, Space.",
+        "Tab → Continue, Enter.",
+        "Confirm rendered page does NOT show Do you track where new leads come from (calls, web, referrals, ads)?",
+        "CV-S: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "RG-S: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "RM-S: Tab → Not at all / rarely, Space, Tab → Continue, Enter.",
+        "MI-S: Tab → Not at all / rarely, Space, Tab → Continue, Enter."
+      ],
+      "finalFocusOrState": "Teaser screen (second time) without GF-F1 question ever reappearing",
+      "pass": "After lowering GF-S score, GF-F1/GF-F2/GF-F3 never render; teaser reached again.",
+      "fail": "Any GF-F follow-up question appears after GF-S score lowered.",
+      "leavesStateForNext": "Teaser screen (post stale-removal)"
+    },
+    {
+      "id": 28,
+      "title": "Assessment teaser to lead gate",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 27 final state",
+      "steps": [
+        "Tab → Unlock Full Results.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Lead gate heading Unlock your full assessment results; #gate-first-name empty",
+      "pass": "Lead gate form visible with empty fields.",
+      "fail": "Gate not displayed.",
+      "leavesStateForNext": "Lead gate, all fields empty, SMS consent unchecked"
+    },
+    {
+      "id": 29,
+      "title": "Lead gate invalid submit",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 28 final state (empty gate, SMS consent unchecked)",
+      "steps": [
+        "Tab through to See My Full Results submit button.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Alert text First name is required.; focus remains in form",
+      "pass": "Red alert with role=alert shows First name is required.; gate remains open.",
+      "fail": "Different alert text, no alert, or navigation away.",
+      "leavesStateForNext": "Lead gate, validation alert visible, SMS consent unchecked"
+    },
+    {
+      "id": 30,
+      "title": "Lead gate SMS consent toggle",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 29 final state (SMS consent unchecked)",
+      "steps": [
+        "Tab to SMS consent checkbox.",
+        "Verify checkbox is unchecked.",
+        "Space (check).",
+        "Verify checkbox is checked.",
+        "Space (uncheck)."
+      ],
+      "finalFocusOrState": "SMS consent checkbox unchecked",
+      "pass": "Checkbox toggles checked then returns unchecked.",
+      "fail": "Checkbox does not toggle or ends checked.",
+      "leavesStateForNext": "Lead gate, SMS consent unchecked"
+    },
+    {
+      "id": 31,
+      "title": "Lead gate valid submission",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 30 final state (SMS consent unchecked)",
+      "steps": [
+        "Tab → #gate-first-name, type Alex.",
+        "Tab → #gate-last-name, type Testowner.",
+        "Tab → #gate-business, type Owner QA Fake HVAC Co.",
+        "Tab → #gate-email, type owner-qa-fake@example.invalid.",
+        "Tab → #gate-phone, type 5550100199.",
+        "Tab → SMS consent checkbox (leave unchecked).",
+        "Tab → See My Full Results.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Results page heading Your priority areas",
+      "pass": "Results page renders with Your priority areas and Download Assessment Report button.",
+      "fail": "Results page not shown or submission error alert.",
+      "leavesStateForNext": "Results page, report not yet downloaded"
+    },
+    {
+      "id": 32,
+      "title": "Report download first attempt — 503 alert",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 31 final state (results page, first visit)",
+      "steps": [
+        "Tab to Download Assessment Report button.",
+        "Enter.",
+        "Read alert region (role=alert)."
+      ],
+      "finalFocusOrState": "Alert text Report temporarily unavailable. Please try again in a moment.; results page still visible underneath",
+      "pass": "503 alert exact text shown; Your priority areas still on page; Try downloading report again button visible.",
+      "fail": "Different alert, no alert, or results page replaced.",
+      "leavesStateForNext": "Results page with 503 alert and retry button"
+    },
+    {
+      "id": 33,
+      "title": "Report download retry — keyboard to success",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 32 final state (503 alert visible)",
+      "steps": [
+        "Tab → Try downloading report again button.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Chrome opens new tab with PDF viewer (blob: URL); results tab remains open",
+      "pass": "New tab opens showing PDF; original tab still shows Your priority areas.",
+      "fail": "No PDF tab, or retry button missing.",
+      "leavesStateForNext": "PDF tab focused, results tab in background"
+    },
+    {
+      "id": 34,
+      "title": "Return from PDF tab to results",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 33 final state (PDF tab active)",
+      "steps": [
+        "Command+W (close PDF tab)."
+      ],
+      "finalFocusOrState": "Results tab active; Download Assessment Report button available",
+      "pass": "Focus returns to results page without using Tab on controls that exist only in PDF viewer.",
+      "fail": "Wrong tab closed or results page lost.",
+      "leavesStateForNext": "Results page, first download attempt consumed"
+    },
+    {
+      "id": 35,
+      "title": "Report download repeat access",
+      "viewport": "1280×900 desktop",
+      "startState": "Check 34 final state (results page after returning from PDF)",
+      "steps": [
+        "Tab → Download Assessment Report button.",
+        "Enter."
+      ],
+      "finalFocusOrState": "Chrome opens PDF in new tab immediately (no 503 alert)",
+      "pass": "Second download succeeds without 503; no fail-once alert reappears.",
+      "fail": "503 alert appears again or download fails."
+    }
+  ],
+  "attestation": {
+    "operator": "",
+    "executedAtIso": "",
+    "confirmedPhysicalKeyboardOnly": "",
+    "confirmedNoProductionCredentials": "",
+    "confirmedNoLiveExternalSideEffects": "",
+    "perCheckResults": [
+      {
+        "id": 1,
+        "title": "Desktop header nav — Tab count to About is 5",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 2,
+        "title": "Desktop header nav — Book consultation is Tab 6",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 3,
+        "title": "Mobile nav — Enter opens menu",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 4,
+        "title": "Mobile nav links after open",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 5,
+        "title": "Mobile nav — Escape closes without trap",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 6,
+        "title": "/ keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 7,
+        "title": "Home / focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 8,
+        "title": "/what-we-do keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 9,
+        "title": "/what-we-do focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 10,
+        "title": "/how-we-work keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 11,
+        "title": "/how-we-work focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 12,
+        "title": "/demo keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 13,
+        "title": "/demo focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 14,
+        "title": "/about keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 15,
+        "title": "/about focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 16,
+        "title": "/contact keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 17,
+        "title": "/contact focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 18,
+        "title": "/services redirect",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 19,
+        "title": "/does-not-exist-404 keyboard reachability",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 20,
+        "title": "404 focus visible",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 21,
+        "title": "Assessment BP1 — select HVAC",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 22,
+        "title": "Assessment BP2 — select 3-7 and Back to BP1",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 23,
+        "title": "Assessment BP2 — select 3-7 and Continue to respond review",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 24,
+        "title": "Assessment respond — set monthly calls to 450",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 25,
+        "title": "Assessment GF-S and conditional follow-ups",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 26,
+        "title": "Assessment remaining screening questions",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 27,
+        "title": "Assessment mandatory stale-answer removal",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 28,
+        "title": "Assessment teaser to lead gate",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 29,
+        "title": "Lead gate invalid submit",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 30,
+        "title": "Lead gate SMS consent toggle",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 31,
+        "title": "Lead gate valid submission",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 32,
+        "title": "Report download first attempt — 503 alert",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 33,
+        "title": "Report download retry — keyboard to success",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 34,
+        "title": "Return from PDF tab to results",
+        "result": "",
+        "notes": ""
+      },
+      {
+        "id": 35,
+        "title": "Report download repeat access",
+        "result": "",
+        "notes": ""
+      }
+    ],
+    "finalConclusion": ""
+  }
 }

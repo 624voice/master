@@ -1,0 +1,923 @@
+{
+  "capturedAt": "2026-09-18T17:16:33.518Z",
+  "resetProcedure": {
+    "steps": [
+      "Load the stated URL in Chrome.",
+      "Press Tab once (first Tab after load).",
+      "Expected focus: 624 Voice header link (logo/home link)."
+    ],
+    "firstTabFocus": {
+      "tag": "A",
+      "role": null,
+      "name": "624 Voice",
+      "id": null,
+      "href": "/"
+    }
+  },
+  "desktopNavFrom624Voice": {
+    "tabCountToAbout": 5,
+    "tabCountToBookConsultation": 6,
+    "sequence": [
+      "A: What We Do",
+      "A: How We Work",
+      "A: Live Demo",
+      "A: Free Assessment",
+      "A: About",
+      "A: Book Your AI Growth Systems Consultation"
+    ]
+  },
+  "captures": [
+    {
+      "path": "/",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Get Your Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See the System Work",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See How the Customer Journey Fits Together",
+          "id": null,
+          "href": "#customer-lifecycle"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Explore What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Start the Live Demonstration",
+          "id": null,
+          "href": "/demo"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Get Your Free Assessment",
+        "A: See the System Work",
+        "A: See How the Customer Journey Fits Together",
+        "A: Explore What We Do",
+        "A: Start the Live Demonstration"
+      ]
+    },
+    {
+      "path": "/what-we-do",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See How the Journey Fits Together",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Try the Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See What a Consultation Covers",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See How the Journey Fits Together",
+          "id": null,
+          "href": "/how-we-work"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: See How the Journey Fits Together",
+        "A: Try the Live Demo",
+        "A: See What a Consultation Covers",
+        "A: See How the Journey Fits Together"
+      ]
+    },
+    {
+      "path": "/how-we-work",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Get Your Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "624 Voice",
+          "id": null,
+          "href": "/"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Get Your Free Assessment",
+        "A: 624 Voice",
+        "A: What We Do"
+      ]
+    },
+    {
+      "path": "/demo",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Start your demo with Jessica",
+          "id": null,
+          "href": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Start live demo with Jessica",
+          "id": null,
+          "href": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Schedule Your Demo",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Back to Home",
+          "id": null,
+          "href": "/"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "BUTTON: Start your demo with Jessica",
+        "BUTTON: Start live demo with Jessica",
+        "A: Schedule Your Demo",
+        "A: Back to Home"
+      ]
+    },
+    {
+      "path": "/about",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Get Your Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "624 Voice",
+          "id": null,
+          "href": "/"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Get Your Free Assessment",
+        "A: 624 Voice",
+        "A: What We Do"
+      ]
+    },
+    {
+      "path": "/contact",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "text",
+          "id": "firstName",
+          "href": null
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "text",
+          "id": "lastName",
+          "href": null
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "text",
+          "id": "businessName",
+          "href": null
+        },
+        {
+          "tag": "SELECT",
+          "role": null,
+          "name": "Select your trade...",
+          "id": "trade",
+          "href": null
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "radio",
+          "id": null,
+          "href": null
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "email",
+          "id": "email",
+          "href": null
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "tel",
+          "id": "phone",
+          "href": null
+        },
+        {
+          "tag": "SELECT",
+          "role": null,
+          "name": "Select fleet size...",
+          "id": "fleetSize",
+          "href": null
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "INPUT: text: #firstName",
+        "INPUT: text: #lastName",
+        "INPUT: text: #businessName",
+        "SELECT: Select your trade...: #trade",
+        "INPUT: radio",
+        "INPUT: email: #email",
+        "INPUT: tel: #phone",
+        "SELECT: Select fleet size...: #fleetSize"
+      ]
+    },
+    {
+      "path": "/does-not-exist-404",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Back to Home",
+          "id": null,
+          "href": "/"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "624 Voice",
+          "id": null,
+          "href": "/"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Back to Home",
+        "A: 624 Voice"
+      ]
+    },
+    {
+      "path": "/ (mobile nav open)",
+      "viewport": {
+        "width": 375,
+        "height": 800
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "role": null,
+          "name": "Mobile navigation menu",
+          "id": null,
+          "href": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Live Demo",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About",
+          "id": null,
+          "href": "/about"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "Enter on mobile menu summary",
+        "SUMMARY: Mobile navigation menu",
+        "A: What We Do",
+        "A: How We Work",
+        "A: Live Demo",
+        "A: Free Assessment",
+        "A: About",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Book Your AI Growth Systems Consultation"
+      ]
+    },
+    {
+      "path": "/",
+      "viewport": {
+        "width": 375,
+        "height": 800
+      },
+      "resetAfterLoad": {
+        "tag": "A",
+        "role": null,
+        "name": "624 Voice",
+        "id": null,
+        "href": "/"
+      },
+      "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "role": null,
+          "name": "Mobile navigation menu",
+          "id": null,
+          "href": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Book Your AI Growth Systems Consultation",
+          "id": null,
+          "href": "/contact"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Get Your Free Assessment",
+          "id": null,
+          "href": "/assessment"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See the System Work",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See How the Customer Journey Fits Together",
+          "id": null,
+          "href": "#customer-lifecycle"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Explore What We Do",
+          "id": null,
+          "href": "/what-we-do"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Start the Live Demonstration",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See How We Work",
+          "id": null,
+          "href": "/how-we-work"
+        }
+      ],
+      "formatted": [
+        "A: 624 Voice",
+        "SUMMARY: Mobile navigation menu",
+        "A: Book Your AI Growth Systems Consultation",
+        "A: Get Your Free Assessment",
+        "A: See the System Work",
+        "A: See How the Customer Journey Fits Together",
+        "A: Explore What We Do",
+        "A: Start the Live Demonstration",
+        "A: See How We Work"
+      ]
+    }
+  ]
+}

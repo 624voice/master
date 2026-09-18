@@ -98,6 +98,11 @@ export function runSecurePrepareDeps(options?: {
     let imageInspection: ReturnType<typeof inspectDockerPreviewImage> | null = null;
 
     if (!options?.skipDocker && !dockerImageReady()) {
+      if (!dockerAvailable()) {
+        throw new Error(
+          "ERROR: Docker is unavailable. Start Docker Desktop (macOS) or ensure docker info works, then rerun preparation.\nDo NOT continue.",
+        );
+      }
       if (!options?.quiet) {
         console.log("Building Docker preview image (minimal empty context; no repo COPY)...");
       }

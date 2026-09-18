@@ -75,19 +75,20 @@ describe("prepare-safe-preview-deps secret safety", () => {
     }
   });
 
-  test("X-SAFE-PREP-03: prep egress blocks production-integration destinations", () => {
+  test("X-SAFE-PREP-03: prep egress blocks Twilio, SendGrid, Upstash, Google, CRM, analytics, agent destinations", () => {
     const probe = spawnSync(
       "bun",
-      [
-        "--env-file=/dev/null",
-        "--preload",
-        "./scripts/phase2/safePreviewPrepareNetworkGuard.ts",
-        "-e",
-        `try { await fetch("https://api.twilio.com/2010-04-01/Accounts"); process.exit(1); } catch (e) { if (String(e).includes("Prep egress blocked")) process.exit(0); process.exit(2); }`,
-      ],
+      ["--env-file=/dev/null", "scripts/phase2/safePreviewPrepareEgressProbe.ts"],
       { cwd: REPO_ROOT, encoding: "utf8" },
     );
     expect(probe.status).toBe(0);
+    expect(probe.stdout).toContain("PASS: blocked Twilio");
+    expect(probe.stdout).toContain("PASS: blocked SendGrid");
+    expect(probe.stdout).toContain("PASS: blocked Upstash");
+    expect(probe.stdout).toContain("PASS: blocked Google");
+    expect(probe.stdout).toContain("PASS: blocked CRM webhook");
+    expect(probe.stdout).toContain("PASS: blocked Analytics");
+    expect(probe.stdout).toContain("PASS: blocked Agent provider");
   });
 
   test("X-SAFE-PREP-04: Docker build uses minimal context; Dockerfile has no COPY/ADD", () => {

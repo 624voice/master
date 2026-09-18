@@ -5,13 +5,14 @@
 import "./safePreviewNetworkGuard.ts";
 import handler from "../../dist/server/server.js";
 import { SAFE_PREVIEW_CSP_HEADER } from "./safePreviewCsp.ts";
+import { isOwnerQaReportFailOnceEnabled } from "./safePreviewReportFixture.ts";
 
 const PORT = 3000;
 const HOST = process.env.PHASE2_DOCKER_RUNTIME === "1" ? "0.0.0.0" : "127.0.0.1";
 const CLIENT_DIR = `${import.meta.dir}/../../dist/client`;
+
 const IS_SAFE_PREVIEW = process.env.PHASE2_SAFE_PREVIEW === "1";
-const OWNER_QA_REPORT_FAIL_ONCE =
-  IS_SAFE_PREVIEW && process.env.PHASE2_OWNER_QA_REPORT_FAIL_ONCE === "1";
+const OWNER_QA_REPORT_FAIL_ONCE = isOwnerQaReportFailOnceEnabled();
 const reportDownloadAttempts = new Map<string, number>();
 
 function withSafeHeaders(response: Response): Response {
