@@ -5,17 +5,17 @@
 | Field | Value |
 |---|---|
 | Previous executable preview SHA | `c8e92da4674b3077d4dc598c6c154f75b1658d52` |
-| New final executable preview SHA | `3109ad77d25a864b5a38cb248b14421b554d54ef` |
-| Supersedes (prior closeout executable) | `e17a72b99f8dc37930fe381bd2293af15a551720`, `8750f90bdc29864ea69fd0b8323ed5b6066688c5` |
-| Full evidence-only HEAD built on final executable SHA | `59e7a13a7c62d6c61ef6ce7d6c96b0355313db5f` |
-| Actual current PR #97 HEAD | `59e7a13a7c62d6c61ef6ce7d6c96b0355313db5f` |
-| Evidence-only HEAD and PR HEAD same commit? | **Yes** |
+| New final executable preview SHA | `93673a9ba366244b850a56291f07a9c4b8a1082b` |
+| Supersedes (prior closeout executable) | `3109ad77d25a864b5a38cb248b14421b554d54ef` |
+| Full evidence-only HEAD built on final executable SHA | (pending evidence commit) |
+| Actual current PR #97 HEAD | (pending evidence commit) |
+| Evidence-only HEAD and PR HEAD same commit? | (pending evidence commit) |
 | Historical/superseded SHA (prior f3b09ac round; not Chris checkout chain) | `491e4adbcc3df96cc524e95c7232c5d95473c6d7` |
 
 ## CHECKOUT
 
 ```bash
-git checkout 3109ad77d25a864b5a38cb248b14421b554d54ef
+git checkout 93673a9ba366244b850a56291f07a9c4b8a1082b
 ```
 
 ## PREREQUISITES
@@ -535,66 +535,70 @@ From 624 Voice header link:
 - **Literal bounded key sequence:**
   1. Screening choice answers are BUTTON elements with aria-pressed (not native radio). From document body on a screening question: seven Tab presses reach the header links listed in Section 9, then Tab moves among choice buttons; Space selects the focused button.
   2. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  3. Press Tab. Verify focused element: What We Do header link.
-  4. Press Tab. Verify focused element: How We Work header link.
-  5. Press Tab. Verify focused element: Live Demo header link.
-  6. Press Tab. Verify focused element: Free Assessment header link.
-  7. Press Tab. Verify focused element: About header link.
-  8. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  9. Press Tab. Verify focused element: Not at all / rarely button.
-  10. Press Tab. Verify focused element: Somewhat / occasionally button.
-  11. Press Tab. Verify focused element: Mostly / often button.
-  12. Press Tab. Verify focused element: Consistently / always button.
-  13. Press Space. Verify selected answer: Consistently / always (aria-pressed true on focused button).
-  14. Press Tab. Verify focused element: Not sure button.
-  15. Press Tab. Verify focused element: Back button.
-  16. Press Tab. Verify focused element: Continue button.
-  17. Press Enter.
-  18. Verify rendered question: Do you track where new leads come from (calls, web, referrals, ads)?
-  19. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  20. Press Tab. Verify focused element: What We Do header link.
-  21. Press Tab. Verify focused element: How We Work header link.
-  22. Press Tab. Verify focused element: Live Demo header link.
-  23. Press Tab. Verify focused element: Free Assessment header link.
-  24. Press Tab. Verify focused element: About header link.
-  25. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  26. Press Tab. Verify focused element: Not at all / rarely button.
-  27. Press Tab. Verify focused element: Somewhat / occasionally button.
-  28. Press Tab. Verify focused element: Mostly / often button.
-  29. Press Space. Verify selected answer: Mostly / often (aria-pressed true on focused button).
-  30. Press Tab. Verify focused element: Not sure button.
-  31. Press Tab. Verify focused element: Back button.
-  32. Press Tab. Verify focused element: Continue button.
-  33. Press Enter.
-  34. Verify rendered question: Is your Google Business Profile complete, current, and actively managed?
-  35. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  36. Press Tab. Verify focused element: What We Do header link.
-  37. Press Tab. Verify focused element: How We Work header link.
-  38. Press Tab. Verify focused element: Live Demo header link.
-  39. Press Tab. Verify focused element: Free Assessment header link.
-  40. Press Tab. Verify focused element: About header link.
-  41. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  42. Press Tab. Verify focused element: Not at all / rarely button.
-  43. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  44. Press Tab. Verify focused element: Not sure button.
-  45. Press Tab. Verify focused element: Back button.
-  46. Press Tab. Verify focused element: Continue button.
-  47. Press Enter.
-  48. Verify rendered question: Do you have a simple way for prospects to request service online or after hours?
-  49. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  50. Press Tab. Verify focused element: What We Do header link.
-  51. Press Tab. Verify focused element: How We Work header link.
-  52. Press Tab. Verify focused element: Live Demo header link.
-  53. Press Tab. Verify focused element: Free Assessment header link.
-  54. Press Tab. Verify focused element: About header link.
-  55. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  56. Press Tab. Verify focused element: Not at all / rarely button.
-  57. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  58. Press Tab. Verify focused element: Not sure button.
-  59. Press Tab. Verify focused element: Back button.
-  60. Press Tab. Verify focused element: Continue button.
-  61. Press Enter.
-  62. Verify rendered question: How consistently do inbound leads convert into booked jobs or appointments?
+  3. Press Tab. Verify focused element: 624 Voice header link.
+  4. Press Tab. Verify focused element: What We Do header link.
+  5. Press Tab. Verify focused element: How We Work header link.
+  6. Press Tab. Verify focused element: Live Demo header link.
+  7. Press Tab. Verify focused element: Free Assessment header link.
+  8. Press Tab. Verify focused element: About header link.
+  9. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  10. Press Tab. Verify focused element: Not at all / rarely button.
+  11. Press Tab. Verify focused element: Somewhat / occasionally button.
+  12. Press Tab. Verify focused element: Mostly / often button.
+  13. Press Tab. Verify focused element: Consistently / always button.
+  14. Press Space. Verify selected answer: Consistently / always (aria-pressed true on focused button).
+  15. Press Tab. Verify focused element: Not sure button.
+  16. Press Tab. Verify focused element: Back button.
+  17. Press Tab. Verify focused element: Continue button.
+  18. Press Enter.
+  19. Verify rendered question: Do you track where new leads come from (calls, web, referrals, ads)?
+  20. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  21. Press Tab. Verify focused element: 624 Voice header link.
+  22. Press Tab. Verify focused element: What We Do header link.
+  23. Press Tab. Verify focused element: How We Work header link.
+  24. Press Tab. Verify focused element: Live Demo header link.
+  25. Press Tab. Verify focused element: Free Assessment header link.
+  26. Press Tab. Verify focused element: About header link.
+  27. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  28. Press Tab. Verify focused element: Not at all / rarely button.
+  29. Press Tab. Verify focused element: Somewhat / occasionally button.
+  30. Press Tab. Verify focused element: Mostly / often button.
+  31. Press Space. Verify selected answer: Mostly / often (aria-pressed true on focused button).
+  32. Press Tab. Verify focused element: Not sure button.
+  33. Press Tab. Verify focused element: Back button.
+  34. Press Tab. Verify focused element: Continue button.
+  35. Press Enter.
+  36. Verify rendered question: Is your Google Business Profile complete, current, and actively managed?
+  37. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  38. Press Tab. Verify focused element: 624 Voice header link.
+  39. Press Tab. Verify focused element: What We Do header link.
+  40. Press Tab. Verify focused element: How We Work header link.
+  41. Press Tab. Verify focused element: Live Demo header link.
+  42. Press Tab. Verify focused element: Free Assessment header link.
+  43. Press Tab. Verify focused element: About header link.
+  44. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  45. Press Tab. Verify focused element: Not at all / rarely button.
+  46. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  47. Press Tab. Verify focused element: Not sure button.
+  48. Press Tab. Verify focused element: Back button.
+  49. Press Tab. Verify focused element: Continue button.
+  50. Press Enter.
+  51. Verify rendered question: Do you have a simple way for prospects to request service online or after hours?
+  52. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  53. Press Tab. Verify focused element: 624 Voice header link.
+  54. Press Tab. Verify focused element: What We Do header link.
+  55. Press Tab. Verify focused element: How We Work header link.
+  56. Press Tab. Verify focused element: Live Demo header link.
+  57. Press Tab. Verify focused element: Free Assessment header link.
+  58. Press Tab. Verify focused element: About header link.
+  59. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  60. Press Tab. Verify focused element: Not at all / rarely button.
+  61. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  62. Press Tab. Verify focused element: Not sure button.
+  63. Press Tab. Verify focused element: Back button.
+  64. Press Tab. Verify focused element: Continue button.
+  65. Press Enter.
+  66. Verify rendered question: How consistently do inbound leads convert into booked jobs or appointments?
 - **Expected rendered state:** CV-S screening question visible.
 - **Final focused element:** Document body on CV-S step
 - **State deliberately left for next check:** CV-S question visible; GF follow-ups completed.
@@ -609,62 +613,66 @@ From 624 Voice header link:
 - **Literal bounded key sequence:**
   1. Screening choice answers are BUTTON elements with aria-pressed (not native radio). From document body on a screening question: seven Tab presses reach the header links listed in Section 9, then Tab moves among choice buttons; Space selects the focused button.
   2. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  3. Press Tab. Verify focused element: What We Do header link.
-  4. Press Tab. Verify focused element: How We Work header link.
-  5. Press Tab. Verify focused element: Live Demo header link.
-  6. Press Tab. Verify focused element: Free Assessment header link.
-  7. Press Tab. Verify focused element: About header link.
-  8. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  9. Press Tab. Verify focused element: Not at all / rarely button.
-  10. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  11. Press Tab. Verify focused element: Not sure button.
-  12. Press Tab. Verify focused element: Back button.
-  13. Press Tab. Verify focused element: Continue button.
-  14. Press Enter.
-  15. Verify rendered question: How consistently do you stay in touch with past customers to earn repeat business?
-  16. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  17. Press Tab. Verify focused element: What We Do header link.
-  18. Press Tab. Verify focused element: How We Work header link.
-  19. Press Tab. Verify focused element: Live Demo header link.
-  20. Press Tab. Verify focused element: Free Assessment header link.
-  21. Press Tab. Verify focused element: About header link.
-  22. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  23. Press Tab. Verify focused element: Not at all / rarely button.
-  24. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  25. Press Tab. Verify focused element: Not sure button.
-  26. Press Tab. Verify focused element: Back button.
-  27. Press Tab. Verify focused element: Continue button.
-  28. Press Enter.
-  29. Verify rendered question: How much manual admin work still falls on your team for scheduling and follow-up?
-  30. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  31. Press Tab. Verify focused element: What We Do header link.
-  32. Press Tab. Verify focused element: How We Work header link.
-  33. Press Tab. Verify focused element: Live Demo header link.
-  34. Press Tab. Verify focused element: Free Assessment header link.
-  35. Press Tab. Verify focused element: About header link.
-  36. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  37. Press Tab. Verify focused element: Not at all / rarely button.
-  38. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  39. Press Tab. Verify focused element: Not sure button.
-  40. Press Tab. Verify focused element: Back button.
-  41. Press Tab. Verify focused element: Continue button.
-  42. Press Enter.
-  43. Verify rendered question: How clearly can you see which marketing and operations efforts are working?
-  44. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  45. Press Tab. Verify focused element: What We Do header link.
-  46. Press Tab. Verify focused element: How We Work header link.
-  47. Press Tab. Verify focused element: Live Demo header link.
-  48. Press Tab. Verify focused element: Free Assessment header link.
-  49. Press Tab. Verify focused element: About header link.
-  50. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  51. Press Tab. Verify focused element: Not at all / rarely button.
-  52. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  53. Press Tab. Verify focused element: Not sure button.
-  54. Press Tab. Verify focused element: Back button.
-  55. Press Tab. Verify focused element: Continue button.
-  56. Press Enter.
-  57. Verify heading text: Your top priority.
-  58. Verify button label: Unlock Full Results.
+  3. Press Tab. Verify focused element: 624 Voice header link.
+  4. Press Tab. Verify focused element: What We Do header link.
+  5. Press Tab. Verify focused element: How We Work header link.
+  6. Press Tab. Verify focused element: Live Demo header link.
+  7. Press Tab. Verify focused element: Free Assessment header link.
+  8. Press Tab. Verify focused element: About header link.
+  9. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  10. Press Tab. Verify focused element: Not at all / rarely button.
+  11. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  12. Press Tab. Verify focused element: Not sure button.
+  13. Press Tab. Verify focused element: Back button.
+  14. Press Tab. Verify focused element: Continue button.
+  15. Press Enter.
+  16. Verify rendered question: How consistently do you stay in touch with past customers to earn repeat business?
+  17. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  18. Press Tab. Verify focused element: 624 Voice header link.
+  19. Press Tab. Verify focused element: What We Do header link.
+  20. Press Tab. Verify focused element: How We Work header link.
+  21. Press Tab. Verify focused element: Live Demo header link.
+  22. Press Tab. Verify focused element: Free Assessment header link.
+  23. Press Tab. Verify focused element: About header link.
+  24. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  25. Press Tab. Verify focused element: Not at all / rarely button.
+  26. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  27. Press Tab. Verify focused element: Not sure button.
+  28. Press Tab. Verify focused element: Back button.
+  29. Press Tab. Verify focused element: Continue button.
+  30. Press Enter.
+  31. Verify rendered question: How much manual admin work still falls on your team for scheduling and follow-up?
+  32. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  33. Press Tab. Verify focused element: 624 Voice header link.
+  34. Press Tab. Verify focused element: What We Do header link.
+  35. Press Tab. Verify focused element: How We Work header link.
+  36. Press Tab. Verify focused element: Live Demo header link.
+  37. Press Tab. Verify focused element: Free Assessment header link.
+  38. Press Tab. Verify focused element: About header link.
+  39. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  40. Press Tab. Verify focused element: Not at all / rarely button.
+  41. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  42. Press Tab. Verify focused element: Not sure button.
+  43. Press Tab. Verify focused element: Back button.
+  44. Press Tab. Verify focused element: Continue button.
+  45. Press Enter.
+  46. Verify rendered question: How clearly can you see which marketing and operations efforts are working?
+  47. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  48. Press Tab. Verify focused element: 624 Voice header link.
+  49. Press Tab. Verify focused element: What We Do header link.
+  50. Press Tab. Verify focused element: How We Work header link.
+  51. Press Tab. Verify focused element: Live Demo header link.
+  52. Press Tab. Verify focused element: Free Assessment header link.
+  53. Press Tab. Verify focused element: About header link.
+  54. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  55. Press Tab. Verify focused element: Not at all / rarely button.
+  56. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  57. Press Tab. Verify focused element: Not sure button.
+  58. Press Tab. Verify focused element: Back button.
+  59. Press Tab. Verify focused element: Continue button.
+  60. Press Enter.
+  61. Verify heading text: Your top priority.
+  62. Verify button label: Unlock Full Results.
 - **Expected rendered state:** Teaser screen with Unlock Full Results button.
 - **Final focused element:** Document body on teaser step
 - **State deliberately left for next check:** Teaser visible; focus on document body.
@@ -694,77 +702,82 @@ From 624 Voice header link:
   15. Press Tab. Verify focused element: Back button.
   16. Press Enter. Verify rendered question: How consistently do new customers find your business when they need your services?
   17. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  18. Press Tab. Verify focused element: What We Do header link.
-  19. Press Tab. Verify focused element: How We Work header link.
-  20. Press Tab. Verify focused element: Live Demo header link.
-  21. Press Tab. Verify focused element: Free Assessment header link.
-  22. Press Tab. Verify focused element: About header link.
-  23. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  24. Press Tab. Verify focused element: Not at all / rarely button.
-  25. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  26. Press Tab. Verify focused element: Not sure button.
-  27. Press Tab. Verify focused element: Back button.
-  28. Press Tab. Verify focused element: Continue button.
-  29. Press Enter.
-  30. Verify page does NOT contain question: Do you track where new leads come from (calls, web, referrals, ads)?
-  31. Verify page does NOT contain question: Is your Google Business Profile complete, current, and actively managed?
-  32. Verify page does NOT contain question: Do you have a simple way for prospects to request service online or after hours?
-  33. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  34. Press Tab. Verify focused element: What We Do header link.
-  35. Press Tab. Verify focused element: How We Work header link.
-  36. Press Tab. Verify focused element: Live Demo header link.
-  37. Press Tab. Verify focused element: Free Assessment header link.
-  38. Press Tab. Verify focused element: About header link.
-  39. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  40. Press Tab. Verify focused element: Not at all / rarely button.
-  41. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  42. Press Tab. Verify focused element: Not sure button.
-  43. Press Tab. Verify focused element: Back button.
-  44. Press Tab. Verify focused element: Continue button.
-  45. Press Enter.
-  46. Verify rendered question: How consistently do you stay in touch with past customers to earn repeat business?
-  47. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  48. Press Tab. Verify focused element: What We Do header link.
-  49. Press Tab. Verify focused element: How We Work header link.
-  50. Press Tab. Verify focused element: Live Demo header link.
-  51. Press Tab. Verify focused element: Free Assessment header link.
-  52. Press Tab. Verify focused element: About header link.
-  53. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  54. Press Tab. Verify focused element: Not at all / rarely button.
-  55. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  56. Press Tab. Verify focused element: Not sure button.
-  57. Press Tab. Verify focused element: Back button.
-  58. Press Tab. Verify focused element: Continue button.
-  59. Press Enter.
-  60. Verify rendered question: How much manual admin work still falls on your team for scheduling and follow-up?
-  61. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  62. Press Tab. Verify focused element: What We Do header link.
-  63. Press Tab. Verify focused element: How We Work header link.
-  64. Press Tab. Verify focused element: Live Demo header link.
-  65. Press Tab. Verify focused element: Free Assessment header link.
-  66. Press Tab. Verify focused element: About header link.
-  67. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  68. Press Tab. Verify focused element: Not at all / rarely button.
-  69. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  70. Press Tab. Verify focused element: Not sure button.
-  71. Press Tab. Verify focused element: Back button.
-  72. Press Tab. Verify focused element: Continue button.
-  73. Press Enter.
-  74. Verify rendered question: How clearly can you see which marketing and operations efforts are working?
-  75. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
-  76. Press Tab. Verify focused element: What We Do header link.
-  77. Press Tab. Verify focused element: How We Work header link.
-  78. Press Tab. Verify focused element: Live Demo header link.
-  79. Press Tab. Verify focused element: Free Assessment header link.
-  80. Press Tab. Verify focused element: About header link.
-  81. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
-  82. Press Tab. Verify focused element: Not at all / rarely button.
-  83. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
-  84. Press Tab. Verify focused element: Not sure button.
-  85. Press Tab. Verify focused element: Back button.
-  86. Press Tab. Verify focused element: Continue button.
-  87. Press Enter.
-  88. Verify heading text: Your top priority.
+  18. Press Tab. Verify focused element: 624 Voice header link.
+  19. Press Tab. Verify focused element: What We Do header link.
+  20. Press Tab. Verify focused element: How We Work header link.
+  21. Press Tab. Verify focused element: Live Demo header link.
+  22. Press Tab. Verify focused element: Free Assessment header link.
+  23. Press Tab. Verify focused element: About header link.
+  24. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  25. Press Tab. Verify focused element: Not at all / rarely button.
+  26. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  27. Press Tab. Verify focused element: Not sure button.
+  28. Press Tab. Verify focused element: Back button.
+  29. Press Tab. Verify focused element: Continue button.
+  30. Press Enter.
+  31. Verify page does NOT contain question: Do you track where new leads come from (calls, web, referrals, ads)?
+  32. Verify page does NOT contain question: Is your Google Business Profile complete, current, and actively managed?
+  33. Verify page does NOT contain question: Do you have a simple way for prospects to request service online or after hours?
+  34. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  35. Press Tab. Verify focused element: 624 Voice header link.
+  36. Press Tab. Verify focused element: What We Do header link.
+  37. Press Tab. Verify focused element: How We Work header link.
+  38. Press Tab. Verify focused element: Live Demo header link.
+  39. Press Tab. Verify focused element: Free Assessment header link.
+  40. Press Tab. Verify focused element: About header link.
+  41. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  42. Press Tab. Verify focused element: Not at all / rarely button.
+  43. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  44. Press Tab. Verify focused element: Not sure button.
+  45. Press Tab. Verify focused element: Back button.
+  46. Press Tab. Verify focused element: Continue button.
+  47. Press Enter.
+  48. Verify rendered question: How consistently do you stay in touch with past customers to earn repeat business?
+  49. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  50. Press Tab. Verify focused element: 624 Voice header link.
+  51. Press Tab. Verify focused element: What We Do header link.
+  52. Press Tab. Verify focused element: How We Work header link.
+  53. Press Tab. Verify focused element: Live Demo header link.
+  54. Press Tab. Verify focused element: Free Assessment header link.
+  55. Press Tab. Verify focused element: About header link.
+  56. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  57. Press Tab. Verify focused element: Not at all / rarely button.
+  58. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  59. Press Tab. Verify focused element: Not sure button.
+  60. Press Tab. Verify focused element: Back button.
+  61. Press Tab. Verify focused element: Continue button.
+  62. Press Enter.
+  63. Verify rendered question: How much manual admin work still falls on your team for scheduling and follow-up?
+  64. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  65. Press Tab. Verify focused element: 624 Voice header link.
+  66. Press Tab. Verify focused element: What We Do header link.
+  67. Press Tab. Verify focused element: How We Work header link.
+  68. Press Tab. Verify focused element: Live Demo header link.
+  69. Press Tab. Verify focused element: Free Assessment header link.
+  70. Press Tab. Verify focused element: About header link.
+  71. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  72. Press Tab. Verify focused element: Not at all / rarely button.
+  73. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  74. Press Tab. Verify focused element: Not sure button.
+  75. Press Tab. Verify focused element: Back button.
+  76. Press Tab. Verify focused element: Continue button.
+  77. Press Enter.
+  78. Verify rendered question: How clearly can you see which marketing and operations efforts are working?
+  79. Use Section 9 — Standard Desktop Header Sequence (proven identical on /, /what-we-do, /how-we-work, /demo, /about, /contact, /does-not-exist-404, /assessment by X-SAFE-PREVIEW-FOCUS-05).
+  80. Press Tab. Verify focused element: 624 Voice header link.
+  81. Press Tab. Verify focused element: What We Do header link.
+  82. Press Tab. Verify focused element: How We Work header link.
+  83. Press Tab. Verify focused element: Live Demo header link.
+  84. Press Tab. Verify focused element: Free Assessment header link.
+  85. Press Tab. Verify focused element: About header link.
+  86. Press Tab. Verify focused element: Book Your AI Growth Systems Consultation header link.
+  87. Press Tab. Verify focused element: Not at all / rarely button.
+  88. Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).
+  89. Press Tab. Verify focused element: Not sure button.
+  90. Press Tab. Verify focused element: Back button.
+  91. Press Tab. Verify focused element: Continue button.
+  92. Press Enter.
+  93. Verify heading text: Your top priority.
 - **Expected rendered state:** Teaser screen (second time); none of the three GF-F follow-up question texts present after GF-S lowered.
 - **Final focused element:** Document body on teaser step (second time)
 - **State deliberately left for next check:** Teaser visible after stale removal; focus on document body.
@@ -917,7 +930,7 @@ Press Ctrl+C in the preview terminal. Confirm the Docker container stops.
 
 | Field | Value |
 |---|---|
-| Tested SHA | 3109ad77d25a864b5a38cb248b14421b554d54ef |
+| Tested SHA | 93673a9ba366244b850a56291f07a9c4b8a1082b |
 | Operator | |
 | Executed at (ISO) | |
 | Confirmed physical keyboard only | |
