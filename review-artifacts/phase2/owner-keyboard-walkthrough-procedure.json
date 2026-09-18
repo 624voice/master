@@ -2,7 +2,7 @@
   "procedureId": "A11Y-090-owner-procedure-v4",
   "totalChecks": 34,
   "browser": "Google Chrome on macOS only",
-  "executableCheckoutSha": "e17a72b99f8dc37930fe381bd2293af15a551720",
+  "executableCheckoutSha": "de112ea7c75cfa88f0adf203fc29834b68f9b1a3",
   "chromeViewportSetup": {
     "desktop": "Command+Option+I → click device toolbar → Responsive → width 1280 height 900 → close DevTools for checks unless inspecting focus",
     "mobile": "Command+Option+I → device toolbar → Responsive → width 375 height 800",
@@ -957,7 +957,7 @@
   "attestation": {
     "operator": "",
     "executedAtIso": "",
-    "testedSha": "e17a72b99f8dc37930fe381bd2293af15a551720",
+    "testedSha": "de112ea7c75cfa88f0adf203fc29834b68f9b1a3",
     "confirmedPhysicalKeyboardOnly": "",
     "confirmedNoProductionCredentials": "",
     "confirmedNoLiveExternalSideEffects": "",
