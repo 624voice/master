@@ -1,22 +1,2 @@
-M	docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md
-A	review-artifacts/phase2/accessibility-human-keyboard-qa.json
-M	review-artifacts/phase2/accessibility-inline-results.json
-M	review-artifacts/phase2/accessibility-qa/summary.json
-M	review-artifacts/phase2/accessibility-reconciliation.json
-M	review-artifacts/phase2/ending-sha.txt
-M	review-artifacts/phase2/final-verification-run.log
-M	review-artifacts/phase2/final-verification.json
-A	review-artifacts/phase2/git-diff-15a4a9c-to-9d14121.txt
-A	review-artifacts/phase2/git-diff-9d14121-to-final-executable.txt
-A	review-artifacts/phase2/git-sha-reconciliation.json
-M	review-artifacts/phase2/safe-qa-harness-isolation-results.json
-M	review-artifacts/phase2/stability-five-full-suite-runs.json
-M	review-artifacts/phase2/stability-messagesid-three-runs.json
-M	review-artifacts/phase2/typescript-baseline-reconciliation.json
-M	review-artifacts/phase2/typescript-comparison.json
-A	review-artifacts/phase2/typescript-measurement-chronology.json
-M	review-artifacts/phase2/typescript-production-baseline-included-files.txt
-M	review-artifacts/phase2/typescript-production-current-included-files.txt
-M	review-artifacts/phase2/typescript-qa-current-included-files.txt
-M	review-artifacts/phase2/typescript-qa-current.log
-A	review-artifacts/phase2/x-inventory-delta-reconciliation.json
+# Populated after evidence-only commit. Run:
+# git diff --name-status 0af27f76a09741f242488bd2a26e38b4319310b8..HEAD

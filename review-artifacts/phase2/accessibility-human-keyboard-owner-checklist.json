@@ -1,99 +1,36 @@
 {
-  "checklistId": "A11Y-090-owner-human-keyboard",
+  "checklistId": "A11Y-090-owner-human-keyboard-v3",
   "status": "awaiting owner completion — Chris must physically operate the keyboard",
-  "purpose": "Human-operated keyboard-only QA across all public routes and the full assessment journey. Automated Puppeteer coverage in accessibility-automated-keyboard-supplement.json does NOT satisfy this row.",
+  "purpose": "Human-operated keyboard-only QA. Automated supplement in owner-focus-order-sequences.json and X-SAFE-PREVIEW-FOCUS-01 does NOT satisfy this row.",
   "applicationBehaviorGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-  "safeStartupGitSha": "c8e92da4674b3077d4dc598c6c154f75b1658d52",
-  "applicationBehaviorProof": "git diff --name-only d54286ec9f875d7627c3a027bf7407664389f4e6..9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd -- src/ returns empty",
-  "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "safeStartupGitSha": "0af27f76a09741f242488bd2a26e38b4319310b8",
+  "totalChecks": 35,
+  "procedureArtifact": "review-artifacts/phase2/owner-keyboard-walkthrough-procedure.json",
   "operatorInstructions": {
-    "who": "Chris (owner) — a real person, not automation",
+    "who": "Chris (owner) — physical keyboard only",
     "inputRules": [
-      "Use ONLY the physical keyboard",
-      "Do NOT use the mouse or trackpad",
-      "Use Tab and Shift+Tab to move focus",
-      "Use Enter or Space to activate controls",
-      "Use Escape to close menus where appropriate",
-      "Do NOT use Puppeteer, Playwright, scripted input, or an AI-controlled browser",
-      "STOP immediately if any action appears able to contact a live SMS, call, email, lead, webhook, CRM, Redis production write, or analytics provider"
-    ],
-    "credentialRule": "Do not expose, print, copy, or edit production credentials. The safe preview script programmatically excludes parent-shell credentials — manual unset is not required."
+      "Google Chrome on macOS only",
+      "Physical keyboard only — no mouse, trackpad, Puppeteer, or scripted input",
+      "Use Tab, Shift+Tab, Enter, Space, Arrow keys as specified per check",
+      "STOP if any action could contact live SMS, email, CRM, Redis production, or analytics"
+    ]
   },
   "safeProcedure": {
-    "summary": "Checkout final executable preview SHA. Docker bridge network publishes 127.0.0.1:3000; container iptables deny external egress. Application routes match d54286e.",
-    "environment": "macOS with Docker Desktop running (Chris). No password prompt expected on macOS.",
-    "preflight": [
-      "Install Docker Desktop and start it",
-      "Install Bun if not present",
-      "One-time (network allowed): bun run scripts/phase2/prepare-safe-preview-deps.ts"
-    ],
-    "startupCommand": "git checkout 9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd && bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "checkoutCommand": "git checkout 0af27f76a09741f242488bd2a26e38b4319310b8",
+    "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
+    "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
-    "confirmSafeMode": "Terminal prints Isolation lines (Docker invoked: yes, unshare: no), adapter summary, then 'Safe preview ready: http://127.0.0.1:3000'. Open in a normal browser on the same Mac; keyboard only.",
-    "shutdownCommand": "Press Ctrl+C in the terminal running the preview script",
-    "steps": [
-      "git checkout 9683fff8bbe9923ed32ee06d1523e6ce07ad4ecd",
-      "If first run: bun run scripts/phase2/prepare-safe-preview-deps.ts",
-      "bun run scripts/phase2/start-safe-assessment-preview.ts",
-      "Open http://127.0.0.1:3000 in Safari or Chrome on the same Mac",
-      "Using only a physical keyboard, complete every check below",
-      "Record PASS or FAIL and notes; save completed results as accessibility-human-keyboard-owner-attestation.json"
-    ],
-    "safeEnvironment": "scripts/phase2/start-safe-assessment-preview.ts — Docker bridge + 127.0.0.1 publish, container iptables egress deny, frozen install, sanitized build, Redis stub, ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false"
+    "shutdownCommand": "Ctrl+C in preview terminal"
   },
-  "operatorFields": {
-    "operatorRoleOrIdentifier": "NOT YET EXECUTED",
-    "executedAtIso": "NOT YET EXECUTED",
-    "confirmedPhysicalKeyboardOnly": "NOT YET EXECUTED",
-    "confirmedNoProductionCredentials": "NOT YET EXECUTED",
-    "confirmedNoLiveExternalSideEffects": "NOT YET EXECUTED",
-    "defectsFound": [],
-    "fixesApplied": [],
-    "retestResult": "NOT YET EXECUTED"
-  },
-  "checks": [
-    { "id": 1, "check": "desktop-nav-reachability", "description": "Desktop (1280px): Tab reaches primary nav links on /", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 2, "check": "mobile-nav-open-enter", "description": "Mobile (375px): Enter on header details/summary opens nav", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 3, "check": "mobile-nav-links-reachable", "description": "Mobile: Tab reaches nav links after menu open", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 4, "check": "mobile-nav-no-trap", "description": "Mobile: Escape does not trap focus in nav", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 5, "check": "/-keyboard-reachability", "description": "Home /: keyboard reaches interactive controls", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 6, "check": "/-focus-visible", "description": "Home /: focus indicator visible after Tab", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 7, "check": "/what-we-do-keyboard-reachability", "description": "/what-we-do: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 8, "check": "/what-we-do-focus-visible", "description": "/what-we-do: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 9, "check": "/how-we-work-keyboard-reachability", "description": "/how-we-work: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 10, "check": "/how-we-work-focus-visible", "description": "/how-we-work: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 11, "check": "/demo-keyboard-reachability", "description": "/demo: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 12, "check": "/demo-focus-visible", "description": "/demo: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 13, "check": "/about-keyboard-reachability", "description": "/about: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 14, "check": "/about-focus-visible", "description": "/about: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 15, "check": "/contact-keyboard-reachability", "description": "/contact: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 16, "check": "/contact-focus-visible", "description": "/contact: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 17, "check": "services-redirect", "description": "/services redirects to /what-we-do via keyboard navigation entry", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 18, "check": "/does-not-exist-404-keyboard-reachability", "description": "404 route: keyboard reachability", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 19, "check": "/does-not-exist-404-focus-visible", "description": "404 route: focus visibility", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 20, "check": "assessment-back-navigation", "description": "Assessment: Back from bp2 returns to bp1", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 21, "check": "assessment-assumptions-edit", "description": "Assessment assumptions review: keyboard can edit respond field", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 22, "check": "assessment-conditional-branch", "description": "Assessment: conditional branch activates expected follow-up", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 23, "check": "assessment-validation-error", "description": "Lead gate: validation error announced (role=alert) on empty submit", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 24, "check": "assessment-sms-consent-space", "description": "Lead gate: Space toggles SMS consent checkbox", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 25, "check": "assessment-results-reachable", "description": "Results page reachable after valid lead submission", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 26, "check": "assessment-report-503-alert", "description": "Report download 503: role=alert status announcement visible", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 27, "check": "assessment-report-recovery-keyboard", "description": "Report recovery button reachable and focusable via keyboard", "result": "NOT YET EXECUTED", "notes": "" },
-    { "id": 28, "check": "assessment-report-recovery-success", "description": "Retry download succeeds after recovery", "result": "NOT YET EXECUTED", "notes": "" }
-  ],
+  "checksSummary": "See owner-keyboard-walkthrough-procedure.json for all 35 literal checks with PASS/FAIL criteria.",
   "attestationTemplate": {
-    "note": "Do not submit until Chris completes the walkthrough. Copy this structure into accessibility-human-keyboard-owner-attestation.json with actual results only.",
     "operatorRoleOrIdentifier": "",
     "executedAtIso": "",
-    "testedGitSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
-    "safeEnvironmentUrl": "http://127.0.0.1:3000",
+    "testedGitSha": "0af27f76a09741f242488bd2a26e38b4319310b8",
     "confirmedPhysicalKeyboardOnly": false,
     "confirmedNoProductionCredentials": false,
     "confirmedNoLiveExternalSideEffects": false,
-    "checks": "Copy all 28 checks with PASS or FAIL and notes",
-    "defectsFound": [],
-    "fixesApplied": [],
-    "retestResult": "",
+    "checks": "Copy all 35 checks with PASS or FAIL",
     "finalResult": ""
   }
 }
