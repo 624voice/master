@@ -7,8 +7,8 @@
 | Previous executable preview SHA | `c8e92da4674b3077d4dc598c6c154f75b1658d52` |
 | New final executable preview SHA | `3109ad77d25a864b5a38cb248b14421b554d54ef` |
 | Supersedes (prior closeout executable) | `e17a72b99f8dc37930fe381bd2293af15a551720`, `8750f90bdc29864ea69fd0b8323ed5b6066688c5` |
-| Full evidence-only HEAD built on final executable SHA | `393559a62533ba3c8ada580046a55c83587f44c0` |
-| Actual current PR #97 HEAD | `393559a62533ba3c8ada580046a55c83587f44c0` |
+| Full evidence-only HEAD built on final executable SHA | `59e7a13a7c62d6c61ef6ce7d6c96b0355313db5f` |
+| Actual current PR #97 HEAD | `59e7a13a7c62d6c61ef6ce7d6c96b0355313db5f` |
 | Evidence-only HEAD and PR HEAD same commit? | **Yes** |
 | Historical/superseded SHA (prior f3b09ac round; not Chris checkout chain) | `491e4adbcc3df96cc524e95c7232c5d95473c6d7` |
 
