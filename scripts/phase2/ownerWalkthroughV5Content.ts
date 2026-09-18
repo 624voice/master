@@ -44,8 +44,12 @@ export const RESET_STEPS = [
 export const CHOICE_BUTTON_MODEL =
   "Screening choice answers are BUTTON elements with aria-pressed (not native radio). From document body on a screening question: seven Tab presses reach the header links listed in Section 9, then Tab moves among choice buttons; Space selects the focused button.";
 
+const TAB_TO_624_FROM_BODY =
+  "Press Tab. Verify focused element: 624 Voice header link.";
+
 export function answerNotAtAllRarelySteps(): string[] {
   return [
+    TAB_TO_624_FROM_BODY,
     ...HEADER_STEPS_FROM_624,
     "Press Tab. Verify focused element: Not at all / rarely button.",
     "Press Space. Verify selected answer: Not at all / rarely (aria-pressed true on focused button).",
@@ -58,6 +62,7 @@ export function answerNotAtAllRarelySteps(): string[] {
 
 export function answerMostlyOftenSteps(): string[] {
   return [
+    TAB_TO_624_FROM_BODY,
     ...HEADER_STEPS_FROM_624,
     "Press Tab. Verify focused element: Not at all / rarely button.",
     "Press Tab. Verify focused element: Somewhat / occasionally button.",
@@ -72,6 +77,7 @@ export function answerMostlyOftenSteps(): string[] {
 
 export function answerConsistentlyAlwaysSteps(): string[] {
   return [
+    TAB_TO_624_FROM_BODY,
     ...HEADER_STEPS_FROM_624,
     "Press Tab. Verify focused element: Not at all / rarely button.",
     "Press Tab. Verify focused element: Somewhat / occasionally button.",
