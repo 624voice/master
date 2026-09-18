@@ -2,7 +2,7 @@
   "procedureId": "A11Y-090-owner-procedure-v3",
   "totalChecks": 35,
   "browser": "Google Chrome on macOS only",
-  "executableCheckoutSha": "0af27f76a09741f242488bd2a26e38b4319310b8",
+  "executableCheckoutSha": "5caaf790475f0bf629db1a66e1846ca3d3a0bea6",
   "applicationBehaviorSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
   "resetFixture": {
     "name": "standard-page-reset",
