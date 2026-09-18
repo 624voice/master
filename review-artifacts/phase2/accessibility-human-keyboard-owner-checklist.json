@@ -15,7 +15,11 @@
     ]
   },
   "safeProcedure": {
+<<<<<<< Updated upstream
     "checkoutCommand": "git checkout <final-executable-preview-sha>",
+=======
+    "checkoutCommand": "git checkout e17a72b99f8dc37930fe381bd2293af15a551720",
+>>>>>>> Stashed changes
     "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
     "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts",
     "localUrl": "http://127.0.0.1:3000",
@@ -24,7 +28,11 @@
   "attestationTemplate": {
     "operatorRoleOrIdentifier": "",
     "executedAtIso": "",
+<<<<<<< Updated upstream
     "testedGitSha": "<final-executable-preview-sha>",
+=======
+    "testedGitSha": "e17a72b99f8dc37930fe381bd2293af15a551720",
+>>>>>>> Stashed changes
     "confirmedPhysicalKeyboardOnly": "",
     "confirmedNoProductionCredentials": "",
     "confirmedNoLiveExternalSideEffects": "",
