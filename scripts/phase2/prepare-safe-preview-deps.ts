@@ -19,6 +19,7 @@ import {
   createMinimalDockerBuildContext,
 } from "./safePreviewDockerBuild";
 import { DOCKER_IMAGE, dockerImageReady } from "./safePreviewDocker";
+import { dockerAvailable } from "./safePreviewIsolationRuntime";
 import {
   assertPrepareEnvironment,
   buildIsolatedPrepareEnvironment,
