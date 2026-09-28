@@ -2,12 +2,12 @@
 
 ## EXECUTABLE CHECKOUT SHA
 
-**Final executable preview checkout SHA:** `24c0b8f89792ad83fb1fec1766877f24bd67f005`
+**Final executable preview checkout SHA:** `ed957e3f654ea21ed6f817acb92c18aeaf6b73f9`
 
 ## CHECKOUT
 
 ```bash
-git checkout 24c0b8f89792ad83fb1fec1766877f24bd67f005
+git checkout ed957e3f654ea21ed6f817acb92c18aeaf6b73f9
 ```
 
 Canonical owner handoff Markdown is versioned separately in evidence commits. After checkout, extract the audited handoff without modifying tracked files (see outer delivery report for canonical commit SHA, extraction command, and SHA-256 verification).
@@ -23,11 +23,13 @@ Canonical owner handoff Markdown is versioned separately in evidence commits. Af
 
 ## SECRET-SAFE PREPARATION
 
+Owner acceptance recorded: proceed with the limited one-time installation risk. The spawned Bun installer and Docker daemon are not inside an OS-level exact-host network sandbox.
+
 ```bash
 bun run scripts/phase2/prepare-safe-preview-deps.ts
 ```
 
-Allowed prep hosts (exact): registry.npmjs.org, registry.yarnpkg.com, bun.sh, auth.docker.io, registry-1.docker.io, production.cloudflare.docker.com, deb.debian.org, security.debian.org, ftp.debian.org, localhost, 127.0.0.1.
+Preparation safety: credentials are stripped, dependency lifecycle scripts are disabled, the lockfile is frozen, and Docker receives an empty build context. The 11-host JavaScript allowlist (registry.npmjs.org, registry.yarnpkg.com, bun.sh, auth.docker.io, registry-1.docker.io, production.cloudflare.docker.com, deb.debian.org, security.debian.org, ftp.debian.org, localhost, 127.0.0.1) protects the preparation self-test only. It does not restrict network traffic from the spawned Bun installer or Docker daemon.
 
 **Stop if you see:** ERROR: preparation egress policy failed; ERROR: bun.lock changed; ERROR: frozen lockfile install failed; ERROR: Docker is unavailable; ERROR: Docker image build failed.
 
@@ -929,7 +931,7 @@ Press Ctrl+C in the preview terminal. Confirm the Docker container stops.
 
 | Field | Value |
 |---|---|
-| Tested SHA | 24c0b8f89792ad83fb1fec1766877f24bd67f005 |
+| Tested SHA | ed957e3f654ea21ed6f817acb92c18aeaf6b73f9 |
 | Operator | |
 | Executed at (ISO) | |
 | Confirmed physical keyboard only | |
