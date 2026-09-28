@@ -49,7 +49,7 @@ describe("report fail-once fixture production guard", () => {
     expect(isOwnerQaReportFailOnceEnabled(env)).toBe(true);
     expect(shouldFailReportDownload("/assessment-report/probe", "probe", 1, env)).toBe(true);
     expect(shouldFailReportDownload("/assessment-report/probe", "probe", 2, env)).toBe(false);
-    expect(REPORT_FAIL_ONCE_GUARD_SOURCE).toContain("IS_SAFE_PREVIEW");
     expect(REPORT_FAIL_ONCE_GUARD_SOURCE).toContain("PHASE2_OWNER_QA_REPORT_FAIL_ONCE");
+    expect(REPORT_FAIL_ONCE_GUARD_SOURCE).toContain("Vercel owner QA boundary");
   });
 });

@@ -27,11 +27,19 @@ function NotFoundPage() {
   );
 }
 
+const ownerQaNoIndex =
+  typeof process !== "undefined" &&
+  process.env.PHASE2_VERCEL_OWNER_QA === "1" &&
+  process.env.VERCEL_ENV === "preview";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ...(ownerQaNoIndex
+        ? [{ name: "robots", content: "noindex, nofollow" }]
+        : []),
       { title: "624 Voice — Voice AI for Home Services" },
       {
         name: "description",

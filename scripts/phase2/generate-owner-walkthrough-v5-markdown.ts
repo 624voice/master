@@ -32,6 +32,13 @@ const EXECUTABLE_SHA = spawnSync("git", ["rev-parse", "HEAD"], {
   encoding: "utf8",
 }).stdout.trim();
 
+const OWNER_QA_BASE_URL = (
+  process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL ?? "http://127.0.0.1:3000"
+).replace(/\/$/, "");
+const VERCEL_OWNER_WALKTHROUGH = Boolean(
+  process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL?.trim(),
+);
+
 const checks: WalkthroughCheck[] = [];
 
 function add(c: Omit<WalkthroughCheck, "id">): void {
@@ -687,7 +694,7 @@ add({
   fail: "503 alert reappears or download fails.",
 });
 
-const md = [
+let md = [
   "# PHASE 2 — OWNER KEYBOARD QA HANDOFF (A11Y-090 v5)",
   "",
   "## EXECUTABLE CHECKOUT SHA",
@@ -704,34 +711,56 @@ const md = [
   "",
   "## PREREQUISITES",
   "",
-  "- macOS with Google Chrome",
-  "- Bun installed",
-  "- Docker Desktop running",
-  "- Physical keyboard only",
-  "- Fake data only (Section Fake Data)",
-  "- Do not set PHASE2_OWNER_QA_REPORT_FAIL_ONCE or PHASE2_SAFE_PREVIEW manually",
+  ...(VERCEL_OWNER_WALKTHROUGH
+    ? [
+        "- macOS with Google Chrome",
+        "- Physical keyboard only",
+        "- Fake data only (Section Fake Data)",
+        "- Protected Vercel Preview URL (Section Preview Access) — Docker Desktop is not required",
+        "- Do not set PHASE2_* environment variables manually in the browser or URL",
+      ]
+    : [
+        "- macOS with Google Chrome",
+        "- Bun installed",
+        "- Docker Desktop running",
+        "- Physical keyboard only",
+        "- Fake data only (Section Fake Data)",
+        "- Do not set PHASE2_OWNER_QA_REPORT_FAIL_ONCE or PHASE2_SAFE_PREVIEW manually",
+      ]),
   "",
-  "## SECRET-SAFE PREPARATION",
-  "",
-  formatOwnerPrepAcceptanceMessage(),
-  "",
-  "```bash",
-  "bun run scripts/phase2/prepare-safe-preview-deps.ts",
-  "```",
-  "",
-  formatPrepSafetyDisclosureMessage(),
-  "",
-  "**Stop if you see:** ERROR: preparation egress policy failed; ERROR: bun.lock changed; ERROR: frozen lockfile install failed; ERROR: Docker is unavailable; ERROR: Docker image build failed.",
-  "",
-  "## PREVIEW START",
-  "",
-  "```bash",
-  "bun run scripts/phase2/start-safe-assessment-preview.ts",
-  "```",
-  "",
-  "**URL:** http://127.0.0.1:3000",
-  "",
-  "**Stop if you see:** ERROR: Safe preview cannot start without secret-safe preparation; ERROR: iptables unavailable; ERROR: cannot configure iptables.",
+  ...(VERCEL_OWNER_WALKTHROUGH
+    ? [
+        "## PREVIEW ACCESS (Vercel Preview — non-production)",
+        "",
+        "Open the protected preview URL in Chrome. Complete Vercel Deployment Protection when prompted (password or platform authentication).",
+        "",
+        `**URL:** ${OWNER_QA_BASE_URL}/`,
+        "",
+        "**Stop if you see:** the live production 624Voice domain, or the application HTML served with HTTP 200 from a private/incognito window with no deployment protection challenge.",
+      ]
+    : [
+        "## SECRET-SAFE PREPARATION",
+        "",
+        formatOwnerPrepAcceptanceMessage(),
+        "",
+        "```bash",
+        "bun run scripts/phase2/prepare-safe-preview-deps.ts",
+        "```",
+        "",
+        formatPrepSafetyDisclosureMessage(),
+        "",
+        "**Stop if you see:** ERROR: preparation egress policy failed; ERROR: bun.lock changed; ERROR: frozen lockfile install failed; ERROR: Docker is unavailable; ERROR: Docker image build failed.",
+        "",
+        "## PREVIEW START",
+        "",
+        "```bash",
+        "bun run scripts/phase2/start-safe-assessment-preview.ts",
+        "```",
+        "",
+        "**URL:** http://127.0.0.1:3000",
+        "",
+        "**Stop if you see:** ERROR: Safe preview cannot start without secret-safe preparation; ERROR: iptables unavailable; ERROR: cannot configure iptables.",
+      ]),
   "",
   "## VIEWPORT SETUP",
   "",
@@ -769,7 +798,9 @@ const md = [
   "",
   "## SHUTDOWN",
   "",
-  "Press Ctrl+C in the preview terminal. Confirm the Docker container stops.",
+  VERCEL_OWNER_WALKTHROUGH
+    ? "Close the Chrome tab when finished. No local preview server shutdown is required."
+    : "Press Ctrl+C in the preview terminal. Confirm the Docker container stops.",
   "",
   "## OWNER ATTESTATION (blank)",
   "",
@@ -784,9 +815,15 @@ const md = [
   ...checks.map((c) => `| Check ${c.id} result | |`),
   "| Final conclusion | |",
   "",
-  "Private implementation remains in progress. Awaiting owner keyboard QA.",
+  VERCEL_OWNER_WALKTHROUGH
+    ? "Private implementation remains in progress. Awaiting owner keyboard QA on the non-production Vercel Preview."
+    : "Private implementation remains in progress. Awaiting owner keyboard QA.",
   "",
 ].join("\n");
+
+if (VERCEL_OWNER_WALKTHROUGH) {
+  md = md.replaceAll("http://127.0.0.1:3000", OWNER_QA_BASE_URL);
+}
 
 mkdirSync(join(REPO_ROOT, "review-artifacts/phase2"), { recursive: true });
 writeFileSync(OUT, md);

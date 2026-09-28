@@ -1,11 +1,11 @@
 /**
- * Owner-QA report fail-once fixture guard.
- * Requires BOTH safe-preview boundary AND explicit fail-once flag.
- * Never activated by visitor-controlled inputs.
+ * Owner-QA report fail-once fixture guard (shared with production server module).
  */
-export function isOwnerQaReportFailOnceEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.PHASE2_SAFE_PREVIEW === "1" && env.PHASE2_OWNER_QA_REPORT_FAIL_ONCE === "1";
-}
+export {
+  isOwnerQaReportFailOnceEnabled,
+} from "../../src/server/phase2OwnerQaBoundary.ts";
+
+import { isOwnerQaReportFailOnceEnabled } from "../../src/server/phase2OwnerQaBoundary.ts";
 
 export function shouldFailReportDownload(
   pathname: string,
@@ -18,4 +18,4 @@ export function shouldFailReportDownload(
   return attempt === 1;
 }
 
-export const REPORT_FAIL_ONCE_GUARD_SOURCE = `IS_SAFE_PREVIEW && PHASE2_OWNER_QA_REPORT_FAIL_ONCE === "1"`;
+export const REPORT_FAIL_ONCE_GUARD_SOURCE = `isOwnerQaReportFailOnceEnabled() — PHASE2_OWNER_QA_REPORT_FAIL_ONCE plus local safe preview or Vercel owner QA boundary`;

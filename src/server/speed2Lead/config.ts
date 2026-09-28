@@ -2,9 +2,11 @@ import {
   SPEED2LEAD_BOOKING_URL,
   SITE_ORIGIN,
 } from "~/config/features";
+import { isPhase2OwnerQaExecutionActive } from "~/server/phase2OwnerQaBoundary";
 import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 
 export function isRedisConfigured(): boolean {
+  if (isPhase2OwnerQaExecutionActive()) return true;
   return (
     Boolean(process.env.UPSTASH_REDIS_REST_URL) &&
     Boolean(process.env.UPSTASH_REDIS_REST_TOKEN)

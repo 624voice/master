@@ -1,8 +1,13 @@
 import { Redis } from "@upstash/redis";
+import { isPhase2OwnerQaExecutionActive } from "~/server/phase2OwnerQaBoundary";
+import { getPhase2OwnerQaInMemoryRedis } from "~/server/phase2OwnerQaInMemoryStore";
 
 let redis: Redis | null = null;
 
 export function getRedis(): Redis {
+  if (isPhase2OwnerQaExecutionActive()) {
+    return getPhase2OwnerQaInMemoryRedis() as unknown as Redis;
+  }
   if (!redis) {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
