@@ -10,12 +10,13 @@ netlify unlink >/dev/null 2>&1 || true
 netlify link --id "$QA_SITE_ID"
 
 echo "Setting Deploy Preview scoped QA environment (names only in logs)..."
-netlify env:set PHASE2_OWNER_QA_PREVIEW "1" --context deploy-preview --force
-netlify env:set PHASE2_OWNER_QA_REPORT_FAIL_ONCE "1" --context deploy-preview --force
-netlify env:set ASSESSMENT_SECURITY_HMAC_SECRET "$PREVIEW_HMAC" --context deploy-preview --force
-netlify env:set ASSESSMENT_ROI_AGENT_LIVE_ENABLED "false" --context deploy-preview --force
-netlify env:set SPEED2LEAD_ENABLED "false" --context deploy-preview --force
-netlify env:set SPEED2LEAD_LLM_ENABLED "false" --context deploy-preview --force
+# QA-only site: scope vars to all contexts; runtime boundary still requires deploy-preview CONTEXT.
+netlify env:set PHASE2_OWNER_QA_PREVIEW "1" --context all --force
+netlify env:set PHASE2_OWNER_QA_REPORT_FAIL_ONCE "1" --context all --force
+netlify env:set ASSESSMENT_SECURITY_HMAC_SECRET "$PREVIEW_HMAC" --context all --force
+netlify env:set ASSESSMENT_ROI_AGENT_LIVE_ENABLED "false" --context all --force
+netlify env:set SPEED2LEAD_ENABLED "false" --context all --force
+netlify env:set SPEED2LEAD_LLM_ENABLED "false" --context all --force
 
 export PATH="${HOME}/.bun/bin:${PATH}"
 export CONTEXT=deploy-preview

@@ -78,6 +78,9 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {isPhase2HostedOwnerQaPreviewBoundary() ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <HeadContent />
       </head>
       <body>
