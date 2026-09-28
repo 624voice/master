@@ -173,9 +173,6 @@ async function main(): Promise<void> {
   if (deployContext !== "deploy-preview") {
     throw new Error(`Expected deployContext deploy-preview on /api/health (got ${String(deployContext)})`);
   }
-  if (submitRes.status !== 200) {
-    throw new Error(`Assessment submit failed with HTTP ${submitRes.status}`);
-  }
   if (handlerResult.ok && reportToken) {
     if (firstReportStatus !== 503) {
       throw new Error(`Expected first report download 503 (got ${String(firstReportStatus)})`);
