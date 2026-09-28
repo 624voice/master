@@ -29,8 +29,9 @@ function NotFoundPage() {
 
 const ownerQaNoIndex =
   typeof process !== "undefined" &&
-  process.env.PHASE2_VERCEL_OWNER_QA === "1" &&
-  process.env.VERCEL_ENV === "preview";
+  process.env.PHASE2_OWNER_QA_PREVIEW === "1" &&
+  (process.env.CONTEXT === "deploy-preview" ||
+    process.env.NETLIFY_CONTEXT === "deploy-preview");
 
 export const Route = createRootRoute({
   head: () => ({

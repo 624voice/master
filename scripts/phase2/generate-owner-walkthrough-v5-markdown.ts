@@ -33,10 +33,13 @@ const EXECUTABLE_SHA = spawnSync("git", ["rev-parse", "HEAD"], {
 }).stdout.trim();
 
 const OWNER_QA_BASE_URL = (
-  process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL ?? "http://127.0.0.1:3000"
+  process.env.PHASE2_NETLIFY_OWNER_QA_BASE_URL ??
+  process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL ??
+  "http://127.0.0.1:3000"
 ).replace(/\/$/, "");
-const VERCEL_OWNER_WALKTHROUGH = Boolean(
-  process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL?.trim(),
+const HOSTED_OWNER_WALKTHROUGH = Boolean(
+  process.env.PHASE2_NETLIFY_OWNER_QA_BASE_URL?.trim() ||
+    process.env.PHASE2_VERCEL_OWNER_QA_BASE_URL?.trim(),
 );
 
 const checks: WalkthroughCheck[] = [];
@@ -711,12 +714,12 @@ let md = [
   "",
   "## PREREQUISITES",
   "",
-  ...(VERCEL_OWNER_WALKTHROUGH
+  ...(HOSTED_OWNER_WALKTHROUGH
     ? [
         "- macOS with Google Chrome",
         "- Physical keyboard only",
         "- Fake data only (Section Fake Data)",
-        "- Protected Vercel Preview URL (Section Preview Access) — Docker Desktop is not required",
+        "- Protected Netlify Deploy Preview URL (Section Preview Access) — Docker Desktop is not required",
         "- Do not set PHASE2_* environment variables manually in the browser or URL",
       ]
     : [
@@ -728,15 +731,17 @@ let md = [
         "- Do not set PHASE2_OWNER_QA_REPORT_FAIL_ONCE or PHASE2_SAFE_PREVIEW manually",
       ]),
   "",
-  ...(VERCEL_OWNER_WALKTHROUGH
+  ...(HOSTED_OWNER_WALKTHROUGH
     ? [
-        "## PREVIEW ACCESS (Vercel Preview — non-production)",
+        "## PREVIEW ACCESS (Netlify Deploy Preview — non-production)",
         "",
-        "Open the protected preview URL in Chrome. Complete Vercel Deployment Protection when prompted (password or platform authentication).",
+        "Open the protected Netlify preview URL in Chrome. Sign in with your Netlify team account or enter the shared preview password when Netlify prompts you.",
         "",
         `**URL:** ${OWNER_QA_BASE_URL}/`,
         "",
-        "**Stop if you see:** the live production 624Voice domain, or the application HTML served with HTTP 200 from a private/incognito window with no deployment protection challenge.",
+        "After authentication you should see the normal 624 Voice home page (header with 624 Voice link). If Netlify shows only an login or password form and never reaches the site, stop and report authentication failure.",
+        "",
+        "**Stop if you see:** the live production domain `624voice.com` or `www.624voice.com`, or the full application HTML with HTTP 200 from a private/incognito window with no Netlify access challenge.",
       ]
     : [
         "## SECRET-SAFE PREPARATION",
@@ -798,7 +803,7 @@ let md = [
   "",
   "## SHUTDOWN",
   "",
-  VERCEL_OWNER_WALKTHROUGH
+  HOSTED_OWNER_WALKTHROUGH
     ? "Close the Chrome tab when finished. No local preview server shutdown is required."
     : "Press Ctrl+C in the preview terminal. Confirm the Docker container stops.",
   "",
@@ -815,13 +820,13 @@ let md = [
   ...checks.map((c) => `| Check ${c.id} result | |`),
   "| Final conclusion | |",
   "",
-  VERCEL_OWNER_WALKTHROUGH
-    ? "Private implementation remains in progress. Awaiting owner keyboard QA on the non-production Vercel Preview."
+  HOSTED_OWNER_WALKTHROUGH
+    ? "Private implementation remains in progress. Awaiting owner keyboard QA on the non-production Netlify Deploy Preview."
     : "Private implementation remains in progress. Awaiting owner keyboard QA.",
   "",
 ].join("\n");
 
-if (VERCEL_OWNER_WALKTHROUGH) {
+if (HOSTED_OWNER_WALKTHROUGH) {
   md = md.replaceAll("http://127.0.0.1:3000", OWNER_QA_BASE_URL);
 }
 

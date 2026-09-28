@@ -4,23 +4,33 @@
  */
 
 const SERVER_BOUNDARY_ENV_KEYS = [
-  "PHASE2_VERCEL_OWNER_QA",
+  "PHASE2_OWNER_QA_PREVIEW",
   "PHASE2_SAFE_PREVIEW",
   "PHASE2_OWNER_QA_REPORT_FAIL_ONCE",
   "PHASE2_SAFE_QA_HARNESS",
 ] as const;
 
-export function isVercelPreviewEnvironment(
+export function isNetlifyDeployPreviewContext(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return env.VERCEL_ENV === "preview";
+  const context = env.CONTEXT ?? env.NETLIFY_CONTEXT ?? "";
+  return context === "deploy-preview";
 }
 
-/** Vercel Preview owner keyboard QA — requires explicit server env + preview deployment. */
+/** Hosted (Netlify) owner keyboard QA — requires explicit server env + deploy-preview context. */
+export function isPhase2HostedOwnerQaPreviewBoundary(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return (
+    env.PHASE2_OWNER_QA_PREVIEW === "1" && isNetlifyDeployPreviewContext(env)
+  );
+}
+
+/** @deprecated Use isPhase2HostedOwnerQaPreviewBoundary */
 export function isPhase2VercelOwnerQaBoundary(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return env.PHASE2_VERCEL_OWNER_QA === "1" && isVercelPreviewEnvironment(env);
+  return isPhase2HostedOwnerQaPreviewBoundary(env);
 }
 
 /** Local Docker / loopback safe preview (unchanged boundary). */
@@ -34,8 +44,7 @@ export function isPhase2LocalSafePreviewBoundary(
 export function isPhase2OwnerQaExecutionActive(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  if (env.VERCEL_ENV === "production") return false;
-  if (isPhase2VercelOwnerQaBoundary(env)) return true;
+  if (isPhase2HostedOwnerQaPreviewBoundary(env)) return true;
   if (isPhase2LocalSafePreviewBoundary(env)) return true;
   return false;
 }
@@ -45,7 +54,7 @@ export function isOwnerQaReportFailOnceEnabled(
 ): boolean {
   if (env.PHASE2_OWNER_QA_REPORT_FAIL_ONCE !== "1") return false;
   if (isPhase2LocalSafePreviewBoundary(env)) return true;
-  if (isPhase2VercelOwnerQaBoundary(env)) return true;
+  if (isPhase2HostedOwnerQaPreviewBoundary(env)) return true;
   return false;
 }
 

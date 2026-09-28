@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 import type { Page } from "puppeteer-core";
 
 const REPO_ROOT = join(fileURLToPath(new URL("../..", import.meta.url)));
-export const BROWSER_JOURNEY_BASE_URL = "http://127.0.0.1:3000";
+export const BROWSER_JOURNEY_BASE_URL =
+  process.env.BROWSER_JOURNEY_BASE_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:3000";
 export const REDIS_STUB_PORT = 8787;
 export const REDIS_STUB_URL = `http://127.0.0.1:${REDIS_STUB_PORT}`;
 
