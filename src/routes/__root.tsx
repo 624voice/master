@@ -8,6 +8,7 @@ import {
 import type { ReactNode } from "react";
 
 import { FEATURE_FLAGS } from "~/config/features";
+import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import appCss from "~/styles/app.css?url";
 
 function NotFoundPage() {
@@ -27,18 +28,12 @@ function NotFoundPage() {
   );
 }
 
-const ownerQaNoIndex =
-  typeof process !== "undefined" &&
-  process.env.PHASE2_OWNER_QA_PREVIEW === "1" &&
-  (process.env.CONTEXT === "deploy-preview" ||
-    process.env.NETLIFY_CONTEXT === "deploy-preview");
-
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      ...(ownerQaNoIndex
+      ...(isPhase2HostedOwnerQaPreviewBoundary()
         ? [{ name: "robots", content: "noindex, nofollow" }]
         : []),
       { title: "624 Voice — Voice AI for Home Services" },

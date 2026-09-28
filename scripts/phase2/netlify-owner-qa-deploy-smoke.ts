@@ -19,8 +19,9 @@ if (!baseUrl) {
 function authHeaders(): HeadersInit {
   const headers: Record<string, string> = { Accept: "text/html,application/json,*/*" };
   const password = process.env.NETLIFY_PREVIEW_PASSWORD?.trim();
+  const basicUser = process.env.NETLIFY_PREVIEW_BASIC_AUTH_USER?.trim() || "owner-qa";
   if (password) {
-    headers.Authorization = `Basic ${Buffer.from(`preview:${password}`).toString("base64")}`;
+    headers.Authorization = `Basic ${Buffer.from(`${basicUser}:${password}`).toString("base64")}`;
   }
   const cookie = process.env.NETLIFY_AUTH_COOKIE?.trim();
   if (cookie) headers.Cookie = cookie;
@@ -39,6 +40,10 @@ async function main(): Promise<void> {
   const unauthStatus = unauth.status;
   const unauthHtml = unauthStatus === 200 ? await unauth.text() : "";
 
+  const health = await fetchPath("/api/health");
+  const healthJson = health.status === 200 ? ((await health.json()) as Record<string, unknown>) : null;
+  const deployContext = healthJson?.deployContext;
+
   const home = await fetchPath("/");
   if (home.status !== 200) {
     throw new Error(`Authenticated home failed: ${home.status}`);
@@ -51,7 +56,11 @@ async function main(): Promise<void> {
   if (!robotsHeader.includes("noindex")) {
     throw new Error(`Missing X-Robots-Tag noindex (got: ${robotsHeader || "(none)"})`);
   }
-  if (!homeHtml.includes('name="robots"') && !homeHtml.includes("noindex")) {
+  const hasRobotsMeta =
+    homeHtml.includes('name="robots"') ||
+    homeHtml.includes("name='robots'") ||
+    /content="[^"]*noindex[^"]*"/i.test(homeHtml);
+  if (!hasRobotsMeta) {
     throw new Error("Missing robots noindex meta in HTML");
   }
 
@@ -79,10 +88,7 @@ async function main(): Promise<void> {
   engine.setAnswer("MI-S", 0);
   const answers = buildAnswersPayload("HVAC", "3-7", { monthlyCalls: 450 }, engine);
 
-  const { submitAssessmentLeadHandler } = await import(
-    "../../src/server/submitAssessmentLead.server"
-  );
-  const handlerResult = await submitAssessmentLeadHandler({
+  const leadPayload = {
     lead: {
       firstName: "Alex",
       lastName: "Testowner",
@@ -93,7 +99,26 @@ async function main(): Promise<void> {
     smsConsent: false,
     idempotencyKey: `smoke-${Date.now()}`,
     answers,
+  };
+
+  const submitFnId =
+    process.env.PHASE2_NETLIFY_SUBMIT_SERVER_FN_ID ??
+    "8e7258fe472ce68ca508b91bb5c63e8caf68dcf8eb30e67aeffd7d0d20c13db2";
+  const submitRes = await fetchPath(`/_serverFn/${submitFnId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-tsr-serverFn": "true",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ data: leadPayload }),
   });
+  const submitJson =
+    submitRes.status === 200 ? ((await submitRes.json()) as Record<string, unknown>) : null;
+  const handlerResult =
+    submitJson && typeof submitJson === "object" && "ok" in submitJson
+      ? (submitJson as { ok: boolean; reportToken?: string })
+      : { ok: false as const, reportToken: undefined };
 
   const reportToken = handlerResult.reportToken;
   let firstReportStatus: number | null = null;
@@ -117,11 +142,13 @@ async function main(): Promise<void> {
         servicesStatus: services.status,
         servicesLocation,
         assessmentStatus: assessment.status,
+        submitHttpStatus: submitRes.status,
         handlerSubmitOk: handlerResult.ok === true,
         reportTokenPresent: Boolean(reportToken),
         firstReportStatus,
         secondReportStatus,
-        note: "Handler path uses in-process adapters when boundary env is set in this shell; deployed boundary verified separately via route checks.",
+        deployContext,
+        note: "Lead submit uses live /_serverFn POST; report downloads hit deployed in-memory token store.",
       },
       null,
       2,
@@ -130,6 +157,20 @@ async function main(): Promise<void> {
 
   if (unauthStatus === 200 && unauthHtml.includes("624 Voice") && unauthHtml.length > 5000) {
     throw new Error("Unauthenticated request received full application HTML (protection failed)");
+  }
+  if (unauthStatus !== 401 && unauthStatus !== 403 && unauthHtml.includes("624 Voice")) {
+    throw new Error(`Expected auth challenge for unauthenticated access (status ${unauthStatus})`);
+  }
+  if (deployContext !== "deploy-preview") {
+    throw new Error(`Expected deployContext deploy-preview on /api/health (got ${String(deployContext)})`);
+  }
+  if (handlerResult.ok && reportToken) {
+    if (firstReportStatus !== 503) {
+      throw new Error(`Expected first report download 503 (got ${String(firstReportStatus)})`);
+    }
+    if (secondReportStatus !== 200) {
+      throw new Error(`Expected second report download 200 (got ${String(secondReportStatus)})`);
+    }
   }
 }
 

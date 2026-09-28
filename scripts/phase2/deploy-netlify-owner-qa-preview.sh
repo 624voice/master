@@ -18,17 +18,64 @@ netlify env:set SPEED2LEAD_ENABLED "false" --context deploy-preview --force
 netlify env:set SPEED2LEAD_LLM_ENABLED "false" --context deploy-preview --force
 
 export PATH="${HOME}/.bun/bin:${PATH}"
+export CONTEXT=deploy-preview
+export NETLIFY_CONTEXT=deploy-preview
+export PHASE2_OWNER_QA_PREVIEW=1
+export SPEED2LEAD_LLM_ENABLED=false
+export SPEED2LEAD_ENABLED=false
 bun run build
 
 mkdir -p dist/client
-cat > dist/client/_headers <<'EOF'
+PREVIEW_AUTH_USER="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER:-owner-qa}"
+PREVIEW_AUTH_PASS="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD:-$(openssl rand -hex 16)}"
+mkdir -p /opt/cursor/artifacts
+AUTH_ARTIFACT="/opt/cursor/artifacts/netlify-owner-qa-preview-basic-auth.txt"
+{
+  echo "user=${PREVIEW_AUTH_USER}"
+  echo "password=${PREVIEW_AUTH_PASS}"
+  echo "mechanism=netlify-edge-basic-auth"
+} > "$AUTH_ARTIFACT"
+chmod 600 "$AUTH_ARTIFACT"
+
+# X-Robots-Tag works on all plans; Basic-Auth in _headers requires Pro+.
+cat > dist/client/_headers <<EOF
 /*
   X-Robots-Tag: noindex, nofollow, noarchive
 EOF
 
-echo "Deploying draft/preview build to QA Netlify site..."
+NETLIFY_TOML_BACKUP=""
+if [[ -f netlify.toml ]]; then
+  NETLIFY_TOML_BACKUP="$(mktemp)"
+  cp netlify.toml "$NETLIFY_TOML_BACKUP"
+fi
+cat >> netlify.toml <<'TOML'
+
+# Phase 2 owner QA deploy (CLI) — appended by deploy-netlify-owner-qa-preview.sh; restored after deploy.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+TOML
+
+echo "Deploying draft/preview build to QA Netlify site (deploy-preview context)..."
 DEPLOY_LOG="$(mktemp)"
-netlify deploy --message "phase2-owner-qa-preview" --dir=dist/client --functions=.netlify/v1/functions 2>&1 | tee "$DEPLOY_LOG"
+netlify deploy \
+  --context deploy-preview \
+  --message "phase2-owner-qa-preview" \
+  --dir=dist/client \
+  --functions=.netlify/v1/functions \
+  --env "PHASE2_OWNER_QA_PREVIEW=1" \
+  --env "PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1" \
+  --env "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false" \
+  --env "SPEED2LEAD_ENABLED=false" \
+  --env "SPEED2LEAD_LLM_ENABLED=false" \
+  --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}" \
+  --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}" \
+  2>&1 | tee "$DEPLOY_LOG"
+
+if [[ -n "$NETLIFY_TOML_BACKUP" ]]; then
+  mv "$NETLIFY_TOML_BACKUP" netlify.toml
+fi
 PREVIEW_URL="$(grep -Eo 'https://[a-z0-9-]+--624voice-phase2-owner-qa\.netlify\.app' "$DEPLOY_LOG" | tail -1)"
 if [[ -z "$PREVIEW_URL" ]]; then
   PREVIEW_URL="$(grep -Eo 'https://[a-z0-9-]+--[a-z0-9-]+\.netlify\.app' "$DEPLOY_LOG" | tail -1)"
