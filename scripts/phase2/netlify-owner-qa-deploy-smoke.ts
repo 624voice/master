@@ -17,7 +17,11 @@ if (!baseUrl) {
 }
 
 function authHeaders(): HeadersInit {
-  const headers: Record<string, string> = { Accept: "text/html,application/json,*/*" };
+  const headers: Record<string, string> = {
+    Accept: "text/html,application/json,*/*",
+    Origin: baseUrl,
+    Referer: `${baseUrl}/assessment`,
+  };
   const password = process.env.NETLIFY_PREVIEW_PASSWORD?.trim();
   const basicUser = process.env.NETLIFY_PREVIEW_BASIC_AUTH_USER?.trim() || "owner-qa";
   if (password) {
@@ -66,7 +70,12 @@ async function main(): Promise<void> {
 
   const services = await fetchPath("/services", { redirect: "manual" });
   const servicesLocation = services.headers.get("location") ?? "";
-  if (services.status !== 301 && services.status !== 302 && services.status !== 200) {
+  if (
+    services.status !== 301 &&
+    services.status !== 302 &&
+    services.status !== 307 &&
+    services.status !== 200
+  ) {
     throw new Error(`Unexpected /services status: ${services.status}`);
   }
 
@@ -163,6 +172,9 @@ async function main(): Promise<void> {
   }
   if (deployContext !== "deploy-preview") {
     throw new Error(`Expected deployContext deploy-preview on /api/health (got ${String(deployContext)})`);
+  }
+  if (submitRes.status !== 200) {
+    throw new Error(`Assessment submit failed with HTTP ${submitRes.status}`);
   }
   if (handlerResult.ok && reportToken) {
     if (firstReportStatus !== 503) {
