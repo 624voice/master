@@ -1,11 +1,11 @@
 /**
- * Preparation-time egress guard: exact allowlisted hosts only.
- * Blocks all production-integration destinations during prep.
+ * In-process preparation self-test egress guard (exact allowlisted hosts only).
+ * Applies only to Bun processes that import this module (prep driver + egress probe).
  */
 import http from "node:http";
 import https from "node:https";
 
-/** Exact hostnames required for frozen Bun install, Docker auth/pull, and Debian base packages. */
+/** Hostnames used by the in-process preparation self-test allowlist (not OS-wide prep policy). */
 export const ALLOWED_PREP_HOSTS = [
   "registry.npmjs.org",
   "registry.yarnpkg.com",
@@ -81,8 +81,17 @@ function patchHttp(mod: typeof http | typeof https, label: string): void {
 patchHttp(http, "node:http");
 patchHttp(https, "node:https");
 
+export function formatOwnerPrepAcceptanceMessage(): string {
+  return "Owner acceptance recorded: proceed with the limited one-time installation risk. The spawned Bun installer and Docker daemon are not inside an OS-level exact-host network sandbox.";
+}
+
+export function formatPrepSafetyDisclosureMessage(): string {
+  return `Preparation safety: credentials are stripped, dependency lifecycle scripts are disabled, the lockfile is frozen, and Docker receives an empty build context. The 11-host JavaScript allowlist (${ALLOWED_PREP_HOSTS.join(", ")}) protects the preparation self-test only. It does not restrict network traffic from the spawned Bun installer or Docker daemon.`;
+}
+
+/** @deprecated Use formatPrepSafetyDisclosureMessage — kept for tests referencing the name. */
 export function formatAllowedPrepHostsMessage(): string {
-  return `Allowed network: exact prep hosts only (${ALLOWED_PREP_HOSTS.join(", ")}).`;
+  return formatPrepSafetyDisclosureMessage();
 }
 
 export { hostAllowed };

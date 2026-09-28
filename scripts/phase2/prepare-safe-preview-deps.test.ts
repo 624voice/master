@@ -29,7 +29,8 @@ import {
 import { runSecurePrepareDeps } from "./prepare-safe-preview-deps";
 import {
   ALLOWED_PREP_HOSTS,
-  formatAllowedPrepHostsMessage,
+  formatOwnerPrepAcceptanceMessage,
+  formatPrepSafetyDisclosureMessage,
 } from "./safePreviewPrepareNetworkGuard";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
@@ -79,8 +80,12 @@ describe("prepare-safe-preview-deps secret safety", () => {
     }
   });
 
-  test("X-SAFE-PREP-06: preparation message lists exact enforced allowlist hosts", () => {
-    const message = formatAllowedPrepHostsMessage();
+  test("X-SAFE-PREP-06: preparation disclosure states self-test allowlist and installer/docker boundary", () => {
+    const message = formatPrepSafetyDisclosureMessage();
+    expect(message).toContain("preparation self-test only");
+    expect(message).toContain("spawned Bun installer");
+    expect(message).toContain("Docker daemon");
+    expect(message).not.toContain("exact prep hosts only");
     for (const host of ALLOWED_PREP_HOSTS) {
       expect(message).toContain(host);
     }
@@ -97,10 +102,11 @@ describe("prepare-safe-preview-deps secret safety", () => {
       },
     );
     const output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
+    expect(output).toContain(formatOwnerPrepAcceptanceMessage());
+    expect(output).toContain(formatPrepSafetyDisclosureMessage());
     for (const host of ALLOWED_PREP_HOSTS) {
       expect(output).toContain(host);
     }
-    expect(output).toContain(formatAllowedPrepHostsMessage());
   });
 
   test("X-SAFE-PREP-03: prep egress blocks Twilio, SendGrid, Upstash, Google, CRM, analytics, agent destinations", () => {

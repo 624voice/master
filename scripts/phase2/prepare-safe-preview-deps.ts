@@ -1,10 +1,12 @@
 /**
- * One-time secret-safe dependency preparation (network allowed for registries only).
+ * One-time secret-safe dependency preparation (stripped credentials, frozen lockfile,
+ * disabled install scripts, empty Docker build context; see prep safety disclosure).
  *
  * Run: bun run scripts/phase2/prepare-safe-preview-deps.ts
  */
 import {
-  formatAllowedPrepHostsMessage,
+  formatOwnerPrepAcceptanceMessage,
+  formatPrepSafetyDisclosureMessage,
 } from "./safePreviewPrepareNetworkGuard.ts";
 import "./safePreviewPrepareNetworkGuard.ts"; // side-effect: patches fetch/http
 import { spawnSync } from "node:child_process";
@@ -64,7 +66,7 @@ export function runSecurePrepareDeps(options?: {
       console.log("Phase 2 safe preview — secret-safe one-time preparation");
       console.log(`Lockfile SHA-256 (before): ${lockBefore}`);
       console.log("Lifecycle scripts: disabled (--ignore-scripts); package.json defines no install scripts.");
-      console.log(formatAllowedPrepHostsMessage());
+      console.log(formatPrepSafetyDisclosureMessage());
     }
 
     const integrationProbe = spawnSync(
@@ -153,6 +155,7 @@ export function runSecurePrepareDeps(options?: {
 
 if (import.meta.main) {
   try {
+    console.log(formatOwnerPrepAcceptanceMessage());
     runSecurePrepareDeps();
   } catch (err) {
     console.error(err instanceof Error ? err.message : err);

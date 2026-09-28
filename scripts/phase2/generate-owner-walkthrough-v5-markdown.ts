@@ -19,7 +19,10 @@ import {
   formatCheck,
   type WalkthroughCheck,
 } from "./ownerWalkthroughV5Content";
-import { ALLOWED_PREP_HOSTS } from "./safePreviewPrepareNetworkGuard";
+import {
+  formatOwnerPrepAcceptanceMessage,
+  formatPrepSafetyDisclosureMessage,
+} from "./safePreviewPrepareNetworkGuard";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 const OUT = join(REPO_ROOT, "review-artifacts/phase2/owner-keyboard-walkthrough-v5.md");
@@ -710,11 +713,13 @@ const md = [
   "",
   "## SECRET-SAFE PREPARATION",
   "",
+  formatOwnerPrepAcceptanceMessage(),
+  "",
   "```bash",
   "bun run scripts/phase2/prepare-safe-preview-deps.ts",
   "```",
   "",
-  `Allowed prep hosts (exact): ${ALLOWED_PREP_HOSTS.join(", ")}.`,
+  formatPrepSafetyDisclosureMessage(),
   "",
   "**Stop if you see:** ERROR: preparation egress policy failed; ERROR: bun.lock changed; ERROR: frozen lockfile install failed; ERROR: Docker is unavailable; ERROR: Docker image build failed.",
   "",
