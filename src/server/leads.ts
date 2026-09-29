@@ -46,6 +46,8 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
     "~/server/phase2OwnerQaBoundary"
   );
   if (isPhase2OwnerQaExecutionActive()) {
+    const { recordQaAdapterUse } = await import("~/server/phase2OwnerQaAdapterAudit");
+    recordQaAdapterUse("qaLeadAdapterUses");
     const { recordPhase2OwnerQaLead } = await import(
       "~/server/phase2OwnerQaInMemoryStore"
     );
@@ -67,6 +69,8 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
     return;
   }
 
+  const { recordLiveProviderAttempt } = await import("~/server/phase2OwnerQaAdapterAudit");
+  recordLiveProviderAttempt("liveCrmWebhookAttempts");
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

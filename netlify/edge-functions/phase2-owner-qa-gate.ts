@@ -2,13 +2,16 @@
  * HTTP Basic Auth for the dedicated Phase 2 owner-QA Netlify site only.
  * Deploy-scoped credentials via PHASE2_OWNER_QA_EDGE_BASIC_AUTH_* (never from visitors).
  */
+import { getStore } from "@netlify/blobs";
+
 const ROBOTS_META = '<meta name="robots" content="noindex, nofollow"/>';
 const ROBOTS_HEADER = "noindex, nofollow, noarchive";
 const MAX_ATTEMPTS_PER_WINDOW = 30;
 const WINDOW_MS = 60_000;
+const RATE_LIMIT_STORE = "phase2-owner-qa-edge-ratelimit";
 
 type AttemptWindow = { count: number; resetAt: number };
-const attemptByIp = new Map<string, AttemptWindow>();
+const attemptByIpFallback = new Map<string, AttemptWindow>();
 
 function timingSafeEqual(a: string, b: string): boolean {
   const enc = new TextEncoder();
@@ -34,24 +37,39 @@ function parseBasicAuth(header: string): { user: string; pass: string } | null {
   }
 }
 
+/** Netlify-set client IP; not derived from visitor-controlled X-Forwarded-For. */
 function clientIp(request: Request): string {
-  return (
-    request.headers.get("x-nf-client-connection-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
-  );
+  return request.headers.get("x-nf-client-connection-ip") ?? "unknown";
 }
 
-function registerFailedAttempt(ip: string): boolean {
+function registerFailedAttemptLocal(ip: string): boolean {
   const now = Date.now();
-  const current = attemptByIp.get(ip);
+  const current = attemptByIpFallback.get(ip);
   if (!current || now >= current.resetAt) {
-    attemptByIp.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    attemptByIpFallback.set(ip, { count: 1, resetAt: now + WINDOW_MS });
     return false;
   }
   current.count += 1;
   if (current.count > MAX_ATTEMPTS_PER_WINDOW) return true;
   return false;
+}
+
+async function registerFailedAttempt(ip: string): Promise<boolean> {
+  const now = Date.now();
+  try {
+    const store = getStore(RATE_LIMIT_STORE);
+    const key = `auth-fail:${ip}`;
+    const current = (await store.get(key, { type: "json" })) as AttemptWindow | null;
+    if (!current || now >= current.resetAt) {
+      await store.setJSON(key, { count: 1, resetAt: now + WINDOW_MS });
+      return false;
+    }
+    const next = { count: current.count + 1, resetAt: current.resetAt };
+    await store.setJSON(key, next);
+    return next.count > MAX_ATTEMPTS_PER_WINDOW;
+  } catch {
+    return registerFailedAttemptLocal(ip);
+  }
 }
 
 function credentialsValid(
@@ -78,7 +96,7 @@ export default async function phase2OwnerQaGate(
   const ip = clientIp(request);
   const parsed = parseBasicAuth(request.headers.get("authorization") ?? "");
   if (!credentialsValid(parsed, user, pass)) {
-    const blocked = registerFailedAttempt(ip);
+    const blocked = await registerFailedAttempt(ip);
     if (blocked) {
       return new Response("Too many authentication attempts. Try again later.", {
         status: 429,

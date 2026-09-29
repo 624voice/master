@@ -16,6 +16,10 @@ export const Route = createFileRoute("/api/phase2-owner-qa-audit")({
         }
         const deploy = buildDeployVersionInfo();
         const leads = getPhase2OwnerQaSavedLeads();
+        const { getPhase2OwnerQaAdapterAuditSnapshot } = await import(
+          "~/server/phase2OwnerQaAdapterAudit"
+        );
+        const adapterCounters = await getPhase2OwnerQaAdapterAuditSnapshot();
         return new Response(
           JSON.stringify({
             ok: true,
@@ -24,6 +28,7 @@ export const Route = createFileRoute("/api/phase2-owner-qa-audit")({
             phase2OwnerQaPreviewFlag: deploy.phase2OwnerQaPreviewFlag,
             inMemoryLeadCount: leads.length,
             inMemoryLeadSources: leads.map((l) => l.source),
+            adapterCounters,
           }),
           {
             status: 200,

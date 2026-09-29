@@ -116,11 +116,11 @@ async function main(): Promise<void> {
     throw new Error("Expected report token in data-report-url after browser submit");
   }
 
-  let auditSnapshot: Record<string, unknown> | null = null;
+  let auditBefore: Record<string, unknown> | null = null;
   try {
-    auditSnapshot = await fetchAudit(baseUrl);
+    auditBefore = await fetchAudit(baseUrl);
   } catch {
-    auditSnapshot = { note: "audit_unavailable_or_cold_instance" };
+    auditBefore = { note: "audit_unavailable_or_cold_instance" };
   }
 
   const reportUrl = await page.$eval(
@@ -167,21 +167,58 @@ async function main(): Promise<void> {
 
   await browser.close();
 
+  let auditAfter: Record<string, unknown> | null = null;
+  try {
+    auditAfter = await fetchAudit(baseUrl);
+  } catch {
+    auditAfter = { note: "audit_unavailable_or_cold_instance" };
+  }
+
+  const counters = (auditAfter?.adapterCounters ?? {}) as Record<string, number>;
+  const liveKeys = [
+    "liveTwilioSmsAttempts",
+    "liveSendgridEmailAttempts",
+    "liveProductionUpstashAttempts",
+    "liveCrmWebhookAttempts",
+    "liveGoogleApiAttempts",
+    "liveExternalAnalyticsAttempts",
+    "liveOpenAiAgentAttempts",
+    "liveVapiAttempts",
+    "liveProductionDatabaseAttempts",
+    "liveProductionReportStorageAttempts",
+  ] as const;
+  for (const key of liveKeys) {
+    if ((counters[key] ?? 0) > 0) {
+      throw new Error(`Live provider counter ${key}=${counters[key]} (expected 0)`);
+    }
+  }
+  if ((counters.qaLeadAdapterUses ?? 0) < 1) {
+    throw new Error("Expected qaLeadAdapterUses >= 1 after browser submit");
+  }
+  if ((counters.qaTokenReportStoreUses ?? 0) < 1) {
+    throw new Error("Expected qaTokenReportStoreUses >= 1 after report token path");
+  }
+  if ((counters.qaReportFixtureUses ?? 0) < 1) {
+    throw new Error("Expected qaReportFixtureUses >= 1 after first 503 report download");
+  }
+
   const result = {
     ok: true,
     baseUrl,
     submitVia: "browser_ui",
     reportTokenPresent: Boolean(reportTokenFromNetwork),
-    auditSnapshot,
+    auditBefore,
+    auditAfter,
     reportUrl,
     firstReportStatus,
     secondReportStatus,
     secondReportPdfBytes: secondPdfBytes,
     forbiddenOutboundRequestCount: forbiddenRequests.length,
     forbiddenOutboundSample: forbiddenRequests.slice(0, 5),
-    deployContext: auditSnapshot?.deployContext ?? null,
-    boundaryActive: auditSnapshot?.boundaryActive ?? null,
-    inMemoryLeadCount: auditSnapshot?.inMemoryLeadCount ?? null,
+    adapterCounters: counters,
+    deployContext: auditAfter?.deployContext ?? null,
+    boundaryActive: auditAfter?.boundaryActive ?? null,
+    inMemoryLeadCount: auditAfter?.inMemoryLeadCount ?? null,
   };
 
   console.log(JSON.stringify(result, null, 2));

@@ -15,6 +15,8 @@ export async function serveAssessmentTokenPdf(token: string): Promise<Response> 
       ownerQaReportDownloadAttempts.set(token, attempt);
     }
     if (attempt === 1) {
+      const { recordQaAdapterUse } = await import("~/server/phase2OwnerQaAdapterAudit");
+      recordQaAdapterUse("qaReportFixtureUses");
       return new Response("Report temporarily unavailable", {
         status: 503,
         headers: { "Content-Type": "text/plain; charset=utf-8" },

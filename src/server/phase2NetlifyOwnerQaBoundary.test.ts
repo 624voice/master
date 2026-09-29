@@ -55,12 +55,34 @@ describe("Phase 2 Netlify owner QA boundary", () => {
       join(REPO_ROOT, "src/server/phase2OwnerQaBoundary.ts"),
       "utf8",
     );
+    const assessmentRoute = readFileSync(join(REPO_ROOT, "src/routes/assessment.tsx"), "utf8");
+    const submitServer = readFileSync(
+      join(REPO_ROOT, "src/server/submitAssessmentLead.server.ts"),
+      "utf8",
+    );
+    const submitFn = readFileSync(join(REPO_ROOT, "src/server/submitAssessmentLead.ts"), "utf8");
+
+    // URL path + query: boundary reads env only; assessment route does not assign boundary env from routing.
     expect(boundarySource).toMatch(/process\.env|NodeJS\.ProcessEnv/);
     expect(boundarySource).not.toMatch(
       /\b(searchParams|localStorage|getCookie|req\.query|request\.headers)\b/i,
     );
-    const assessmentRoute = readFileSync(join(REPO_ROOT, "src/routes/assessment.tsx"), "utf8");
     expect(assessmentRoute).not.toMatch(/process\.env\.(PHASE2_OWNER_QA_PREVIEW|CONTEXT)\s*=/);
+    expect(assessmentRoute).not.toMatch(/searchParams|useSearch|URLSearchParams/);
+
+    // Headers / cookies: executable boundary code never reads request headers or cookies.
+    const boundaryCode = boundarySource.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(boundaryCode).not.toMatch(/\b(request\.headers|getCookie|cookies\()\b/i);
+    expect(submitFn).not.toMatch(/PHASE2_OWNER_QA_PREVIEW|NETLIFY_CONTEXT/);
+
+    // Local storage: client assessment route does not persist QA boundary switches in localStorage.
+    expect(assessmentRoute).not.toMatch(/localStorage|sessionStorage/);
+
+    // Form fields + request body: submit handler does not map visitor payload fields into boundary env keys.
+    expect(submitServer).not.toMatch(
+      /process\.env\.(PHASE2_OWNER_QA_PREVIEW|PHASE2_OWNER_QA_REPORT_FAIL_ONCE|CONTEXT)\s*=/,
+    );
+    expect(submitServer).not.toMatch(/data\.(qa|preview|boundary)/i);
   });
 
   test("X-NETLIFY-OWNER-QA-06: assessment route does not read visitor QA switches", () => {
