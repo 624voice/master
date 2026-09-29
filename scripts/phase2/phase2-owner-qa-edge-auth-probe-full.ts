@@ -72,18 +72,28 @@ function hostCases(hostname: string): ProbeCase[] {
       ...base("/", { Authorization: `Basic ${Buffer.from("nocolonpayload").toString("base64")}` }),
     },
     {
-      id: "header_name_casing",
-      classification: "Header-name casing variation",
-      ...base("/", { AUTHORIZATION: `Basic ${validAuth}` }),
+      id: "header_name_casing_invalid",
+      classification: "Header-name casing variation (invalid credentials)",
+      ...base("/", { AUTHORIZATION: `Basic ${wrongPassAuth}` }),
     },
     {
-      id: "scheme_casing",
-      classification: "Scheme casing variation",
+      id: "scheme_casing_invalid",
+      classification: "Scheme casing variation (invalid credentials)",
+      ...base("/", { Authorization: `basic ${wrongPassAuth}` }),
+    },
+    {
+      id: "leading_trailing_whitespace_invalid",
+      classification: "Leading/trailing whitespace (invalid credentials)",
+      ...base("/", { Authorization: `  Basic ${wrongPassAuth}  ` }),
+    },
+    {
+      id: "scheme_casing_valid",
+      classification: "Scheme casing variation (valid credentials)",
       ...base("/", { Authorization: `basic ${validAuth}` }),
     },
     {
-      id: "leading_trailing_whitespace",
-      classification: "Leading/trailing whitespace on Authorization",
+      id: "leading_trailing_whitespace_valid",
+      classification: "Leading/trailing whitespace (valid credentials)",
       ...base("/", { Authorization: `  Basic ${validAuth}  ` }),
     },
     {
@@ -202,11 +212,11 @@ for (const host of hostnames) {
 console.log(JSON.stringify({ hostnames: hostnames.map((h) => h.url), results }, null, 2));
 
 const leaks = results.filter((r) => {
-  const needsAuth =
-    !String(r.classification).includes("with auth") &&
-    !String(r.classification).includes("Correct credentials");
-  if (!needsAuth) return false;
-  return r.status === 200 && (r.bodySample === "html" || r.method === "GET");
+  const cls = String(r.classification);
+  const allows200 =
+    cls.includes("valid credentials") || cls.includes("Correct credentials") || cls.includes("with auth");
+  if (allows200) return false;
+  return r.status === 200 && r.bodySample === "html";
 });
 if (leaks.length > 0) {
   console.error(JSON.stringify({ authBypassLeaks: leaks }, null, 2));
