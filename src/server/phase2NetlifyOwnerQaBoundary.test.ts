@@ -7,6 +7,7 @@ import {
   isPhase2HostedOwnerQaPreviewBoundary,
   isPhase2OwnerQaExecutionActive,
 } from "~/server/phase2OwnerQaBoundary";
+import { getSiteOrigin } from "~/server/speed2Lead/config";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 
@@ -66,6 +67,20 @@ describe("Phase 2 Netlify owner QA boundary", () => {
     expect(routes).not.toMatch(
       /searchParams|query\.|PHASE2_OWNER_QA_PREVIEW|PHASE2_SAFE_PREVIEW|fixtureMode|qaMode/i,
     );
+  });
+
+  test("X-NETLIFY-OWNER-QA-07: hosted preview report URLs use deploy origin not production default", () => {
+    const priorSite = process.env.SITE_ORIGIN;
+    const priorDeploy = process.env.DEPLOY_PRIME_URL;
+    process.env.PHASE2_OWNER_QA_PREVIEW = "1";
+    process.env.CONTEXT = "deploy-preview";
+    process.env.DEPLOY_PRIME_URL = "https://abc123--624voice-phase2-owner-qa.netlify.app";
+    delete process.env.SITE_ORIGIN;
+    expect(getSiteOrigin()).toBe("https://abc123--624voice-phase2-owner-qa.netlify.app");
+    if (priorSite === undefined) delete process.env.SITE_ORIGIN;
+    else process.env.SITE_ORIGIN = priorSite;
+    if (priorDeploy === undefined) delete process.env.DEPLOY_PRIME_URL;
+    else process.env.DEPLOY_PRIME_URL = priorDeploy;
   });
 
   test("X-NETLIFY-OWNER-QA-04: report fail-once requires boundary plus explicit flag", () => {

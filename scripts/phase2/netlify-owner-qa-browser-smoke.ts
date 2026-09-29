@@ -124,12 +124,18 @@ async function main(): Promise<void> {
     '[data-testid="assessment-report-download"]',
     (el) => el.getAttribute("data-report-url") ?? "",
   );
-  const firstResponsePromise = page.waitForResponse(
-    (response) =>
+  const isReportDownloadResponse = (response: import("puppeteer-core").HTTPResponse) => {
+    const status = response.status();
+    if ([301, 302, 307, 308].includes(status)) return false;
+    return (
       response.request().method() === "GET" &&
-      response.url().includes("/assessment-report/"),
-    { timeout: 120_000 },
-  );
+      response.url().includes("/assessment-report/")
+    );
+  };
+
+  const firstResponsePromise = page.waitForResponse(isReportDownloadResponse, {
+    timeout: 120_000,
+  });
   await page.click('[data-testid="assessment-report-download"]');
   const firstResponse = await firstResponsePromise;
   const firstReportStatus = firstResponse.status();
@@ -138,12 +144,9 @@ async function main(): Promise<void> {
   }
   await page.waitForSelector('[role="alert"]', { timeout: 60_000 });
 
-  const secondResponsePromise = page.waitForResponse(
-    (response) =>
-      response.request().method() === "GET" &&
-      response.url().includes("/assessment-report/"),
-    { timeout: 120_000 },
-  );
+  const secondResponsePromise = page.waitForResponse(isReportDownloadResponse, {
+    timeout: 120_000,
+  });
   await page.click('[aria-label="Try downloading assessment report again"]');
   const secondResponse = await secondResponsePromise;
   const secondReportStatus = secondResponse.status();
@@ -186,7 +189,6 @@ async function main(): Promise<void> {
 
 try {
   await main();
-  process.exit(0);
 } catch (err) {
   console.error(err instanceof Error ? err.message : err);
   process.exit(1);

@@ -2,7 +2,10 @@ import {
   SPEED2LEAD_BOOKING_URL,
   SITE_ORIGIN,
 } from "~/config/features";
-import { isPhase2OwnerQaExecutionActive } from "~/server/phase2OwnerQaBoundary";
+import {
+  isPhase2HostedOwnerQaPreviewBoundary,
+  isPhase2OwnerQaExecutionActive,
+} from "~/server/phase2OwnerQaBoundary";
 import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 
 export function isRedisConfigured(): boolean {
@@ -24,6 +27,13 @@ export function isSpeed2LeadEnabled(): boolean {
 }
 
 export function getSiteOrigin(): string {
+  if (isPhase2HostedOwnerQaPreviewBoundary()) {
+    const deployOrigin =
+      process.env.DEPLOY_PRIME_URL?.replace(/\/$/, "") ||
+      process.env.DEPLOY_URL?.replace(/\/$/, "") ||
+      process.env.URL?.replace(/\/$/, "");
+    if (deployOrigin) return deployOrigin;
+  }
   return process.env.SITE_ORIGIN ?? SITE_ORIGIN;
 }
 
