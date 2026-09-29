@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   process.env.BROWSER_JOURNEY_BASE_URL = baseUrl;
   process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS = "120000";
 
-  const { clickDownloadReport, fastForwardToGate, launchAssessmentBrowser } = await import(
+  const { clickButtonMatching, fastForwardToGate, launchAssessmentBrowser } = await import(
     "../../src/browser-journey/assessmentBrowserJourneySupport"
   );
 
@@ -87,15 +87,12 @@ async function main(): Promise<void> {
 
   await page.goto(`${baseUrl}/assessment`, { waitUntil: "networkidle0", timeout: 120_000 });
   await fastForwardToGate(page);
-  const uniqueSuffix = crypto.randomUUID().replace(/\D/g, "").slice(0, 7).padEnd(7, "0");
+  const uniqueSuffix = crypto.randomUUID().replace(/\D/g, "").slice(0, 6).padEnd(6, "0");
   await page.type("#gate-first-name", "Pat");
   await page.type("#gate-last-name", "Lee");
   await page.type("#gate-business", "Pat Plumbing");
   await page.type("#gate-email", `pat.browser.${uniqueSuffix}@example.invalid`);
-  await page.type("#gate-phone", `555${uniqueSuffix}`);
-  const { clickButtonMatching } = await import(
-    "../../src/browser-journey/assessmentBrowserJourneySupport"
-  );
+  await page.type("#gate-phone", `555010${uniqueSuffix}`);
   await clickButtonMatching(page, "See My Full Results");
   await page.waitForFunction(
     () => /Your priority areas/i.test(document.body.innerText),
@@ -105,16 +102,15 @@ async function main(): Promise<void> {
     timeout: 60_000,
   });
 
-  if (!reportTokenFromNetwork) {
-    const tokenFromDom = await page.evaluate(() => {
-      const link = document.querySelector('[data-testid="assessment-report-download"]');
-      return link?.getAttribute("data-report-token") ?? null;
-    });
-    if (tokenFromDom) reportTokenFromNetwork = tokenFromDom;
-  }
+  const reportUrlFromDom = await page.$eval(
+    '[data-testid="assessment-report-download"]',
+    (el) => el.getAttribute("data-report-url") ?? "",
+  );
+  const tokenFromUrl = reportUrlFromDom.match(/\/assessment-report\/([^/?#]+)/)?.[1] ?? null;
+  if (tokenFromUrl) reportTokenFromNetwork = tokenFromUrl;
 
   if (!reportTokenFromNetwork) {
-    throw new Error("Expected reportToken from browser submit (network or DOM)");
+    throw new Error("Expected report token in data-report-url after browser submit");
   }
 
   let auditSnapshot: Record<string, unknown> | null = null;
@@ -124,15 +120,41 @@ async function main(): Promise<void> {
     auditSnapshot = { note: "audit_unavailable_or_cold_instance" };
   }
 
-  const first = await clickDownloadReport(page);
-  if (first.access.status !== 503) {
-    throw new Error(`Expected first report download 503 (got ${first.access.status})`);
+  const reportUrl = await page.$eval(
+    '[data-testid="assessment-report-download"]',
+    (el) => el.getAttribute("data-report-url") ?? "",
+  );
+  const firstResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      response.url().includes("/assessment-report/"),
+    { timeout: 120_000 },
+  );
+  await page.click('[data-testid="assessment-report-download"]');
+  const firstResponse = await firstResponsePromise;
+  const firstReportStatus = firstResponse.status();
+  if (firstReportStatus !== 503) {
+    throw new Error(`Expected first report download 503 (got ${firstReportStatus})`);
   }
+  await page.waitForSelector('[role="alert"]', { timeout: 60_000 });
 
-  const second = await clickDownloadReport(page);
-  if (second.access.status !== 200 || second.access.pdfBytes < 1000) {
+  const secondResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "GET" &&
+      response.url().includes("/assessment-report/"),
+    { timeout: 120_000 },
+  );
+  await page.click('[aria-label="Try downloading assessment report again"]');
+  const secondResponse = await secondResponsePromise;
+  const secondReportStatus = secondResponse.status();
+  const secondContentType = secondResponse.headers()["content-type"] ?? "";
+  const secondPdfBytes =
+    secondReportStatus === 200 && secondContentType.includes("pdf")
+      ? (await secondResponse.buffer()).byteLength
+      : 0;
+  if (secondReportStatus !== 200 || secondPdfBytes < 1000) {
     throw new Error(
-      `Expected second report PDF 200 with bytes (got status=${second.access.status} bytes=${second.access.pdfBytes})`,
+      `Expected second report PDF 200 with bytes (got status=${secondReportStatus} bytes=${secondPdfBytes})`,
     );
   }
 
@@ -144,9 +166,10 @@ async function main(): Promise<void> {
     submitVia: "browser_ui",
     reportTokenPresent: Boolean(reportTokenFromNetwork),
     auditSnapshot,
-    firstReportStatus: first.access.status,
-    secondReportStatus: second.access.status,
-    secondReportPdfBytes: second.access.pdfBytes,
+    reportUrl,
+    firstReportStatus,
+    secondReportStatus,
+    secondReportPdfBytes: secondPdfBytes,
     forbiddenOutboundRequestCount: forbiddenRequests.length,
     forbiddenOutboundSample: forbiddenRequests.slice(0, 5),
     deployContext: auditSnapshot?.deployContext ?? null,
@@ -161,9 +184,10 @@ async function main(): Promise<void> {
   }
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch(async (err) => {
-    console.error(err instanceof Error ? err.message : err);
-    process.exit(1);
-  });
+try {
+  await main();
+  process.exit(0);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : err);
+  process.exit(1);
+}

@@ -2,6 +2,10 @@
  * In-memory lead + Redis stand-ins for Phase 2 owner QA (Vercel Preview or local safe preview).
  */
 import type { LeadPayload } from "~/server/leads";
+import {
+  phase2OwnerQaBlobGet,
+  phase2OwnerQaBlobSet,
+} from "~/server/phase2OwnerQaNetlifyBlobStore";
 
 const redisStore = new Map<string, unknown>();
 const savedLeadEmails = new Set<string>();
@@ -26,11 +30,19 @@ export function getPhase2OwnerQaSavedLeads(): readonly LeadPayload[] {
 
 export class Phase2OwnerQaInMemoryRedis {
   async get<T>(key: string): Promise<T | null> {
-    return (redisStore.get(key) as T | undefined) ?? null;
+    const local = redisStore.get(key) as T | undefined;
+    if (local !== undefined) return local;
+    const fromBlob = await phase2OwnerQaBlobGet<T>(key);
+    if (fromBlob !== null) {
+      redisStore.set(key, fromBlob);
+      return fromBlob;
+    }
+    return null;
   }
 
   async set(key: string, value: unknown, _opts?: { ex?: number }): Promise<"OK"> {
     redisStore.set(key, value);
+    await phase2OwnerQaBlobSet(key, value);
     return "OK";
   }
 

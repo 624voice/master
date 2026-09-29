@@ -1,4 +1,5 @@
 import { isOwnerQaReportFailOnceEnabled } from "~/server/phase2OwnerQaBoundary";
+import { incrementOwnerQaReportDownloadAttempt } from "~/server/phase2OwnerQaNetlifyBlobStore";
 import { getAssessmentReportTokenData } from "~/server/assessment/reportTokens";
 import { generateAssessmentPdfBytes } from "~/server/report/generateAssessmentPdfBytes.server";
 
@@ -6,8 +7,13 @@ const ownerQaReportDownloadAttempts = new Map<string, number>();
 
 export async function serveAssessmentTokenPdf(token: string): Promise<Response> {
   if (isOwnerQaReportFailOnceEnabled()) {
-    const attempt = (ownerQaReportDownloadAttempts.get(token) ?? 0) + 1;
-    ownerQaReportDownloadAttempts.set(token, attempt);
+    let attempt: number;
+    if (process.env.NETLIFY === "true") {
+      attempt = await incrementOwnerQaReportDownloadAttempt(token);
+    } else {
+      attempt = (ownerQaReportDownloadAttempts.get(token) ?? 0) + 1;
+      ownerQaReportDownloadAttempts.set(token, attempt);
+    }
     if (attempt === 1) {
       return new Response("Report temporarily unavailable", {
         status: 503,
