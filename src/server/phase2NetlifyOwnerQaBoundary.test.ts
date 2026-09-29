@@ -11,30 +11,36 @@ import {
 const REPO_ROOT = join(import.meta.dir, "../..");
 
 describe("Phase 2 Netlify owner QA boundary", () => {
-  test("X-NETLIFY-OWNER-QA-01: both PHASE2_OWNER_QA_PREVIEW and deploy-preview context required", () => {
+  test("X-NETLIFY-OWNER-QA-01 positive: both PHASE2_OWNER_QA_PREVIEW and deploy-preview context activate boundary", () => {
     expect(
       isPhase2HostedOwnerQaPreviewBoundary({
         PHASE2_OWNER_QA_PREVIEW: "1",
         CONTEXT: "deploy-preview",
       }),
     ).toBe(true);
+    expect(isNetlifyDeployPreviewContext({ NETLIFY_CONTEXT: "deploy-preview" })).toBe(
+      true,
+    );
+  });
+
+  test("X-NETLIFY-OWNER-QA-02 negative: flag without deploy-preview context does not activate boundary", () => {
     expect(
       isPhase2HostedOwnerQaPreviewBoundary({
         PHASE2_OWNER_QA_PREVIEW: "1",
         CONTEXT: "production",
       }),
     ).toBe(false);
+  });
+
+  test("X-NETLIFY-OWNER-QA-03 negative: deploy-preview context without flag does not activate boundary", () => {
     expect(
       isPhase2HostedOwnerQaPreviewBoundary({
         CONTEXT: "deploy-preview",
       }),
     ).toBe(false);
-    expect(isNetlifyDeployPreviewContext({ NETLIFY_CONTEXT: "deploy-preview" })).toBe(
-      true,
-    );
   });
 
-  test("X-NETLIFY-OWNER-QA-02: missing credentials alone do not activate execution boundary", () => {
+  test("X-NETLIFY-OWNER-QA-04 negative: missing credentials/flags alone do not activate execution boundary", () => {
     expect(
       isPhase2OwnerQaExecutionActive({
         CONTEXT: "deploy-preview",
@@ -42,7 +48,20 @@ describe("Phase 2 Netlify owner QA boundary", () => {
     ).toBe(false);
   });
 
-  test("X-NETLIFY-OWNER-QA-03: visitor-controlled inputs are not read in assessment route", () => {
+  test("X-NETLIFY-OWNER-QA-05: visitor-controlled inputs cannot set boundary env keys", () => {
+    const boundarySource = readFileSync(
+      join(REPO_ROOT, "src/server/phase2OwnerQaBoundary.ts"),
+      "utf8",
+    );
+    expect(boundarySource).toMatch(/process\.env|NodeJS\.ProcessEnv/);
+    expect(boundarySource).not.toMatch(
+      /\b(searchParams|localStorage|getCookie|req\.query|request\.headers)\b/i,
+    );
+    const assessmentRoute = readFileSync(join(REPO_ROOT, "src/routes/assessment.tsx"), "utf8");
+    expect(assessmentRoute).not.toMatch(/process\.env\.(PHASE2_OWNER_QA_PREVIEW|CONTEXT)\s*=/);
+  });
+
+  test("X-NETLIFY-OWNER-QA-06: assessment route does not read visitor QA switches", () => {
     const routes = readFileSync(join(REPO_ROOT, "src/routes/assessment.tsx"), "utf8");
     expect(routes).not.toMatch(
       /searchParams|query\.|PHASE2_OWNER_QA_PREVIEW|PHASE2_SAFE_PREVIEW|fixtureMode|qaMode/i,
