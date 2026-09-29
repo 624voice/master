@@ -295,8 +295,10 @@ export async function submitLeadToResults(
     await page.click('input[type="checkbox"]');
   }
   await clickButtonMatching(page, "See My Full Results");
-  await page.waitForFunction(() =>
-    /Your priority areas/i.test(document.body.innerText),
+  const submitTimeoutMs = Number(process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS ?? 30_000);
+  await page.waitForFunction(
+    () => /Your priority areas/i.test(document.body.innerText),
+    { timeout: submitTimeoutMs },
   );
 }
 

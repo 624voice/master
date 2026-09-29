@@ -53,6 +53,7 @@ async function main(): Promise<void> {
   }
 
   process.env.BROWSER_JOURNEY_BASE_URL = baseUrl;
+  process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS = "120000";
 
   const {
     clickDownloadReport,
@@ -66,6 +67,8 @@ async function main(): Promise<void> {
   const page = await browser.newPage();
   await page.authenticate({ username: basicUser, password });
   await page.setViewport({ width: 1280, height: 900 });
+  page.setDefaultTimeout(120_000);
+  page.setDefaultNavigationTimeout(120_000);
 
   page.on("request", (req) => {
     const url = req.url();
@@ -148,7 +151,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : err);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0))
+  .catch(async (err) => {
+    console.error(err instanceof Error ? err.message : err);
+    process.exit(1);
+  });

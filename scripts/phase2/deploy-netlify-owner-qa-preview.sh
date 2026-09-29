@@ -72,6 +72,7 @@ netlify deploy \
   --env "SPEED2LEAD_LLM_ENABLED=false" \
   --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}" \
   --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}" \
+  --secret-env "ASSESSMENT_SECURITY_HMAC_SECRET=${PREVIEW_HMAC}" \
   2>&1 | tee "$DEPLOY_LOG"
 
 if [[ -n "$NETLIFY_TOML_BACKUP" ]]; then
