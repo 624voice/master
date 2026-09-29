@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
+import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import { getRedis } from "~/server/speed2Lead/redis";
-import { isRedisConfigured } from "~/server/speed2Lead/config";
-import { getSiteOrigin } from "~/server/speed2Lead/config";
+import { isRedisConfigured, getSiteOrigin } from "~/server/speed2Lead/config";
 import type { AssessmentReportTokenData } from "~/server/assessment/types";
 
 export const ASSESSMENT_REPORT_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
@@ -28,6 +28,9 @@ export async function createAssessmentReportToken(
 }
 
 export function buildAssessmentReportUrl(token: string): string {
+  if (isPhase2HostedOwnerQaPreviewBoundary()) {
+    return `/assessment-report/${token}`;
+  }
   return `${getSiteOrigin()}/assessment-report/${token}`;
 }
 
