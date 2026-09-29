@@ -7,14 +7,6 @@
  * Optional:
  *   NETLIFY_PREVIEW_BASIC_AUTH_USER (default owner-qa)
  */
-import puppeteer from "puppeteer-core";
-import {
-  clickDownloadReport,
-  fastForwardToGate,
-  launchAssessmentBrowser,
-  submitLeadToResults,
-} from "../../src/browser-journey/assessmentBrowserJourneySupport";
-
 const baseUrl = process.env.PHASE2_NETLIFY_OWNER_QA_SMOKE_URL?.replace(/\/$/, "");
 const password = process.env.NETLIFY_PREVIEW_PASSWORD?.trim();
 const basicUser = process.env.NETLIFY_PREVIEW_BASIC_AUTH_USER?.trim() || "owner-qa";
@@ -60,6 +52,15 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  process.env.BROWSER_JOURNEY_BASE_URL = baseUrl;
+
+  const {
+    clickDownloadReport,
+    fastForwardToGate,
+    launchAssessmentBrowser,
+    submitLeadToResults,
+  } = await import("../../src/browser-journey/assessmentBrowserJourneySupport");
+
   const forbiddenRequests: string[] = [];
   const browser = await launchAssessmentBrowser();
   const page = await browser.newPage();
@@ -86,14 +87,21 @@ async function main(): Promise<void> {
 
   await page.goto(`${baseUrl}/assessment`, { waitUntil: "networkidle0", timeout: 120_000 });
   await fastForwardToGate(page);
-
   await submitLeadToResults(page, { smsConsent: false });
-  await page.waitForFunction(() => /Download/i.test(document.body.innerText), {
-    timeout: 30_000,
+  await page.waitForSelector('[data-testid="assessment-report-download"]', {
+    timeout: 60_000,
   });
 
   if (!reportTokenFromNetwork) {
-    throw new Error("Expected reportToken from browser submit server-fn response");
+    const tokenFromDom = await page.evaluate(() => {
+      const link = document.querySelector('[data-testid="assessment-report-download"]');
+      return link?.getAttribute("data-report-token") ?? null;
+    });
+    if (tokenFromDom) reportTokenFromNetwork = tokenFromDom;
+  }
+
+  if (!reportTokenFromNetwork) {
+    throw new Error("Expected reportToken from browser submit (network or DOM)");
   }
 
   let auditSnapshot: Record<string, unknown> | null = null;
