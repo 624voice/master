@@ -55,12 +55,9 @@ async function main(): Promise<void> {
   process.env.BROWSER_JOURNEY_BASE_URL = baseUrl;
   process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS = "120000";
 
-  const {
-    clickDownloadReport,
-    fastForwardToGate,
-    launchAssessmentBrowser,
-    submitLeadToResults,
-  } = await import("../../src/browser-journey/assessmentBrowserJourneySupport");
+  const { clickDownloadReport, fastForwardToGate, launchAssessmentBrowser } = await import(
+    "../../src/browser-journey/assessmentBrowserJourneySupport"
+  );
 
   const forbiddenRequests: string[] = [];
   const browser = await launchAssessmentBrowser();
@@ -90,7 +87,20 @@ async function main(): Promise<void> {
 
   await page.goto(`${baseUrl}/assessment`, { waitUntil: "networkidle0", timeout: 120_000 });
   await fastForwardToGate(page);
-  await submitLeadToResults(page, { smsConsent: false });
+  const uniqueSuffix = crypto.randomUUID().replace(/\D/g, "").slice(0, 7).padEnd(7, "0");
+  await page.type("#gate-first-name", "Pat");
+  await page.type("#gate-last-name", "Lee");
+  await page.type("#gate-business", "Pat Plumbing");
+  await page.type("#gate-email", `pat.browser.${uniqueSuffix}@example.invalid`);
+  await page.type("#gate-phone", `555${uniqueSuffix}`);
+  const { clickButtonMatching } = await import(
+    "../../src/browser-journey/assessmentBrowserJourneySupport"
+  );
+  await clickButtonMatching(page, "See My Full Results");
+  await page.waitForFunction(
+    () => /Your priority areas/i.test(document.body.innerText),
+    { timeout: 120_000 },
+  );
   await page.waitForSelector('[data-testid="assessment-report-download"]', {
     timeout: 60_000,
   });

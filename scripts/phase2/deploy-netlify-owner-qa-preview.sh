@@ -66,6 +66,7 @@ netlify deploy \
   --dir=dist/client \
   --functions=.netlify/v1/functions \
   --env "PHASE2_OWNER_QA_PREVIEW=1" \
+  --env "NETLIFY_CONTEXT=deploy-preview" \
   --env "PHASE2_OWNER_QA_REPORT_FAIL_ONCE=1" \
   --env "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false" \
   --env "SPEED2LEAD_ENABLED=false" \

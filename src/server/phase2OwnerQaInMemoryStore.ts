@@ -44,10 +44,10 @@ export class Phase2OwnerQaInMemoryRedis {
 
   async eval<T = unknown>(
     _script: string,
-    _numKeys: number,
-    ...args: string[]
+    keys: string[],
+    _args: string[] = [],
   ): Promise<T> {
-    if (args.length <= 5) {
+    if (keys.length === 1) {
       return [1, 1, "allowed"] as T;
     }
     return ["a", "fresh", 1, 1, null] as T;

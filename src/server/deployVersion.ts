@@ -74,6 +74,7 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
     gitCommitSha,
     branch,
     phase2OwnerQaPreviewFlag: readEnv("PHASE2_OWNER_QA_PREVIEW") === "1",
+    runtimeContext: readEnv("CONTEXT") ?? readEnv("NETLIFY_CONTEXT") ?? null,
     deployContext,
     deployUrl,
     deployId,
