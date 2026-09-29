@@ -7,6 +7,7 @@ import {
   isPhase2HostedOwnerQaPreviewBoundary,
   isPhase2OwnerQaExecutionActive,
 } from "~/server/phase2OwnerQaBoundary";
+import { buildAssessmentReportUrl } from "~/server/assessment/reportTokens";
 import { getSiteOrigin } from "~/server/speed2Lead/config";
 
 const REPO_ROOT = join(import.meta.dir, "../..");
@@ -67,6 +68,18 @@ describe("Phase 2 Netlify owner QA boundary", () => {
     expect(routes).not.toMatch(
       /searchParams|query\.|PHASE2_OWNER_QA_PREVIEW|PHASE2_SAFE_PREVIEW|fixtureMode|qaMode/i,
     );
+  });
+
+  test("X-NETLIFY-OWNER-QA-08: hosted preview report links are same-origin relative paths", () => {
+    const priorPreview = process.env.PHASE2_OWNER_QA_PREVIEW;
+    const priorContext = process.env.CONTEXT;
+    process.env.PHASE2_OWNER_QA_PREVIEW = "1";
+    process.env.CONTEXT = "deploy-preview";
+    expect(buildAssessmentReportUrl("abc123")).toBe("/assessment-report/abc123");
+    if (priorPreview === undefined) delete process.env.PHASE2_OWNER_QA_PREVIEW;
+    else process.env.PHASE2_OWNER_QA_PREVIEW = priorPreview;
+    if (priorContext === undefined) delete process.env.CONTEXT;
+    else process.env.CONTEXT = priorContext;
   });
 
   test("X-NETLIFY-OWNER-QA-07: hosted preview report URLs use deploy origin not production default", () => {

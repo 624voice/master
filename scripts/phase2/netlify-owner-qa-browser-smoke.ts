@@ -55,9 +55,12 @@ async function main(): Promise<void> {
   process.env.BROWSER_JOURNEY_BASE_URL = baseUrl;
   process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS = "120000";
 
-  const { clickButtonMatching, fastForwardToGate, launchAssessmentBrowser } = await import(
-    "../../src/browser-journey/assessmentBrowserJourneySupport"
-  );
+  const {
+    accessReportUrlFromBrowser,
+    clickButtonMatching,
+    fastForwardToGate,
+    launchAssessmentBrowser,
+  } = await import("../../src/browser-journey/assessmentBrowserJourneySupport");
 
   const forbiddenRequests: string[] = [];
   const browser = await launchAssessmentBrowser();
@@ -144,20 +147,21 @@ async function main(): Promise<void> {
   }
   await page.waitForSelector('[role="alert"]', { timeout: 60_000 });
 
-  const secondResponsePromise = page.waitForResponse(isReportDownloadResponse, {
-    timeout: 120_000,
-  });
   await page.click('[aria-label="Try downloading assessment report again"]');
-  const secondResponse = await secondResponsePromise;
-  const secondReportStatus = secondResponse.status();
-  const secondContentType = secondResponse.headers()["content-type"] ?? "";
-  const secondPdfBytes =
-    secondReportStatus === 200 && secondContentType.includes("pdf")
-      ? (await secondResponse.buffer()).byteLength
-      : 0;
+  await page.waitForFunction(
+    () =>
+      !document.querySelector(
+        '[data-testid="assessment-report-download"][aria-busy="true"]',
+      ),
+    { timeout: 120_000 },
+  );
+  const fullReportUrl = reportUrl.startsWith("http") ? reportUrl : `${baseUrl}${reportUrl}`;
+  const secondAccess = await accessReportUrlFromBrowser(page, fullReportUrl);
+  const secondReportStatus = secondAccess.status;
+  const secondPdfBytes = secondAccess.pdfBytes;
   if (secondReportStatus !== 200 || secondPdfBytes < 1000) {
     throw new Error(
-      `Expected second report PDF 200 with bytes (got status=${secondReportStatus} bytes=${secondPdfBytes})`,
+      `Expected second report PDF 200 with bytes (got status=${secondReportStatus} bytes=${secondPdfBytes} type=${secondAccess.contentType})`,
     );
   }
 
