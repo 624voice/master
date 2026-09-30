@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  /* WCAG AA: #047857 passes 4.5:1 on white and with white button text. */
-  --color-brand-primary: #047857;
-  --color-brand-primary-dark: #065f46;
-  --color-brand-primary-light: #d1fae5;
-  --color-brand-primary-bright: #10b981;
+  /* Source: public/logo.png dominant mark green #10b880 (verified by pixel sample). */
+  --color-brand-primary: #10b880;
+  --color-brand-primary-dark: #0a9669;
+  --color-brand-primary-light: #d4f7ec;
+  --color-brand-primary-bright: #14c992;
+  --color-brand-mint: #a8f0dc;
+  --color-brand-aqua: #5eead4;
+  --color-brand-sky: #7dd3fc;
   --color-brand-secondary: #162736;
   --color-brand-secondary-light: #1e3a5f;
   --color-brand-accent: #94a3b8;

@@ -32,7 +32,7 @@ describe("CustomerLifecycleDiagram additional tests", () => {
       "Six stages. One connected system moves a customer through all of them. Not every customer needs every capability.",
     );
     expect(LIFECYCLE_NOTE).toBe(
-      "The AI Tool Assessment lives inside the paid Diagnostic. It is not a public lifecycle stage.",
+      "Available as part of the paid AI Revenue and Operations Diagnostic.",
     );
   });
 

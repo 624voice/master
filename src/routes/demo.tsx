@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
 import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
+import { FEATURE_FLAGS } from "~/config/features";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
@@ -18,12 +19,12 @@ export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
       {
-        title: "Talk to Jessica, Our Live AI Receptionist | 624 Voice",
+        title: "Live AI Receptionist Demo | 624 Voice",
       },
       {
         name: "description",
         content:
-          "Call Jessica, a live AI receptionist built for home-service companies, and hear a fast, consistent response for yourself, in English or Spanish.",
+          "Hear Jessica, a live AI receptionist demo for home-service companies, in a natural conversation in English or Spanish.",
       },
     ],
   }),
@@ -211,22 +212,28 @@ function DemoPage() {
         </div>
       </section>
 
+      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+        <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+              <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                90-Day{" "}
+                <span className="text-brand-primary">Results Guarantee</span>
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                We guarantee you recover at least our service investment in booked
+                service-visit revenue within 90 days of go-live —{" "}
+                <span className="font-semibold text-brand-primary">
+                  or we keep working, for free, until you do.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
-            <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-              90-Day{" "}
-              <span className="text-brand-primary">Results Guarantee</span>
-            </h3>
-            <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-              We guarantee you recover at least our service investment in booked
-              service-visit revenue within 90 days of go-live —{" "}
-              <span className="font-semibold text-brand-primary">
-                or we keep working, for free, until you do.
-              </span>
-            </p>
-          </div>
-
           <div className="mt-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
               Ready to Answer Every Call?

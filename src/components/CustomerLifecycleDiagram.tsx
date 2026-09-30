@@ -1,23 +1,23 @@
-export const LIFECYCLE_HEADLINE =
-  "Six stages. One connected system moves a customer through all of them. Not every customer needs every capability.";
+import {
+  CUSTOMER_JOURNEY_ARIA_LABEL,
+  CUSTOMER_JOURNEY_HEADLINE,
+  CUSTOMER_JOURNEY_STAGES,
+} from "~/content/customerJourneyStages";
+import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 
+/** @deprecated Use CUSTOMER_JOURNEY_HEADLINE */
+export const LIFECYCLE_HEADLINE = CUSTOMER_JOURNEY_HEADLINE;
+
+/** Diagnostic note for AI Tool Assessment (What We Do), not a lifecycle stage. */
 export const LIFECYCLE_NOTE =
-  "The AI Tool Assessment lives inside the paid Diagnostic. It is not a public lifecycle stage.";
+  "Available as part of the paid AI Revenue and Operations Diagnostic.";
 
-export const LIFECYCLE_DIAGRAM_ALT =
-  "Customer lifecycle for home services: Get Found, Respond, Convert, Retain and Grow, Reduce Manual Work, and Measure and Improve.";
+export const LIFECYCLE_DIAGRAM_ALT = CUSTOMER_JOURNEY_ARIA_LABEL;
 
-/** Approved PNG reference (hash-verified); semantic HTML is the primary on-page render. */
-export const LIFECYCLE_DIAGRAM_PNG = "/diagram-v3-lifecycle.png";
-
-export const LIFECYCLE_STAGES = [
-  { boxLabel: "Found", dimensionLabel: "GET FOUND" },
-  { boxLabel: "Responded To", dimensionLabel: "RESPOND" },
-  { boxLabel: "Converted", dimensionLabel: "CONVERT" },
-  { boxLabel: "Served and Retained", dimensionLabel: "RETAIN AND GROW" },
-  { boxLabel: "Operated Efficiently", dimensionLabel: "REDUCE MANUAL WORK" },
-  { boxLabel: "Measured and Improved", dimensionLabel: "MEASURE AND IMPROVE" },
-] as const;
+export const LIFECYCLE_STAGES = CUSTOMER_JOURNEY_STAGES.map((stage) => ({
+  boxLabel: stage.primaryLabel,
+  dimensionLabel: stage.dimensionLabel,
+}));
 
 type CustomerLifecycleDiagramProps = {
   className?: string;
@@ -25,47 +25,82 @@ type CustomerLifecycleDiagramProps = {
   showNote?: boolean;
 };
 
+function StageCard({
+  stage,
+}: {
+  stage: (typeof CUSTOMER_JOURNEY_STAGES)[number];
+}) {
+  return (
+    <div
+      className={`flex h-full min-h-[8.5rem] flex-col rounded-xl border p-4 shadow-sm sm:min-h-[9rem] sm:p-5 ${stage.accentClass}`}
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-brand-primary-dark shadow-sm">
+          <JourneyStageIcon iconId={stage.iconId} className="h-5 w-5" />
+        </span>
+        <span className="sr-only">{stage.dimensionLabel}: </span>
+        <span className="text-xs font-bold uppercase tracking-wide text-brand-primary-dark">
+          {stage.dimensionLabel}
+        </span>
+      </div>
+      <p className="text-base font-bold leading-snug text-brand-secondary">
+        {stage.primaryLabel}
+      </p>
+      <p className="mt-2 text-sm leading-snug text-gray-600">{stage.description}</p>
+    </div>
+  );
+}
+
 export function CustomerLifecycleDiagram({
   className = "",
   showHeadline = true,
-  showNote = true,
+  showNote = false,
 }: CustomerLifecycleDiagramProps) {
   return (
-    <figure className={className} aria-label={LIFECYCLE_DIAGRAM_ALT}>
+    <figure className={className} aria-label={CUSTOMER_JOURNEY_ARIA_LABEL}>
       {showHeadline ? (
         <p className="mx-auto mb-8 max-w-3xl text-center text-lg font-semibold leading-relaxed text-brand-secondary sm:text-xl">
-          {LIFECYCLE_HEADLINE}
+          {CUSTOMER_JOURNEY_HEADLINE}
         </p>
       ) : null}
 
-      <ol className="mx-auto grid max-w-6xl gap-4 md:grid-cols-[repeat(6,minmax(0,1fr))] md:gap-2 lg:gap-3">
-        {LIFECYCLE_STAGES.map((stage, index) => (
-          <li key={stage.dimensionLabel} className="flex flex-col items-stretch">
-            <div className="flex flex-1 flex-col items-center text-center">
-              <div className="relative flex w-full flex-1 flex-col items-center justify-center rounded-xl bg-brand-primary px-3 py-5 text-white shadow-sm sm:px-4 sm:py-6">
-                <span className="text-sm font-semibold leading-snug sm:text-base">
-                  {stage.boxLabel}
-                </span>
-                {index < LIFECYCLE_STAGES.length - 1 ? (
-                  <span
-                    className="pointer-events-none absolute right-0 top-1/2 hidden -translate-y-1/2 translate-x-1/2 text-xl font-bold text-brand-secondary md:inline"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-                ) : null}
+      {/* Mobile + narrow: vertical progression */}
+      <ol className="mx-auto flex max-w-md list-none flex-col gap-0 p-0 md:hidden">
+        {CUSTOMER_JOURNEY_STAGES.map((stage, index) => (
+          <li key={stage.id}>
+            <StageCard stage={stage} />
+            {index < CUSTOMER_JOURNEY_STAGES.length - 1 ? (
+              <div className="flex justify-center py-2" aria-hidden="true">
+                <span className="text-lg text-brand-accent">↓</span>
               </div>
-              <p className="mt-3 text-xs font-bold uppercase tracking-wide text-brand-secondary sm:text-sm">
-                {stage.dimensionLabel}
-              </p>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+
+      {/* Tablet: two rows of three */}
+      <ol className="mx-auto hidden max-w-4xl list-none grid-cols-2 gap-4 p-0 md:grid lg:hidden">
+        {CUSTOMER_JOURNEY_STAGES.map((stage) => (
+          <li key={stage.id} className="min-w-0">
+            <StageCard stage={stage} />
+          </li>
+        ))}
+      </ol>
+
+      {/* Desktop: horizontal with connectors between cards (not overlapping) */}
+      <ol className="mx-auto hidden max-w-6xl list-none items-stretch gap-0 p-0 lg:flex">
+        {CUSTOMER_JOURNEY_STAGES.map((stage, index) => (
+          <li key={stage.id} className="flex min-w-0 flex-1 items-stretch">
+            <div className="min-w-0 flex-1">
+              <StageCard stage={stage} />
             </div>
-            {index < LIFECYCLE_STAGES.length - 1 ? (
-              <span
-                className="my-2 text-center text-xl font-bold text-brand-secondary md:hidden"
+            {index < CUSTOMER_JOURNEY_STAGES.length - 1 ? (
+              <div
+                className="flex w-8 flex-shrink-0 items-center justify-center self-center px-0.5"
                 aria-hidden="true"
               >
-                ↓
-              </span>
+                <span className="text-sm font-semibold text-brand-accent">→</span>
+              </div>
             ) : null}
           </li>
         ))}

@@ -1,9 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { CONTACT_TRADES } from "~/lib/lead/validateLead";
+import { FEATURE_FLAGS } from "~/config/features";
+import { CONTACT_TRADES, FLEET_SIZE_LABELS, FLEET_SIZE_RANGES } from "~/lib/lead/validateLead";
 import { submitContactLead } from "~/server/submitContactLead";
 
 export const Route = createFileRoute("/contact")({
+  head: () => ({
+    meta: [
+      { title: "Book an AI Growth Systems Consultation | 624 Voice" },
+      {
+        name: "description",
+        content:
+          "Tell us where leads, follow-up, customer communication, or routine work are slowing the business down. We respond within one business day to arrange your AI Growth Systems Consultation.",
+      },
+    ],
+  }),
   component: Contact,
 });
 
@@ -84,12 +95,12 @@ function Contact() {
             Get Started
           </span>
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Ready to Answer{" "}
-            <span className="text-brand-primary">Every Call?</span>
+            Let&apos;s Find the Opportunity Worth Fixing First
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Let's talk about how 624 Voice can help your business run
-            itself — so you can focus on what matters most.
+            Tell us where leads, follow-up, customer communication, or routine work
+            are slowing the business down. We&apos;ll help you determine the most
+            practical next step.
           </p>
         </div>
       </section>
@@ -104,8 +115,9 @@ function Contact() {
                 Send Us a Message
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Fill out the form below and we'll get back to you within 24
-                hours to schedule your personalized demo.
+                Share a little about your business and the result you want.
+                We&apos;ll respond within one business day to arrange your AI
+                Growth Systems Consultation.
               </p>
               {success ? (
                 <div className="mt-8 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6">
@@ -324,10 +336,11 @@ function Contact() {
                       required
                     >
                       <option value="">Select fleet size...</option>
-                      <option value="1-2">1–2 Trucks</option>
-                      <option value="3-7">3–7 Trucks</option>
-                      <option value="7-20">7–20 Trucks</option>
-                      <option value="20-50">20–50 Trucks</option>
+                      {FLEET_SIZE_RANGES.map((range) => (
+                        <option key={range} value={range}>
+                          {FLEET_SIZE_LABELS[range]}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -416,23 +429,27 @@ function Contact() {
                   </div>
                 </div>
 
-                <div className="mt-12 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
-                  <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-                    90-Day{" "}
-                    <span className="text-brand-primary">Results Guarantee</span>
-                  </h3>
-                  <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-                    We guarantee you recover at least our service investment in
-                    booked service-visit revenue within 90 days of go-live —{" "}
-                    <span className="font-semibold text-brand-primary">
-                      or we keep working, for free, until you do.
-                    </span>
-                  </p>
-                  <p className="mt-3 text-base leading-relaxed text-brand-secondary">
-                    If we don&apos;t perform, you don&apos;t pay beyond the{" "}
-                    <span className="font-medium">Results Engagement Period</span>.
-                  </p>
-                </div>
+                {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+                  <div className="mt-12 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+                    <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                      90-Day{" "}
+                      <span className="text-brand-primary">Results Guarantee</span>
+                    </h3>
+                    <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                      We guarantee you recover at least our service investment in
+                      booked service-visit revenue within 90 days of go-live —{" "}
+                      <span className="font-semibold text-brand-primary">
+                        or we keep working, for free, until you do.
+                      </span>
+                    </p>
+                  </div>
+                ) : null}
+                <p className="mt-8 text-sm text-gray-600">
+                  Already qualified and ready to pick a time?{" "}
+                  <a href="/book" className="font-semibold text-brand-primary hover:text-brand-primary-dark">
+                    Book a Time
+                  </a>
+                </p>
               </div>
             </div>
           </div>
@@ -446,8 +463,8 @@ function Contact() {
             Not Ready Yet? No Problem.
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Bookmark us. When you're ready to stop missing calls and start
-            living your life, we'll be here.
+            Bookmark 624 Voice and come back when you&apos;re ready to improve how
+            leads, customers, and routine work move through your business.
           </p>
           <a
             href="/"

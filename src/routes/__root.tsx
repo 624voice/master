@@ -98,11 +98,11 @@ function Nav() {
   const isDemoPage = pathname === "/demo";
 
   const linkClassName = isDemoPage
-    ? "text-sm font-medium text-white/80 transition-colors hover:text-[#10b981]"
+    ? "text-sm font-medium text-white/80 transition-colors hover:text-brand-primary"
     : "text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary";
 
   const demoLinkClassName = isDemoPage
-    ? "relative text-sm font-semibold text-[#10b981] after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-[#10b981] after:content-['']"
+    ? "relative text-sm font-semibold text-brand-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-brand-primary after:content-['']"
     : linkClassName;
 
   return (
@@ -231,82 +231,37 @@ function Footer() {
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
-              Pages
+              Explore
             </h4>
             <div className="flex flex-col gap-3">
-              <a
-                href="/what-we-do"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
+              <a href="/what-we-do" className="text-sm text-gray-400 transition-colors hover:text-white">
                 What We Do
               </a>
-              <a
-                href="/how-we-work"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
+              <a href="/how-we-work" className="text-sm text-gray-400 transition-colors hover:text-white">
                 How We Work
               </a>
-              <a
-                href="/assessment"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Free Assessment
-              </a>
-              <a
-                href="/demo"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
+              <a href="/demo" className="text-sm text-gray-400 transition-colors hover:text-white">
                 Live Demo
               </a>
-              <a
-                href="/about"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
+              <a href="/assessment" className="text-sm text-gray-400 transition-colors hover:text-white">
+                Free Assessment
+              </a>
+              <a href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">
                 About
-              </a>
-              <a
-                href="/contact"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Contact
-              </a>
-              <a
-                href="/book"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Book a Time
-              </a>
-              <a
-                href="/privacy"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Privacy
-              </a>
-              <a
-                href="/terms"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Terms
               </a>
             </div>
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
-              Contact
+              Get Started
             </h4>
             <div className="flex flex-col gap-3 text-sm text-gray-400">
-              {FEATURE_FLAGS.SHOW_FOOTER_CONTACT_DETAILS ? (
-                <span>info@624voice.com</span>
-              ) : (
-                <>
-                  <a href="/contact" className="transition-colors hover:text-white">
-                    Contact us
-                  </a>
-                  <a href="/book" className="transition-colors hover:text-white">
-                    Book a Time
-                  </a>
-                </>
-              )}
+              <a href="/contact" className="transition-colors hover:text-white">
+                Book a Consultation
+              </a>
+              <a href="mailto:info@624voice.com" className="transition-colors hover:text-white">
+                Email Us
+              </a>
             </div>
           </div>
         </div>

@@ -1,12 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
+import {
+  JourneyStageCard,
+  OutcomeCard,
+  ProcessStepCard,
+  ProofHighlightCard,
+} from "~/components/marketing/MarketingCards";
+import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 import { FEATURE_FLAGS } from "~/config/features";
+import { CLIENT_ENGAGEMENT_STEPS } from "~/content/clientEngagementProcess";
+import { CUSTOMER_JOURNEY_STAGES } from "~/content/customerJourneyStages";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       {
-        title: "624 Voice: AI Growth Systems for Home Services",
+        title: "AI Growth Systems for Home Services | 624 Voice",
       },
       {
         name: "description",
@@ -22,80 +31,33 @@ const PROBLEM_CARDS = [
   {
     title: "Response depends on who is free",
     body: "A call goes to voicemail or a web lead sits for hours because everyone is already helping someone else.",
+    iconId: "phone",
+    accent: "mint" as const,
   },
   {
     title: "Estimates rely on memory",
     body: "The quote goes out. Follow-up happens when someone remembers, has time, and knows what was said last.",
+    iconId: "calendar",
+    accent: "aqua" as const,
   },
   {
     title: "Past customers go quiet",
     body: "The job is finished, but review requests, service reminders, and future offers are inconsistent.",
+    iconId: "heart",
+    accent: "sky" as const,
   },
   {
     title: "Your team holds the tools together",
     body: "Information gets copied from one place to another, and the owner still has to piece together what is working.",
+    iconId: "gears",
+    accent: "neutral" as const,
   },
 ] as const;
 
-const LIFECYCLE_CARDS = [
-  {
-    title: "Get Found",
-    body: "Help the right homeowners find you and trust what they see through stronger websites, local search, and clearer visibility in AI-assisted search.",
-  },
-  {
-    title: "Respond",
-    body: "Answer new calls and leads while the need is still active. Voice, text, and chat agents can answer questions, collect details, route requests, and book when appropriate.",
-  },
-  {
-    title: "Convert",
-    body: "Keep estimates and open opportunities moving with timely follow-up, clear handoffs, and useful CRM connections.",
-  },
-  {
-    title: "Retain and Grow",
-    body: "Ask for reviews, send service reminders, introduce relevant add-ons, and reconnect with past customers at the right time.",
-  },
-  {
-    title: "Reduce Manual Work",
-    body: "Automate routine data entry, notifications, handoffs, and eligible follow-up so your team can focus on work that requires judgment.",
-  },
-  {
-    title: "Measure and Improve",
-    body: "Use dashboards, reporting, and quarterly reviews to see what is happening, what it is producing, and what should improve next.",
-  },
-] as const;
+const HOME_DEMO_BODY =
+  "Hear how a natural AI receptionist can answer questions, understand what a caller needs, and move the conversation toward the right outcome—all while creating an experience designed around your business and customers.";
 
-const PROCESS_STEPS = [
-  {
-    step: "1",
-    title: "Understand",
-    body: "Clarify the business problem, the customer journey, the tools involved, and what a useful result would look like.",
-  },
-  {
-    step: "2",
-    title: "Diagnose when needed",
-    body: "If the issue is bigger than one fix, take a deeper look before deciding what to build.",
-  },
-  {
-    step: "3",
-    title: "Build the roadmap",
-    body: "Set the priorities, sequence, responsibilities, integrations, and success measures before implementation begins.",
-  },
-  {
-    step: "4",
-    title: "Implement",
-    body: "Build the right modules and connect them with the systems worth keeping.",
-  },
-  {
-    step: "5",
-    title: "Improve",
-    body: "Watch real performance and adjust the experience as the business and customer needs change.",
-  },
-  {
-    step: "6",
-    title: "Review",
-    body: "Use reporting and quarterly business reviews to show what changed, what it is worth, and what deserves attention next.",
-  },
-] as const;
+const PROCESS_ICONS = ["compass", "chart", "gears", "phone"] as const;
 
 function Home() {
   const broaderProblemCopy = FEATURE_FLAGS.SHOW_DIAGNOSTIC_CREDIT_MENTION
@@ -153,11 +115,17 @@ function Home() {
           <SectionHeader
             eyebrow="Where opportunity gets stuck"
             headline="Does This Sound Like a Normal Week?"
-            supporting="The leads are coming in and the work is getting done. The trouble is everything that has to happen between those two points, especially when the office is busy."
+            supporting="The leads are coming in and the work is getting done. The trouble is everything that has to happen between those two points, especially when the office is busy or even closed."
           />
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PROBLEM_CARDS.map((card) => (
-              <TextCard key={card.title} title={card.title} body={card.body} />
+              <OutcomeCard
+                key={card.title}
+                title={card.title}
+                body={card.body}
+                accent={card.accent}
+                icon={<JourneyStageIcon iconId={card.iconId} className="h-6 w-6" />}
+              />
             ))}
           </div>
           <p className="mx-auto mt-12 max-w-3xl text-center text-sm leading-relaxed text-gray-500">
@@ -212,8 +180,14 @@ function Home() {
             supporting="Most companies do not need all six at once. The first job is finding which part is holding back the rest."
           />
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {LIFECYCLE_CARDS.map((card) => (
-              <LifecycleCard key={card.title} title={card.title} body={card.body} />
+            {CUSTOMER_JOURNEY_STAGES.map((stage) => (
+              <JourneyStageCard
+                key={stage.id}
+                primaryLabel={stage.primaryLabel}
+                description={stage.description}
+                iconId={stage.iconId}
+                accentClass={stage.accentClass}
+              />
             ))}
           </div>
           <div className="mt-12 text-center">
@@ -233,36 +207,17 @@ function Home() {
       {/* 5 — Live Demonstration */}
       <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
-          <Eyebrow>See one part working</Eyebrow>
+          <Eyebrow>Hear a Natural AI Conversation</Eyebrow>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-brand-secondary sm:text-4xl">
-            Call Jessica, Our Live AI Receptionist
+            Meet the AI Voice Experience Your Customers Could Hear
           </h2>
+          <p className="mt-8 text-lg leading-relaxed text-gray-600">{HOME_DEMO_BODY}</p>
           <a
             href="/demo"
-            className="mt-8 inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark sm:hidden"
+            className="mt-8 inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary-dark sm:mt-10"
           >
-            Start the Live Demonstration
+            Hear the Live AI Demo
           </a>
-          <p className="mt-8 text-lg leading-relaxed text-gray-600 sm:mt-6">
-            Ask a question, describe the service you need, or try to schedule an
-            appointment. You can speak in English or Spanish.
-          </p>
-          <p className="mt-4 text-lg leading-relaxed text-gray-600">
-            Jessica demonstrates the Respond stage of the customer journey. The
-            rest of 624 Voice connects what happens before and after that
-            conversation.
-          </p>
-          <a
-            href="/demo"
-            className="mt-10 hidden items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark sm:inline-flex"
-          >
-            Start the Live Demonstration
-          </a>
-          <p className="mt-8 text-sm text-gray-500">
-            This is a working demonstration with a specific home-service setup.
-            Your version would be designed around your business, customers, and
-            tools.
-          </p>
         </div>
       </section>
 
@@ -271,26 +226,26 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <SectionHeader
             eyebrow="A practical path from problem to results"
-            headline="Fix the Most Important Problem First"
+            headline="How We Work, at a Glance"
             supporting="We begin with how the business works today, not with a package of tools. From there, we define the outcome, build what is needed, and review the results with you."
           />
-          <ol className="mx-auto mt-16 max-w-3xl space-y-6">
-            {PROCESS_STEPS.map((step) => (
-              <li
+          <ol className="mx-auto mt-16 grid max-w-5xl list-none gap-6 p-0 lg:grid-cols-2">
+            {CLIENT_ENGAGEMENT_STEPS.map((step, index) => (
+              <li key={step.step} className="list-none">
+              <ProcessStepCard
                 key={step.step}
-                className="flex gap-4 rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
-              >
-                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
-                  {step.step}
-                </span>
-                <div>
-                  <h3 className="text-lg font-semibold text-brand-secondary">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    {step.body}
-                  </p>
-                </div>
+                step={step.step}
+                title={step.title}
+                body={step.body}
+                deliverable={step.deliverable}
+                note={step.step === 1 ? step.noteUnderStep1 : undefined}
+                icon={
+                  <JourneyStageIcon
+                    iconId={PROCESS_ICONS[index] ?? "chart"}
+                    className="h-6 w-6"
+                  />
+                }
+              />
               </li>
             ))}
           </ol>
@@ -385,20 +340,14 @@ function Home() {
           />
           <div className="mt-12 space-y-6">
             {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
-              <>
-                <TextCard
-                  title="Qualifying inbound voice implementations"
-                  body="A 90-Day Results Guarantee may apply to qualifying AI receptionist and voice Speed-to-Lead work when booked service-visit revenue can be reliably attributed. Eligibility and written terms are confirmed before the engagement."
-                />
-                <TextCard
-                  title="All other implementations"
-                  body="You receive a clear scope, defined launch criteria, transparent reporting, and continued optimization. We do not apply a broad revenue guarantee where the data cannot support one."
-                />
-              </>
+              <ProofHighlightCard
+                title="Implementation and Optimization Commitment"
+                body="The 90-day revenue guarantee applies only to qualifying Voice AI and Speed-to-Lead engagements where sufficient baseline data exists. Every other engagement includes an agreed scope, defined launch criteria, transparent reporting, and continued optimization."
+              />
             ) : (
-              <TextCard
-                title="All other implementations"
-                body="You receive a clear scope, defined launch criteria, transparent reporting, and continued optimization. We do not apply a broad revenue guarantee where the data cannot support one."
+              <ProofHighlightCard
+                title="Clear Expectations for Every Engagement"
+                body="Before implementation begins, we agree on the problem, scope, launch criteria, measures of success, and reporting. After launch, we review performance, improve the experience, and determine what deserves attention next."
               />
             )}
           </div>
@@ -521,15 +470,6 @@ function SectionHeader({
 function TextCard({ title, body }: { title: string; body: string }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
-      <h3 className="text-lg font-semibold text-brand-secondary">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-gray-600">{body}</p>
-    </div>
-  );
-}
-
-function LifecycleCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-brand-primary/20 hover:shadow-md">
       <h3 className="text-lg font-semibold text-brand-secondary">{title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-gray-600">{body}</p>
     </div>

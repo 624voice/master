@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AssessmentGate } from "~/components/assessment/AssessmentGate";
+import { AssessmentPageHero } from "~/components/assessment/AssessmentPageHero";
 import { AssessmentProgress } from "~/components/assessment/AssessmentProgress";
 import { AssessmentQuestion } from "~/components/assessment/AssessmentQuestion";
 import { AssessmentResults } from "~/components/assessment/AssessmentResults";
@@ -36,6 +37,18 @@ import {
 } from "~/server/submitAssessmentLead";
 
 export const Route = createFileRoute("/assessment")({
+  head: () => ({
+    meta: [
+      {
+        title: "Free AI Growth Systems Assessment | 624 Voice",
+      },
+      {
+        name: "description",
+        content:
+          "Rank six areas where home-service businesses leak revenue and time, with a modeled opportunity estimate and downloadable report.",
+      },
+    ],
+  }),
   component: AssessmentPage,
 });
 
@@ -293,11 +306,13 @@ function AssessmentPage() {
 
   const results = submitResponse?.results ?? teaserResult;
   const progressQuestionId =
-    step === "respond"
-      ? "respond"
-      : step === "questions" && currentQuestionId
-        ? currentQuestionId
-        : null;
+    step === "bp1" || step === "bp2"
+      ? step
+      : step === "respond"
+        ? "respond"
+        : step === "questions" && currentQuestionId
+          ? currentQuestionId
+          : null;
 
   const teaserModerate =
     teaserResult?.dollarEstimate &&
@@ -310,21 +325,7 @@ function AssessmentPage() {
 
   return (
     <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            Business Assessment
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Find Your{" "}
-            <span className="text-brand-primary">Top Priorities</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Six areas where home-service businesses leak revenue and time — ranked
-            for your trade and fleet size in a few minutes.
-          </p>
-        </div>
-      </section>
+      <AssessmentPageHero />
 
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <Card className="mx-auto max-w-3xl">
@@ -340,8 +341,22 @@ function AssessmentPage() {
             />
           ) : (
             <div className="space-y-8">
+              {step === "bp1" && (
+                <div className="space-y-3 rounded-lg border border-gray-200 bg-white/80 p-4 text-sm text-gray-700">
+                  <p>
+                    <span className="font-semibold text-brand-secondary">About 3–5 minutes</span>
+                  </p>
+                  <p>
+                    You&apos;ll receive a six-area snapshot, a modeled estimate of the
+                    opportunity tied to missed calls, and a report you can use to prepare
+                    for your next conversation.
+                  </p>
+                  <p>Use your best estimate. You can choose &apos;Not sure&apos; where available.</p>
+                </div>
+              )}
+
               {progressQuestionId && (
-                <AssessmentProgress questionId={progressQuestionId} />
+                <AssessmentProgress questionId={progressQuestionId} stepKey={step} />
               )}
 
               {step === "bp1" && (

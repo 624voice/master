@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FEATURE_FLAGS } from "~/config/features";
+import { WaveformDetail } from "~/components/marketing/MarketingCards";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -22,12 +22,12 @@ function About() {
     <main className="pt-20">
       <section className="bg-brand-secondary px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
+          <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-brand-mint">
             Why 624 Voice
           </span>
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             Practical AI for the Work That{" "}
-            <span className="text-brand-primary">Keeps a Business Moving</span>
+            <span className="text-brand-mint">Keeps a Business Moving</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
             624 Voice helps growing home-service companies improve how they
@@ -40,53 +40,41 @@ function About() {
 
       <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Why the name 624
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            624 references Matthew 6:24: you can&apos;t serve two masters. For
-            us, that&apos;s a simple operating rule: technology should serve the
-            people using it, not the other way around. We&apos;d rather tell a
-            business no immediate change is needed than sell something that
-            doesn&apos;t actually help.
-          </p>
+          <div className="relative overflow-hidden rounded-2xl border border-brand-primary/20 bg-gradient-to-br from-brand-primary-light/40 to-white p-8 shadow-md">
+            <WaveformDetail className="absolute right-6 top-6 opacity-40" />
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-primary-dark">
+              Matthew 6:24
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-secondary">
+              Why the name 624
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-gray-700">
+              624 references Matthew 6:24: you can&apos;t serve two masters. For
+              us, that&apos;s a simple operating rule: technology should serve the
+              people using it, not the other way around. We&apos;d rather tell a
+              business no immediate change is needed than sell something that
+              doesn&apos;t actually help.
+            </p>
+          </div>
         </div>
       </section>
 
       <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Why we look before we recommend
+            A Founder-Led Practice
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            We begin by understanding how the business works today, where the
-            customer journey slows down, which tools are already useful, and what
-            outcome matters. That context gives each recommendation a practical
-            reason to exist.
+            624 Voice is a founder-led practice built to give growing home-service
+            companies direct, accountable guidance from diagnosis through
+            implementation and ongoing improvement.
           </p>
-        </div>
-      </section>
-
-      <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Founder
-          </h2>
-          {FEATURE_FLAGS.SHOW_FOUNDER_PARAGRAPH_UPDATE ? (
-            <p className="mt-6 text-lg leading-relaxed text-gray-700">
-              624 Voice was founded by Chris, who brings more than 18 years of
-              work across business communications, enterprise technology,
-              customer experience, contact centers, and modernization. His
-              current work focuses on enterprise AI agents and customer
-              operations. That experience spans multiple organizations and
-              roles over two decades; what&apos;s described here is the
-              throughline, not the complete list.
-            </p>
-          ) : (
-            <p className="mt-6 text-lg leading-relaxed text-gray-700">
-              624 Voice was founded by Chris.
-            </p>
-          )}
+          <p className="mt-6 text-lg leading-relaxed text-gray-700">
+            The work is informed by more than 18 years across business
+            communications, enterprise technology, customer experience, contact
+            centers, and modernization. That experience now includes enterprise AI
+            agents and customer operations.
+          </p>
           <p className="mt-6 text-lg leading-relaxed text-gray-700">
             Faith shapes how we work through stewardship, integrity, service, and
             keeping commitments. It also means being honest when the right
@@ -95,14 +83,14 @@ function About() {
         </div>
       </section>
 
-      <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
+      <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
             Why quarterly reviews matter to us
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            Quarterly business reviews compare the work with the measures agreed
-            at the start. They show what is working, what needs attention, and
+            Quarterly business reviews compare the work with the measures agreed at
+            the start. They show what is working, what needs attention, and
             whether the next investment is justified.
           </p>
         </div>

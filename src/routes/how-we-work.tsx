@@ -1,4 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ProcessStepCard } from "~/components/marketing/MarketingCards";
+import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
+import { HOW_WE_WORK_STEPS } from "~/content/clientEngagementProcess";
 
 export const Route = createFileRoute("/how-we-work")({
   head: () => ({
@@ -16,112 +19,56 @@ export const Route = createFileRoute("/how-we-work")({
   component: HowWeWorkPage,
 });
 
-const steps = [
-  {
-    number: 1,
-    title: "AI Growth Systems Consultation",
-    body: "A free, focused conversation, about 30 minutes. We talk through your priorities and constraints, how leads move through your business today, where the friction is most visible, what tools you already have, and the business outcome that actually matters to you. You leave knowing whether the next step is a focused project, a paid Diagnostic, or genuinely no change right now.",
-    covered: [
-      "Your priorities and constraints",
-      "Your current lead and customer journey",
-      "The most visible operational friction",
-      "The tools and systems already in place",
-      "The business outcome that matters most",
-      "The recommended next step",
-    ],
-  },
-  {
-    number: 2,
-    title: "Paid Diagnostic, When a Deeper Look Is Warranted",
-    body: "If the Consultation surfaces one contained problem, we scope it directly. If it surfaces something bigger (several connected issues, or genuine uncertainty about where the real constraint is), a paid AI Revenue and Operations Diagnostic takes a full look at your customer journey, workflows, data, and systems before anything gets built. You keep the roadmap either way.",
-  },
-  {
-    number: 3,
-    title: "Roadmap and Focused Scope",
-    body: "Whether it comes from a focused scoping conversation or the full Diagnostic, you get a prioritized plan: what to fix first, why, and what it depends on. This is yours to keep, whether or not you move forward with implementation.",
-  },
-  {
-    number: 4,
-    title: "Modular Implementation",
-    body: "The right pieces get built and connected, one module at a time, approved as you go. We keep the systems that already work and connect the approved modules around them.",
-  },
-  {
-    number: 5,
-    title: "Ongoing Optimization",
-    body: "Once something is live, we watch its performance and adjust it as the business changes.",
-  },
-  {
-    number: 6,
-    title: "Quarterly Review and Measurable Next Decisions",
-    body: "A standing review connects what changed to what it is worth and uses the performance data collected since launch to set the next priority.",
-  },
-];
+const STEP_ICONS = ["compass", "chart", "gears", "phone"] as const;
 
 function HowWeWorkPage() {
   return (
     <main className="pt-20">
       <section className="bg-brand-secondary px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
+          <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-brand-mint">
             The process, start to finish
           </span>
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             Start With the{" "}
-            <span className="text-brand-primary">Business Problem</span>
+            <span className="text-brand-mint">Business Problem</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            The first step is understanding what you want to improve and how
-            the work happens today. Some problems call for one focused
-            implementation. Others cross several systems and deserve a deeper
-            Diagnostic before anything is built.
+            The first step is understanding what you want to improve and how the
+            work happens today. Some problems call for one focused implementation.
+            Others cross several systems and deserve a deeper Diagnostic before
+            anything is built.
           </p>
         </div>
       </section>
 
       <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl">
-          <ol className="space-y-16">
-            {steps.map((step) => (
-              <li key={step.number} className="relative pl-16">
-                <div className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary text-lg font-bold text-white">
-                  {step.number}
-                </div>
-                <h2 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-                  Step {step.number}: {step.title}
-                </h2>
-                <p className="mt-4 text-base leading-relaxed text-gray-700">
-                  {step.body}
-                </p>
-                {step.covered ? (
-                  <div className="mt-6">
-                    <p className="text-sm font-semibold text-brand-secondary">
-                      What&apos;s covered
-                    </p>
-                    <ul className="mt-3 space-y-2">
-                      {step.covered.map((item) => (
-                        <li
-                          key={item}
-                          className="flex items-start gap-3 text-sm text-gray-600"
-                        >
-                          <svg
-                            className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-primary"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+        <div className="mx-auto max-w-4xl">
+          <ol className="relative grid list-none gap-8 p-0 lg:gap-10">
+            {HOW_WE_WORK_STEPS.map((step, index) => (
+              <li key={step.step} className="relative">
+                {index < HOW_WE_WORK_STEPS.length - 1 ? (
+                  <span
+                    className="absolute left-6 top-16 hidden h-[calc(100%+2rem)] w-px bg-brand-accent lg:block"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <ProcessStepCard
+                  step={step.step}
+                  title={step.title}
+                  body={step.body}
+                  deliverable={step.deliverable}
+                  icon={
+                    <JourneyStageIcon
+                      iconId={STEP_ICONS[index] ?? "chart"}
+                      className="h-6 w-6"
+                    />
+                  }
+                />
+                {"trustHighlight" in step && step.trustHighlight ? (
+                  <p className="mt-4 rounded-lg border border-brand-primary/20 bg-brand-primary-light/50 px-4 py-3 text-sm font-medium text-brand-secondary">
+                    {step.trustHighlight}
+                  </p>
                 ) : null}
               </li>
             ))}

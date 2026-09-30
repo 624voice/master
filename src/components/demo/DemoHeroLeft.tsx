@@ -59,9 +59,10 @@ export function DemoHeroLeft({
       </p>
 
       <p className="mt-5 max-w-[570px] text-[17px] leading-[1.55] text-[#94A3B8] lg:mx-0 mx-auto sm:text-lg">
-        Jessica can answer questions, qualify callers, book appointments, offer
-        maintenance plans, and send confirmations, all in one natural
-        conversation.
+        Hear how naturally Jessica can answer questions, understand what a caller
+        needs, and help move the conversation toward a booked appointment. The
+        production experience is designed around your business, customers,
+        services, and workflow.
       </p>
 
       <div className="mt-6 flex items-center justify-center gap-3 lg:justify-start">

@@ -169,7 +169,7 @@ const lifecycleSections: LifecycleSection[] = [
       {
         title: "AI Tool Assessments",
         description:
-          "An honest look at what's already in place and what's actually earning its keep.",
+          "An honest look at what's already in place and what's actually earning its keep. Available as part of the paid AI Revenue and Operations Diagnostic.",
       },
       {
         title: "KPI Reviews",

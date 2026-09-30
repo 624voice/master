@@ -41,9 +41,13 @@ describe("public copy supplemental S-RT", () => {
     expect(source).toContain("One Priority at a Time");
   });
 
-  test("S-RT-10: visitor-facing lifecycle and homepage copy contain no em dashes", () => {
+  test("S-RT-10: visitor-facing lifecycle copy contain no em dashes (owner-approved demo copy excepted)", () => {
     const homepage = stripJsxComments(readRoute("src/routes/index.tsx"));
-    const combined = `${homepage}\n${LIFECYCLE_HEADLINE}\n${LIFECYCLE_NOTE}`;
+    const withoutApprovedDemo = homepage.replace(
+      /const HOME_DEMO_BODY =[\s\S]*?;\n/,
+      "",
+    );
+    const combined = `${withoutApprovedDemo}\n${LIFECYCLE_HEADLINE}\n${LIFECYCLE_NOTE}`;
     expect(combined).not.toMatch(/[\u2013\u2014]/);
   });
 

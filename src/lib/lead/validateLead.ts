@@ -17,11 +17,11 @@ export const FLEET_SIZE_RANGES = [
 export type FleetSizeRange = (typeof FLEET_SIZE_RANGES)[number];
 
 export const FLEET_SIZE_LABELS: Record<FleetSizeRange, string> = {
-  "1-2": "1–2 vehicles",
-  "3-7": "3–7 vehicles",
-  "8-20": "8–20 vehicles",
-  "21-50": "21–50 vehicles",
-  "50+": "50+ vehicles",
+  "1-2": "1–2 trucks",
+  "3-7": "3–7 trucks",
+  "8-20": "8–20 trucks",
+  "21-50": "21–50 trucks",
+  "50+": "50+ trucks",
 };
 
 export const CONTACT_TRADES = [
