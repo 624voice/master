@@ -1,5 +1,7 @@
 /**
- * Probe fail-closed edge gate when credentials are missing (no secrets required).
+ * Probe edge gate misconfiguration vs open preview (no secrets required).
+ * - both_missing: public preview with noindex (200)
+ * - username_missing | password_missing: partial creds → 503
  */
 const baseUrl = process.env.PHASE2_NETLIFY_OWNER_QA_PROBE_URL?.replace(/\/$/, "");
 const scenario = process.env.PHASE2_EDGE_FAILCLOSED_SCENARIO ?? "unknown";
@@ -26,7 +28,12 @@ for (const path of paths) {
 
 console.log(JSON.stringify({ baseUrl, scenario, results }, null, 2));
 
-const bad = results.filter(
-  (r) => r.status === 200 || !String(r.xRobotsTag ?? "").includes("noindex"),
-);
+const expectOpenPreview = scenario === "both_missing";
+const bad = results.filter((r) => {
+  const hasNoindex = String(r.xRobotsTag ?? "").includes("noindex");
+  if (expectOpenPreview) {
+    return r.status !== 200 || !hasNoindex || r.wwwAuthenticate;
+  }
+  return r.status !== 503 || !hasNoindex;
+});
 if (bad.length > 0) process.exit(1);

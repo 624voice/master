@@ -26,12 +26,16 @@ function denyHeaders(includeWwwAuthenticate: boolean): HeadersInit {
   return headers;
 }
 
-/** Fail closed when edge credentials are missing or mis-scoped (never serve origin unauthenticated). */
+/** Fail closed when only one of user/pass is set (mis-scoped deploy). */
 function misconfiguredResponse(): Response {
-  return new Response("Owner QA preview authentication is not configured.", {
+  return new Response("Owner QA preview authentication is misconfigured.", {
     status: 503,
     headers: denyHeaders(false),
   });
+}
+
+function isOwnerQaPreviewContext(): boolean {
+  return Netlify.env.get("PHASE2_OWNER_QA_PREVIEW") === "1";
 }
 
 async function sha256Bytes(value: string): Promise<Uint8Array> {
@@ -131,10 +135,20 @@ async function applyNoindexToResponse(response: Response): Promise<Response> {
 }
 
 export default async function phase2OwnerQaGate(request: Request, context: EdgeContext) {
-  const user = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER");
-  const pass = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS");
-  if (!user || !pass) {
+  const user = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER") ?? "").trim();
+  const pass = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS") ?? "").trim();
+  const preview = isOwnerQaPreviewContext();
+
+  if ((user && !pass) || (!user && pass)) {
     return misconfiguredResponse();
+  }
+
+  if (!user && !pass) {
+    const response = await context.next();
+    if (preview) {
+      return await applyNoindexToResponse(response);
+    }
+    return response;
   }
 
   const ip = clientIp(context);

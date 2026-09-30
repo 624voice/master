@@ -24,7 +24,7 @@ deploy_draft() {
   echo "$url"
 }
 
-echo "Fail-closed matrix (both creds missing)..."
+echo "Edge matrix (both creds missing → open preview with noindex)..."
 URL_BOTH="$(deploy_draft both-missing \
   --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=" \
   --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=")"

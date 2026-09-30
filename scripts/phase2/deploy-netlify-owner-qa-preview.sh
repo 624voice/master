@@ -27,16 +27,20 @@ export SPEED2LEAD_ENABLED=false
 bun run build
 
 mkdir -p dist/client
-PREVIEW_AUTH_USER="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER:-owner-qa}"
-PREVIEW_AUTH_PASS="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD:-$(openssl rand -hex 16)}"
-mkdir -p /opt/cursor/artifacts
-AUTH_ARTIFACT="/opt/cursor/artifacts/netlify-owner-qa-preview-basic-auth.txt"
-{
-  echo "user=${PREVIEW_AUTH_USER}"
-  echo "password=${PREVIEW_AUTH_PASS}"
-  echo "mechanism=netlify-edge-basic-auth"
-} > "$AUTH_ARTIFACT"
-chmod 600 "$AUTH_ARTIFACT"
+
+# Optional Basic Auth: set both PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER and _PASSWORD before deploy.
+PREVIEW_AUTH_USER="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER:-}"
+PREVIEW_AUTH_PASS="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD:-}"
+DEPLOY_AUTH_ARGS=()
+if [[ -n "$PREVIEW_AUTH_USER" && -n "$PREVIEW_AUTH_PASS" ]]; then
+  DEPLOY_AUTH_ARGS=(
+    --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}"
+    --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}"
+  )
+  echo "Deploy includes edge Basic Auth (user set)."
+else
+  echo "Deploy without edge Basic Auth (public owner-QA preview; X-Robots-Tag noindex only)."
+fi
 
 # X-Robots-Tag works on all plans; Basic-Auth in _headers requires Pro+.
 cat > dist/client/_headers <<EOF
@@ -71,8 +75,7 @@ netlify deploy \
   --env "ASSESSMENT_ROI_AGENT_LIVE_ENABLED=false" \
   --env "SPEED2LEAD_ENABLED=false" \
   --env "SPEED2LEAD_LLM_ENABLED=false" \
-  --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}" \
-  --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}" \
+  "${DEPLOY_AUTH_ARGS[@]}" \
   --secret-env "ASSESSMENT_SECURITY_HMAC_SECRET=${PREVIEW_HMAC}" \
   2>&1 | tee "$DEPLOY_LOG"
 
@@ -88,4 +91,4 @@ echo "Preview URL: ${PREVIEW_URL}"
 PHASE2_NETLIFY_OWNER_QA_BASE_URL="${PREVIEW_URL}" bun run scripts/phase2/generate-owner-walkthrough-v5-markdown.ts
 bun run scripts/phase2/audit-owner-walkthrough-markdown.ts
 
-echo "Done. Configure Netlify access control (team login or password) for Deploy Previews on site 624voice-phase2-owner-qa if not already enabled."
+echo "Done. Preview is open unless PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_* were set for this deploy."

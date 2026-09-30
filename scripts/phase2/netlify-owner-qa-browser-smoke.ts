@@ -3,13 +3,13 @@
  *
  * Required:
  *   PHASE2_NETLIFY_OWNER_QA_SMOKE_URL
- *   NETLIFY_PREVIEW_PASSWORD
  * Optional:
- *   NETLIFY_PREVIEW_BASIC_AUTH_USER (default owner-qa)
+ *   NETLIFY_PREVIEW_PASSWORD + NETLIFY_PREVIEW_BASIC_AUTH_USER (default owner-qa) when Basic Auth enabled
  */
 const baseUrl = process.env.PHASE2_NETLIFY_OWNER_QA_SMOKE_URL?.replace(/\/$/, "");
 const password = process.env.NETLIFY_PREVIEW_PASSWORD?.trim();
 const basicUser = process.env.NETLIFY_PREVIEW_BASIC_AUTH_USER?.trim() || "owner-qa";
+const basicAuthEnabled = Boolean(password);
 
 const FORBIDDEN_HOST_PATTERNS = [
   /twilio\.com/i,
@@ -38,17 +38,18 @@ function isForbiddenOutbound(url: string, origin: string): boolean {
 }
 
 async function fetchAudit(origin: string): Promise<Record<string, unknown>> {
-  const auth = Buffer.from(`${basicUser}:${password}`).toString("base64");
-  const res = await fetch(`${origin}/api/phase2-owner-qa-audit`, {
-    headers: { Authorization: `Basic ${auth}`, Accept: "application/json" },
-  });
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (basicAuthEnabled) {
+    headers.Authorization = `Basic ${Buffer.from(`${basicUser}:${password}`).toString("base64")}`;
+  }
+  const res = await fetch(`${origin}/api/phase2-owner-qa-audit`, { headers });
   if (!res.ok) throw new Error(`Audit endpoint failed: ${res.status}`);
   return (await res.json()) as Record<string, unknown>;
 }
 
 async function main(): Promise<void> {
-  if (!baseUrl || !password) {
-    console.error("PHASE2_NETLIFY_OWNER_QA_SMOKE_URL and NETLIFY_PREVIEW_PASSWORD are required");
+  if (!baseUrl) {
+    console.error("PHASE2_NETLIFY_OWNER_QA_SMOKE_URL is required");
     process.exit(1);
   }
 
@@ -65,7 +66,9 @@ async function main(): Promise<void> {
   const forbiddenRequests: string[] = [];
   const browser = await launchAssessmentBrowser();
   const page = await browser.newPage();
-  await page.authenticate({ username: basicUser, password });
+  if (basicAuthEnabled) {
+    await page.authenticate({ username: basicUser, password: password! });
+  }
   await page.setViewport({ width: 1280, height: 900 });
   page.setDefaultTimeout(120_000);
   page.setDefaultNavigationTimeout(120_000);

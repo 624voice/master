@@ -21,7 +21,7 @@
   command = "bun run dev"
   port = 3000
 
-# Phase 2 owner-QA Netlify site only activates when deploy sets edge basic-auth env vars.
+# Owner-QA site: optional Basic Auth when PHASE2_OWNER_QA_EDGE_BASIC_AUTH_* are both set; noindex when preview has no auth.
 [[edge_functions]]
   path = "/*"
   function = "phase2-owner-qa-gate"
