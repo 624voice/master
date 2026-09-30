@@ -2,12 +2,12 @@
 
 ## EXECUTABLE CHECKOUT SHA
 
-**Final executable preview checkout SHA:** `ec771024d7550fd34098d77c008419fc26d8af9d`
+**Final executable preview checkout SHA:** `3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf`
 
 ## CHECKOUT
 
 ```bash
-git checkout ec771024d7550fd34098d77c008419fc26d8af9d
+git checkout 3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf
 ```
 
 Canonical owner handoff Markdown is versioned separately in evidence commits. After checkout, extract the audited handoff without modifying tracked files (see outer delivery report for canonical commit SHA, extraction command, and SHA-256 verification).
@@ -24,7 +24,7 @@ Canonical owner handoff Markdown is versioned separately in evidence commits. Af
 
 Open the protected Netlify preview URL in Chrome. Sign in with your Netlify team account or enter the shared preview password when Netlify prompts you.
 
-**URL:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/
+**URL:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/
 
 After authentication you should see the normal 624 Voice home page (header with 624 Voice link). If Netlify shows only an login or password form and never reaches the site, stop and report authentication failure.
 
@@ -83,7 +83,7 @@ From 624 Voice header link:
 ### Check 1 — Desktop header — five Tabs from 624 Voice to About
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -116,7 +116,7 @@ From 624 Voice header link:
 ### Check 3 — Mobile nav — Enter opens menu
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 375 CSS px, height 800 CSS px. Verify displayed dimensions read 375 × 800 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -164,7 +164,7 @@ From 624 Voice header link:
 ### Check 6 — Home keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -201,7 +201,7 @@ From 624 Voice header link:
 ### Check 8 — /what-we-do keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/what-we-do
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/what-we-do
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -236,7 +236,7 @@ From 624 Voice header link:
 ### Check 10 — /how-we-work keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/how-we-work
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/how-we-work
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -272,7 +272,7 @@ From 624 Voice header link:
 ### Check 12 — /demo keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/demo
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/demo
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -308,7 +308,7 @@ From 624 Voice header link:
 ### Check 14 — /about keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/about
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/about
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -344,7 +344,7 @@ From 624 Voice header link:
 ### Check 16 — /contact keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/contact
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/contact
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -382,21 +382,21 @@ From 624 Voice header link:
 ### Check 18 — /services redirect
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/services
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/services
 - **Starting focused element:** Address bar
 - **Literal bounded key sequence:**
-  1. Press Command+L, type https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/services, press Enter.
+  1. Press Command+L, type https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/services, press Enter.
   2. Press Command+L, read address bar URL.
 - **Expected rendered state:** What We Do page content rendered.
-- **Final focused element:** Address bar showing https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/what-we-do
+- **Final focused element:** Address bar showing https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/what-we-do
 - **State deliberately left for next check:** Browser at /what-we-do.
-- **PASS:** Address bar reads https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/what-we-do after loading /services.
-- **FAIL:** Address bar does not read https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/what-we-do.
+- **PASS:** Address bar reads https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/what-we-do after loading /services.
+- **FAIL:** Address bar does not read https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/what-we-do.
 
 ### Check 19 — 404 keyboard reachability
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/does-not-exist-404
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/does-not-exist-404
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -431,7 +431,7 @@ From 624 Voice header link:
 ### Check 21 — Assessment BP1 — native SELECT trade HVAC and Continue
 
 - **Viewport:** Chrome DevTools open (Command+Option+I), device toolbar active (Command+Shift+M), Responsive mode, width 1280 CSS px, height 900 CSS px. Verify displayed dimensions read 1280 × 900 before starting.
-- **Starting URL or preceding-check state:** https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/assessment
+- **Starting URL or preceding-check state:** https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/assessment
 - **Starting focused element:** Document body before reset Tab
 - **Literal bounded key sequence:**
   1. Press Command+L, type the check URL, press Enter.
@@ -918,7 +918,7 @@ Close the Chrome tab when finished. No local preview server shutdown is required
 
 | Field | Value |
 |---|---|
-| Tested SHA | ec771024d7550fd34098d77c008419fc26d8af9d |
+| Tested SHA | 3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf |
 | Operator | |
 | Executed at (ISO) | |
 | Confirmed physical keyboard only | |
