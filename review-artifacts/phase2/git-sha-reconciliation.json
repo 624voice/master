@@ -1,0 +1,466 @@
+{
+  "priorVerificationSha": "15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19",
+  "priorVerificationMeta": {
+    "sha": "15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19",
+    "author": "Cursor Agent",
+    "email": "cursoragent@cursor.com",
+    "date": "2026-09-15 15:14:50 +0000",
+    "subject": "Add final verification runner and update report generator"
+  },
+  "typescriptReconciliationSha": "9d1412156746ae9e2dca635170f356e2d2fee825",
+  "typescriptReconciliationMeta": {
+    "sha": "9d1412156746ae9e2dca635170f356e2d2fee825",
+    "author": "Cursor Agent",
+    "email": "cursoragent@cursor.com",
+    "date": "2026-09-15 18:08:10 +0000",
+    "subject": "Fix Phase 2 TS measurement scope and test diagnostics"
+  },
+  "finalExecutableSha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+  "finalExecutableMeta": {
+    "sha": "d54286ec9f875d7627c3a027bf7407664389f4e6",
+    "author": "Cursor Agent",
+    "email": "cursoragent@cursor.com",
+    "date": "2026-09-15 19:27:32 +0000",
+    "subject": "Fix HumanKbResult type in accessibility QA script for zero QA diagnostics"
+  },
+  "range15a4a9cTo9d14121": {
+    "command": "git diff --name-status 15a4a9ccfe90e80d32cfd3f83c75e3df09f4fb19..9d1412156746ae9e2dca635170f356e2d2fee825",
+    "raw": "M\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nM\treview-artifacts/phase2/ending-sha.txt\nM\treview-artifacts/phase2/final-verification.json\nM\treview-artifacts/phase2/protected-manifest-table.json\nM\treview-artifacts/phase2/safe-qa-harness-isolation-results.json\nM\treview-artifacts/phase2/stability-five-full-suite-runs.json\nM\treview-artifacts/phase2/stability-messagesid-three-runs.json\nM\treview-artifacts/phase2/typescript-comparison.json\nM\tsrc/components/CustomerLifecycleDiagram.test.tsx\nM\tsrc/lib/analytics/trackEvent.test.ts\nM\tsrc/lib/assessment/browserPiiBoundaries.test.ts\nM\tsrc/server/assessment/rateLimitSource.test.ts\nM\tsrc/server/assessment/submitAssessmentLead.pipeline.test.ts\nM\ttsconfig.json\nM\ttsconfig.test.json",
+    "files": [
+      {
+        "status": "M",
+        "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/ending-sha.txt"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/final-verification.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/protected-manifest-table.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/safe-qa-harness-isolation-results.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/stability-five-full-suite-runs.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/stability-messagesid-three-runs.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-comparison.json"
+      },
+      {
+        "status": "M",
+        "path": "src/components/CustomerLifecycleDiagram.test.tsx"
+      },
+      {
+        "status": "M",
+        "path": "src/lib/analytics/trackEvent.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/lib/assessment/browserPiiBoundaries.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/rateLimitSource.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/submitAssessmentLead.pipeline.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tsconfig.json"
+      },
+      {
+        "status": "M",
+        "path": "tsconfig.test.json"
+      }
+    ],
+    "fileClassification": [
+      {
+        "status": "M",
+        "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md",
+        "category": "report"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/ending-sha.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/final-verification.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/protected-manifest-table.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/safe-qa-harness-isolation-results.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/stability-five-full-suite-runs.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/stability-messagesid-three-runs.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-comparison.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "src/components/CustomerLifecycleDiagram.test.tsx",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "src/lib/analytics/trackEvent.test.ts",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "src/lib/assessment/browserPiiBoundaries.test.ts",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/rateLimitSource.test.ts",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/submitAssessmentLead.pipeline.test.ts",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "tsconfig.json",
+        "category": "configuration"
+      },
+      {
+        "status": "M",
+        "path": "tsconfig.test.json",
+        "category": "test-code"
+      }
+    ]
+  },
+  "range9d14121ToFinalExecutable": {
+    "command": "git diff --name-status 9d1412156746ae9e2dca635170f356e2d2fee825..d54286ec9f875d7627c3a027bf7407664389f4e6",
+    "raw": "M\t.gitignore\nM\tdocs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md\nA\treview-artifacts/phase2/accessibility-reconciliation.json\nM\treview-artifacts/phase2/additional-tests-table.json\nA\treview-artifacts/phase2/pr-head-reconciliation-15a4a9c-to-3b5bceb.json\nA\treview-artifacts/phase2/pr-head-reconciliation.json\nA\treview-artifacts/phase2/typescript-baseline-reconciliation.json\nM\treview-artifacts/phase2/typescript-comparison.json\nA\treview-artifacts/phase2/typescript-production-baseline-included-files.txt\nA\treview-artifacts/phase2/typescript-production-baseline.log\nA\treview-artifacts/phase2/typescript-production-current-included-files.txt\nM\treview-artifacts/phase2/typescript-production-current.log\nA\treview-artifacts/phase2/typescript-qa-current-included-files.txt\nA\treview-artifacts/phase2/typescript-test-baseline-included-files.txt\nA\treview-artifacts/phase2/typescript-test-baseline.log\nA\treview-artifacts/phase2/typescript-test-current-included-files.txt\nM\treview-artifacts/phase2/typescript-test-current.log\nA\treview-artifacts/phase2/x-test-inventory-summary.json\nA\tscripts/phase2/generate-accessibility-reconciliation.ts\nA\tscripts/phase2/generate-git-sha-reconciliation.ts\nA\tscripts/phase2/generate-pr-head-reconciliation.ts\nA\tscripts/phase2/generate-x-test-inventory.ts\nA\tscripts/phase2/reconcile-x-inventory-delta.ts\nM\tscripts/phase2/run-accessibility-qa.ts\nM\tscripts/phase2/run-final-verification.ts\nA\tscripts/phase2/run-human-keyboard-qa.ts\nA\tscripts/phase2/run-typescript-baseline-reconciliation.ts\nA\tscripts/phase2/run-typescript-measurement-chronology.ts\nM\tsrc/browser-journey/assessment.browserJourney.test.ts\nM\tsrc/browser-journey/assessmentBrowserJourneySupport.ts\nM\tsrc/components/assessment/AssessmentResults.tsx\nM\tsrc/server/assessment/rateLimitSource.test.ts",
+    "files": [
+      {
+        "status": "M",
+        "path": ".gitignore"
+      },
+      {
+        "status": "M",
+        "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/accessibility-reconciliation.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/additional-tests-table.json"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/pr-head-reconciliation-15a4a9c-to-3b5bceb.json"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/pr-head-reconciliation.json"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-baseline-reconciliation.json"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-comparison.json"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-baseline-included-files.txt"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-baseline.log"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-current-included-files.txt"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-production-current.log"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-qa-current-included-files.txt"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-baseline-included-files.txt"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-baseline.log"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-current-included-files.txt"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-test-current.log"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/x-test-inventory-summary.json"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-accessibility-reconciliation.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-git-sha-reconciliation.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-pr-head-reconciliation.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-x-test-inventory.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/reconcile-x-inventory-delta.ts"
+      },
+      {
+        "status": "M",
+        "path": "scripts/phase2/run-accessibility-qa.ts"
+      },
+      {
+        "status": "M",
+        "path": "scripts/phase2/run-final-verification.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-human-keyboard-qa.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-typescript-measurement-chronology.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/browser-journey/assessment.browserJourney.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/browser-journey/assessmentBrowserJourneySupport.ts"
+      },
+      {
+        "status": "M",
+        "path": "src/components/assessment/AssessmentResults.tsx"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/rateLimitSource.test.ts"
+      }
+    ],
+    "fileClassification": [
+      {
+        "status": "M",
+        "path": ".gitignore",
+        "category": "other"
+      },
+      {
+        "status": "M",
+        "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md",
+        "category": "report"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/accessibility-reconciliation.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/additional-tests-table.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/pr-head-reconciliation-15a4a9c-to-3b5bceb.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/pr-head-reconciliation.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-baseline-reconciliation.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-comparison.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-baseline-included-files.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-baseline.log",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-production-current-included-files.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-production-current.log",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-qa-current-included-files.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-baseline-included-files.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-baseline.log",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/typescript-test-current-included-files.txt",
+        "category": "review-artifact"
+      },
+      {
+        "status": "M",
+        "path": "review-artifacts/phase2/typescript-test-current.log",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "review-artifacts/phase2/x-test-inventory-summary.json",
+        "category": "review-artifact"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-accessibility-reconciliation.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-git-sha-reconciliation.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-pr-head-reconciliation.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/generate-x-test-inventory.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/reconcile-x-inventory-delta.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "M",
+        "path": "scripts/phase2/run-accessibility-qa.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "M",
+        "path": "scripts/phase2/run-final-verification.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-human-keyboard-qa.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "A",
+        "path": "scripts/phase2/run-typescript-measurement-chronology.ts",
+        "category": "qa-script"
+      },
+      {
+        "status": "M",
+        "path": "src/browser-journey/assessment.browserJourney.test.ts",
+        "category": "test-code"
+      },
+      {
+        "status": "M",
+        "path": "src/browser-journey/assessmentBrowserJourneySupport.ts",
+        "category": "production-code"
+      },
+      {
+        "status": "M",
+        "path": "src/components/assessment/AssessmentResults.tsx",
+        "category": "production-code"
+      },
+      {
+        "status": "M",
+        "path": "src/server/assessment/rateLimitSource.test.ts",
+        "category": "test-code"
+      }
+    ]
+  },
+  "protectedManifestZeroDiff": true
+}
