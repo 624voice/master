@@ -14,7 +14,14 @@ deploy_draft() {
     --dir=dist/client --functions=.netlify/v1/functions \
     --env "PHASE2_OWNER_QA_PREVIEW=1" --env "NETLIFY_CONTEXT=deploy-preview" \
     "$@" 2>&1 | tee "$log"
-  grep -Eo 'https://[a-z0-9-]+--624voice-phase2-owner-qa\.netlify\.app' "$log" | tail -1
+  local url
+  url="$(grep -Eo 'https://[a-z0-9-]+--624voice-phase2-owner-qa\.netlify\.app' "$log" | tail -1)"
+  if [[ -z "$url" ]]; then
+    echo "Deploy URL not found for ${label}" >&2
+    cat "$log" >&2
+    exit 1
+  fi
+  echo "$url"
 }
 
 echo "Fail-closed matrix (both creds missing)..."

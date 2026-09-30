@@ -35,7 +35,7 @@ for (let i = 1; i <= 5; i += 1) {
 }
 
 const toBlock = [];
-for (let i = 1; i <= 35; i += 1) {
+for (let i = 1; i <= 60; i += 1) {
   toBlock.push(await attempt(`toward_block_${i}`));
 }
 
