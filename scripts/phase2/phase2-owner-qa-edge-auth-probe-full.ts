@@ -19,6 +19,17 @@ if (!password) {
 const validAuth = Buffer.from(`${user}:${password}`).toString("base64");
 const wrongUserAuth = Buffer.from(`not-${user}:${password}`).toString("base64");
 const wrongPassAuth = Buffer.from(`${user}:not-the-password`).toString("base64");
+const flipFirstChar = (value: string) => {
+  if (!value) return "x";
+  const chars = value.split("");
+  chars[0] = chars[0] === "a" ? "b" : "a";
+  return chars.join("");
+};
+const wrongPassSameLengthAuth = Buffer.from(`${user}:${flipFirstChar(password)}`).toString("base64");
+const wrongPassShorterAuth = Buffer.from(
+  `${user}:${password.length > 1 ? password.slice(0, -1) : "x"}`,
+).toString("base64");
+const wrongPassLongerAuth = Buffer.from(`${user}:${password}Z`).toString("base64");
 
 type ProbeCase = {
   id: string;
@@ -45,6 +56,21 @@ function hostCases(hostname: string): ProbeCase[] {
       id: "wrong_password",
       classification: "Wrong password",
       ...base("/", { Authorization: `Basic ${wrongPassAuth}` }),
+    },
+    {
+      id: "wrong_password_same_length",
+      classification: "Wrong password (same length)",
+      ...base("/", { Authorization: `Basic ${wrongPassSameLengthAuth}` }),
+    },
+    {
+      id: "wrong_password_shorter",
+      classification: "Wrong password (shorter)",
+      ...base("/", { Authorization: `Basic ${wrongPassShorterAuth}` }),
+    },
+    {
+      id: "wrong_password_longer",
+      classification: "Wrong password (longer)",
+      ...base("/", { Authorization: `Basic ${wrongPassLongerAuth}` }),
     },
     {
       id: "correct_credentials",
@@ -158,6 +184,16 @@ function hostCases(hostname: string): ProbeCase[] {
       classification: "Path-encoding bypass attempt without auth",
       ...base("/%61ssessment"),
     },
+    {
+      id: "assessment_no_auth",
+      classification: "Assessment route without auth",
+      ...base("/assessment"),
+    },
+    {
+      id: "assessment_with_auth",
+      classification: "Assessment route with auth",
+      ...base("/assessment", { Authorization: `Basic ${validAuth}` }),
+    },
   ];
 }
 
@@ -185,7 +221,7 @@ async function runCase(c: ProbeCase): Promise<Record<string, unknown>> {
     "content-type": res.headers.get("content-type"),
   };
   let bodySample: string | number = res.status;
-  if (res.status === 401 || res.status === 429) {
+  if (res.status === 401 || res.status === 429 || res.status === 503) {
     bodySample = (await res.text()).slice(0, 100);
   } else if (res.status === 200 && (headerPick["content-type"] ?? "").includes("html")) {
     bodySample = "html";

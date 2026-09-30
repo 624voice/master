@@ -2,6 +2,8 @@
  * Deployed edge rate-limit probe. Uses wrong credentials only (never prints real password).
  */
 const baseUrl = process.env.PHASE2_NETLIFY_OWNER_QA_PROBE_URL?.replace(/\/$/, "");
+const runWindowReset = process.env.PHASE2_EDGE_RATE_PROBE_WINDOW_RESET === "1";
+
 if (!baseUrl) {
   console.error("PHASE2_NETLIFY_OWNER_QA_PROBE_URL required");
   process.exit(1);
@@ -22,6 +24,7 @@ async function attempt(label: string, extraHeaders: Record<string, string> = {})
     status: res.status,
     retryAfter: res.headers.get("retry-after"),
     wwwAuthenticate: res.headers.get("www-authenticate"),
+    xRobotsTag: res.headers.get("x-robots-tag"),
     bodySample: (await res.text()).slice(0, 80),
   };
 }
@@ -47,6 +50,21 @@ for (let i = 1; i <= 5; i += 1) {
   );
 }
 
+const spoofedNfClientIp = [];
+for (let i = 1; i <= 5; i += 1) {
+  spoofedNfClientIp.push(
+    await attempt(`spoofed_x_nf_client_connection_ip_${i}`, {
+      "x-nf-client-connection-ip": `198.51.100.${i}`,
+    }),
+  );
+}
+
+let afterWindowReset: Awaited<ReturnType<typeof attempt>> | null = null;
+if (runWindowReset && blocked) {
+  await new Promise((resolve) => setTimeout(resolve, 65_000));
+  afterWindowReset = await attempt("after_window_reset");
+}
+
 console.log(
   JSON.stringify(
     {
@@ -56,6 +74,8 @@ console.log(
       belowThresholdSample: belowThreshold,
       blockedResponse: blocked,
       afterBlockSpoofedForwardedFor: spoofedForward,
+      afterBlockSpoofedNfClientConnectionIp: spoofedNfClientIp,
+      afterWindowReset,
     },
     null,
     2,

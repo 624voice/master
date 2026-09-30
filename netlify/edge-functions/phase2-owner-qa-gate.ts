@@ -13,11 +13,35 @@ const RATE_LIMIT_STORE = "phase2-owner-qa-edge-ratelimit";
 type AttemptWindow = { count: number; resetAt: number };
 const attemptByIpFallback = new Map<string, AttemptWindow>();
 
-function timingSafeEqual(a: string, b: string): boolean {
-  const enc = new TextEncoder();
-  const ae = enc.encode(a);
-  const be = enc.encode(b);
-  if (ae.length !== be.length) return false;
+type EdgeContext = {
+  next: () => Promise<Response> | Response;
+  ip?: string;
+};
+
+function denyHeaders(includeWwwAuthenticate: boolean): HeadersInit {
+  const headers: Record<string, string> = { "X-Robots-Tag": ROBOTS_HEADER };
+  if (includeWwwAuthenticate) {
+    headers["WWW-Authenticate"] = 'Basic realm="624voice Phase 2 Owner QA", charset="UTF-8"';
+  }
+  return headers;
+}
+
+/** Fail closed when edge credentials are missing or mis-scoped (never serve origin unauthenticated). */
+function misconfiguredResponse(): Response {
+  return new Response("Owner QA preview authentication is not configured.", {
+    status: 503,
+    headers: denyHeaders(false),
+  });
+}
+
+async function sha256Bytes(value: string): Promise<Uint8Array> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return new Uint8Array(digest);
+}
+
+/** Fixed-length digest compare (no early return on string byte-length mismatch). */
+async function digestEqual(a: string, b: string): Promise<boolean> {
+  const [ae, be] = await Promise.all([sha256Bytes(a), sha256Bytes(b)]);
   let diff = 0;
   for (let i = 0; i < ae.length; i += 1) diff |= ae[i] ^ be[i];
   return diff === 0;
@@ -37,9 +61,12 @@ function parseBasicAuth(header: string): { user: string; pass: string } | null {
   }
 }
 
-/** Netlify-set client IP; not derived from visitor-controlled X-Forwarded-For. */
-function clientIp(request: Request): string {
-  return request.headers.get("x-nf-client-connection-ip") ?? "unknown";
+/**
+ * Platform client address from Netlify Context.ip (see Edge Functions API — not visitor-controlled).
+ * Header x-nf-client-connection-ip is not used for rate-limit keys.
+ */
+function clientIp(context: EdgeContext): string {
+  return context.ip?.trim() || "unknown";
 }
 
 function registerFailedAttemptLocal(ip: string): boolean {
@@ -54,7 +81,7 @@ function registerFailedAttemptLocal(ip: string): boolean {
   return false;
 }
 
-async function registerFailedAttempt(ip: string): Promise<boolean> {
+async function registerFailedAttempt(ip: string): Promise<{ blocked: boolean; mode: "blob" | "isolate-fallback" }> {
   const now = Date.now();
   try {
     const store = getStore(RATE_LIMIT_STORE);
@@ -62,57 +89,30 @@ async function registerFailedAttempt(ip: string): Promise<boolean> {
     const current = (await store.get(key, { type: "json" })) as AttemptWindow | null;
     if (!current || now >= current.resetAt) {
       await store.setJSON(key, { count: 1, resetAt: now + WINDOW_MS });
-      return false;
+      return { blocked: false, mode: "blob" };
     }
     const next = { count: current.count + 1, resetAt: current.resetAt };
     await store.setJSON(key, next);
-    return next.count > MAX_ATTEMPTS_PER_WINDOW;
+    return { blocked: next.count > MAX_ATTEMPTS_PER_WINDOW, mode: "blob" };
   } catch {
-    return registerFailedAttemptLocal(ip);
+    return { blocked: registerFailedAttemptLocal(ip), mode: "isolate-fallback" };
   }
 }
 
-function credentialsValid(
+async function credentialsValid(
   parsed: { user: string; pass: string } | null,
   expectedUser: string,
   expectedPass: string,
-): boolean {
+): Promise<boolean> {
   if (!parsed) return false;
-  return (
-    timingSafeEqual(parsed.user, expectedUser) && timingSafeEqual(parsed.pass, expectedPass)
-  );
+  const [userOk, passOk] = await Promise.all([
+    digestEqual(parsed.user, expectedUser),
+    digestEqual(parsed.pass, expectedPass),
+  ]);
+  return userOk && passOk;
 }
 
-export default async function phase2OwnerQaGate(
-  request: Request,
-  context: { next: () => Promise<Response> | Response },
-) {
-  const user = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER");
-  const pass = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS");
-  if (!user || !pass) {
-    return context.next();
-  }
-
-  const ip = clientIp(request);
-  const parsed = parseBasicAuth(request.headers.get("authorization") ?? "");
-  if (!credentialsValid(parsed, user, pass)) {
-    const blocked = await registerFailedAttempt(ip);
-    if (blocked) {
-      return new Response("Too many authentication attempts. Try again later.", {
-        status: 429,
-        headers: { "X-Robots-Tag": ROBOTS_HEADER, "Retry-After": "60" },
-      });
-    }
-    return new Response("Owner QA preview — authentication required.", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="624voice Phase 2 Owner QA", charset="UTF-8"',
-        "X-Robots-Tag": ROBOTS_HEADER,
-      },
-    });
-  }
-
-  const response = await context.next();
+async function applyNoindexToResponse(response: Response): Promise<Response> {
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("text/html")) {
     const headers = new Headers(response.headers);
@@ -128,6 +128,33 @@ export default async function phase2OwnerQaGate(
   headers.set("X-Robots-Tag", ROBOTS_HEADER);
   headers.delete("content-length");
   return new Response(withMeta, { status: response.status, headers });
+}
+
+export default async function phase2OwnerQaGate(request: Request, context: EdgeContext) {
+  const user = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER");
+  const pass = Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS");
+  if (!user || !pass) {
+    return misconfiguredResponse();
+  }
+
+  const ip = clientIp(context);
+  const parsed = parseBasicAuth(request.headers.get("authorization") ?? "");
+  if (!(await credentialsValid(parsed, user, pass))) {
+    const { blocked } = await registerFailedAttempt(ip);
+    if (blocked) {
+      return new Response("Too many authentication attempts. Try again later.", {
+        status: 429,
+        headers: { ...denyHeaders(false), "Retry-After": "60" },
+      });
+    }
+    return new Response("Owner QA preview — authentication required.", {
+      status: 401,
+      headers: denyHeaders(true),
+    });
+  }
+
+  const response = await context.next();
+  return await applyNoindexToResponse(response);
 }
 
 export const config = {
