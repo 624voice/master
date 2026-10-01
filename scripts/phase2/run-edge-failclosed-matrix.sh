@@ -3,11 +3,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 QA_SITE_ID="${PHASE2_NETLIFY_QA_SITE_ID:-36285e6f-c15f-432b-b50b-718e9cfa0a24}"
-netlify link --id "$QA_SITE_ID" >/dev/null
 
 deploy_draft() {
   local label="$1"
   shift
+  netlify unlink >/dev/null 2>&1 || true
+  netlify link --id "$QA_SITE_ID" >/dev/null
   local log
   log="$(mktemp)"
   netlify deploy --context deploy-preview --message "phase2-failclosed-${label}" \

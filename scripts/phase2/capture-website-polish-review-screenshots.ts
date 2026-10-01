@@ -80,13 +80,33 @@ async function assessmentFlow() {
   await page.goto(`${base}/assessment`, { waitUntil: "networkidle2", timeout: 120_000 });
   await page.screenshot({ path: join(outDir, "assessment-bp1-trade-1280.png"), fullPage: true });
 
+  async function clickContinue() {
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll("button"));
+      const btn = buttons.find((b) => (b.textContent ?? "").trim() === "Continue" && !b.disabled);
+      btn?.click();
+    });
+  }
+
   await page.select("#assessment-bp1", "HVAC");
-  await page.click('button[type="submit"]');
+  await page.waitForFunction(() => {
+    const btn = Array.from(document.querySelectorAll("button")).find((b) =>
+      (b.textContent ?? "").includes("Continue"),
+    );
+    return btn && !(btn as HTMLButtonElement).disabled;
+  });
+  await clickContinue();
   await new Promise((r) => setTimeout(r, 600));
   await page.screenshot({ path: join(outDir, "assessment-bp2-hero-1280.png"), fullPage: true });
 
-  await page.select("#assessment-bp2", "3-7");
-  await page.click('button[type="submit"]');
+  await page.select("#assessment-bp2", "50+");
+  await page.waitForFunction(() => {
+    const btn = Array.from(document.querySelectorAll("button")).find((b) =>
+      (b.textContent ?? "").includes("Continue"),
+    );
+    return btn && !(btn as HTMLButtonElement).disabled;
+  });
+  await clickContinue();
   await new Promise((r) => setTimeout(r, 800));
   await page.screenshot({ path: join(outDir, "assessment-respond-hero-1280.png"), fullPage: true });
 

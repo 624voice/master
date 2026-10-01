@@ -1,0 +1,69 @@
+## SHOW_VOICE_AI_GUARANTEE
+./review-artifacts/phase2/content-source-map.json:7:    "featureGate": "SHOW_DIAGNOSTIC_CREDIT_MENTION, SHOW_VOICE_AI_GUARANTEE (both false)",
+./scripts/phase2/website-polish-regression.test.ts:88:  test("SHOW_VOICE_AI_GUARANTEE default false", () => {
+./scripts/phase2/website-polish-regression.test.ts:89:    expect(FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE).toBe(false);
+./src/server/assessment/submitAssessmentLead.pipeline.test.ts:108:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/submitAssessmentLead.pipeline.test.ts:148:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/submitAssessmentLead.pipeline.test.ts:181:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/submitAssessmentLead.pipeline.test.ts:219:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/assessmentJourneyPipeline.test.ts:137:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/assessmentJourneyPipeline.test.ts:192:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/assessmentJourneyPipeline.test.ts:241:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/assessmentJourneyPipeline.test.ts:281:        SHOW_VOICE_AI_GUARANTEE: false,
+./src/server/assessment/assessmentJourneyPipeline.test.ts:339:        SHOW_VOICE_AI_GUARANTEE: false,
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:1:## SHOW_VOICE_AI_GUARANTEE
+./src/routes/index.tsx:342:            {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+./src/routes/index.tsx:362:            {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+./src/routes/contact.tsx:432:                {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+./src/routes/demo.tsx:215:      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+./src/config/features.ts:9:  SHOW_VOICE_AI_GUARANTEE: false,
+
+## 90-Day
+./scripts/generate-report-qa-i10.mjs:46:  if (!text.includes("90-Day Results Guarantee")) missing.push("90-Day Results Guarantee");
+./design-reference/Revenue Report.dc.html:340:      <div style="font-size:13px;font-weight:800;color:#0d1e2c;margin-bottom:5px;letter-spacing:-0.01em">90-Day Results Guarantee</div>
+./review-artifacts/phase2/accessibility-qa/summary.json:886:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/accessibility-qa/summary.json:1323:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:21:## 90-Day
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:22:./scripts/generate-report-qa-i10.mjs:46:  if (!text.includes("90-Day Results Guarantee")) missing.push("90-Day Results Guarantee");
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:23:./design-reference/Revenue Report.dc.html:340:      <div style="font-size:13px;font-weight:800;color:#0d1e2c;margin-bottom:5px;letter-spacing:-0.01em">90-Day Results Guarantee</div>
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:24:./review-artifacts/phase2/accessibility-qa/summary.json:886:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:25:./review-artifacts/phase2/accessibility-qa/summary.json:1323:            "text": "90-Day Results Guarantee"
+./src/components/RoiCalculator.tsx:531:                  90-Day{" "}
+./src/lib/report/reportCopy.ts:33:export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
+./src/routes/index.tsx:364:                Text-only agents are outside the 90-Day Results Guarantee. The
+./src/routes/contact.tsx:435:                      90-Day{" "}
+./src/routes/demo.tsx:220:                90-Day{" "}
+
+## Results Guarantee
+./scripts/generate-report-qa-i10.mjs:46:  if (!text.includes("90-Day Results Guarantee")) missing.push("90-Day Results Guarantee");
+./design-reference/Revenue Report.dc.html:340:      <div style="font-size:13px;font-weight:800;color:#0d1e2c;margin-bottom:5px;letter-spacing:-0.01em">90-Day Results Guarantee</div>
+./review-artifacts/phase2/accessibility-qa/summary.json:886:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/accessibility-qa/summary.json:1323:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:22:./scripts/generate-report-qa-i10.mjs:46:  if (!text.includes("90-Day Results Guarantee")) missing.push("90-Day Results Guarantee");
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:23:./design-reference/Revenue Report.dc.html:340:      <div style="font-size:13px;font-weight:800;color:#0d1e2c;margin-bottom:5px;letter-spacing:-0.01em">90-Day Results Guarantee</div>
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:24:./review-artifacts/phase2/accessibility-qa/summary.json:886:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:25:./review-artifacts/phase2/accessibility-qa/summary.json:1323:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:27:./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:22:./scripts/generate-report-qa-i10.mjs:46:  if (!text.includes("90-Day Results Guarantee")) missing.push("90-Day Results Guarantee");
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:28:./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:23:./design-reference/Revenue Report.dc.html:340:      <div style="font-size:13px;font-weight:800;color:#0d1e2c;margin-bottom:5px;letter-spacing:-0.01em">90-Day Results Guarantee</div>
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:29:./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:24:./review-artifacts/phase2/accessibility-qa/summary.json:886:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:30:./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:25:./review-artifacts/phase2/accessibility-qa/summary.json:1323:            "text": "90-Day Results Guarantee"
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:32:./src/lib/report/reportCopy.ts:33:export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:33:./src/routes/index.tsx:364:                Text-only agents are outside the 90-Day Results Guarantee. The
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:37:## Results Guarantee
+./src/lib/report/reportCopy.ts:33:export const GUARANTEE_CARD_TITLE = "90-Day Results Guarantee";
+./src/lib/report/renderReportPdf.test.ts:99:      const guaranteeIdx = normalizedText.search(/90.{0,4}Day Results Guarantee/);
+./src/lib/report/renderReportPdf.test.ts:103:      expect(text.replace(/\s+/g, " ")).toMatch(/90.{0,4}Day Results Guarantee/);
+./src/config/features.ts:8:  // Phase2Final Part 1.B — Voice AI Results Guarantee. Attorney review, then owner sign-off (N).
+./src/components/RoiCalculator.tsx:532:                  <span className="text-brand-primary">Results Guarantee</span>
+./src/routes/index.tsx:364:                Text-only agents are outside the 90-Day Results Guarantee. The
+./src/routes/contact.tsx:436:                      <span className="text-brand-primary">Results Guarantee</span>
+./src/routes/demo.tsx:221:                <span className="text-brand-primary">Results Guarantee</span>
+
+## guarantee revenue recovery wording
+./design-reference/Revenue Report.dc.html:341:      <p style="font-size:12px;color:#4e5f6e;line-height:1.5;margin:0">We guarantee you recover at least our service investment in booked service-visit revenue within 90 days of go-live — or we keep working, for free, until you do. If we don't perform, you don't pay beyond the Results Engagement Period.</p>
+./review-artifacts/phase2/website-polish/guarantee-inventory.raw.txt:63:./design-reference/Revenue Report.dc.html:341:      <p style="font-size:12px;color:#4e5f6e;line-height:1.5;margin:0">We guarantee you recover at least our service investment in booked service-visit revenue within 90 days of go-live — or we keep working, for free, until you do. If we don't perform, you don't pay beyond the Results Engagement Period.</p>
+./src/routes/contact.tsx:439:                      We guarantee you recover at least our service investment in
+./src/routes/demo.tsx:224:                We guarantee you recover at least our service investment in booked
+./src/components/RoiCalculator.tsx:535:                  We guarantee you recover at least our service investment in
+./src/lib/report/reportCopy.ts:3:  "We guarantee you recover at least our service investment in booked service-visit revenue within 90 days of go-live - or we keep working, for free, until you do.";
+./src/lib/report/renderReportPdf.test.ts:83:        "recover at least our service investment in booked service-visit revenue within 90 days of go-live",

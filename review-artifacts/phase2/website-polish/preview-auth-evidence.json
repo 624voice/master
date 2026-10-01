@@ -1,0 +1,94 @@
+{
+  "results": [
+    {
+      "label": "owner-qa-anonymous-root",
+      "path": "/",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "owner-qa-anonymous-health",
+      "path": "/api/health",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "owner-qa-wrong-creds-root",
+      "path": "/",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "owner-qa-good-creds-root",
+      "path": "/",
+      "status": 200,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "absent",
+      "contentType": "text/html; charset=utf-8",
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport"
+    },
+    {
+      "label": "owner-qa-good-creds-health",
+      "path": "/api/health",
+      "status": 200,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "absent",
+      "contentType": "application/json",
+      "bodySample": "{ \"gitCommitSha\": \"c6b80aef650c01dd4520f771d3295ad5d792327a\", \"branch\": \"cur"
+    },
+    {
+      "label": "pr98-deploy-preview-anonymous-root",
+      "path": "/",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "pr98-deploy-preview-anonymous-health",
+      "path": "/api/health",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "pr98-deploy-preview-wrong-creds-root",
+      "path": "/",
+      "status": 401,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "present",
+      "contentType": "text/plain;charset=UTF-8",
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    {
+      "label": "pr98-deploy-preview-good-creds-root",
+      "path": "/",
+      "status": 200,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "absent",
+      "contentType": "text/html; charset=utf-8",
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"robots\" content=\"noindex, nofol"
+    },
+    {
+      "label": "pr98-deploy-preview-good-creds-health",
+      "path": "/api/health",
+      "status": 200,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": "absent",
+      "contentType": "application/json",
+      "bodySample": "{ \"gitCommitSha\": \"0406a0b15f9ab773d99d61d01fa925d859de6f60\", \"branch\": \"pul"
+    }
+  ]
+}

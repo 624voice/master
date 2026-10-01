@@ -1,0 +1,20 @@
+{
+  "base": "https://6abe969ae5d3846267f46778--624voice-phase2-owner-qa.netlify.app",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "hits": []
+    },
+    {
+      "path": "/demo",
+      "status": 200,
+      "hits": []
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "hits": []
+    }
+  ]
+}
