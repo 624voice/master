@@ -26,16 +26,19 @@ function denyHeaders(includeWwwAuthenticate: boolean): HeadersInit {
   return headers;
 }
 
-/** Fail closed when only one of user/pass is set (mis-scoped deploy). */
+/** Fail closed when edge credentials are missing or mis-scoped (never serve origin unauthenticated). */
 function misconfiguredResponse(): Response {
-  return new Response("Owner QA preview authentication is misconfigured.", {
+  return new Response("Owner QA preview authentication is not configured.", {
     status: 503,
     headers: denyHeaders(false),
   });
 }
 
-function isOwnerQaPreviewContext(): boolean {
-  return Netlify.env.get("PHASE2_OWNER_QA_PREVIEW") === "1";
+/** Dedicated owner-QA site or protected PR deploy previews (never production). */
+function isEdgeGateEnforced(): boolean {
+  if (Netlify.env.get("PHASE2_OWNER_QA_PREVIEW") === "1") return true;
+  if (Netlify.env.get("PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW") === "1") return true;
+  return false;
 }
 
 async function sha256Bytes(value: string): Promise<Uint8Array> {
@@ -135,20 +138,15 @@ async function applyNoindexToResponse(response: Response): Promise<Response> {
 }
 
 export default async function phase2OwnerQaGate(request: Request, context: EdgeContext) {
-  const user = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER") ?? "").trim();
-  const pass = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS") ?? "").trim();
-  const preview = isOwnerQaPreviewContext();
-
-  if ((user && !pass) || (!user && pass)) {
-    return misconfiguredResponse();
+  if (!isEdgeGateEnforced()) {
+    return context.next();
   }
 
-  if (!user && !pass) {
-    const response = await context.next();
-    if (preview) {
-      return await applyNoindexToResponse(response);
-    }
-    return response;
+  const user = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER") ?? "").trim();
+  const pass = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS") ?? "").trim();
+
+  if ((user && !pass) || (!user && pass) || (!user && !pass)) {
+    return misconfiguredResponse();
   }
 
   const ip = clientIp(context);

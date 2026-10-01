@@ -28,19 +28,34 @@ bun run build
 
 mkdir -p dist/client
 
-# Optional Basic Auth: set both PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER and _PASSWORD before deploy.
+# Fail-closed edge gate requires both auth variables on every owner-QA deploy.
 PREVIEW_AUTH_USER="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER:-}"
 PREVIEW_AUTH_PASS="${PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD:-}"
-DEPLOY_AUTH_ARGS=()
-if [[ -n "$PREVIEW_AUTH_USER" && -n "$PREVIEW_AUTH_PASS" ]]; then
-  DEPLOY_AUTH_ARGS=(
-    --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}"
-    --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}"
-  )
-  echo "Deploy includes edge Basic Auth (user set)."
-else
-  echo "Deploy without edge Basic Auth (public owner-QA preview; X-Robots-Tag noindex only)."
+if [[ -z "$PREVIEW_AUTH_USER" || -z "$PREVIEW_AUTH_PASS" ]]; then
+  PREVIEW_AUTH_USER="${PREVIEW_AUTH_USER:-owner-qa}"
+  PREVIEW_AUTH_PASS="$(openssl rand -hex 16)"
+  netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER "$PREVIEW_AUTH_USER" --context all --force
+  netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS "$PREVIEW_AUTH_PASS" --context all --secret --force
+  export PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER="$PREVIEW_AUTH_USER"
+  export PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD="$PREVIEW_AUTH_PASS"
+  echo "Provisioned new edge Basic Auth credentials on QA Netlify site (not printed)."
 fi
+
+AUTH_ARTIFACT="/opt/cursor/artifacts/netlify-owner-qa-preview-basic-auth.txt"
+mkdir -p /opt/cursor/artifacts
+{
+  echo "user=${PREVIEW_AUTH_USER}"
+  echo "password=${PREVIEW_AUTH_PASS}"
+  echo "mechanism=netlify-edge-basic-auth"
+} > "$AUTH_ARTIFACT"
+chmod 600 "$AUTH_ARTIFACT"
+
+DEPLOY_AUTH_ARGS=(
+  --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER=${PREVIEW_AUTH_USER}"
+  --secret-env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS=${PREVIEW_AUTH_PASS}"
+)
+
+bash scripts/phase2/sync-netlify-deploy-preview-edge-auth.sh
 
 # X-Robots-Tag works on all plans; Basic-Auth in _headers requires Pro+.
 cat > dist/client/_headers <<EOF
@@ -91,4 +106,4 @@ echo "Preview URL: ${PREVIEW_URL}"
 PHASE2_NETLIFY_OWNER_QA_BASE_URL="${PREVIEW_URL}" bun run scripts/phase2/generate-owner-walkthrough-v5-markdown.ts
 bun run scripts/phase2/audit-owner-walkthrough-markdown.ts
 
-echo "Done. Preview is open unless PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_* were set for this deploy."
+echo "Done. Owner-QA preview is fail-closed (edge Basic Auth required)."
