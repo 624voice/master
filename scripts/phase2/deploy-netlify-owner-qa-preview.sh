@@ -57,6 +57,9 @@ DEPLOY_AUTH_ARGS=(
 
 bash scripts/phase2/sync-netlify-deploy-preview-edge-auth.sh
 
+netlify unlink >/dev/null 2>&1 || true
+netlify link --id "$QA_SITE_ID"
+
 # X-Robots-Tag works on all plans; Basic-Auth in _headers requires Pro+.
 cat > dist/client/_headers <<EOF
 /*
