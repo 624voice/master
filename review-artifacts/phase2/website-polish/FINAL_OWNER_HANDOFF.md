@@ -21,7 +21,7 @@ Legacy deploy deletion and disclosed-preview inventory remain as previously veri
 | Last **runtime-changing** commit (fail-closed edge gate + deploy-preview protect) | `c6b80aef650c01dd4520f771d3295ad5d792327a` |
 | Deploy-script-only | `0406a0b15f9ab773d99d61d01fa925d859de6f60` |
 | **Application runtime** (owner-QA + PR preview `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
-| **Final PR #98 HEAD** | `300701d3a8f2b8c8e8e8e8e8e8e8e8e8e8e8e8e8` |
+| **Final PR #98 HEAD** | `c77787f8e12eb8dd393c0b038b9a7e760c69fe94` |
 
 **Post-`d0f528c…` diff (non-runtime):** review artifacts, logs, handoff docs, **`scripts/phase2/audit-disclosed-preview-urls.ts`** (one-line canonical URL constant for live audit tooling — **not** shipped application code), baseline runner path fixes, and **`scripts/phase2/run-test-failure-baseline-v2.sh`**. No other non-artifact application paths.
 
@@ -57,11 +57,13 @@ Sanitized record (no secrets): [`credential-delivery.json`](credential-delivery.
 
 ## 5. Evidence index (use immutable GitHub URLs at FINAL_PR_HEAD_SHA)
 
-Replace `FINAL_PR_HEAD_SHA` in:
-
-`https://github.com/624voice/master/blob/FINAL_PR_HEAD_SHA/review-artifacts/phase2/website-polish/<file>`
-
-Key files: `SCREENSHOTS.md`, `screenshots/`, `guarantee-inventory.md`, `fleet-band-evidence.md`, `brand-color-comparison.png`, `preview-url-inventory.json`, `assessment-results-capture-method.json`, `bun-build.log`.
+- [FINAL_OWNER_HANDOFF.md](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/FINAL_OWNER_HANDOFF.md)
+- [test-failure-analysis.md](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/test-failure-analysis.md)
+- [test-failure-baseline.json](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/test-failure-baseline.json)
+- [bun-test-full.log](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/bun-test-full.log)
+- [full-suite-pre-polish-baseline.log](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/full-suite-pre-polish-baseline.log)
+- [credential-delivery.json](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/credential-delivery.json)
+- [SCREENSHOTS.md](https://github.com/624voice/master/blob/c77787f8e12eb8dd393c0b038b9a7e760c69fe94/review-artifacts/phase2/website-polish/SCREENSHOTS.md)
 
 ---
 
