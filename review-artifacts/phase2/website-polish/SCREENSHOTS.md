@@ -1,6 +1,6 @@
 # Website polish — owner-viewable screenshots
 
-Captured from the **protected** owner-QA preview at commit `0406a0b15f9ab773d99d61d01fa925d859de6f60` (see `/api/health` on the current protected deploy).
+Captured from the **protected** owner-QA preview deploy `6abfcdd78a52874167f91892` (runtime SHA via authenticated `/api/health` on that deploy).
 
 Base path: `review-artifacts/phase2/website-polish/screenshots/`
 
@@ -34,5 +34,4 @@ Base path: `review-artifacts/phase2/website-polish/screenshots/`
 - `assessment-screening-progress-1280.png`
 - `assessment-review-1280.png`
 - `assessment-lead-gate-1280.png`
-
-**Gap:** `assessment-results` full results view not captured without a lead submission (owner QA policy: no real leads). Lead gate and review states are captured.
+- `assessment-results-1280.png` (deterministic `AssessmentResults` fixture — see `assessment-results-capture-method.json`)

@@ -2,7 +2,9 @@
 
 ## Primary surface (fail-closed)
 
-Use the **dedicated owner-QA Netlify deploy** URL printed in the latest deploy log for site `624voice-phase2-owner-qa` (draft deploy under `deploy-preview` context).
+**Canonical protected URL:** https://6abfcdd78a52874167f91892--624voice-phase2-owner-qa.netlify.app/
+
+(Site: `624voice-phase2-owner-qa`, draft deploy under `deploy-preview` context.)
 
 ## Login
 

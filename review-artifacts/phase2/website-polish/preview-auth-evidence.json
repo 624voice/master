@@ -43,7 +43,7 @@
       "xRobotsTag": "noindex",
       "wwwAuthenticate": "absent",
       "contentType": "application/json",
-      "bodySample": "{ \"gitCommitSha\": \"0406a0b15f9ab773d99d61d01fa925d859de6f60\", \"branch\": \"cur"
+      "bodySample": "{ \"gitCommitSha\": \"18c080eaf00479a599d344a9a993d27e18818543\", \"branch\": \"cur"
     },
     {
       "label": "pr98-deploy-preview-anonymous-root",
@@ -88,7 +88,7 @@
       "xRobotsTag": "noindex",
       "wwwAuthenticate": "absent",
       "contentType": "application/json",
-      "bodySample": "{ \"gitCommitSha\": \"a787f63d139edfa886d57dbc9b256294ce5bf326\", \"branch\": \"pul"
+      "bodySample": "{ \"gitCommitSha\": \"6db48386c056bee1dffbeb6b8bec27c578e6447a\", \"branch\": \"pul"
     }
   ]
 }
