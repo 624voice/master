@@ -8,6 +8,7 @@ import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 export type DeployVersionInfo = {
   gitCommitSha: string;
   branch: string;
+  phase2OwnerQaPreviewFlag: boolean;
   deployContext: string;
   deployUrl: string;
   deployId: string;
@@ -72,6 +73,8 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
   return {
     gitCommitSha,
     branch,
+    phase2OwnerQaPreviewFlag: readEnv("PHASE2_OWNER_QA_PREVIEW") === "1",
+    runtimeContext: readEnv("CONTEXT") ?? readEnv("NETLIFY_CONTEXT") ?? null,
     deployContext,
     deployUrl,
     deployId,

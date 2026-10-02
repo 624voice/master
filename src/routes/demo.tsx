@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
+import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
+import { FEATURE_FLAGS } from "~/config/features";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
@@ -17,12 +19,12 @@ export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
       {
-        title: "Talk to Jessica — Live AI Receptionist Demo | 624 Voice",
+        title: "Live AI Receptionist Demo | 624 Voice",
       },
       {
         name: "description",
         content:
-          "Experience what your customers hear when they call your business. Talk to Jessica, our AI voice agent, live in your browser.",
+          "Hear Jessica, a live AI receptionist demo for home-service companies, in a natural conversation in English or Spanish.",
       },
     ],
   }),
@@ -134,18 +136,18 @@ function DemoPage() {
 
   return (
     <main className="bg-[#152233] pt-20">
-      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden overflow-y-visible px-5 pb-2 pt-1 sm:px-8 lg:px-10 lg:pb-3 lg:pt-2">
+      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden px-5 pb-2 pt-1 sm:px-8 lg:px-10 lg:pb-3 lg:pt-2">
         <DemoBackground />
 
-        <div className="relative mx-auto max-w-[1450px] overflow-visible">
-          <div className="grid items-start gap-6 overflow-visible lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-14">
+        <div className="relative mx-auto max-w-[1450px] overflow-x-hidden">
+          <div className="grid min-w-0 max-w-full grid-cols-1 items-start gap-6 overflow-x-hidden lg:grid-cols-2 lg:gap-8 xl:gap-10">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
               startDisabled={startDisabled}
               showCta={pageView === "gate" || pageView === "demo"}
             />
 
-            <div className="flex justify-center overflow-visible pt-1 lg:justify-end lg:pt-2">
+            <div className="flex min-w-0 max-w-full justify-center overflow-x-hidden pt-1 lg:justify-end lg:pt-2">
               {pageView === "form" ? (
                 <DemoBrowserCard>
                   <h2 className="text-center text-xl font-bold text-[#18222f]">
@@ -191,26 +193,47 @@ function DemoPage() {
 
       <section className="bg-white px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <DemoAgentOverview />
+          <h2 className="text-center text-2xl font-bold text-brand-secondary sm:text-3xl">
+            How the Customer Journey Fits Together
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-gray-600">
+            Jessica supports the Respond dimension. The full system connects all
+            six lifecycle areas.
+          </p>
+          <div className="mt-10">
+            <CustomerLifecycleDiagram />
+          </div>
         </div>
       </section>
 
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
-            <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-              90-Day{" "}
-              <span className="text-brand-primary">Results Guarantee</span>
-            </h3>
-            <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-              We guarantee you recover at least our service investment in booked
-              service-visit revenue within 90 days of go-live —{" "}
-              <span className="font-semibold text-brand-primary">
-                or we keep working, for free, until you do.
-              </span>
-            </p>
-          </div>
+          <DemoAgentOverview />
+        </div>
+      </section>
 
+      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+        <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+              <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                90-Day{" "}
+                <span className="text-brand-primary">Results Guarantee</span>
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                We guarantee you recover at least our service investment in booked
+                service-visit revenue within 90 days of go-live —{" "}
+                <span className="font-semibold text-brand-primary">
+                  or we keep working, for free, until you do.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl">
           <div className="mt-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
               Ready to Answer Every Call?

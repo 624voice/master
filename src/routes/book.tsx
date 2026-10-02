@@ -2,6 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { GoogleCalendarEmbed } from "~/components/GoogleCalendarEmbed";
 
 export const Route = createFileRoute("/book")({
+  head: () => ({
+    meta: [
+      { title: "Schedule Your Consultation | 624 Voice" },
+      {
+        name: "description",
+        content:
+          "Pick a consultation time after your assessment, ROI report, or qualification through contact.",
+      },
+    ],
+  }),
   component: BookMeeting,
 });
 
@@ -17,8 +27,9 @@ function BookMeeting() {
             Book a Meeting
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Pick a time that works for you. We&apos;ll walk through how 624 Voice
-            can help your business answer every call and recover missed revenue.
+            Pick a time that works for you. We&apos;ll discuss the result you want,
+            where opportunities are slowing down, and the most sensible next step
+            for your business.
           </p>
         </div>
       </section>

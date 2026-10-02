@@ -1,0 +1,130 @@
+{
+  "verificationSha": "9d1412156746ae9e2dca635170f356e2d2fee825",
+  "verificationMeta": {
+    "sha": "9d1412156746ae9e2dca635170f356e2d2fee825",
+    "author": "Cursor Agent",
+    "email": "cursoragent@cursor.com",
+    "date": "2026-09-15 18:08:10 +0000",
+    "subject": "Fix Phase 2 TS measurement scope and test diagnostics"
+  },
+  "prHeadSha": "a795138f5d00d3813f9f56b06e29b255a80681ee",
+  "prHeadMeta": {
+    "sha": "a795138f5d00d3813f9f56b06e29b255a80681ee",
+    "author": "Cursor Agent",
+    "email": "cursoragent@cursor.com",
+    "date": "2026-09-15 18:12:42 +0000",
+    "subject": "Phase 2 final acceptance reconciliation: artifacts and report"
+  },
+  "diffCommand": "git diff --name-status 9d1412156746ae9e2dca635170f356e2d2fee825..a795138f5d00d3813f9f56b06e29b255a80681ee",
+  "changedFiles": [
+    {
+      "status": "M",
+      "path": ".gitignore"
+    },
+    {
+      "status": "M",
+      "path": "docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/accessibility-reconciliation.json"
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/additional-tests-table.json"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/pr-head-reconciliation-15a4a9c-to-3b5bceb.json"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/pr-head-reconciliation.json"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-baseline-reconciliation.json"
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-comparison.json"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-production-baseline-included-files.txt"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-production-baseline.log"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-production-current-included-files.txt"
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-production-current.log"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-qa-current-included-files.txt"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-test-baseline-included-files.txt"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-test-baseline.log"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/typescript-test-current-included-files.txt"
+    },
+    {
+      "status": "M",
+      "path": "review-artifacts/phase2/typescript-test-current.log"
+    },
+    {
+      "status": "A",
+      "path": "review-artifacts/phase2/x-test-inventory-summary.json"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-accessibility-reconciliation.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-pr-head-reconciliation.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-x-test-inventory.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts"
+    }
+  ],
+  "evidenceOnly": false,
+  "executablePathsChanged": [
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-accessibility-reconciliation.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-pr-head-reconciliation.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/generate-x-test-inventory.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/phase2/run-typescript-baseline-reconciliation.ts"
+    }
+  ],
+  "protectedManifestZeroDiffAtPrHead": true,
+  "conclusion": "PR HEAD contains executable changes; rerun applicable gates at PR HEAD."
+}

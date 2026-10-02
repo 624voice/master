@@ -1,0 +1,18 @@
+{
+  "url": "https://deploy-preview-98--624voice.netlify.app/",
+  "rebuildCompleted": true,
+  "netlifyDeployId": "6abfe18e0af8020008944397",
+  "deployState": "ready",
+  "deployCreatedAt": "2026-10-02T16:53:34.238Z",
+  "healthBuildTimestamp": "2026-10-02T16:54:41.849Z",
+  "gitCommitShaFull": "9f99da2b16951643536605ac05631be9358e536e",
+  "anonymous": {
+    "rootStatus": 401,
+    "apiHealthStatus": 401
+  },
+  "authenticatedWithDeliveredCredentials": {
+    "rootStatus": 200,
+    "apiHealthStatus": 200
+  },
+  "credentialDeliveryNote": "Rebuild completed; no longer pending. See credential-delivery.json for Chris receipt status."
+}

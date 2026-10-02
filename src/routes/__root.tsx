@@ -7,13 +7,35 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { FEATURE_FLAGS } from "~/config/features";
+import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import appCss from "~/styles/app.css?url";
+
+function NotFoundPage() {
+  return (
+    <main className="flex min-h-[60vh] flex-col items-center justify-center px-6 pt-32 text-center">
+      <h1 className="text-3xl font-bold text-brand-secondary">Page not found</h1>
+      <p className="mt-4 max-w-md text-gray-600">
+        The page you requested is not available. Return home or contact us for help.
+      </p>
+      <a
+        href="/"
+        className="mt-8 rounded-[10px] bg-brand-primary px-6 py-3 text-sm font-semibold text-white"
+      >
+        Back to Home
+      </a>
+    </main>
+  );
+}
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ...(isPhase2HostedOwnerQaPreviewBoundary()
+        ? [{ name: "robots", content: "noindex, nofollow" }]
+        : []),
       { title: "624 Voice — Voice AI for Home Services" },
       {
         name: "description",
@@ -40,7 +62,7 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  notFoundComponent: () => <div>Page not found</div>,
+  notFoundComponent: NotFoundPage,
   component: RootComponent,
 });
 
@@ -56,6 +78,9 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {isPhase2HostedOwnerQaPreviewBoundary() ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <HeadContent />
       </head>
       <body>
@@ -73,11 +98,11 @@ function Nav() {
   const isDemoPage = pathname === "/demo";
 
   const linkClassName = isDemoPage
-    ? "text-sm font-medium text-white/80 transition-colors hover:text-[#10b981]"
+    ? "text-sm font-medium text-white/80 transition-colors hover:text-brand-primary"
     : "text-sm font-medium text-gray-600 transition-colors hover:text-brand-primary";
 
   const demoLinkClassName = isDemoPage
-    ? "relative text-sm font-semibold text-[#10b981] after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-[#10b981] after:content-['']"
+    ? "relative text-sm font-semibold text-brand-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-brand-primary after:content-['']"
     : linkClassName;
 
   return (
@@ -100,36 +125,36 @@ function Nav() {
           </span>
         </a>
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="/" className={linkClassName}>
-            Home
+          <a href="/what-we-do" className={linkClassName}>
+            What We Do
           </a>
-          <a href="/about" className={linkClassName}>
-            About
-          </a>
-          <a href="/services" className={linkClassName}>
-            Services
-          </a>
-          <a href="/roi-calculator" className={linkClassName}>
-            See What You&apos;re Missing
+          <a href="/how-we-work" className={linkClassName}>
+            How We Work
           </a>
           <a href="/demo" className={demoLinkClassName}>
             Live Demo
+          </a>
+          <a href="/assessment" className={linkClassName}>
+            Free Assessment
+          </a>
+          <a href="/about" className={linkClassName}>
+            About
           </a>
           <a
             href="/contact"
             className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
           >
-            Get Started
+            Book Your AI Growth Systems Consultation
           </a>
         </nav>
         <details className="group md:hidden">
           <summary
-            className={`flex cursor-pointer list-none items-center gap-2 ${
+            className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-lg p-2 ${
               isDemoPage ? "text-white/80" : "text-gray-600"
             }`}
           >
             <svg
-              className="h-6 w-6"
+              className="h-6 w-6 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -157,27 +182,27 @@ function Nav() {
                 : "border-gray-100 bg-white"
             }`}
           >
-            <div className="flex flex-col gap-4">
-              <a href="/" className={linkClassName}>
-                Home
+            <div className="flex flex-col gap-1">
+              <a href="/what-we-do" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                What We Do
               </a>
-              <a href="/about" className={linkClassName}>
-                About
+              <a href="/how-we-work" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                How We Work
               </a>
-              <a href="/services" className={linkClassName}>
-                Services
-              </a>
-              <a href="/roi-calculator" className={linkClassName}>
-                See What You&apos;re Missing
-              </a>
-              <a href="/demo" className={demoLinkClassName}>
+              <a href="/demo" className={`${demoLinkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
                 Live Demo
+              </a>
+              <a href="/assessment" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                Free Assessment
+              </a>
+              <a href="/about" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
+                About
               </a>
               <a
                 href="/contact"
-                className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-center text-sm font-semibold text-white"
+                className="flex min-h-11 items-center justify-center rounded-[10px] bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
               >
-                Get Started
+                Book Your AI Growth Systems Consultation
               </a>
             </div>
           </div>
@@ -200,65 +225,43 @@ function Footer() {
               </span>
             </a>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-400">
-              Helping home services companies answer every call 24/7/365 on the
-              first ring — so owners can serve what matters most.
+              AI growth systems for home services: get found, respond, convert,
+              retain, reduce manual work, and measure what is working.
             </p>
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
-              Pages
+              Explore
             </h4>
             <div className="flex flex-col gap-3">
-              <a
-                href="/"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Home
+              <a href="/what-we-do" className="text-sm text-gray-400 transition-colors hover:text-white">
+                What We Do
               </a>
-              <a
-                href="/about"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
+              <a href="/how-we-work" className="text-sm text-gray-400 transition-colors hover:text-white">
+                How We Work
+              </a>
+              <a href="/demo" className="text-sm text-gray-400 transition-colors hover:text-white">
+                Live Demo
+              </a>
+              <a href="/assessment" className="text-sm text-gray-400 transition-colors hover:text-white">
+                Free Assessment
+              </a>
+              <a href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">
                 About
-              </a>
-              <a
-                href="/services"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Services
-              </a>
-              <a
-                href="/roi-calculator"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                See What You&apos;re Missing
-              </a>
-              <a
-                href="/contact"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Contact
-              </a>
-              <a
-                href="/privacy"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Privacy
-              </a>
-              <a
-                href="/terms"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                Terms
               </a>
             </div>
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
-              Contact
+              Get Started
             </h4>
             <div className="flex flex-col gap-3 text-sm text-gray-400">
-              <span>info@624voice.com</span>
+              <a href="/contact" className="transition-colors hover:text-white">
+                Book a Consultation
+              </a>
+              <a href="mailto:info@624voice.com" className="transition-colors hover:text-white">
+                Email Us
+              </a>
             </div>
           </div>
         </div>
