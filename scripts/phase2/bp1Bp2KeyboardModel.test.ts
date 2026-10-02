@@ -10,7 +10,10 @@ import {
   stopRedisStub,
   waitForServer,
 } from "../../src/browser-journey/assessmentBrowserJourneySupport";
+import { FLEET_SIZE_LABELS } from "../../src/lib/lead/validateLead";
 import { formatFocusDescriptor, readFocused, resetFocusFromPageLoad } from "./ownerFocusOrderSupport";
+
+const BP2_SAMPLE_FLEET_LABEL = FLEET_SIZE_LABELS["3-7"];
 
 describe("BP1/BP2 keyboard model supplement", () => {
   test("X-SAFE-PREVIEW-FOCUS-04: BP1 and BP2 are native SELECT controls with ArrowDown+Tab model", async () => {
@@ -75,7 +78,7 @@ describe("BP1/BP2 keyboard model supplement", () => {
         };
       });
       expect(bp2Meta.tag).toBe("SELECT");
-      expect(bp2Meta.options).toContain("3–7 vehicles");
+      expect(bp2Meta.options).toContain(BP2_SAMPLE_FLEET_LABEL);
 
       const bp2Trace: Array<{ key: string; focus: string; selected?: string }> = [];
       bp2Trace.push({ key: "(on BP2 select)", focus: formatFocusDescriptor(await readFocused(page)) });
@@ -95,7 +98,7 @@ describe("BP1/BP2 keyboard model supplement", () => {
             : undefined,
         });
       }
-      expect(bp2Trace.some((t) => t.selected === "3–7 vehicles")).toBe(true);
+      expect(bp2Trace.some((t) => t.selected === BP2_SAMPLE_FLEET_LABEL)).toBe(true);
     } finally {
       await browser.close();
       stopAssessmentBrowserServer();

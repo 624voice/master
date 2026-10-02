@@ -23,6 +23,10 @@ import {
   formatOwnerPrepAcceptanceMessage,
   formatPrepSafetyDisclosureMessage,
 } from "./safePreviewPrepareNetworkGuard";
+import { FLEET_SIZE_LABELS } from "../../src/lib/lead/validateLead";
+
+const FLEET_1_2 = FLEET_SIZE_LABELS["1-2"];
+const FLEET_3_7 = FLEET_SIZE_LABELS["3-7"];
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 const OUT = join(REPO_ROOT, "review-artifacts/phase2/owner-keyboard-walkthrough-v5.md");
@@ -372,8 +376,8 @@ add({
   steps: [
     "Press Shift+Tab. Verify focused element: Back button.",
     "Press Shift+Tab. Verify focused element: Fleet size select (native SELECT).",
-    "Press ArrowDown. Verify selected option: 1–2 vehicles.",
-    "Press ArrowDown. Verify selected option: 3–7 vehicles.",
+    `Press ArrowDown. Verify selected option: ${FLEET_1_2}.`,
+    `Press ArrowDown. Verify selected option: ${FLEET_3_7}.`,
     "Press Tab. Verify focused element: Back button.",
     "Press Enter.",
     "Verify rendered screen: BP1 trade select visible.",
@@ -383,7 +387,7 @@ add({
     "Verify rendered screen: BP2 fleet select visible.",
     "Verify focused element immediately after BP2 render: Continue button. Verified by X-SAFE-PREVIEW-FOCUS-04 browser capture.",
     "Press Shift+Tab. Verify focused element: Back button.",
-    "Press Shift+Tab. Verify focused element: Fleet size select (native SELECT; selected option 3–7 vehicles).",
+    `Press Shift+Tab. Verify focused element: Fleet size select (native SELECT; selected option ${FLEET_3_7}).`,
     "Press Tab. Verify focused element: Back button.",
     "Press Tab. Verify focused element: Continue button.",
     "Press Enter.",

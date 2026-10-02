@@ -4,6 +4,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { FLEET_SIZE_LABELS } from "../../src/lib/lead/validateLead";
+
+const FLEET_1_2 = FLEET_SIZE_LABELS["1-2"];
+const FLEET_3_7 = FLEET_SIZE_LABELS["3-7"];
 
 const REPO_ROOT = join(import.meta.dir, "../..");
 const OUT = join(REPO_ROOT, "review-artifacts/phase2/owner-keyboard-walkthrough-procedure.json");
@@ -375,15 +379,15 @@ add({
   steps: [
     "Press Shift+Tab. Verify focus: Back button.",
     "Press Shift+Tab. Verify focus: #assessment-bp2 fleet select.",
-    "Press ArrowDown. Verify selected option label: 1–2 vehicles.",
-    "Press ArrowDown. Verify selected option label: 3–7 vehicles.",
+    `Press ArrowDown. Verify selected option label: ${FLEET_1_2}.`,
+    `Press ArrowDown. Verify selected option label: ${FLEET_3_7}.`,
     "Press Tab. Verify focus: Back button.",
     "Press Enter. Verify screen: BP1 trade select (#assessment-bp1) visible.",
     "Press Tab. Verify focus: Continue button.",
     "Press Enter. Verify screen: BP2 fleet select visible.",
     "Press Shift+Tab. Verify focus: #assessment-bp2 fleet select.",
-    "Press ArrowDown. Verify selected option label: 1–2 vehicles.",
-    "Press ArrowDown. Verify selected option label: 3–7 vehicles.",
+    `Press ArrowDown. Verify selected option label: ${FLEET_1_2}.`,
+    `Press ArrowDown. Verify selected option label: ${FLEET_3_7}.`,
     "Press Tab. Verify focus: Back button.",
     "Press Tab. Verify focus: Continue button.",
     "Press Enter.",
