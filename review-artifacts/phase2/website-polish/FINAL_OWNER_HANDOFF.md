@@ -26,7 +26,8 @@ Deletion record: [`legacy-deploy-removal-evidence.json`](legacy-deploy-removal-e
 |------|-----|
 | Last **runtime-changing** commit (fail-closed edge gate + deploy-preview protect) | `c6b80aef650c01dd4520f771d3295ad5d792327a` |
 | Deploy-script-only (re-link QA site after auth sync; no app/runtime change) | `0406a0b15f9ab773d99d61d01fa925d859de6f60` — see [`commit-0406a0b-analysis.md`](commit-0406a0b-analysis.md) |
-| **Final PR #98 HEAD** | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
+| **Final PR #98 HEAD** | `72ba926c0938adc9a5af4a0e8c3a6901c50c53bb` |
+| **Evidence-only HEAD** (artifacts/logs/handoff; no application diff vs `d0f528c…`) | `72ba926c0938adc9a5af4a0e8c3a6901c50c53bb` |
 | Owner-QA **deployed-source / runtime** SHA (authenticated `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
 | PR #98 deploy-preview **runtime** SHA (authenticated `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
 | Evidence-only commits after last runtime change | `18c080eaf00479a599d344a9a993d27e18818543`, `d0f528cf25d5382a5e1182bb122a6a98c94e541e` (artifacts, logs, inventory only — no application diff vs `18c080e…`) |
