@@ -1,25 +1,14 @@
-# Owner access — protected website-polish preview
+# Owner access — website-polish preview (open, no password)
 
-## Primary surface (fail-closed)
+Previews are **not** password-protected. Use a normal browser visit (no HTTP Basic Auth).
 
-**Canonical protected URL:** https://6abfd82dde3136ebc350e415--624voice-phase2-owner-qa.netlify.app/
+## URLs
 
-## Credentials (delivered)
+- **PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
+- **Dedicated owner-QA Netlify site:** use the current draft URL from the latest `deploy-netlify-owner-qa-preview.sh` deploy (pattern `https://<deploy-id>--624voice-phase2-owner-qa.netlify.app/`).
 
-Username and password were **rotated and delivered to Chris** via the **Cursor Cloud Agent run artifacts** file `phase2-owner-review-credentials-for-chris.txt` (owner-only; not in Git). Login with those values was **verified** against the canonical URL above.
+Responses include **`noindex`** headers so previews are not intended for public search indexing. Production **www.624voice.com** is unchanged.
 
-Sanitized delivery record: [`credential-delivery.json`](credential-delivery.json).
+## No credentials
 
-Netlify stores edge auth configuration, but **secret values are not reliably readable from the dashboard after creation**; do not rely on “open Netlify and copy password” unless your team confirms read access.
-
-## PR #98 deploy preview
-
-`https://deploy-preview-98--624voice.netlify.app/` — same fail-closed edge gate on main site **deploy-preview** context. Use the **same** username and password after Netlify finishes a post-rotation rebuild.
-
-## Browser login
-
-1. Open the protected URL.
-2. Enter HTTP Basic Auth username and password from the secure delivery above.
-3. Confirm `noindex` and that marketing pages load.
-
-Production `www.624voice.com` is **not** protected by this gate.
+Basic Auth has been disabled (`PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1`). Any prior credential artifact is obsolete for preview access.
