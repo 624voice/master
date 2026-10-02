@@ -43,7 +43,7 @@
       "xRobotsTag": "noindex",
       "wwwAuthenticate": "absent",
       "contentType": "application/json",
-      "bodySample": "{ \"gitCommitSha\": \"d0f528cf25d5382a5e1182bb122a6a98c94e541e\", \"branch\": \"HEA"
+      "bodySample": "{ \"gitCommitSha\": \"cc1e33855af85d985614babf8a18c853a02c60a6\", \"branch\": \"cur"
     },
     {
       "label": "pr98-deploy-preview-anonymous-root",
@@ -75,20 +75,20 @@
     {
       "label": "pr98-deploy-preview-good-creds-root",
       "path": "/",
-      "status": 401,
+      "status": 200,
       "xRobotsTag": "noindex",
-      "wwwAuthenticate": "present",
-      "contentType": "text/plain;charset=UTF-8",
-      "bodySample": "Owner QA preview — authentication required."
+      "wwwAuthenticate": "absent",
+      "contentType": "text/html; charset=utf-8",
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"robots\" content=\"noindex, nofol"
     },
     {
       "label": "pr98-deploy-preview-good-creds-health",
       "path": "/api/health",
-      "status": 401,
+      "status": 200,
       "xRobotsTag": "noindex",
-      "wwwAuthenticate": "present",
-      "contentType": "text/plain;charset=UTF-8",
-      "bodySample": "Owner QA preview — authentication required."
+      "wwwAuthenticate": "absent",
+      "contentType": "application/json",
+      "bodySample": "{ \"gitCommitSha\": \"cc1e33855af85d985614babf8a18c853a02c60a6\", \"branch\": \"pul"
     }
   ]
 }
