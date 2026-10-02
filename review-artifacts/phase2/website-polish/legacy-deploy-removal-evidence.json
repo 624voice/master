@@ -1,0 +1,16 @@
+{
+  "action": "deleteSiteDeploy via Netlify API on site 36285e6f-c15f-432b-b50b-718e9cfa0a24",
+  "deletedDeployIds": [
+    "6abd56734482b0f2f00832ab",
+    "6abd458bd2f3ce714ff6827a",
+    "6abaf0768fa2ad33156efcc2",
+    "6abaf026a79a3253e72c915b"
+  ],
+  "postDeleteChecks": {
+    "6abd567_root": 404,
+    "6abd567_api_health": 404,
+    "6abd567_asset": 404
+  },
+  "canonicalProtectedDeploy": "6abe969ae5d3846267f46778",
+  "inventoryFile": "review-artifacts/phase2/website-polish/preview-url-inventory.json"
+}
