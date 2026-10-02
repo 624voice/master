@@ -5,7 +5,7 @@ Previews are **not** password-protected. Use a normal browser visit (no HTTP Bas
 ## URLs
 
 - **PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
-- **Dedicated owner-QA Netlify site:** use the current draft URL from the latest `deploy-netlify-owner-qa-preview.sh` deploy (pattern `https://<deploy-id>--624voice-phase2-owner-qa.netlify.app/`).
+- **Dedicated owner-QA Netlify site:** https://6ac0032955a8948d0300a5b8--624voice-phase2-owner-qa.netlify.app/
 
 Responses include **`noindex`** headers so previews are not intended for public search indexing. Production **www.624voice.com** is unchanged.
 
