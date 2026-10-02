@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-BASE_SHA="${TEST_BASELINE_SHA:-3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf}"
+BASE_SHA="${TEST_BASELINE_SHA:-4d5491e757e8485c49d193417e96aef1b8a8c2ce}"
 WT="/tmp/phase2-polish-test-baseline"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="$ROOT/review-artifacts/phase2/website-polish/test-failure-baseline.json"
@@ -10,14 +10,12 @@ git worktree add -f "$WT" "$BASE_SHA" >/dev/null
 (cd "$WT" && bun install --frozen-lockfile >/dev/null 2>&1) || (cd "$WT" && bun install >/dev/null 2>&1)
 
 TESTS=(
-  "src/browser-journey/assessment.browserJourney.test.ts"
-  "scripts/phase2/assessment-keyboard-model-supplement.test.ts"
-  "scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts"
-  "src/server/speed2Lead/sendState.duplication.test.ts"
-  "src/server/speed2Lead/processEvent.productionSafety.test.ts"
-  "src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts"
-  "src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts"
-  "src/server/assessment/assessmentJourneyPipeline.test.ts"
+  "./src/browser-journey/assessment.browserJourney.test.ts"
+  "./scripts/phase2/assessmentKeyboardModel.test.ts"
+  "./scripts/phase2/bp1Bp2KeyboardModel.test.ts"
+  "./src/server/sms/sendState.duplication.test.ts"
+  "./src/server/assessment/rateLimitSource.test.ts"
+  "./src/server/assessment/assessmentJourneyPipeline.test.ts"
 )
 
 python3 - "$OUT" "$BASE_SHA" "$(git -C "$ROOT" rev-parse HEAD)" "$WT" "$ROOT" "${TESTS[@]}" <<'PY'

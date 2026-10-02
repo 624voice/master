@@ -2,20 +2,24 @@
 
 ## Primary surface (fail-closed)
 
-**Canonical protected URL:** https://6abfcf19bbf579f331162ca5--624voice-phase2-owner-qa.netlify.app/
+**Canonical protected URL:** https://6abfd82dde3136ebc350e415--624voice-phase2-owner-qa.netlify.app/
 
-(Site: `624voice-phase2-owner-qa`, draft deploy under `deploy-preview` context.)
+## Credentials (delivered)
 
-## Login
+Username and password were **rotated and delivered to Chris** via the **Cursor Cloud Agent run artifacts** file `phase2-owner-review-credentials-for-chris.txt` (owner-only; not in Git). Login with those values was **verified** against the canonical URL above.
 
-1. Open the protected preview URL in a browser.
-2. When prompted for **HTTP Basic Authentication**, enter the credentials stored in Netlify for site **624voice-phase2-owner-qa**:
-   - Environment variable `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER`
-   - Secret `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS`
-3. Credentials are **not** in the repository. Retrieve them from the Netlify team dashboard (Site → Environment variables) or from your secure credential store if the agent provisioned them during deploy.
+Sanitized delivery record: [`credential-delivery.json`](credential-delivery.json).
 
-## PR #98 deploy preview (`deploy-preview-98--624voice.netlify.app`)
+Netlify stores edge auth configuration, but **secret values are not reliably readable from the dashboard after creation**; do not rely on “open Netlify and copy password” unless your team confirms read access.
 
-This URL uses the **same fail-closed edge gate** via `PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW=1` on the main `624voice` Netlify site’s **deploy-preview** context, with the same Basic Auth variables scoped to deploy-preview only. It is **not** a second anonymous path to the private build.
+## PR #98 deploy preview
 
-Production `www.624voice.com` is **not** protected by this gate (edge enforcement is off outside owner-QA / protected deploy-preview contexts).
+`https://deploy-preview-98--624voice.netlify.app/` — same fail-closed edge gate on main site **deploy-preview** context. Use the **same** username and password after Netlify finishes a post-rotation rebuild.
+
+## Browser login
+
+1. Open the protected URL.
+2. Enter HTTP Basic Auth username and password from the secure delivery above.
+3. Confirm `noindex` and that marketing pages load.
+
+Production `www.624voice.com` is **not** protected by this gate.

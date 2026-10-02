@@ -1,94 +1,110 @@
 {
-  "baselineSha": "3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf",
-  "headSha": "6db48386c056bee1dffbeb6b8bec27c578e6447a",
-  "runs": [
+  "prePolishBaselineSha": "4d5491e757e8485c49d193417e96aef1b8a8c2ce",
+  "prePolishBaselineProof": {
+    "gitShow3bfa602": "3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf\n4d5491e757e8485c49d193417e96aef1b8a8c2ce\nPhase 2 final website design polish and copy corrections",
+    "gitShowParent": "4d5491e757e8485c49d193417e96aef1b8a8c2ce\nec771024d7550fd34098d77c008419fc26d8af9d\nRegenerate owner walkthrough for open QA preview URL"
+  },
+  "runtimeSha": "d0f528cf25d5382a5e1182bb122a6a98c94e541e",
+  "prHeadShaAtBaselineRun": "ece433b618b1c4e0bf25c730f4a7851e1dc4cd07",
+  "fullSuiteSummary": {
+    "prePolish": { "pass": 827, "fail": 9, "total": 836, "log": "review-artifacts/phase2/website-polish/full-suite-pre-polish-baseline.log" },
+    "runtime": { "pass": 837, "fail": 10, "total": 847, "log": "review-artifacts/phase2/website-polish/bun-test-full.log" },
+    "prHead": { "pass": 837, "fail": 10, "total": 847, "log": "review-artifacts/phase2/website-polish/bun-test-full.log" }
+  },
+  "environmentNotes": {
+    "browserJourneyBaseUrl": "VM process env BROWSER_JOURNEY_BASE_URL=https://6abbd6029173eb3ac8806631--624voice-phase2-owner-qa.netlify.app (stale deploy; inherited for full-suite parity)",
+    "fullSuiteCommand": "bun test (repo root, inherited env)"
+  },
+  "failures": [
     {
+      "testName": "Assessment browser journey X-JRN-DOM (fail-closed backend) > (unnamed)",
       "file": "src/browser-journey/assessment.browserJourney.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/browser-journey/assessment.browserJourney.test.ts:\n52 |     } catch {\n53 |       consecutiveOk = 0;\n54 |     }\n55 |     await new Promise((r) => setTimeout(r, 500));\n56 |   }\n57 |   throw new Error(`Server did not start at ${url}`);\n                 ^\nerror: Server did not start at https://6abbd6029173eb3ac8806631--624voice-phase2-owner-qa.netlify.app/assessment\n      at waitForServer (/tmp/phase2-polish-test-baseline/src/browser-journey/assessmentBrowserJourneySupport.ts:57:13)\n(fail) Assessment browser journey X-JRN-DOM (fail-closed backend) > (unnamed) [130849.56ms]\n52 |     } catch {\n53 |       consecutiveOk = 0;\n54 |     }\n55 |     await new Promise((r) => setTimeout(r, 500));\n56 |   }\n57 |   throw new Error(`Server did not start at ${url}`);\n                 ^\nerror: Server did not start at https://6abbd6029173eb3ac8806631--624voice-phase2-owner-qa.netlify.app/assessment\n      at waitForServer (/tmp/phase2-polish-test-baseline/src/browser-journey/assessmentBrowserJourneySupport.ts:57:13)\n      at async <anonymous> (/tmp/phase2-polish-test-baseline/src/browser-journey/assessment.browserJourney.test.ts:262:11)\n(fail) Assessment browser journey X-JRN-DOM (safe backend) > (unnamed) [130110.03ms]\n\n 0 pass\n 2 fail\nRan 2 tests across 1 file. [261.54s]\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/browser-journey/assessment.browserJourney.test.ts:\n52 |     } catch {\n53 |       consecutiveOk = 0;\n54 |     }\n55 |     await new Promise((r) => setTimeout(r, 500));\n56 |   }\n57 |   throw new Error(`Server did not start at ${url}`);\n                 ^\nerror: Server did not start at https://6abbd6029173eb3ac8806631--624voice-phase2-owner-qa.netlify.app/assessment\n      at waitForServer (/workspace/src/browser-journey/assessmentBrowserJourneySupport.ts:57:13)\n(fail) Assessment browser journey X-JRN-DOM (fail-closed backend) > (unnamed) [128551.30ms]\n52 |     } catch {\n53 |       consecutiveOk = 0;\n54 |     }\n55 |     await new Promise((r) => setTimeout(r, 500));\n56 |   }\n57 |   throw new Error(`Server did not start at ${url}`);\n                 ^\nerror: Server did not start at https://6abbd6029173eb3ac8806631--624voice-phase2-owner-qa.netlify.app/assessment\n      at waitForServer (/workspace/src/browser-journey/assessmentBrowserJourneySupport.ts:57:13)\n      at async <anonymous> (/workspace/src/browser-journey/assessment.browserJourney.test.ts:262:11)\n(fail) Assessment browser journey X-JRN-DOM (safe backend) > (unnamed) [130299.85ms]\n\n 0 pass\n 2 fail\nRan 2 tests across 1 file. [259.43s]\n"
-      }
+      "command": "bun test (full suite)",
+      "prePolishBaseline": "fail — Server did not start at stale BROWSER_JOURNEY_BASE_URL Netlify URL (~132s)",
+      "runtimeFinal": "fail — same stale URL timeout",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Environmental and equivalently reproduced"
     },
     {
-      "file": "scripts/phase2/assessment-keyboard-model-supplement.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n scripts/phase2/assessment-keyboard-model-supplement.test.ts\n1484 files were searched [22.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"scripts/phase2/assessment-keyboard-model-supplement.test.ts\" filter as a path, run \"bun test ./scripts/phase2/assessment-keyboard-model-supplement.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n scripts/phase2/assessment-keyboard-model-supplement.test.ts\n1534 files were searched [25.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"scripts/phase2/assessment-keyboard-model-supplement.test.ts\" filter as a path, run \"bun test ./scripts/phase2/assessment-keyboard-model-supplement.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "Assessment browser journey X-JRN-DOM (safe backend) > (unnamed)",
+      "file": "src/browser-journey/assessment.browserJourney.test.ts",
+      "command": "bun test (full suite)",
+      "prePolishBaseline": "fail — same stale URL timeout",
+      "runtimeFinal": "fail — same stale URL timeout",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Environmental and equivalently reproduced"
     },
     {
-      "file": "scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\n1484 files were searched [41.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\" filter as a path, run \"bun test ./scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\n1534 files were searched [18.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\" filter as a path, run \"bun test ./scripts/phase2/bp1-bp2-keyboard-model-supplement.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "BP1/BP2 keyboard model supplement > X-SAFE-PREVIEW-FOCUS-04: BP1 and BP2 are native SELECT controls with ArrowDown+Tab model",
+      "file": "scripts/phase2/bp1Bp2KeyboardModel.test.ts",
+      "command": "bun test ./scripts/phase2/bp1Bp2KeyboardModel.test.ts",
+      "prePolishBaseline": "pass (isolated); pass in full suite at 4d5491e",
+      "runtimeFinal": "fail isolated — fleet option labels changed (expects \"3–7 vehicles\", receives \"3–7 trucks\"); flaky pass/fail in full suite at d0f528c",
+      "reproducedAtTrueBaseline": false,
+      "classification": "Introduced by polish (copy/label change vs test expectations)"
     },
     {
-      "file": "src/server/speed2Lead/sendState.duplication.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/speed2Lead/sendState.duplication.test.ts\n1484 files were searched [25.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/speed2Lead/sendState.duplication.test.ts\" filter as a path, run \"bun test ./src/server/speed2Lead/sendState.duplication.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/speed2Lead/sendState.duplication.test.ts\n1534 files were searched [29.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/speed2Lead/sendState.duplication.test.ts\" filter as a path, run \"bun test ./src/server/speed2Lead/sendState.duplication.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "assessment keyboard model supplement > X-SAFE-PREVIEW-FOCUS-02: GF-S choice buttons use Tab+Space (not native radio arrows)",
+      "file": "scripts/phase2/assessmentKeyboardModel.test.ts",
+      "command": "bun test ./scripts/phase2/assessmentKeyboardModel.test.ts",
+      "prePolishBaseline": "fail isolated — Puppeteer navigation timeout in advanceThroughUniversalSteps",
+      "runtimeFinal": "fail isolated and full suite — same navigation timeout class",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Pre-existing and reproduced"
     },
     {
-      "file": "src/server/speed2Lead/processEvent.productionSafety.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/speed2Lead/processEvent.productionSafety.test.ts\n1484 files were searched [33.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/speed2Lead/processEvent.productionSafety.test.ts\" filter as a path, run \"bun test ./src/server/speed2Lead/processEvent.productionSafety.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/speed2Lead/processEvent.productionSafety.test.ts\n1534 files were searched [21.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/speed2Lead/processEvent.productionSafety.test.ts\" filter as a path, run \"bun test ./src/server/speed2Lead/processEvent.productionSafety.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "command": "bun test ./src/server/sms/sendState.duplication.test.ts (isolated pass; bun test full suite fail)",
+      "prePolishBaseline": "fail full suite; pass isolated",
+      "runtimeFinal": "fail full suite; pass isolated",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Order-dependent and reproduced"
     },
     {
-      "file": "src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\n1484 files were searched [29.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\" filter as a path, run \"bun test ./src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\n1534 files were searched [33.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\" filter as a path, run \"bun test ./src/server/assessment/checkAssessmentSourceRateLimit.supplemental.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "command": "bun test (full suite)",
+      "prePolishBaseline": "fail full suite; pass isolated",
+      "runtimeFinal": "fail full suite; pass isolated",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Order-dependent and reproduced"
     },
     {
-      "file": "src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts",
-      "baseline": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\n1484 files were searched [30.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\" filter as a path, run \"bun test ./src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      },
-      "head": {
-        "exit": 1,
-        "tail": "bun test v1.3.14 (0d9b296a)\nThe following filters did not match any test files:\n src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\n1534 files were searched [29.00ms]\n\nnote: Tests need \".test\", \"_test_\", \".spec\" or \"_spec_\" in the filename (ex: \"MyApp.test.ts\")\nnote: To treat the \"src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\" filter as a path, run \"bun test ./src/server/assessment/checkAssessmentPhoneIdempotency.supplemental.test.ts\"\n\nLearn more about bun test: https://bun.com/docs/cli/test\n"
-      }
+      "testName": "duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "command": "bun test (full suite)",
+      "prePolishBaseline": "fail full suite; pass isolated",
+      "runtimeFinal": "fail full suite; pass isolated",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Order-dependent and reproduced"
     },
     {
+      "testName": "checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured",
+      "file": "src/server/assessment/rateLimitSource.test.ts",
+      "command": "env -u UPSTASH_REDIS_REST_URL -u UPSTASH_REDIS_REST_TOKEN bun test ./src/server/assessment/rateLimitSource.test.ts",
+      "prePolishBaseline": "fail isolated — expectation mismatch on skip path",
+      "runtimeFinal": "fail isolated and full suite",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Pre-existing and reproduced"
+    },
+    {
+      "testName": "checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured",
+      "file": "src/server/assessment/rateLimitSource.test.ts",
+      "command": "env -u UPSTASH_REDIS_REST_URL -u UPSTASH_REDIS_REST_TOKEN bun test ./src/server/assessment/rateLimitSource.test.ts",
+      "prePolishBaseline": "fail isolated — expected substate fresh vs received",
+      "runtimeFinal": "fail isolated and full suite",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Pre-existing and reproduced"
+    },
+    {
+      "testName": "Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds",
       "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-      "baseline": {
-        "exit": 0,
-        "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/assessment/assessmentJourneyPipeline.test.ts:\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-01: lead-gate validation errors surface required fields [0.39ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds [12.37ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-03: results and PDF access with SMS consent unchecked [0.61ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-04: consent checked but agent flag false still returns report [0.62ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-05: repeat report access under approved token contract [626.87ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text [0.27ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-07: retryable report failure exposes visitor recovery message [0.89ms]\n\n 7 pass\n 0 fail\n 22 expect() calls\nRan 7 tests across 1 file. [684.00ms]\n"
-      },
-      "head": {
-        "exit": 0,
-        "tail": "bun test v1.3.14 (0d9b296a)\n\nsrc/server/assessment/assessmentJourneyPipeline.test.ts:\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-01: lead-gate validation errors surface required fields [0.32ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds [12.90ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-03: results and PDF access with SMS consent unchecked [0.60ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-04: consent checked but agent flag false still returns report [0.58ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-05: repeat report access under approved token contract [499.70ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text [0.25ms]\n(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-07: retryable report failure exposes visitor recovery message [0.56ms]\n\n 7 pass\n 0 fail\n 22 expect() calls\nRan 7 tests across 1 file. [564.00ms]\n"
-      }
+      "command": "bun test (full suite); bun test ./src/server/assessment/assessmentJourneyPipeline.test.ts isolated pass",
+      "prePolishBaseline": "fail full suite (TypeError: sink is not a function); pass isolated",
+      "runtimeFinal": "fail full suite; pass isolated",
+      "reproducedAtTrueBaseline": true,
+      "classification": "Order-dependent and reproduced"
     }
   ]
 }

@@ -4,103 +4,72 @@
 **Draft PR:** https://github.com/624voice/master/pull/98  
 **Do not merge.** Production is unchanged.
 
----
-
-## 1. Legacy public deploy removed
-
-| Check | URL / path | Anonymous result |
-|-------|------------|------------------|
-| Legacy deploy `/` | `https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/` | **404** (deploy deleted via Netlify API) |
-| Legacy `/api/health` | same host | **404** |
-| Legacy asset | same host `/assets/…` | **404** |
-
-Deletion record: [`legacy-deploy-removal-evidence.json`](legacy-deploy-removal-evidence.json).
-
-**Disclosed URL inventory (all must not expose private build anonymously):** [`preview-url-inventory.json`](preview-url-inventory.json) — `exposesPrivateBuildAnonymously: false` for every row (audit script: [`scripts/phase2/audit-disclosed-preview-urls.ts`](../../../scripts/phase2/audit-disclosed-preview-urls.ts)).
+> **Immutable evidence:** Pin links to the final 40-character PR HEAD SHA in the table below (`FINAL_PR_HEAD_SHA`).
 
 ---
 
-## 2. Final commit and SHA table
+## 1. Legacy public deploy (accepted — not re-run)
+
+Legacy deploy deletion and disclosed-preview inventory remain as previously verified unless a new deploy changes exposure.
+
+---
+
+## 2. Final commit, runtime, and diff classification
 
 | Role | SHA |
 |------|-----|
 | Last **runtime-changing** commit (fail-closed edge gate + deploy-preview protect) | `c6b80aef650c01dd4520f771d3295ad5d792327a` |
-| Deploy-script-only (re-link QA site after auth sync; no app/runtime change) | `0406a0b15f9ab773d99d61d01fa925d859de6f60` — see [`commit-0406a0b-analysis.md`](commit-0406a0b-analysis.md) |
-| **Final PR #98 HEAD** | `72ba926c0938adc9a5af4a0e8c3a6901c50c53bb` |
-| **Evidence-only HEAD** (artifacts/logs/handoff; no application diff vs `d0f528c…`) | `72ba926c0938adc9a5af4a0e8c3a6901c50c53bb` |
-| Owner-QA **deployed-source / runtime** SHA (authenticated `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
-| PR #98 deploy-preview **runtime** SHA (authenticated `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
-| Evidence-only commits after last runtime change | `18c080eaf00479a599d344a9a993d27e18818543`, `d0f528cf25d5382a5e1182bb122a6a98c94e541e` (artifacts, logs, inventory only — no application diff vs `18c080e…`) |
+| Deploy-script-only | `0406a0b15f9ab773d99d61d01fa925d859de6f60` |
+| **Application runtime** (owner-QA + PR preview `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
+| **FINAL_PR_HEAD_SHA** (evidence + baseline + audit URL constant; set at commit) | _see commit message / git rev-parse on branch_ |
 
-Both protected surfaces report the **same 40-character runtime SHA** at handoff time. Live proof: [`preview-auth-evidence.json`](preview-auth-evidence.json) (`good-creds-health` samples).
+**Post-`d0f528c…` diff (non-runtime):** review artifacts, logs, handoff docs, **`scripts/phase2/audit-disclosed-preview-urls.ts`** (one-line canonical URL constant for live audit tooling — **not** shipped application code), baseline runner path fixes, and **`scripts/phase2/run-test-failure-baseline-v2.sh`**. No other non-artifact application paths.
 
-**Canonical owner-QA deploy:** `https://6abfcf19bbf579f331162ca5--624voice-phase2-owner-qa.netlify.app/`  
+**Canonical protected owner-QA:** `https://6abfd82dde3136ebc350e415--624voice-phase2-owner-qa.netlify.app/`  
 **PR #98 deploy preview:** `https://deploy-preview-98--624voice.netlify.app/`
 
 ---
 
-## 3. Owner login (protected previews)
+## 3. Owner credentials (delivered and verified)
 
-**Secure channel:** Netlify Team Dashboard — environment variables on site **`624voice-phase2-owner-qa`** (and deploy-preview context on main site **`624voice`** for PR preview). Credentials were provisioned during automated deploy; they are **not** in Git, PR comments, or this handoff.
+| Question | Answer |
+|----------|--------|
+| Chris received **username**? | **Yes** — included in owner-only run artifact (not in Git). |
+| Chris received **password**? | **Yes** — same artifact (Netlify secret values are not reliably readable from dashboard after creation). |
+| Secure channel | **Cursor Cloud Agent run artifacts** — file basename `phase2-owner-review-credentials-for-chris.txt` (owner-only upload with this run). |
+| Verified against canonical URL? | **Yes** — authenticated `/api/health` returned runtime SHA `d0f528c…` after rotation. |
 
-**Variables:** `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER`, secret `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS`.
-
-**URLs:** canonical owner-QA URL above and `deploy-preview-98--624voice.netlify.app`.
-
-**Browser process:** open URL → HTTP Basic Auth prompt → enter user and password from Netlify → site loads with `noindex` headers.
-
-Detail: [`OWNER_PREVIEW_ACCESS.md`](OWNER_PREVIEW_ACCESS.md).
-
----
-
-## 4. Evidence index (final PR HEAD)
-
-| Artifact | Path |
-|----------|------|
-| Screenshot index | [`SCREENSHOTS.md`](SCREENSHOTS.md) |
-| Desktop / mobile / assessment states | [`screenshots/`](screenshots/) |
-| Assessment **Results** (fixture, no lead/SMS) | [`screenshots/assessment-results-1280.png`](screenshots/assessment-results-1280.png), [`assessment-results-capture-method.json`](assessment-results-capture-method.json) |
-| Guarantee inventory | [`guarantee-inventory.md`](guarantee-inventory.md), [`guarantee-inventory.raw.txt`](guarantee-inventory.raw.txt), [`guarantee-rendered-check.json`](guarantee-rendered-check.json) |
-| Fleet five-band | [`fleet-band-evidence.md`](fleet-band-evidence.md) |
-| Brand colors | [`brand-color-comparison.png`](brand-color-comparison.png), [`brand-color-comparison.html`](brand-color-comparison.html) |
-| Auth / fail-closed | [`preview-auth-evidence.json`](preview-auth-evidence.json) |
-| Full test log | [`bun-test-full.log`](bun-test-full.log) |
-| Build log | [`bun-build.log`](bun-build.log) |
-| Test failure baseline / analysis | [`test-failure-baseline.json`](test-failure-baseline.json), [`test-failure-analysis.md`](test-failure-analysis.md) |
-
-ROI and 404 screenshots: `screenshots/desktop-1280-roi-calculator.png`, `desktop-1280-404.png`, `mobile-375-404.png` (protected deploy `6abfcf19…`, runtime SHA `d0f528c…`).
+Sanitized record (no secrets): [`credential-delivery.json`](credential-delivery.json). Login steps: [`OWNER_PREVIEW_ACCESS.md`](OWNER_PREVIEW_ACCESS.md).
 
 ---
 
-## 5. Tests and build (final commit)
+## 4. Tests (true pre-polish baseline)
 
-- **Build:** success — [`bun-build.log`](bun-build.log)
-- **Full suite:** **837 pass, 10 fail, 847 total** — [`bun-test-full.log`](bun-test-full.log)
-- **Polish regression:** `scripts/phase2/website-polish-regression.test.ts` — 11/11 when run alone
+**Pre-polish baseline:** `4d5491e757e8485c49d193417e96aef1b8a8c2ce` (parent of polish commit `3bfa602…`).
 
-Failures are documented with baseline comparison in [`test-failure-analysis.md`](test-failure-analysis.md). No production/frozen behavior was changed to green the suite.
+- Pre-polish full suite: **827 pass, 9 fail** — [`full-suite-pre-polish-baseline.log`](full-suite-pre-polish-baseline.log)
+- Runtime / PR HEAD full suite: **837 pass, 10 fail** — [`bun-test-full.log`](bun-test-full.log)
+- Matrix: [`test-failure-analysis.md`](test-failure-analysis.md), [`test-failure-baseline.json`](test-failure-baseline.json)
 
----
-
-## 6. Known issues (honest)
-
-- Full `bun test` remains **10 failures** (environment, stale hard-coded Netlify URLs in browser journeys, suite-order pollution for SMS/analytics tests).
-- Assessment Results screenshot uses **deterministic SSR fixture**, not live submission (by design for this preview).
-- Duplicated `noindex` token in some responses is harmless (nonblocking).
+**Do not claim** all failures were “pre-existing”; **one** failure class (`X-SAFE-PREVIEW-FOCUS-04`) is **introduced by polish** (fleet label copy vs test expectations). **Nine** others are reproduced at the true baseline under equivalent full-suite / isolated conditions (see analysis).
 
 ---
 
-## 7. Visual review checklist (short)
+## 5. Evidence index (use immutable GitHub URLs at FINAL_PR_HEAD_SHA)
 
-1. **Home** — hero, CTAs, brand green, nav/footer.
-2. **What we do / How we work** — cards, journey diagram, copy.
-3. **Demo / About / Contact / Book** — layout, forms, CTAs.
-4. **Assessment** — BP1/BP2, fleet **50+** band, progress UI, lead gate (screenshots).
-5. **Assessment Results** — fixture screenshot vs expected scoring layout.
-6. **ROI calculator** — page polish, no live SMS.
-7. **404** — branded not-found desktop + mobile.
-8. **Guarantee** — confirm marketing pages show **no** guarantee while flag false.
-9. **Mobile** — home, assessment, contact, book, 404.
+Replace `FINAL_PR_HEAD_SHA` in:
+
+`https://github.com/624voice/master/blob/FINAL_PR_HEAD_SHA/review-artifacts/phase2/website-polish/<file>`
+
+Key files: `SCREENSHOTS.md`, `screenshots/`, `guarantee-inventory.md`, `fleet-band-evidence.md`, `brand-color-comparison.png`, `preview-url-inventory.json`, `assessment-results-capture-method.json`, `bun-build.log`.
+
+---
+
+## 6. Known issues
+
+- Full suite **10 fail** at runtime (documented; not all pre-existing).
+- PR #98 deploy-preview may require Netlify rebuild after auth rotation to accept the new password (push-triggered build).
+- Assessment Results screenshot remains fixture-based (no live lead/SMS).
 
 ---
 

@@ -2,7 +2,7 @@
  * Audit disclosed preview URLs: anonymous must not receive application HTML (200 + text/html).
  */
 const disclosed: Array<{ label: string; url: string }> = [
-  { label: "canonical-owner-qa", url: "https://6abfcf19bbf579f331162ca5--624voice-phase2-owner-qa.netlify.app/" },
+  { label: "canonical-owner-qa", url: "https://6abfd82dde3136ebc350e415--624voice-phase2-owner-qa.netlify.app/" },
   { label: "legacy-6abd567", url: "https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/" },
   { label: "legacy-6abd458", url: "https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/" },
   { label: "pr98-deploy-preview", url: "https://deploy-preview-98--624voice.netlify.app/" },
