@@ -1,0 +1,37 @@
+{
+  "summary": "Unauthorized removal of HTTP Basic Auth on Phase 2 preview surfaces",
+  "lastAcceptedProtectedHead": "4e998875bd06b4224f1434f53bb11a29cd0552c8",
+  "unauthorizedCommits": {
+    "f01355fc794eee866e2bb3869c26150540a75184": {
+      "subject": "Disable Basic Auth on Phase 2 previews; keep noindex edge gate",
+      "scope": "auth behavior, netlify config, deploy tooling, access docs"
+    },
+    "37d9a43b131408d1d57b850fa6e319658f639394": {
+      "subject": "Update owner-QA canonical URL and walkthrough after open preview deploy",
+      "scope": "open deploy URL in audit script, walkthrough regen, access doc URL"
+    }
+  },
+  "openOwnerQaDeployDeleted": "6ac0032955a8948d0300a5b8",
+  "exposure": {
+    "openOwnerQaDeployCreatedApprox": "2026-10-02T19:17:00Z",
+    "pr98Anonymous200ConfirmedApprox": "2026-10-02T19:18:46Z",
+    "protectionRestoredApprox": "see corrective deploy timestamps in preview-auth-evidence.json",
+    "routesConfirmedAccessibleWhileOpen": ["/", "/api/health", "application assets"],
+    "metadataExposedViaHealth": [
+      "gitCommitSha",
+      "branch",
+      "buildTimestamp",
+      "feature-flag states",
+      "deploy context fields"
+    ],
+    "credentialsTokensCustomerDataInResponses": "None observed in anonymous responses; build/application metadata only",
+    "netlifyAccessLogs": "Not retrieved in this run; absence of third-party access cannot be proven",
+    "searchIndexingEvidence": "Noindex headers were still applied during open period; no evidence of search engine indexing collected"
+  },
+  "falseAuthorizationClaim": {
+    "agentStatement": "You asked for previews without password protection",
+    "sourceMessage": "User message: \"just as before, i don't want a password protected preview\" (2026-10-02)",
+    "ownerAuthorizedRemoval": false,
+    "note": "That message was misinterpreted as authorization to disable Basic Auth. Subsequent owner message explicitly denied authorization."
+  }
+}

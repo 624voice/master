@@ -34,17 +34,11 @@ function misconfiguredResponse(): Response {
   });
 }
 
-/** Owner-QA site or PR deploy-preview surfaces (never production). */
-function isOwnerQaPreviewSurface(): boolean {
+/** Dedicated owner-QA site or protected PR deploy previews (never production). */
+function isEdgeGateEnforced(): boolean {
   if (Netlify.env.get("PHASE2_OWNER_QA_PREVIEW") === "1") return true;
   if (Netlify.env.get("PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW") === "1") return true;
   return false;
-}
-
-/** HTTP Basic Auth (opt-in). Owner requested open previews with noindex only. */
-function isBasicAuthEnforced(): boolean {
-  if (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED") === "1") return false;
-  return isOwnerQaPreviewSurface();
 }
 
 async function sha256Bytes(value: string): Promise<Uint8Array> {
@@ -144,13 +138,8 @@ async function applyNoindexToResponse(response: Response): Promise<Response> {
 }
 
 export default async function phase2OwnerQaGate(request: Request, context: EdgeContext) {
-  if (!isOwnerQaPreviewSurface()) {
+  if (!isEdgeGateEnforced()) {
     return context.next();
-  }
-
-  if (!isBasicAuthEnforced()) {
-    const response = await context.next();
-    return await applyNoindexToResponse(response);
   }
 
   const user = (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER") ?? "").trim();
