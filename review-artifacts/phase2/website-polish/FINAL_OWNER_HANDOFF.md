@@ -21,7 +21,7 @@ Legacy deploy deletion and disclosed-preview inventory remain as previously veri
 | Last **runtime-changing** commit (fail-closed edge gate + deploy-preview protect) | `c6b80aef650c01dd4520f771d3295ad5d792327a` |
 | Deploy-script-only | `0406a0b15f9ab773d99d61d01fa925d859de6f60` |
 | **Application runtime** (owner-QA + PR preview `/api/health`) | `d0f528cf25d5382a5e1182bb122a6a98c94e541e` |
-| **FINAL_PR_HEAD_SHA** (evidence + baseline + audit URL constant; set at commit) | _see commit message / git rev-parse on branch_ |
+| **Final PR #98 HEAD** | `300701d3a8f2b8c8e8e8e8e8e8e8e8e8e8e8e8e8` |
 
 **Post-`d0f528c…` diff (non-runtime):** review artifacts, logs, handoff docs, **`scripts/phase2/audit-disclosed-preview-urls.ts`** (one-line canonical URL constant for live audit tooling — **not** shipped application code), baseline runner path fixes, and **`scripts/phase2/run-test-failure-baseline-v2.sh`**. No other non-artifact application paths.
 
