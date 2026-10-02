@@ -2,7 +2,7 @@
 
 ## Primary surface (fail-closed)
 
-**Canonical protected URL:** https://6abfcdd78a52874167f91892--624voice-phase2-owner-qa.netlify.app/
+**Canonical protected URL:** https://6abfcf19bbf579f331162ca5--624voice-phase2-owner-qa.netlify.app/
 
 (Site: `624voice-phase2-owner-qa`, draft deploy under `deploy-preview` context.)
 

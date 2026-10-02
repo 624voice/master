@@ -1,6 +1,6 @@
 # Website polish — owner-viewable screenshots
 
-Captured from the **protected** owner-QA preview deploy `6abfcdd78a52874167f91892` (runtime SHA via authenticated `/api/health` on that deploy).
+Captured from the **protected** owner-QA preview deploy `6abfcf19bbf579f331162ca5` (runtime SHA `d0f528cf25d5382a5e1182bb122a6a98c94e541e` via authenticated `/api/health`).
 
 Base path: `review-artifacts/phase2/website-polish/screenshots/`
 

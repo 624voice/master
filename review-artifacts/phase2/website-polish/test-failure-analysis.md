@@ -1,4 +1,4 @@
-# Full suite failures at HEAD `6db48386c056bee1dffbeb6b8bec27c578e6447a` (pre-final evidence commit)
+# Full suite failures at HEAD `d0f528cf25d5382a5e1182bb122a6a98c94e541e`
 
 Source log: `review-artifacts/phase2/website-polish/bun-test-full.log`  
 Result: **837 pass, 10 fail, 847 total**

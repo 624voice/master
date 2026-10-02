@@ -37,7 +37,7 @@ dist/client/assets/demo-C2VTt0me.js                       29.23 kB │ gzip:   9
 dist/client/assets/assessment-De3fy2W5.js                 30.19 kB │ gzip:   9.56 kB
 dist/client/assets/vapi-C6Yfr3-r.js                      302.13 kB │ gzip:  79.04 kB
 dist/client/assets/index-Q-iBbjD8.js                     336.36 kB │ gzip: 107.35 kB
-✓ built in 1.95s
+✓ built in 2.04s
 vite v7.3.6 building ssr environment for production...
 transforming...
 "createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
@@ -63,7 +63,7 @@ dist/server/assets/callVolume-DPN9QERQ.js                        0.77 kB
 dist/server/assets/Card-CsOTnl-j.js                              0.93 kB
 dist/server/assets/generateRoiPdf-BNyapcKS.js                    1.06 kB
 dist/server/assets/phase2OwnerQaBoundary-C6VeIvAq.js             1.07 kB
-dist/server/assets/report-preview-BwFBNx1E.js                    1.09 kB
+dist/server/assets/report-preview-cYZvpCm8.js                    1.09 kB
 dist/server/assets/submitAssessmentLead-BYfVnObI.js              1.12 kB
 dist/server/assets/generateReportPdfBytes.server-W1mvyA4H.js     1.17 kB
 dist/server/assets/phase2OwnerQaNetlifyBlobStore-Dg8grD7E.js     1.28 kB
@@ -92,8 +92,8 @@ dist/server/assets/validateLead-DxHINOm_.js                      3.79 kB
 dist/server/assets/renderReportPdf.server-pa70Q2-P.js            4.05 kB
 dist/server/assets/MarketingCards-BmiKrvl4.js                    4.17 kB
 dist/server/assets/_tanstack-start-manifest_v-CMvAWrVm.js        4.33 kB
-dist/server/assets/calendarOAuthSmoke-CYUq_8YR.js                4.42 kB
-dist/server/assets/provider-CAzppVjU.js                          4.57 kB
+dist/server/assets/calendarOAuthSmoke-Ble0yFsW.js                4.42 kB
+dist/server/assets/provider-mjiyJKvR.js                          4.57 kB
 dist/server/assets/revenueResults-Byi9OtNC.js                    5.06 kB
 dist/server/assets/about-CbWjwB3o.js                             5.27 kB
 dist/server/assets/CustomerLifecycleDiagram-CRFLq6Qa.js          5.84 kB
@@ -105,7 +105,7 @@ dist/server/assets/openers-B8jzQzOs.js                           7.20 kB
 dist/server/assets/terms-DK4whqjQ.js                             7.33 kB
 dist/server/assets/computeRoi-C5yp5uXH.js                        8.52 kB
 dist/server/assets/formatReportMeta-rARadzGM.js                  8.70 kB
-dist/server/assets/google-calendar-DoFc7gmJ.js                   8.75 kB
+dist/server/assets/google-calendar-BE45dMQ8.js                   8.75 kB
 dist/server/assets/privacy-B6VF8a-S.js                          10.16 kB
 dist/server/assets/what-we-do-BCu_Nm5l.js                       10.21 kB
 dist/server/assets/submitAssessmentLead.server-CgqmT3wa.js      13.27 kB
@@ -117,10 +117,10 @@ dist/server/assets/RoiReport-CI9FS7Vu.js                        27.42 kB
 dist/server/assets/roi-calculator-BGz63GhI.js                   32.09 kB
 dist/server/assets/greetingName-B328Mg6m.js                     36.84 kB
 dist/server/assets/assessment-_TZfMVko.js                       39.23 kB
-dist/server/assets/demo-DEJtvFC_.js                             44.59 kB
+dist/server/assets/demo-Bh7g-kmo.js                             44.59 kB
 dist/server/assets/openerEpisode-BocvHwoq.js                    58.16 kB
 dist/server/server.js                                           67.02 kB
-dist/server/assets/router-DPXLPM-V.js                          358.70 kB
-3:27:45 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs
+dist/server/assets/router-DklwEKDE.js                          358.70 kB
+3:48:34 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs
 
-✓ built in 1.12s
+✓ built in 1.17s
