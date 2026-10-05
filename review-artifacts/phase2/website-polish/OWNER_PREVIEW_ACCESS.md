@@ -6,7 +6,7 @@
 
 **PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
 
-**Owner-QA Netlify site:** URL from the latest `deploy-netlify-owner-qa-preview.sh` run (see handoff / `preview-url-inventory.json`).
+**Owner-QA Netlify site:** https://6ac3ce0b4ddd1b7b069d8a19--624voice-phase2-owner-qa.netlify.app/
 
 No password is required. Use a normal browser window (no HTTP Basic Auth prompt).
 
