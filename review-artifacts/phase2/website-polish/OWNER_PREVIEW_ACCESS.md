@@ -1,17 +1,16 @@
-# Owner access — website-polish preview (open, no Basic Auth)
+# Owner access — protected conversion-focused preview
 
-**Owner-authorized open review (2026-10-05):** HTTP Basic Auth disabled on the surfaces below. **Noindex** remains via the edge gate and headers.
+**HTTP Basic Auth required** on owner-QA and PR #98 deploy preview. **Noindex** remains via the edge gate.
 
-## Open preview URLs
+## URLs
 
-**PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
+- **Owner-QA (canonical for this revision):** https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app/
+- **PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
 
-**Owner-QA Netlify site:** https://6ac3ce0b4ddd1b7b069d8a19--624voice-phase2-owner-qa.netlify.app/
+## Credentials
 
-No password is required. Use a normal browser window (no HTTP Basic Auth prompt).
+Use the credentials from the latest protected deploy artifact on the Cloud Agent run (`netlify-owner-qa-preview-basic-auth.txt`). Values are **not** stored in the repository.
 
-Production **https://www.624voice.com** is unrelated to this gate.
+## Handoff
 
-## Security decision record
-
-Authorization and policy: `review-artifacts/phase2/website-polish/security-decision-evidence.json` (decision `open-preview-owner-review-2026-10-05`).
+See `conversion-revision-handoff.json` for section inventory, CTA map, demo form audit, tests, and runtime SHA.

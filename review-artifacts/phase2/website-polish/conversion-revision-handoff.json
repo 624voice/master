@@ -62,7 +62,11 @@
     "tests": "src/lib/marketing/guaranteeEligibility.test.ts",
     "roiCalculatorContext": "624-revenue (renders when eligible; SHOW_VOICE_AI_GUARANTEE still gates marketing copy elsewhere)"
   },
-  "previewSecurity": "Fail-closed Basic Auth restored for owner-QA deploy; no BASIC_AUTH_DISABLED in netlify.toml for this revision.",
+  "protectedOwnerReviewPreviewUrl": "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app/",
+  "pr98DeployPreviewUrl": "https://deploy-preview-98--624voice.netlify.app/",
+  "finalPrHeadSha40": "d041587f7a6c8e731691d00587fc39141db69a7b",
+  "deployedRuntimeSha40": "d041587f7a6c8e731691d00587fc39141db69a7b",
+  "previewSecurity": "Fail-closed Basic Auth on owner-QA and PR #98 deploy preview (401 without credentials). Credentials in Cloud Agent artifact netlify-owner-qa-preview-basic-auth.txt (not in Git).",
   "tests": {
     "fullSuite": "863 pass / 7 fail (baseline unrelated + focus-order nav change pending artifact refresh)",
     "build": "pass"
