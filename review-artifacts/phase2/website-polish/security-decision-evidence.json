@@ -22,7 +22,7 @@
     },
     {
       "id": "second-open-preview-and-restore-2026-10-05",
-      "action": "Second cycle: owner-authorized open previews, then conversion pass restored fail-closed protection",
+      "action": "Second cycle: previews were opened, then the conversion pass restored fail-closed protection",
       "openAccessCommit": "c06761d7aa70619520bd80f109d384a1f58ad6e2",
       "openAccessDeployedApprox": "2026-10-05T17:20:00Z",
       "openAccessSurfaces": [
