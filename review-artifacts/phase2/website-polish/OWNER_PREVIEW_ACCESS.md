@@ -1,21 +1,17 @@
-# Owner access — protected website-polish preview
+# Owner access — website-polish preview (open, no Basic Auth)
 
-## Primary surface (fail-closed HTTP Basic Auth)
+**Owner-authorized open review (2026-10-05):** HTTP Basic Auth disabled on the surfaces below. **Noindex** remains via the edge gate and headers.
 
-**Canonical protected owner-QA URL:** set by latest protected deploy (see `legacy-deploy-removal-evidence.json` / handoff after security restore).
+## Open preview URLs
 
 **PR #98 deploy preview:** https://deploy-preview-98--624voice.netlify.app/
 
-## Login
+**Owner-QA Netlify site:** URL from the latest `deploy-netlify-owner-qa-preview.sh` run (see handoff / `preview-url-inventory.json`).
 
-1. Open the protected preview URL in a browser.
-2. When prompted for **HTTP Basic Authentication**, use credentials from the current owner-only secure artifact (`phase2-owner-review-credentials-for-chris.txt` on the Cloud Agent run that performed the **post-incident rotation**). Prior credential files are **obsolete**.
-3. Credentials are **not** in the repository.
+No password is required. Use a normal browser window (no HTTP Basic Auth prompt).
 
-Netlify environment variables hold edge auth configuration; secret values are not reliably readable from the dashboard after creation.
+Production **https://www.624voice.com** is unrelated to this gate.
 
-## Regression note
+## Security decision record
 
-Open-preview configuration (`PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED`) from commits `f01355fc794eee866e2bb3869c26150540a75184` and `37d9a43b131408d1d57b850fa6e319658f639394` was **unauthorized and reverted**. Previews are fail-closed again.
-
-Production `www.624voice.com` is **not** protected by this gate.
+Authorization and policy: `review-artifacts/phase2/website-polish/security-decision-evidence.json` (decision `open-preview-owner-review-2026-10-05`).

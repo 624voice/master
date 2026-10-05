@@ -21,6 +21,19 @@
       "ownerConfirmationOnRecord": "Owner message requiring security restore (same incident thread); not duplicated here to avoid paraphrase drift."
     },
     {
+      "id": "open-preview-owner-review-2026-10-05",
+      "action": "Disable HTTP Basic Auth on PR #98 deploy preview and phase2 owner-QA Netlify site; keep noindex edge gate",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 (edge gate remains; Basic Auth not enforced)",
+      "surfaces": [
+        "https://deploy-preview-98--624voice.netlify.app/",
+        "624voice-phase2-owner-qa Netlify site (CLI owner-QA deploys)"
+      ],
+      "ownerMessageVerbatim": "Disable HTTP Basic Auth on deploy-preview-98 and the phase2 owner-QA Netlify site so I can review without a password.",
+      "ownerMessageRecordedAt": "2026-10-05T16:17:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498"
+    },
+    {
       "id": "attribution-unverified-2026-10-02",
       "action": "Do not close incident attribution on agent-quoted owner instruction",
       "basis": "Owner attestation: does not recall disputed quote; quote not in owner-visible project record",
