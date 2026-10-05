@@ -31,9 +31,11 @@
       ],
       "authorizationSource": {
         "decisionId": "open-preview-owner-review-2026-10-05",
-        "status": "EVIDENCED",
-        "note": "Verbatim owner message recorded in open-preview-owner-review-2026-10-05 entry (same file)."
+        "status": "UNVERIFIED",
+        "authorizationExplanation": "Unverified attribution: the implementation agent reported an owner instruction authorizing open preview access, but the cited support resolves only to an earlier agent-authored record of the same disputed instruction. No independent transcript artifact or owner confirmation has been produced.",
+        "note": "Attribution only. Technical containment for this cycle (restore of fail-closed protection, live 401 verification, correctiveProtectionCommit) remains COMPLETE and unchanged; controlChangePolicy remains in force."
       },
+      "containmentStatus": "COMPLETE",
       "correctiveProtectionCommit": "d041587f7a6c8e731691d00587fc39141db69a7b",
       "protectionRestoredApprox": "2026-10-05T17:26:01Z",
       "protectionRestoredDeployId": "6ac3dda882a472ad10fb0280",
