@@ -1,0 +1,79 @@
+{
+  "homepageLength": {
+    "beforeLines": 537,
+    "afterLines": 411,
+    "percentReduction": 23.5,
+    "beforeSections": 11,
+    "afterSections": 7,
+    "sectionPercentReduction": 36.4,
+    "sevenSectionInventory": [
+      "HERO (24/7 indicator, demo primary, ROI secondary, book in header)",
+      "WHERE REVENUE IS LEAKING (four problem cards + blue callout)",
+      "TALK WITH JESSICA (live-demo preview + form disclosure)",
+      "SEE WHAT YOU ARE MISSING (ROI calculator primary, assessment secondary)",
+      "WHAT 624 VOICE CAN IMPROVE (single 3x2 six-area grid)",
+      "HOW WE WORK (four compressed steps + link)",
+      "TRUST + FINAL CTA (18+ years + book/ROI/demo links)"
+    ]
+  },
+  "ctaDestinationMap": {
+    "Talk With Our AI Voice Agent": "/demo",
+    "Calculate Your Revenue Gap": "/roi-calculator",
+    "Book Your AI Growth Systems Consultation": "/book",
+    "Book Your Consultation": "/book",
+    "Get Your Free Assessment": "/assessment",
+    "Send Us a Message": "/contact",
+    "Explore What We Do": "/what-we-do",
+    "See How We Work": "/how-we-work"
+  },
+  "bookCtaAudit": "All homepage and header Book CTAs route to /book (verified in website-polish-regression.test.ts).",
+  "demoFormAudit": {
+    "fields": [
+      { "name": "firstName", "required": true, "reason": "Lead identity for demo access and CRM" },
+      { "name": "lastName", "required": true, "reason": "Lead identity for demo access and CRM" },
+      { "name": "businessName", "required": true, "reason": "Business context for demo lead record" },
+      { "name": "email", "required": true, "reason": "Contact and demo follow-up" },
+      { "name": "phone", "required": true, "reason": "Demo lead record and optional SMS if consented" },
+      { "name": "websiteOption", "required": true, "reason": "Qualification branch (has site vs none)" },
+      { "name": "website", "required": "conditional", "reason": "Required when websiteOption is has" },
+      { "name": "smsConsent", "required": false, "reason": "Optional; separate from demo access" }
+    ],
+    "smsConsentOptional": true,
+    "smsDeclineBlocksDemo": false,
+    "postDemoFieldMoves": "Not changed in this pass; downstream submitDemoLead and Speed2Lead expect full identity set before live demo."
+  },
+  "analyticsInventory": {
+    "frozenContractEvents": "src/lib/analytics/trackEvent.ts (10 assessment/ROI-pipeline events)",
+    "conversionCtaInstrumentation": "Homepage and tool CTAs use data-analytics-intent attributes pending contract extension",
+    "gaps": [
+      "Homepage → Live Demo click (intent attribute only)",
+      "Demo form started/completed (not in frozen 10-event contract)",
+      "ROI calculator page events (not in frozen contract)",
+      "Booking page reached (not in frozen contract)"
+    ]
+  },
+  "consultationDuration": {
+    "websiteCopy": "About 30 minutes (homepage, book page)",
+    "consultationConfigMinutes": 30,
+    "googleCalendarEmbedNote": "Google Appointment Schedule title/duration must be updated in Google Calendar admin if still showing 25 min; embed uses visitor local timezone via ctz query param."
+  },
+  "guaranteeEligibility": {
+    "module": "src/lib/marketing/guaranteeEligibility.ts",
+    "tests": "src/lib/marketing/guaranteeEligibility.test.ts",
+    "roiCalculatorContext": "624-revenue (renders when eligible; SHOW_VOICE_AI_GUARANTEE still gates marketing copy elsewhere)"
+  },
+  "previewSecurity": "Fail-closed Basic Auth restored for owner-QA deploy; no BASIC_AUTH_DISABLED in netlify.toml for this revision.",
+  "tests": {
+    "fullSuite": "863 pass / 7 fail (baseline unrelated + focus-order nav change pending artifact refresh)",
+    "build": "pass"
+  },
+  "ownerReviewChecklist": [
+    "Homepage length and seven-section flow",
+    "Demo and ROI within first four sections",
+    "Book vs contact distinction in nav/footer",
+    "Live demo form disclosure on home and /demo",
+    "ROI assumptions visible before unlock form",
+    "Calendar timezone and duration in /book embed",
+    "Protected preview credentials (delivered out of band)"
+  ]
+}

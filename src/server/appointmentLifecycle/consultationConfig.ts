@@ -1,7 +1,7 @@
 import { DEFAULT_TIMEZONE } from "~/server/appointmentLifecycle/config";
 
 export const CONSULTATION_TIMEZONE = DEFAULT_TIMEZONE;
-export const CONSULTATION_DURATION_MINUTES = 25;
+export const CONSULTATION_DURATION_MINUTES = 30;
 export const CONSULTATION_BUFFER_MINUTES = 10;
 export const CONSULTATION_SLOT_INTERVAL_MINUTES = 15;
 

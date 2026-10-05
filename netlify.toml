@@ -43,7 +43,6 @@
   SPEED2LEAD_DEMO_AGENT_V2 = "true"
   ROI_REPORT_PREVIEW_ENABLED = "true"
   PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW = "1"
-  PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED = "1"
 
 # Phase 2 owner QA deploy (CLI) — appended by deploy-netlify-owner-qa-preview.sh; restored after deploy.
 [[headers]]

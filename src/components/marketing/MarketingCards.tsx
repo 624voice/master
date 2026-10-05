@@ -31,6 +31,27 @@ export function OutcomeCard({
   );
 }
 
+/** Problem / pain cards — coral accent, equal-height grid on homepage. */
+export function ProblemPainCard({
+  title,
+  body,
+  icon,
+}: {
+  title: string;
+  body: string;
+  icon: ReactNode;
+}) {
+  return (
+    <article className="flex h-full flex-col rounded-xl border border-rose-100/80 bg-white p-6 shadow-sm">
+      <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+        {icon}
+      </div>
+      <h3 className="text-lg font-semibold text-brand-secondary">{title}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600">{body}</p>
+    </article>
+  );
+}
+
 export function JourneyStageCard({
   primaryLabel,
   description,
@@ -72,11 +93,11 @@ export function ProcessStepCard({
 }) {
   return (
     <article className="relative flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-md sm:p-7">
-      <div className="flex items-start gap-4">
-        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
           {step}
         </span>
-        <div className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-brand-mint/30 text-brand-primary-dark">
+        <div className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-mint/30 text-brand-primary-dark">
           {icon}
         </div>
       </div>

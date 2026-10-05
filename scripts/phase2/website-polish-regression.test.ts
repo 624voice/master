@@ -54,25 +54,36 @@ describe("Phase 2 website polish regression", () => {
     expect(book).toContain('"Schedule Your Consultation | 624 Voice"');
   });
 
-  test("footer has single /contact link and no duplicate Book a Time footer entry", () => {
+  test("footer routes book and contact separately", () => {
     const root = readFileSync(join(REPO, "src/routes/__root.tsx"), "utf8");
     const footerMatch = root.match(/function Footer\([\s\S]*?\n\}/);
     expect(footerMatch).toBeTruthy();
     const footer = footerMatch![0];
-    const contactLinks = footer.match(/href="\/contact"/g) ?? [];
-    expect(contactLinks.length).toBe(1);
-    expect(footer).not.toMatch(/href="\/book"/);
+    expect(footer).toContain('href="/book"');
+    expect(footer).toContain('href="/contact"');
     expect(footer).toContain("Book a Consultation");
+    expect(footer).toContain("Send Us a Message");
+    expect(footer).toContain("Revenue Gap Calculator");
   });
 
-  test("general consultation CTAs route to /contact; qualified book route preserved", () => {
+  test("header book CTA routes to /book; assessment results keep book path", () => {
     const root = readFileSync(join(REPO, "src/routes/__root.tsx"), "utf8");
-    expect(root).toContain('href="/contact"');
+    expect(root).toContain('href="/book"');
+    expect(root).toContain('href="/roi-calculator"');
     const results = readFileSync(
       join(REPO, "src/components/assessment/AssessmentResults.tsx"),
       "utf8",
     );
     expect(results).toContain("BOOK_MEETING_PATH");
+  });
+
+  test("homepage has seven conversion sections and book CTAs use /book", () => {
+    const index = readFileSync(join(REPO, "src/routes/index.tsx"), "utf8");
+    expect(index).toContain("Never Let Another Good Call Go Unanswered");
+    expect(index).toContain("See Where Revenue Is Slipping Away");
+    expect(index).toContain('href="/book"');
+    expect(index).not.toContain('href="/contact"');
+    expect(index).not.toContain("The Gaps Are Connected");
   });
 
   test("assessment hero component stays mounted outside step conditionals", () => {

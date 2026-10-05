@@ -17,6 +17,11 @@ import {
   TRADES,
   type TradeKey,
 } from "~/lib/roi/callVolume";
+import { TRADES as ROI_MODEL_TRADES } from "~/lib/roi/roiModel";
+import {
+  GUARANTEE_ELIGIBILITY_FOOTNOTE,
+  is90DayResultsGuaranteeEligible,
+} from "~/lib/marketing/guaranteeEligibility";
 import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { generateRoiPdf } from "~/server/generateRoiPdf";
 import {
@@ -524,25 +529,59 @@ export function RoiCalculator() {
                   {TRADES[trade].label} · {clampedTrucks} trucks ·{" "}
                   {monthlyCalls.toLocaleString("en-US")} calls/mo
                 </p>
+                <div className="mx-auto mt-6 max-w-xl rounded-lg border border-gray-200 bg-white/80 p-4 text-left text-sm text-gray-700">
+                  <p className="font-semibold text-brand-secondary">
+                    Key assumptions behind this conservative estimate
+                  </p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    <li>
+                      {monthlyCalls.toLocaleString("en-US")} estimated monthly
+                      inbound calls ({clampedTrucks} trucks)
+                    </li>
+                    <li>
+                      {(ROI_MODEL_TRADES[trade].missedCallRate * 100).toFixed(1)}%
+                      missed-call or unanswered opportunity rate for{" "}
+                      {TRADES[trade].label}
+                    </li>
+                    <li>
+                      Recovery modeled at a share of your normal booking conversion
+                      rate (conservative scenario)
+                    </li>
+                    <li>
+                      Average service value about{" "}
+                      {ROI_MODEL_TRADES[trade].avgJobValue.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      per job
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8 text-center">
-                <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-                  90-Day{" "}
-                  <span className="text-brand-primary">Results Guarantee</span>
-                </h3>
-                <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-                  We guarantee you recover at least our service investment in
-                  booked service-visit revenue within 90 days of go-live —{" "}
-                  <span className="font-semibold text-brand-primary">
-                    or we keep working, for free, until you do.
-                  </span>
-                </p>
-                <p className="mt-3 text-base leading-relaxed text-brand-secondary">
-                  If we don&apos;t perform, you don&apos;t pay beyond the{" "}
-                  <span className="font-medium">Results Engagement Period</span>.
-                </p>
-              </div>
+              {is90DayResultsGuaranteeEligible("624-revenue") ? (
+                <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8 text-center">
+                  <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                    90-Day{" "}
+                    <span className="text-brand-primary">Results Guarantee</span>
+                  </h3>
+                  <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                    We guarantee you recover at least our service investment in
+                    booked service-visit revenue within 90 days of go-live —{" "}
+                    <span className="font-semibold text-brand-primary">
+                      or we keep working, for free, until you do.
+                    </span>
+                  </p>
+                  <p className="mt-3 text-base leading-relaxed text-brand-secondary">
+                    If we don&apos;t perform, you don&apos;t pay beyond the{" "}
+                    <span className="font-medium">Results Engagement Period</span>.
+                  </p>
+                  <p className="mt-3 text-xs text-gray-600">
+                    {GUARANTEE_ELIGIBILITY_FOOTNOTE}
+                  </p>
+                </div>
+              ) : null}
 
               <div className="relative">
                 {resultsGateActive ? (

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
-import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
 import { FEATURE_FLAGS } from "~/config/features";
+import { BOOK_MEETING_PATH } from "~/config/features";
+import { is90DayResultsGuaranteeEligible } from "~/lib/marketing/guaranteeEligibility";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
@@ -191,28 +192,14 @@ function DemoPage() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-16 sm:py-24">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-center text-2xl font-bold text-brand-secondary sm:text-3xl">
-            How the Customer Journey Fits Together
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-gray-600">
-            Jessica supports the Respond dimension. The full system connects all
-            six lifecycle areas.
-          </p>
-          <div className="mt-10">
-            <CustomerLifecycleDiagram />
-          </div>
-        </div>
-      </section>
-
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <DemoAgentOverview />
         </div>
       </section>
 
-      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE &&
+      is90DayResultsGuaranteeEligible("624-convert") ? (
         <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
           <div className="mx-auto max-w-5xl">
             <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
@@ -239,15 +226,15 @@ function DemoPage() {
               Ready to Answer Every Call?
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Book a meeting and we&apos;ll walk through how 624 Voice fits your
-              business.
+              Book your AI Growth Systems Consultation and we&apos;ll walk through
+              how 624 Voice fits your business.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <a
-                href="/contact"
+                href={BOOK_MEETING_PATH}
                 className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
               >
-                Schedule Your Demo
+                Book Your Consultation
               </a>
               <a
                 href="/"

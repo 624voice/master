@@ -23,13 +23,15 @@ function BookMeeting() {
           <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
             Schedule a Call
           </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Book a Meeting
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <span className="text-white">Book Your </span>
+            <span className="text-brand-primary">AI Growth Systems</span>
+            <span className="text-white"> Consultation</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Pick a time that works for you. We&apos;ll discuss the result you want,
-            where opportunities are slowing down, and the most sensible next step
-            for your business.
+            About 30 minutes. Pick a time that works for you. We&apos;ll discuss
+            the result you want, where opportunities are slowing down, and the
+            most sensible next step for your business.
           </p>
         </div>
       </section>

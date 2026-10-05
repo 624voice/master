@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-import { FEATURE_FLAGS } from "~/config/features";
 import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import appCss from "~/styles/app.css?url";
 
@@ -93,6 +92,19 @@ function RootDocument({ children }: { children: ReactNode }) {
   );
 }
 
+const DESKTOP_NAV_LINKS = [
+  { href: "/what-we-do", label: "What We Do" },
+  { href: "/how-we-work", label: "How We Work" },
+  { href: "/demo", label: "Live Demo" },
+  { href: "/roi-calculator", label: "ROI Calculator" },
+  { href: "/assessment", label: "Free Assessment" },
+] as const;
+
+const MOBILE_NAV_LINKS = [
+  ...DESKTOP_NAV_LINKS,
+  { href: "/about", label: "About" },
+] as const;
+
 function Nav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isDemoPage = pathname === "/demo";
@@ -113,8 +125,8 @@ function Nav() {
           : "fixed top-0 left-0 right-0 z-50 border-b border-gray-100/80 bg-white/95 backdrop-blur-md"
       }
     >
-      <div className="mx-auto flex max-w-[1450px] items-center justify-between px-6 py-5 lg:px-10">
-        <a href="/" className="flex items-center gap-2">
+      <div className="mx-auto flex max-w-[1450px] items-center justify-between gap-4 px-6 py-5 lg:px-10">
+        <a href="/" className="flex shrink-0 items-center gap-2">
           <img src="/logo.png" alt="624 Voice" className="h-9 w-9" />
           <span
             className={`text-lg font-bold ${
@@ -124,30 +136,24 @@ function Nav() {
             624 <span className="text-brand-primary">Voice</span>
           </span>
         </a>
-        <nav className="hidden items-center gap-8 md:flex">
-          <a href="/what-we-do" className={linkClassName}>
-            What We Do
-          </a>
-          <a href="/how-we-work" className={linkClassName}>
-            How We Work
-          </a>
-          <a href="/demo" className={demoLinkClassName}>
-            Live Demo
-          </a>
-          <a href="/assessment" className={linkClassName}>
-            Free Assessment
-          </a>
-          <a href="/about" className={linkClassName}>
-            About
-          </a>
+        <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
+          {DESKTOP_NAV_LINKS.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={item.href === "/demo" ? demoLinkClassName : linkClassName}
+            >
+              {item.label}
+            </a>
+          ))}
           <a
-            href="/contact"
-            className="rounded-[10px] bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark"
+            href="/book"
+            className="rounded-[10px] bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark xl:px-5"
           >
             Book Your AI Growth Systems Consultation
           </a>
         </nav>
-        <details className="group md:hidden">
+        <details className="group lg:hidden">
           <summary
             className={`flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-lg p-2 ${
               isDemoPage ? "text-white/80" : "text-gray-600"
@@ -183,23 +189,19 @@ function Nav() {
             }`}
           >
             <div className="flex flex-col gap-1">
-              <a href="/what-we-do" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
-                What We Do
-              </a>
-              <a href="/how-we-work" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
-                How We Work
-              </a>
-              <a href="/demo" className={`${demoLinkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
-                Live Demo
-              </a>
-              <a href="/assessment" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
-                Free Assessment
-              </a>
-              <a href="/about" className={`${linkClassName} flex min-h-11 items-center rounded-lg px-2 py-2`}>
-                About
-              </a>
+              {MOBILE_NAV_LINKS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`${
+                    item.href === "/demo" ? demoLinkClassName : linkClassName
+                  } flex min-h-11 items-center rounded-lg px-2 py-2`}
+                >
+                  {item.label}
+                </a>
+              ))}
               <a
-                href="/contact"
+                href="/book"
                 className="flex min-h-11 items-center justify-center rounded-[10px] bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
               >
                 Book Your AI Growth Systems Consultation
@@ -216,8 +218,8 @@ function Footer() {
   return (
     <footer className="bg-brand-secondary text-gray-400">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-4">
-          <div className="md:col-span-2">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2 lg:col-span-1">
             <a href="/" className="flex items-center gap-2">
               <img src="/logo.png" alt="624 Voice" className="h-9 w-9" />
               <span className="text-lg font-bold text-white">
@@ -234,20 +236,30 @@ function Footer() {
               Explore
             </h4>
             <div className="flex flex-col gap-3">
-              <a href="/what-we-do" className="text-sm text-gray-400 transition-colors hover:text-white">
+              <a href="/what-we-do" className="text-sm transition-colors hover:text-white">
                 What We Do
               </a>
-              <a href="/how-we-work" className="text-sm text-gray-400 transition-colors hover:text-white">
+              <a href="/how-we-work" className="text-sm transition-colors hover:text-white">
                 How We Work
               </a>
-              <a href="/demo" className="text-sm text-gray-400 transition-colors hover:text-white">
-                Live Demo
-              </a>
-              <a href="/assessment" className="text-sm text-gray-400 transition-colors hover:text-white">
-                Free Assessment
-              </a>
-              <a href="/about" className="text-sm text-gray-400 transition-colors hover:text-white">
+              <a href="/about" className="text-sm transition-colors hover:text-white">
                 About
+              </a>
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+              Try It
+            </h4>
+            <div className="flex flex-col gap-3 text-sm">
+              <a href="/demo" className="transition-colors hover:text-white">
+                Live AI Demo
+              </a>
+              <a href="/roi-calculator" className="transition-colors hover:text-white">
+                Revenue Gap Calculator
+              </a>
+              <a href="/assessment" className="transition-colors hover:text-white">
+                Free Assessment
               </a>
             </div>
           </div>
@@ -255,9 +267,12 @@ function Footer() {
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
               Get Started
             </h4>
-            <div className="flex flex-col gap-3 text-sm text-gray-400">
-              <a href="/contact" className="transition-colors hover:text-white">
+            <div className="flex flex-col gap-3 text-sm">
+              <a href="/book" className="transition-colors hover:text-white">
                 Book a Consultation
+              </a>
+              <a href="/contact" className="transition-colors hover:text-white">
+                Send Us a Message
               </a>
               <a href="mailto:info@624voice.com" className="transition-colors hover:text-white">
                 Email Us
@@ -269,17 +284,11 @@ function Footer() {
           <p>
             &copy; {new Date().getFullYear()} 624 Voice. All rights reserved.
             <span className="mx-2">|</span>
-            <a
-              href="/privacy"
-              className="transition-colors hover:text-brand-primary"
-            >
+            <a href="/privacy" className="transition-colors hover:text-brand-primary">
               Privacy
             </a>
             <span className="mx-2">|</span>
-            <a
-              href="/terms"
-              className="transition-colors hover:text-brand-primary"
-            >
+            <a href="/terms" className="transition-colors hover:text-white">
               Terms
             </a>
           </p>

@@ -4,6 +4,14 @@ import { BOOK_MEETING_EMBED_URL, BOOK_MEETING_URL } from "~/config/features";
 export function GoogleCalendarEmbed({ className = "" }: { className?: string }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [embedUrl] = useState(() => {
+    const tz =
+      typeof Intl !== "undefined"
+        ? Intl.DateTimeFormat().resolvedOptions().timeZone
+        : "America/Chicago";
+    const separator = BOOK_MEETING_EMBED_URL.includes("?") ? "&" : "?";
+    return `${BOOK_MEETING_EMBED_URL}${separator}ctz=${encodeURIComponent(tz)}`;
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -47,8 +55,14 @@ export function GoogleCalendarEmbed({ className = "" }: { className?: string }) 
         </div>
       ) : null}
       <iframe
-        src={BOOK_MEETING_EMBED_URL}
-        title="Book a meeting with 624 Voice"
+        data-testid="google-calendar-embed"
+        data-embed-timezone={
+          typeof Intl !== "undefined"
+            ? Intl.DateTimeFormat().resolvedOptions().timeZone
+            : undefined
+        }
+        src={embedUrl}
+        title="Book a 30-minute AI Growth Systems Consultation with 624 Voice"
         width="100%"
         height="600"
         className="min-h-[600px] w-full"
