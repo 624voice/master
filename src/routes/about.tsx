@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
 import { WaveformDetail } from "~/components/marketing/MarketingCards";
 
 export const Route = createFileRoute("/about")({
@@ -20,23 +21,15 @@ export const Route = createFileRoute("/about")({
 function About() {
   return (
     <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-brand-mint">
-            Why 624 Voice
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Practical AI for the Work That{" "}
-            <span className="text-brand-mint">Keeps a Business Moving</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            624 Voice helps growing home-service companies improve how they
-            attract, respond to, convert, and retain customers. The work
-            combines business diagnosis, customer-experience design,
-            implementation, integration, and ongoing measurement.
-          </p>
-        </div>
-      </section>
+      <MarketingNavyHero
+        testId="about-hero"
+        headingId="about-hero-heading"
+        eyebrow="Why 624 Voice"
+        supporting="624 Voice helps growing home-service companies improve how they attract, respond to, convert, and retain customers through diagnosis, design, implementation, and measurement."
+      >
+        <span className="text-white">Practical AI for the Work That </span>
+        <span className="text-brand-primary">Keeps a Business Moving</span>
+      </MarketingNavyHero>
 
       <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">

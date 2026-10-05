@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-09-18T18:25:37.886Z",
+  "capturedAt": "2026-10-05T20:03:30.207Z",
   "resetProcedure": {
     "steps": [
       "Load the stated URL in Chrome.",
@@ -15,14 +15,14 @@
     }
   },
   "desktopNavFrom624Voice": {
-    "tabCountToAbout": 5,
+    "tabCountToRoiCalculator": 4,
     "tabCountToBookConsultation": 6,
     "sequence": [
       "A: What We Do",
       "A: How We Work",
       "A: Live Demo",
+      "A: ROI Calculator",
       "A: Free Assessment",
-      "A: About",
       "A: Book Your AI Growth Systems Consultation"
     ]
   },
@@ -65,6 +65,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -72,23 +79,37 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
+          "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/about"
+          "href": "/book"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Book Your AI Growth Systems Consultation",
+          "name": "Talk With Our AI Voice Agent",
           "id": null,
-          "href": "/contact"
+          "href": "/demo"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Book Your AI Growth Systems Consultation",
+          "name": "Calculate Your Revenue Gap",
           "id": null,
-          "href": "/contact"
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Talk With Our AI Voice Agent",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Calculate Your Revenue Gap",
+          "id": null,
+          "href": "/roi-calculator"
         },
         {
           "tag": "A",
@@ -100,30 +121,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "See the System Work",
-          "id": null,
-          "href": "/demo"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "See How the Customer Journey Fits Together",
-          "id": null,
-          "href": "#customer-lifecycle"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Explore What We Do",
           "id": null,
           "href": "/what-we-do"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "Start the Live Demonstration",
-          "id": null,
-          "href": "/demo"
         }
       ],
       "formatted": [
@@ -131,15 +131,15 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
-        "A: Book Your AI Growth Systems Consultation",
+        "A: Talk With Our AI Voice Agent",
+        "A: Calculate Your Revenue Gap",
+        "A: Talk With Our AI Voice Agent",
+        "A: Calculate Your Revenue Gap",
         "A: Get Your Free Assessment",
-        "A: See the System Work",
-        "A: See How the Customer Journey Fits Together",
-        "A: Explore What We Do",
-        "A: Start the Live Demonstration"
+        "A: Explore What We Do"
       ]
     },
     {
@@ -180,6 +180,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -187,16 +194,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
-          "id": null,
-          "href": "/about"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "A",
@@ -232,8 +232,8 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "A: See How the Journey Fits Together",
         "A: Try the Live Demo",
@@ -279,6 +279,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -286,23 +293,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
+          "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/about"
+          "href": "/book"
         },
         {
           "tag": "A",
           "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "Book Your AI Growth Systems Consultation",
-          "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "A",
@@ -331,8 +331,8 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "A: Book Your AI Growth Systems Consultation",
         "A: Get Your Free Assessment",
@@ -378,6 +378,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -385,16 +392,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
-          "id": null,
-          "href": "/about"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "BUTTON",
@@ -413,9 +413,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "Schedule Your Demo",
+          "name": "Book Your Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "A",
@@ -430,12 +430,12 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "BUTTON: Start your demo with Jessica",
         "BUTTON: Start live demo with Jessica",
-        "A: Schedule Your Demo",
+        "A: Book Your Consultation",
         "A: Back to Home"
       ]
     },
@@ -477,6 +477,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -484,16 +491,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
-          "id": null,
-          "href": "/about"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "A",
@@ -529,8 +529,8 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "A: Book Your AI Growth Systems Consultation",
         "A: Get Your Free Assessment",
@@ -576,6 +576,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -583,16 +590,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
-          "id": null,
-          "href": "/about"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "INPUT",
@@ -656,8 +656,8 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "INPUT: text: #firstName",
         "INPUT: text: #lastName",
@@ -707,6 +707,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -714,16 +721,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "About",
-          "id": null,
-          "href": "/about"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
+          "href": "/book"
         },
         {
           "tag": "A",
@@ -745,8 +745,8 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
-        "A: About",
         "A: Book Your AI Growth Systems Consultation",
         "A: Back to Home",
         "A: 624 Voice"
@@ -797,6 +797,13 @@
         {
           "tag": "A",
           "role": null,
+          "name": "ROI Calculator",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
           "name": "Free Assessment",
           "id": null,
           "href": "/assessment"
@@ -813,14 +820,7 @@
           "role": null,
           "name": "Book Your AI Growth Systems Consultation",
           "id": null,
-          "href": "/contact"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "Book Your AI Growth Systems Consultation",
-          "id": null,
-          "href": "/contact"
+          "href": "/book"
         }
       ],
       "formatted": [
@@ -830,9 +830,9 @@
         "A: What We Do",
         "A: How We Work",
         "A: Live Demo",
+        "A: ROI Calculator",
         "A: Free Assessment",
         "A: About",
-        "A: Book Your AI Growth Systems Consultation",
         "A: Book Your AI Growth Systems Consultation"
       ]
     },
@@ -860,9 +860,30 @@
         {
           "tag": "A",
           "role": null,
-          "name": "Book Your AI Growth Systems Consultation",
+          "name": "Talk With Our AI Voice Agent",
           "id": null,
-          "href": "/contact"
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Calculate Your Revenue Gap",
+          "id": null,
+          "href": "/roi-calculator"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Talk With Our AI Voice Agent",
+          "id": null,
+          "href": "/demo"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Calculate Your Revenue Gap",
+          "id": null,
+          "href": "/roi-calculator"
         },
         {
           "tag": "A",
@@ -874,30 +895,9 @@
         {
           "tag": "A",
           "role": null,
-          "name": "See the System Work",
-          "id": null,
-          "href": "/demo"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "See How the Customer Journey Fits Together",
-          "id": null,
-          "href": "#customer-lifecycle"
-        },
-        {
-          "tag": "A",
-          "role": null,
           "name": "Explore What We Do",
           "id": null,
           "href": "/what-we-do"
-        },
-        {
-          "tag": "A",
-          "role": null,
-          "name": "Start the Live Demonstration",
-          "id": null,
-          "href": "/demo"
         },
         {
           "tag": "A",
@@ -910,12 +910,12 @@
       "formatted": [
         "A: 624 Voice",
         "SUMMARY: Mobile navigation menu",
-        "A: Book Your AI Growth Systems Consultation",
+        "A: Talk With Our AI Voice Agent",
+        "A: Calculate Your Revenue Gap",
+        "A: Talk With Our AI Voice Agent",
+        "A: Calculate Your Revenue Gap",
         "A: Get Your Free Assessment",
-        "A: See the System Work",
-        "A: See How the Customer Journey Fits Together",
         "A: Explore What We Do",
-        "A: Start the Live Demonstration",
         "A: See How We Work"
       ]
     }

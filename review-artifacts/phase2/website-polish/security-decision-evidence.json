@@ -21,6 +21,36 @@
       "ownerConfirmationOnRecord": "Owner message requiring security restore (same incident thread); not duplicated here to avoid paraphrase drift."
     },
     {
+      "id": "second-open-preview-and-restore-2026-10-05",
+      "action": "Second cycle: owner-authorized open previews, then conversion pass restored fail-closed protection",
+      "openAccessCommit": "c06761d7aa70619520bd80f109d384a1f58ad6e2",
+      "openAccessDeployedApprox": "2026-10-05T17:20:00Z",
+      "openAccessSurfaces": [
+        "https://deploy-preview-98--624voice.netlify.app/",
+        "624voice-phase2-owner-qa Netlify site (deploy 6ac3ce0b4ddd1b7b069d8a19)"
+      ],
+      "authorizationSource": {
+        "decisionId": "open-preview-owner-review-2026-10-05",
+        "status": "EVIDENCED",
+        "note": "Verbatim owner message recorded in open-preview-owner-review-2026-10-05 entry (same file)."
+      },
+      "correctiveProtectionCommit": "d041587f7a6c8e731691d00587fc39141db69a7b",
+      "protectionRestoredApprox": "2026-10-05T17:26:01Z",
+      "protectionRestoredDeployId": "6ac3dda882a472ad10fb0280",
+      "correctiveSurfaces": [
+        "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app/",
+        "https://deploy-preview-98--624voice.netlify.app/"
+      ],
+      "liveVerificationAfterRestore": {
+        "anonymousRootStatus": 401,
+        "anonymousHealthStatus": 401,
+        "wwwAuthenticatePresent": true,
+        "verifiedAt": "2026-10-05T17:30:00Z"
+      },
+      "netlifyConfigNote": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED removed from netlify.toml in corrective commit; edge gate unchanged.",
+      "standingSecurityControlRule": "controlChangePolicy in this file remains in force; no weakening without explicit owner instruction naming control and surface."
+    },
+    {
       "id": "open-preview-owner-review-2026-10-05",
       "action": "Disable HTTP Basic Auth on PR #98 deploy preview and phase2 owner-QA Netlify site; keep noindex edge gate",
       "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 (edge gate remains; Basic Auth not enforced)",

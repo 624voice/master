@@ -48,7 +48,11 @@ const desktopRoutes = [
 const mobileRoutes = [
   ["/", "home"],
   ["/what-we-do", "what-we-do"],
+  ["/how-we-work", "how-we-work"],
+  ["/demo", "demo"],
   ["/assessment", "assessment"],
+  ["/roi-calculator", "roi-calculator"],
+  ["/about", "about"],
   ["/contact", "contact"],
   ["/book", "book"],
   ["/does-not-exist-404", "404"],

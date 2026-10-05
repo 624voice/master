@@ -11,8 +11,8 @@ const SHARED_HEADER = [
   "What We Do",
   "How We Work",
   "Live Demo",
+  "ROI Calculator",
   "Free Assessment",
-  "About",
   "Book Your AI Growth Systems Consultation",
 ];
 

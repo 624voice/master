@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { FEATURE_FLAGS } from "~/config/features";
+import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
+import { BOOK_MEETING_PATH, FEATURE_FLAGS } from "~/config/features";
+import { CONVERSION_ANALYTICS_EVENTS, trackConversionEvent } from "~/lib/analytics/conversionIntent";
 import { CONTACT_TRADES, FLEET_SIZE_LABELS, FLEET_SIZE_RANGES } from "~/lib/lead/validateLead";
 import { submitContactLead } from "~/server/submitContactLead";
 
@@ -62,6 +64,9 @@ function Contact() {
         },
       });
       setSuccess(true);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.contact_form_submitted, {
+        source: "contact_form",
+      });
       setSentWithSms(smsConsent);
       setFirstName("");
       setLastName("");
@@ -88,22 +93,15 @@ function Contact() {
 
   return (
     <main className="pt-20">
-      {/* HERO */}
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            Get Started
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Let&apos;s Find the Opportunity Worth Fixing First
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Tell us where leads, follow-up, customer communication, or routine work
-            are slowing the business down. We&apos;ll help you determine the most
-            practical next step.
-          </p>
-        </div>
-      </section>
+      <MarketingNavyHero
+        testId="contact-hero"
+        headingId="contact-hero-heading"
+        eyebrow="Send a message"
+        supporting="This form is for inquiries and context. It does not schedule a consultation. Tell us where leads, follow-up, or routine work are slowing the business down."
+      >
+        <span className="text-white">Tell Us About </span>
+        <span className="text-brand-primary">Your Business</span>
+      </MarketingNavyHero>
 
       {/* CONTACT */}
       <section className="bg-white px-6 py-24 sm:py-32">
@@ -444,10 +442,13 @@ function Contact() {
                     </p>
                   </div>
                 ) : null}
-                <p className="mt-8 text-sm text-gray-600">
-                  Already qualified and ready to pick a time?{" "}
-                  <a href="/book" className="font-semibold text-brand-primary hover:text-brand-primary-dark">
-                    Book a Time
+                <p className="mt-8 rounded-lg border border-brand-primary/20 bg-brand-primary-light/40 px-4 py-3 text-sm text-gray-700">
+                  Ready to choose a time?{" "}
+                  <a
+                    href={BOOK_MEETING_PATH}
+                    className="font-semibold text-brand-primary hover:text-brand-primary-dark"
+                  >
+                    Book Your Consultation
                   </a>
                 </p>
               </div>

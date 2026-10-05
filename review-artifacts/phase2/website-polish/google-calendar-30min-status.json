@@ -1,0 +1,18 @@
+{
+  "status": "BLOCKED",
+  "blocker": "This Cloud Agent environment has no authorized Google Calendar Admin API access to edit the Appointment Schedule appointment type duration.",
+  "websiteAndAppState": {
+    "consultationDurationMinutes": 30,
+    "consultationConfigFile": "src/server/appointmentLifecycle/consultationConfig.ts",
+    "embedTimezone": "Visitor local timezone via Intl.DateTimeFormat().resolvedOptions().timeZone and ctz query parameter on BOOK_MEETING_EMBED_URL",
+    "websiteCopy": "About 30 minutes on homepage, book page, and related CTAs"
+  },
+  "ownerStepsMinimal": [
+    "Sign in to Google Calendar as info@624voice.com (or the account that owns the Appointment Schedule).",
+    "Open Google Calendar → Appointment schedules → select the 624 Voice consultation schedule used by BOOK_MEETING_EMBED_URL.",
+    "Edit the appointment type: set duration to 30 minutes and update the public title to reference a 30-minute AI Growth Systems Consultation if desired.",
+    "Confirm the schedule timezone / availability reflects America/Chicago (or your intended business hours) and that visitor-facing booking shows local time.",
+    "Save and reload the protected /book embed to confirm 30 minutes displays."
+  ],
+  "agentVerificationWithoutAdmin": "Embed loading state, fallback copy, and ctz parameter are implemented and tested in code; live 30-minute label requires owner calendar admin change above."
+}

@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  CONVERSION_ANALYTICS_EVENTS,
+  trackConversionEvent,
+} from "~/lib/analytics/conversionIntent";
 import { FEATURE_FLAGS } from "~/config/features";
 import { BOOK_MEETING_PATH } from "~/config/features";
 import { is90DayResultsGuaranteeEligible } from "~/lib/marketing/guaranteeEligibility";
@@ -45,6 +49,17 @@ function DemoPage() {
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<DemoLead | null>(null);
   const [pageView, setPageView] = useState<PageView>("gate");
+  const formStartedTracked = useRef(false);
+  const demoStartedTracked = useRef(false);
+
+  useEffect(() => {
+    if (pageView === "form" && !formStartedTracked.current) {
+      formStartedTracked.current = true;
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_form_started, {
+        source: "demo_lead_form",
+      });
+    }
+  }, [pageView]);
 
   const voiceDemo = useVoiceDemo({
     lead,
@@ -60,6 +75,12 @@ function DemoPage() {
     }
 
     if (pageView === "demo" && lead) {
+      if (!demoStartedTracked.current) {
+        demoStartedTracked.current = true;
+        trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_started, {
+          source: "demo_voice_mic",
+        });
+      }
       void voiceDemo.startCall();
     }
   }, [lead, pageView, voiceDemo.isBusy, voiceDemo.startCall]);
@@ -88,6 +109,9 @@ function DemoPage() {
       }
 
       setLead(result.lead);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_form_completed, {
+        source: "demo_lead_form",
+      });
       voiceDemo.reset();
       setPageView("demo");
     } catch (err) {

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProcessStepCard } from "~/components/marketing/MarketingCards";
+import { HowWeWorkStepCard } from "~/components/marketing/MarketingCards";
+import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
 import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 import { HOW_WE_WORK_STEPS } from "~/content/clientEngagementProcess";
 
@@ -24,36 +25,22 @@ const STEP_ICONS = ["compass", "chart", "gears", "phone"] as const;
 function HowWeWorkPage() {
   return (
     <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-brand-mint">
-            The process, start to finish
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Start With the{" "}
-            <span className="text-brand-mint">Business Problem</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            The first step is understanding what you want to improve and how the
-            work happens today. Some problems call for one focused implementation.
-            Others cross several systems and deserve a deeper Diagnostic before
-            anything is built.
-          </p>
-        </div>
-      </section>
+      <MarketingNavyHero
+        testId="how-we-work-hero"
+        headingId="how-we-work-hero-heading"
+        eyebrow="How we work"
+        supporting="The first step is understanding what you want to improve and how the work happens today. Some problems call for one focused implementation; others deserve a deeper Diagnostic first."
+      >
+        <span className="text-white">Start With the </span>
+        <span className="text-brand-primary">Business Problem</span>
+      </MarketingNavyHero>
 
-      <section className="bg-white px-6 py-24 sm:py-32">
+      <section className="overflow-x-hidden bg-white px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-4xl">
-          <ol className="relative grid list-none gap-8 p-0 lg:gap-10">
+          <ol className="grid list-none gap-6 p-0 sm:grid-cols-2 sm:gap-8">
             {HOW_WE_WORK_STEPS.map((step, index) => (
-              <li key={step.step} className="relative">
-                {index < HOW_WE_WORK_STEPS.length - 1 ? (
-                  <span
-                    className="absolute left-6 top-16 hidden h-[calc(100%+2rem)] w-px bg-brand-accent lg:block"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                <ProcessStepCard
+              <li key={step.step} className="relative flex">
+                <HowWeWorkStepCard
                   step={step.step}
                   title={step.title}
                   body={step.body}
@@ -84,7 +71,7 @@ function HowWeWorkPage() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <a
-              href="/contact"
+              href="/book"
               className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
             >
               Book Your AI Growth Systems Consultation

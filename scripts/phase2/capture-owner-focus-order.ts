@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     },
     desktopNavFrom624Voice: desktopNav
       ? {
-          tabCountToAbout: 5,
+          tabCountToRoiCalculator: 4,
           tabCountToBookConsultation: 6,
           sequence: desktopNav.tabSequence.slice(0, 6).map(formatFocusDescriptor),
         }

@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  CONVERSION_ANALYTICS_EVENTS,
+  trackConversionEvent,
+} from "~/lib/analytics/conversionIntent";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import {
@@ -240,6 +244,19 @@ export function RoiCalculator() {
   const resultsGateActive =
     FEATURE_FLAGS.REQUIRE_LEAD_FOR_RESULTS && !unlocked;
   const showResults = hero !== null;
+  const unlockStartedTracked = useRef(false);
+
+  useEffect(() => {
+    if (showResults && resultsGateActive && !unlockStartedTracked.current) {
+      unlockStartedTracked.current = true;
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.roi_report_unlock_started, {
+        source: "roi_unlock_form_visible",
+      });
+    }
+    if (!showResults) {
+      unlockStartedTracked.current = false;
+    }
+  }, [showResults, resultsGateActive]);
 
   const resetResults = () => {
     setHero(null);
@@ -285,6 +302,10 @@ export function RoiCalculator() {
         data: { trade, monthlyCalls },
       });
       setHero(teaserHero);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.roi_calculation_completed, {
+        source: "roi_teaser",
+        trade,
+      });
 
       if (!FEATURE_FLAGS.REQUIRE_LEAD_FOR_RESULTS) {
         const { scenarios } = await getFullBreakdown({
@@ -332,6 +353,9 @@ export function RoiCalculator() {
       });
       setBreakdown(scenarios);
       setUnlocked(true);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.roi_report_unlock_completed, {
+        source: "roi_unlock_form",
+      });
     } catch (err) {
       setError(
         err instanceof Error

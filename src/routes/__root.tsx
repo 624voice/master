@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { ConversionIntentListener } from "~/components/ConversionIntentListener";
 import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import appCss from "~/styles/app.css?url";
 
@@ -83,6 +84,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <ConversionIntentListener />
         <Nav />
         {children}
         <Footer />

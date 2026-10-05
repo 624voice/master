@@ -93,7 +93,8 @@ describe("Phase 2 website polish regression", () => {
       join(REPO, "src/components/assessment/AssessmentPageHero.tsx"),
       "utf8",
     );
-    expect(hero).toContain('data-testid="assessment-hero"');
+    expect(hero).toContain('testId="assessment-hero"');
+    expect(hero).toContain("MarketingNavyHero");
   });
 
   test("SHOW_VOICE_AI_GUARANTEE default false", () => {

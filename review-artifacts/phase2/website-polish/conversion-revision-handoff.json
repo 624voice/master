@@ -1,83 +1,135 @@
 {
-  "homepageLength": {
-    "beforeLines": 537,
-    "afterLines": 411,
-    "percentReduction": 23.5,
-    "beforeSections": 11,
-    "afterSections": 7,
-    "sectionPercentReduction": 36.4,
-    "sevenSectionInventory": [
-      "HERO (24/7 indicator, demo primary, ROI secondary, book in header)",
-      "WHERE REVENUE IS LEAKING (four problem cards + blue callout)",
-      "TALK WITH JESSICA (live-demo preview + form disclosure)",
-      "SEE WHAT YOU ARE MISSING (ROI calculator primary, assessment secondary)",
-      "WHAT 624 VOICE CAN IMPROVE (single 3x2 six-area grid)",
-      "HOW WE WORK (four compressed steps + link)",
-      "TRUST + FINAL CTA (18+ years + book/ROI/demo links)"
-    ]
-  },
-  "ctaDestinationMap": {
-    "Talk With Our AI Voice Agent": "/demo",
-    "Calculate Your Revenue Gap": "/roi-calculator",
-    "Book Your AI Growth Systems Consultation": "/book",
-    "Book Your Consultation": "/book",
-    "Get Your Free Assessment": "/assessment",
-    "Send Us a Message": "/contact",
-    "Explore What We Do": "/what-we-do",
-    "See How We Work": "/how-we-work"
-  },
-  "bookCtaAudit": "All homepage and header Book CTAs route to /book (verified in website-polish-regression.test.ts).",
-  "demoFormAudit": {
-    "fields": [
-      { "name": "firstName", "required": true, "reason": "Lead identity for demo access and CRM" },
-      { "name": "lastName", "required": true, "reason": "Lead identity for demo access and CRM" },
-      { "name": "businessName", "required": true, "reason": "Business context for demo lead record" },
-      { "name": "email", "required": true, "reason": "Contact and demo follow-up" },
-      { "name": "phone", "required": true, "reason": "Demo lead record and optional SMS if consented" },
-      { "name": "websiteOption", "required": true, "reason": "Qualification branch (has site vs none)" },
-      { "name": "website", "required": "conditional", "reason": "Required when websiteOption is has" },
-      { "name": "smsConsent", "required": false, "reason": "Optional; separate from demo access" }
-    ],
-    "smsConsentOptional": true,
-    "smsDeclineBlocksDemo": false,
-    "postDemoFieldMoves": "Not changed in this pass; downstream submitDemoLead and Speed2Lead expect full identity set before live demo."
-  },
-  "analyticsInventory": {
-    "frozenContractEvents": "src/lib/analytics/trackEvent.ts (10 assessment/ROI-pipeline events)",
-    "conversionCtaInstrumentation": "Homepage and tool CTAs use data-analytics-intent attributes pending contract extension",
-    "gaps": [
-      "Homepage → Live Demo click (intent attribute only)",
-      "Demo form started/completed (not in frozen 10-event contract)",
-      "ROI calculator page events (not in frozen contract)",
-      "Booking page reached (not in frozen contract)"
-    ]
-  },
-  "consultationDuration": {
-    "websiteCopy": "About 30 minutes (homepage, book page)",
-    "consultationConfigMinutes": 30,
-    "googleCalendarEmbedNote": "Google Appointment Schedule title/duration must be updated in Google Calendar admin if still showing 25 min; embed uses visitor local timezone via ctz query param."
-  },
-  "guaranteeEligibility": {
-    "module": "src/lib/marketing/guaranteeEligibility.ts",
-    "tests": "src/lib/marketing/guaranteeEligibility.test.ts",
-    "roiCalculatorContext": "624-revenue (renders when eligible; SHOW_VOICE_AI_GUARANTEE still gates marketing copy elsewhere)"
-  },
   "protectedOwnerReviewPreviewUrl": "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app/",
   "pr98DeployPreviewUrl": "https://deploy-preview-98--624voice.netlify.app/",
-  "finalPrHeadSha40": "d041587f7a6c8e731691d00587fc39141db69a7b",
-  "deployedRuntimeSha40": "d041587f7a6c8e731691d00587fc39141db69a7b",
-  "previewSecurity": "Fail-closed Basic Auth on owner-QA and PR #98 deploy preview (401 without credentials). Credentials in Cloud Agent artifact netlify-owner-qa-preview-basic-auth.txt (not in Git).",
-  "tests": {
-    "fullSuite": "863 pass / 7 fail (baseline unrelated + focus-order nav change pending artifact refresh)",
-    "build": "pass"
+  "sha": {
+    "finalPrHead": "PLACEHOLDER_AFTER_COMMIT",
+    "finalDeployedSourceCommit": "PLACEHOLDER_AFTER_DEPLOY",
+    "ownerQaRuntime": "PLACEHOLDER_AFTER_DEPLOY",
+    "prPreviewRuntime": "PLACEHOLDER_AFTER_DEPLOY",
+    "evidenceOnlyCommit": "a363c03bb56aedb4ce4ca16049e8cf16d639b31e"
   },
-  "ownerReviewChecklist": [
-    "Homepage length and seven-section flow",
-    "Demo and ROI within first four sections",
-    "Book vs contact distinction in nav/footer",
-    "Live demo form disclosure on home and /demo",
-    "ROI assumptions visible before unlock form",
-    "Calendar timezone and duration in /book embed",
-    "Protected preview credentials (delivered out of band)"
-  ]
+  "homepage": {
+    "beforeLines": 537,
+    "afterLines": 411,
+    "beforeSections": 11,
+    "afterSections": 7,
+    "sevenSectionInventory": [
+      "HERO",
+      "WHERE REVENUE IS LEAKING",
+      "TALK WITH JESSICA",
+      "SEE WHAT YOU ARE MISSING (ROI + Assessment)",
+      "TURN MORE OPPORTUNITIES INTO REVENUE (single 3x2 grid)",
+      "FROM REVENUE LEAK TO WORKING SYSTEM",
+      "TRUST + FINAL CTA"
+    ]
+  },
+  "heroRedesignsComplete": ["Free Assessment", "About", "Contact", "How We Work"],
+  "howWeWorkVisualPass": "HowWeWorkStepCard grid; 2-column equal cards; no connector overlap",
+  "googleCalendar30Min": "BLOCKED — see google-calendar-30min-status.json",
+  "focusOrderArtifact": "review-artifacts/phase2/owner-focus-order-sequences.json refreshed via capture-owner-focus-order.ts",
+  "analytics": {
+    "externalDestination": "Unconfigured (no GA/production tag); dev console sink only",
+    "conversionPipeline": {
+      "intentAttributes": "data-analytics-intent on homepage CTAs",
+      "collector": "src/lib/analytics/conversionIntent.ts installConversionIntentCollector",
+      "listenerMount": "src/components/ConversionIntentListener.tsx in __root.tsx",
+      "tests": "src/lib/analytics/conversionIntent.test.ts"
+    },
+    "eventInventory": [
+      {
+        "event": "homepage_demo_click",
+        "trigger": "Click homepage demo CTA",
+        "source": "src/routes/index.tsx, HomeJessicaPreview.tsx",
+        "handler": "conversionIntent INTENT_TO_CONVERSION_EVENT + click collector"
+      },
+      {
+        "event": "homepage_roi_click",
+        "trigger": "Click homepage ROI CTA",
+        "source": "src/routes/index.tsx",
+        "handler": "conversionIntent click collector"
+      },
+      {
+        "event": "homepage_assessment_click",
+        "trigger": "Click homepage assessment tool CTA",
+        "source": "src/routes/index.tsx ToolCard",
+        "handler": "conversionIntent click collector"
+      },
+      {
+        "event": "homepage_book_click",
+        "trigger": "Click homepage book CTA",
+        "source": "src/routes/index.tsx",
+        "handler": "conversionIntent click collector"
+      },
+      {
+        "event": "demo_form_started",
+        "trigger": "Demo pageView enters form",
+        "source": "src/routes/demo.tsx useEffect",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "demo_form_completed",
+        "trigger": "submitDemoLead success",
+        "source": "src/routes/demo.tsx",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "demo_started",
+        "trigger": "First mic/start live demo",
+        "source": "src/routes/demo.tsx handleStartDemo",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "roi_calculation_completed",
+        "trigger": "ROI teaser calculated",
+        "source": "src/components/RoiCalculator.tsx handleConfirm",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "roi_report_unlock_started",
+        "trigger": "Unlock form visible",
+        "source": "src/components/RoiCalculator.tsx useEffect",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "roi_report_unlock_completed",
+        "trigger": "unlockRevenue success",
+        "source": "src/components/RoiCalculator.tsx handleUnlock",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "assessment_started",
+        "trigger": "Assessment flow start",
+        "source": "src/routes/assessment.tsx",
+        "handler": "trackEvent (locked ten-event contract)"
+      },
+      {
+        "event": "assessment_complete",
+        "trigger": "Assessment submission",
+        "source": "src/server/submitAssessmentLead.server.ts",
+        "handler": "trackEvent (locked contract)"
+      },
+      {
+        "event": "contact_form_submitted",
+        "trigger": "Contact form success",
+        "source": "src/routes/contact.tsx",
+        "handler": "trackConversionEvent"
+      },
+      {
+        "event": "booking_page_reached",
+        "trigger": "Book route mount",
+        "source": "src/routes/book.tsx useEffect",
+        "handler": "trackConversionEvent"
+      }
+    ]
+  },
+  "screenshots": {
+    "directory": "review-artifacts/phase2/website-polish/screenshots/",
+    "desktop1280": "desktop-1280-*.png",
+    "mobile375": "mobile-375-*.png",
+    "visualInspection": "Captured after final commit via capture-website-polish-review-screenshots.ts against protected preview"
+  },
+  "tests": {
+    "note": "See testRun section filled after bun test"
+  },
+  "securityDecisionRecord": "review-artifacts/phase2/website-polish/security-decision-evidence.json (second-open-preview-and-restore-2026-10-05)"
 }

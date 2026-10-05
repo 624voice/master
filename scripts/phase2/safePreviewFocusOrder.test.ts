@@ -24,7 +24,7 @@ const SEQUENCES_PATH = join(REPO_ROOT, "review-artifacts/phase2/owner-focus-orde
 const BASE = "http://127.0.0.1:3000";
 
 function loadExpected(): {
-  desktopNavFrom624Voice: { tabCountToAbout: number; sequence: string[] };
+  desktopNavFrom624Voice: { tabCountToRoiCalculator: number; sequence: string[] };
 } {
   if (!existsSync(SEQUENCES_PATH)) {
     throw new Error(`Missing ${SEQUENCES_PATH}. Run capture-owner-focus-order.ts first.`);
@@ -33,7 +33,7 @@ function loadExpected(): {
 }
 
 describe("owner focus order supplement (not human A11Y-090)", () => {
-  test("X-SAFE-PREVIEW-FOCUS-01: desktop nav Tab count to About equals 5 from 624 Voice", async () => {
+  test("X-SAFE-PREVIEW-FOCUS-01: desktop nav Tab order matches approved conversion navigation", async () => {
     await ensureAssessmentBrowserBuild();
     buildAssessmentBrowserServer({ safeBackend: true });
     await waitForServer(`${BASE}/`);
@@ -48,11 +48,12 @@ describe("owner focus order supplement (not human A11Y-090)", () => {
 
       const tabs = await captureTabSequence(page, 6);
       const formatted = tabs.map(formatFocusDescriptor);
-      expect(formatted[4]).toMatch(/About/i);
+      expect(formatted[3]).toMatch(/ROI Calculator/i);
+      expect(formatted[4]).toMatch(/Free Assessment/i);
       expect(formatted[5]).toMatch(/Book Your AI Growth Systems Consultation/i);
 
       const expected = loadExpected();
-      expect(expected.desktopNavFrom624Voice.tabCountToAbout).toBe(5);
+      expect(expected.desktopNavFrom624Voice.tabCountToRoiCalculator).toBe(4);
     } finally {
       await browser.close();
       stopAssessmentBrowserServer();

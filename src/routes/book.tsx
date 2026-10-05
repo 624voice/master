@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { GoogleCalendarEmbed } from "~/components/GoogleCalendarEmbed";
+import {
+  CONVERSION_ANALYTICS_EVENTS,
+  trackConversionEvent,
+} from "~/lib/analytics/conversionIntent";
 
 export const Route = createFileRoute("/book")({
   head: () => ({
@@ -16,6 +21,12 @@ export const Route = createFileRoute("/book")({
 });
 
 function BookMeeting() {
+  useEffect(() => {
+    trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.booking_page_reached, {
+      source: "book_route_mount",
+    });
+  }, []);
+
   return (
     <main className="pt-20">
       <section className="bg-brand-secondary px-6 py-24 sm:py-32">

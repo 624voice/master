@@ -76,6 +76,39 @@ export function JourneyStageCard({
   );
 }
 
+/** How We Work page: step number and icon separated; equal-height cards. */
+export function HowWeWorkStepCard({
+  step,
+  title,
+  body,
+  deliverable,
+  icon,
+}: {
+  step: number;
+  title: string;
+  body: string;
+  deliverable: string;
+  icon: ReactNode;
+}) {
+  return (
+    <article className="flex h-full min-h-[220px] flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-md sm:p-8">
+      <div className="grid grid-cols-[2.5rem_2.5rem_1fr] items-center gap-3 sm:grid-cols-[2.75rem_2.75rem_1fr] sm:gap-4">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
+          {step}
+        </span>
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-mint/30 text-brand-primary-dark">
+          {icon}
+        </div>
+        <h3 className="text-lg font-semibold leading-snug text-brand-secondary">{title}</h3>
+      </div>
+      <p className="mt-4 flex-1 text-sm leading-relaxed text-gray-600">{body}</p>
+      <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brand-primary-dark">
+        Deliverable: {deliverable}
+      </p>
+    </article>
+  );
+}
+
 export function ProcessStepCard({
   step,
   title,
