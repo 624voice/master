@@ -1,13 +1,13 @@
 {
   "status": "checkpoint_2_complete_pending_owner_visual_review",
   "ownerQaPreviewUrl": "https://6ac53bbaacc0499e7f834096--624voice-phase2-owner-qa.netlify.app/",
-  "deployedRuntimeSha": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e",
-  "prHeadSha": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e",
+  "deployedRuntimeSha": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
+  "prHeadSha": "1ef8871ba2b1735bd5849c1e88a18b16c8ec3b01",
   "commits": {
     "checkpoint1ProgressLabel": "d5f9df7945bc7ae008480ba9c51634cb4298ea01",
     "checkpoint1SeverityBranch": "ccf613ccce2c62af0bf2211f921de14c4b1410a2",
     "checkpoint2Implementation": "c9ffb76049805adef3e6b97ccefbdb6183461f8d",
-    "checkpoint2Final": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e"
+    "checkpoint2Final": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01"
   },
   "previewAccess": {
     "httpBasicAuth": false,
