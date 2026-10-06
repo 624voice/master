@@ -41,11 +41,22 @@ function isOwnerQaPreviewSurface(): boolean {
   return false;
 }
 
-/** Open previews by default; Basic Auth only when explicitly enabled on a preview surface. */
+/** Dedicated owner-QA site: open UI when explicitly disabled; no Basic Auth. */
+function isOpenOwnerQaSurface(): boolean {
+  return (
+    Netlify.env.get("PHASE2_OWNER_QA_PREVIEW") === "1" &&
+    Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED") === "1"
+  );
+}
+
+/**
+ * Fail-closed Basic Auth on protected preview surfaces (e.g. PR deploy-preview).
+ * Owner-QA open surface is the only exception when DISABLED=1.
+ */
 function isBasicAuthEnforced(): boolean {
   if (!isOwnerQaPreviewSurface()) return false;
-  if (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED") === "1") return false;
-  return Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED") === "1";
+  if (isOpenOwnerQaSurface()) return false;
+  return true;
 }
 
 async function sha256Bytes(value: string): Promise<Uint8Array> {

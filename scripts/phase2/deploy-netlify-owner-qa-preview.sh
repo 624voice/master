@@ -29,7 +29,7 @@ bun run build
 mkdir -p dist/client
 
 netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED "1" --context all --force
-bash scripts/phase2/sync-netlify-deploy-preview-open.sh
+bash scripts/phase2/sync-netlify-deploy-preview-protect.sh
 bash scripts/phase2/sync-netlify-owner-qa-preview-open.sh
 
 DEPLOY_AUTH_ARGS=(--env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1")

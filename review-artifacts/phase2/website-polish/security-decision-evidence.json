@@ -1,10 +1,11 @@
 {
   "purpose": "Record security control decisions and immutable owner confirmations for Phase 2 protected previews (PR #98, 624Voice owner-QA).",
-  "protectedPreviewRequirement": "Phase 2 owner-QA and PR deploy previews use the noindex edge gate; HTTP Basic Auth is not required on 624voice.com preview surfaces per standing owner rule (2026-10-06). Production www.624voice.com remains without visitor Basic Auth.",
+  "protectedPreviewRequirement": "Phase 2 previews use the noindex edge gate. Owner-QA may be open without Basic Auth only when explicitly authorized and DISABLED=1. PR deploy-preview remains fail-closed Basic Auth unless separately authorized.",
+  "readableChronology": "review-artifacts/phase2/website-polish/security-chronology.md",
   "standingPreviewAuthRule": {
-    "effectiveFrom": "2026-10-06T14:51:00Z",
-    "summary": "Do not require HTTP Basic Auth on 624voice.com preview surfaces.",
-    "decisionId": "no-basic-auth-standing-rule-2026-10-06"
+    "effectiveFrom": "2026-10-06T21:00:00Z",
+    "summary": "Owner-QA open; PR #98 deploy-preview protected (fail-closed Basic Auth).",
+    "decisionId": "checkpoint2-corrective-preview-auth-split-2026-10-06"
   },
   "policyEffectiveFrom": "2026-10-02T21:44:00Z",
   "controlChangePolicy": {
@@ -43,7 +44,7 @@
       ],
       "authorizationSource": {
         "status": "EVIDENCED",
-        "note": "Verbatim Phase 2 Checkpoint 2 governing instruction section 2 (EXPLICIT SECURITY-CONTROL DECISION), recorded in this file — not inferred or cross-project."
+        "note": "Verbatim Phase 2 Checkpoint 2 governing instruction section 2 (owner-QA only). Does not authorize PR #98 deploy-preview."
       },
       "ownerMessageRecordedAt": "2026-10-06T17:29:00Z",
       "recordingRunId": "checkpoint2-authoritative-instruction"
@@ -61,9 +62,25 @@
       "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
       "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
       "authorizationSource": {
-        "status": "EVIDENCED",
-        "note": "Chris authorized owner-QA Netlify preview review without HTTP Basic Auth only, within section 2 scope (owner-QA surface, noindex gate retained, production unchanged)."
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation; same recordingRunId as other disputed entries. Superseded by scoped Checkpoint 2 governing instruction for owner-QA only."
       }
+    },
+    {
+      "id": "checkpoint2-corrective-restore-pr98-basic-auth-2026-10-06",
+      "action": "Restore fail-closed HTTP Basic Auth on PR #98 deploy-preview only; keep owner-QA open",
+      "control": "Unset PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED on main-site deploy-preview; edge gate enforces auth when not owner-QA open surface",
+      "surfaces": ["https://deploy-preview-98--624voice.netlify.app/"],
+      "explicitlyNotAuthorized": ["Opening PR #98 deploy-preview anonymously"],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Phase 2 Checkpoint 2 corrective completion instruction section C (2026-10-06)."
+      },
+      "implementation": [
+        "scripts/phase2/sync-netlify-deploy-preview-protect.sh",
+        "netlify/edge-functions/phase2-owner-qa-gate.ts",
+        "netlify.toml deploy-preview context"
+      ]
     },
     {
       "id": "no-basic-auth-standing-rule-2026-10-06",
@@ -78,10 +95,10 @@
       "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
       "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
       "authorizationSource": {
-        "status": "EVIDENCED",
-        "note": "Direct owner instruction in Cursor agent thread; names 624voice.com and requests removal of HTTP Basic Auth."
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation; not independently verified. Over-broad (included PR deploy-preview). Superseded by corrective split policy."
       },
-      "implementationNotes": "netlify.toml deploy-preview context; sync-netlify-deploy-preview-open.sh; sync-netlify-owner-qa-preview-open.sh; deploy-netlify-owner-qa-preview.sh"
+      "implementationNotes": "Historical; deploy-preview open state reverted by checkpoint2-corrective-restore-pr98-basic-auth-2026-10-06"
     },
     {
       "id": "restore-fail-closed-auth-2026-10-02",
@@ -133,7 +150,11 @@
       "ownerMessageVerbatim": "Disable HTTP Basic Auth on deploy-preview-98 and the phase2 owner-QA Netlify site so I can review without a password.",
       "ownerMessageRecordedAt": "2026-10-05T16:17:00Z",
       "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
-      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498"
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation only; no immutable owner transcript artifact linked."
+      }
     },
     {
       "id": "attribution-unverified-2026-10-02",
