@@ -8,9 +8,8 @@ import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 /** @deprecated Use CUSTOMER_JOURNEY_HEADLINE */
 export const LIFECYCLE_HEADLINE = CUSTOMER_JOURNEY_HEADLINE;
 
-/** Diagnostic note for AI Tool Assessment (What We Do), not a lifecycle stage. */
-export const LIFECYCLE_NOTE =
-  "Available as part of the paid AI Revenue and Operations Diagnostic.";
+/** Optional supporting note beneath the lifecycle diagram (no paid-diagnostic language). */
+export const LIFECYCLE_NOTE = "";
 
 export const LIFECYCLE_DIAGRAM_ALT = CUSTOMER_JOURNEY_ARIA_LABEL;
 

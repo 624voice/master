@@ -46,14 +46,10 @@ describe("owner focus order supplement (not human A11Y-090)", () => {
       const first = await resetFocusFromPageLoad(page);
       expect(formatFocusDescriptor(first)).toMatch(/624 Voice/i);
 
-      const tabs = await captureTabSequence(page, 6);
+      const tabs = await captureTabSequence(page, 5);
       const formatted = tabs.map(formatFocusDescriptor);
-      expect(formatted[3]).toMatch(/ROI Calculator/i);
-      expect(formatted[4]).toMatch(/Free Assessment/i);
-      expect(formatted[5]).toMatch(/Book Your AI Growth Systems Consultation/i);
-
-      const expected = loadExpected();
-      expect(expected.desktopNavFrom624Voice.tabCountToRoiCalculator).toBe(4);
+      expect(formatted[3]).toMatch(/Free Revenue Assessment/i);
+      expect(formatted[4]).toMatch(/Explore Your Options/i);
     } finally {
       await browser.close();
       stopAssessmentBrowserServer();

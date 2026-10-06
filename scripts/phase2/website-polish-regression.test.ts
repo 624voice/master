@@ -6,6 +6,7 @@ import {
   HOW_WE_WORK_STEPS,
 } from "~/content/clientEngagementProcess";
 import { CUSTOMER_JOURNEY_STAGES } from "~/content/customerJourneyStages";
+import { PUBLIC_CTA } from "~/content/publicConversion";
 import { FEATURE_FLAGS } from "~/config/features";
 import {
   FLEET_SIZE_LABELS,
@@ -54,22 +55,21 @@ describe("Phase 2 website polish regression", () => {
     expect(book).toContain('"Schedule Your Consultation | 624 Voice"');
   });
 
-  test("footer routes book and contact separately", () => {
+  test("footer routes explore options and choose time separately", () => {
     const root = readFileSync(join(REPO, "src/routes/__root.tsx"), "utf8");
     const footerMatch = root.match(/function Footer\([\s\S]*?\n\}/);
     expect(footerMatch).toBeTruthy();
     const footer = footerMatch![0];
-    expect(footer).toContain('href="/book"');
-    expect(footer).toContain('href="/contact"');
-    expect(footer).toContain("Book a Consultation");
-    expect(footer).toContain("Send Us a Message");
-    expect(footer).toContain("Revenue Gap Calculator");
+    expect(footer).toContain("PUBLIC_CTA.exploreOptionsHref");
+    expect(footer).toContain("PUBLIC_CTA.bookHref");
+    expect(footer).toContain("PUBLIC_CTA.freeRevenueAssessment");
+    expect(footer).not.toContain("Revenue Gap Calculator");
   });
 
-  test("header book CTA routes to /book; assessment results keep book path", () => {
+  test("header primary CTA routes to contact; assessment results keep book path", () => {
     const root = readFileSync(join(REPO, "src/routes/__root.tsx"), "utf8");
-    expect(root).toContain('href="/book"');
-    expect(root).toContain('href="/roi-calculator"');
+    expect(root).toContain("PUBLIC_CTA.exploreOptionsHref");
+    expect(root).not.toContain('href="/roi-calculator"');
     const results = readFileSync(
       join(REPO, "src/components/assessment/AssessmentResults.tsx"),
       "utf8",
@@ -77,13 +77,13 @@ describe("Phase 2 website polish regression", () => {
     expect(results).toContain("BOOK_MEETING_PATH");
   });
 
-  test("homepage has seven conversion sections and book CTAs use /book", () => {
+  test("homepage conversion sections without removed final trust block", () => {
     const index = readFileSync(join(REPO, "src/routes/index.tsx"), "utf8");
     expect(index).toContain("Never Let Another Good Call Go Unanswered");
-    expect(index).toContain("See Where Revenue Is Slipping Away");
-    expect(index).toContain('href="/book"');
-    expect(index).not.toContain('href="/contact"');
-    expect(index).not.toContain("The Gaps Are Connected");
+    expect(index).toContain("Find Your Lost Revenue");
+    expect(index).toContain(PUBLIC_CTA.assessmentHref);
+    expect(index).not.toContain("Why 624 Voice");
+    expect(index).not.toContain("18+ Years Turning Technology");
   });
 
   test("assessment hero component stays mounted outside step conditionals", () => {
@@ -110,9 +110,10 @@ describe("Phase 2 website polish regression", () => {
     expect(demoHero).toContain("Jessica");
   });
 
-  test("roi-calculator route file unchanged entry", () => {
+  test("roi-calculator route redirects to assessment", () => {
     const roi = readFileSync(join(REPO, "src/routes/roi-calculator.tsx"), "utf8");
-    expect(roi).toContain("RoiCalculator");
+    expect(roi).toContain('redirect({ to: "/assessment"');
+    expect(roi).not.toContain("RoiCalculator");
   });
 
   test("booking embed loading and fallback copy", () => {

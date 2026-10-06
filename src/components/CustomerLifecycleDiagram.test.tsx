@@ -16,12 +16,12 @@ const APPROVED_PNG_HASH =
 describe("CustomerLifecycleDiagram additional tests", () => {
   test("X-LIFECYCLE-01: six stage label pairs match approved verbatim list", () => {
     expect(LIFECYCLE_STAGES).toEqual([
-      { boxLabel: "Found", dimensionLabel: "GET FOUND" },
-      { boxLabel: "Responded To", dimensionLabel: "RESPOND" },
-      { boxLabel: "Converted", dimensionLabel: "CONVERT" },
-      { boxLabel: "Served and Retained", dimensionLabel: "RETAIN AND GROW" },
-      { boxLabel: "Operated Efficiently", dimensionLabel: "REDUCE MANUAL WORK" },
-      { boxLabel: "Measured and Improved", dimensionLabel: "MEASURE AND IMPROVE" },
+      { boxLabel: "Get Found", dimensionLabel: "GET FOUND" },
+      { boxLabel: "Respond Immediately", dimensionLabel: "RESPOND" },
+      { boxLabel: "Convert", dimensionLabel: "CONVERT" },
+      { boxLabel: "Retain and Grow", dimensionLabel: "RETAIN" },
+      { boxLabel: "Get Your Time Back", dimensionLabel: "EFFICIENCY" },
+      { boxLabel: "Measure and Improve", dimensionLabel: "MEASUREMENT" },
     ]);
   });
 
@@ -29,11 +29,9 @@ describe("CustomerLifecycleDiagram additional tests", () => {
     expect(LIFECYCLE_HEADLINE).not.toMatch(/[\u2013\u2014]/);
     expect(LIFECYCLE_NOTE).not.toMatch(/[\u2013\u2014]/);
     expect(LIFECYCLE_HEADLINE).toBe(
-      "Six stages. One connected system moves a customer through all of them. Not every customer needs every capability.",
+      "Six stages. One connected system moves a customer through all of them.",
     );
-    expect(LIFECYCLE_NOTE).toBe(
-      "Available as part of the paid AI Revenue and Operations Diagnostic.",
-    );
+    expect(LIFECYCLE_NOTE).toBe("");
   });
 
   test("X-LIFECYCLE-03: reference PNG hash matches approved asset identity", () => {

@@ -11,9 +11,8 @@ const SHARED_HEADER = [
   "What We Do",
   "How We Work",
   "Live Demo",
-  "ROI Calculator",
-  "Free Assessment",
-  "Book Your AI Growth Systems Consultation",
+  "Free Revenue Assessment",
+  "Explore Your Options",
 ];
 
 const ROUTES = [
@@ -35,7 +34,7 @@ describe("shared header sequence across routes", () => {
     for (const route of ROUTES) {
       const capture = data.captures.find((c) => c.path === route && c.viewport.width === 1280);
       expect(capture).toBeTruthy();
-      const headerNames = capture!.tabSequence.slice(0, 6).map((d) => d.name);
+      const headerNames = capture!.tabSequence.slice(0, 5).map((d) => d.name);
       expect(headerNames).toEqual(SHARED_HEADER);
     }
   });
