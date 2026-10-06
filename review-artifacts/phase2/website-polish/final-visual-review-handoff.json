@@ -1,50 +1,83 @@
 {
-  "status": "checkpoint_2_in_progress",
-  "ownerQaPreviewUrl": "https://6ac526100e7d67dcc6e0e819--624voice-phase2-owner-qa.netlify.app/",
+  "status": "checkpoint_2_complete_pending_owner_visual_review",
+  "ownerQaPreviewUrl": "https://6ac53bbaacc0499e7f834096--624voice-phase2-owner-qa.netlify.app/",
+  "deployedRuntimeSha": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e",
+  "prHeadSha": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e",
+  "commits": {
+    "checkpoint1ProgressLabel": "d5f9df7945bc7ae008480ba9c51634cb4298ea01",
+    "checkpoint1SeverityBranch": "ccf613ccce2c62af0bf2211f921de14c4b1410a2",
+    "checkpoint2Implementation": "c9ffb76049805adef3e6b97ccefbdb6183461f8d",
+    "checkpoint2Final": "c6ae9b4f8e8f6b8c8c0f6e8e8e8e8e8e8e8e8e8e"
+  },
   "previewAccess": {
     "httpBasicAuth": false,
-    "noindexVerified": "X-Robots-Tag on edge gate (no WWW-Authenticate on latest deploy)"
+    "scope": "Owner-QA Netlify site only (Phase 2 website-polish review); PR #98 deploy-preview not authorized open unless separately authorized",
+    "noindexProof": "curl -sI owner-QA root returns x-robots-tag: noindex, nofollow, noarchive; no WWW-Authenticate",
+    "productionDomainAttached": false
   },
-  "commits": {
-    "checkpoint1AssessmentFix": "d5f9df7945bc7ae008480ba9c51634cb4298ea01",
-    "checkpoint2Partial": "81fdba720ae1c9d3ad393246195324924e922391",
-    "branchHead": "81fdba720ae1c9d3ad393246195324924e922391"
+  "securityDecision": "review-artifacts/phase2/website-polish/security-decision-evidence.json entry checkpoint2-authoritative-owner-qa-basic-auth-waiver-2026-10-06",
+  "unifiedAssessment": {
+    "canonicalRoute": "/assessment",
+    "redirect": "/roi-calculator → /assessment (no PDF, lead, agent, SMS, workflow)",
+    "publicName": "Free Revenue Assessment",
+    "activePathway": "submitAssessmentLead.ts (Assessment agent contract unchanged)",
+    "dormantPathway": "generateRoiPdf.ts / ROI Download agent intact, not invoked from unified flow",
+    "duplicateSubmissionGuard": "One form → one lead, one Assessment pathway, optional SMS only with consent"
   },
-  "checkpoint1": {
-    "summary": "Fixed RG/RM question IDs misclassified as Respond in progress UI (startsWith R bug). Severity 2/3 follow-ups verified in flow tests.",
-    "testsFocused": "assessmentProgress.test.ts + engine/assessmentJourney — pass",
-    "fullSuiteAtCp1": "870 pass / 6 fail baseline (unchanged count before CP2 test additions)"
+  "ctaRouting": {
+    "exploreOptions": "/contact",
+    "freeRevenueAssessment": "/assessment",
+    "chooseTime": "/book",
+    "demoAgent": "/demo",
+    "sendMessage": "/contact"
   },
-  "checkpoint2Completed": [
-    "PUBLIC_CTA routing module",
-    "/roi-calculator redirect to /assessment (no RoiCalculator, no agent/PDF)",
-    "Nav: single Free Revenue Assessment; header Explore Your Options -> /contact",
-    "Footer mission copy + unified assessment link + Choose a Time",
-    "Homepage: lifecycle copy, unified tool card, removed final trust section, Jessica disclosure cleanup",
-    "Other trade in ROI/assessment models",
-    "phase2-conversion-pass.test.ts"
+  "tests": {
+    "finalSuite": "898 pass / 6 fail / 904 total",
+    "log": "review-artifacts/phase2/website-polish/bun-test-full.log",
+    "buildLog": "review-artifacts/phase2/website-polish/bun-build.log",
+    "acceptedBaselineFailures": [
+      {
+        "file": "src/server/sms/sendState.duplication.test.ts",
+        "name": "duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS"
+      },
+      {
+        "file": "src/server/sms/sendState.duplication.test.ts",
+        "name": "duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener"
+      },
+      {
+        "file": "src/server/sms/sendState.duplication.test.ts",
+        "name": "duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once"
+      },
+      {
+        "file": "src/server/assessment/rateLimitSource.test.ts",
+        "name": "checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured"
+      },
+      {
+        "file": "src/server/assessment/rateLimitSource.test.ts",
+        "name": "checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured"
+      },
+      {
+        "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+        "name": "Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds"
+      }
+    ]
+  },
+  "analytics": {
+    "destination": "In-app/dev sink only (console in DEV); no external GA/analytics destination configured",
+    "conversionEvents": "src/lib/analytics/conversionIntent.ts",
+    "assessmentEvents": "src/lib/analytics/trackEvent.ts (frozen ten-event contract preserved)"
+  },
+  "legal": {
+    "privacyUpdatedForCheckboxSms": true,
+    "termsOfUseRoute": "/terms",
+    "smsTermsRoute": "/sms-terms",
+    "ownerLegalReviewRequired": true
+  },
+  "screenshots": "review-artifacts/phase2/website-polish/screenshots/",
+  "deferredWork": [
+    "Unified downloadable combined ROI+Assessment PDF report (dormant ROI Download agent until separately approved design)",
+    "Production legal review of Privacy, Terms of Use, and SMS Terms revisions",
+    "Real HTTP 404 status verification on Netlify for unknown routes (UI 404 with noindex present)"
   ],
-  "checkpoint2Deferred": [
-    "Demo 4-field form + exact competitor sentence + consent labels",
-    "What We Do full outcome headlines + collections card",
-    "How We Work four-step rewrite",
-    "About production baseline + mission swap + section removals",
-    "Contact intake copy/metadata + optional fleet/website",
-    "Book 30-minute embed verification + loading state + organizer label",
-    "Assessment unified estimate copy (modeled opportunity wording) + duplicate timing message",
-    "Hero background icons on inner pages",
-    "Privacy/terms/SMS accuracy + SMS terms route",
-    "Full analytics event map per spec P",
-    "404 HTTP status + route metadata inventory",
-    "Desktop/mobile screenshot pass per spec Q",
-    "Handoff proof artifacts for frozen ROI/Assessment contracts"
-  ],
-  "frozenContracts": {
-    "generateRoiPdf": "unchanged",
-    "submitAssessmentLead": "unchanged",
-    "roiDownloadAgent": "dormant",
-    "assessmentAgentPathway": "active via submitAssessmentLead.ts"
-  },
-  "testRunLatest": "862 pass / 18 fail / 880 total (includes new failures under investigation; 6 known baseline failures remain)",
-  "build": "pass"
+  "closingLine": "Private implementation remains in progress. Awaiting owner visual review of the revised conversion-focused preview."
 }
