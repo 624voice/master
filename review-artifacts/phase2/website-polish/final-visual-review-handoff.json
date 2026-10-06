@@ -1,0 +1,50 @@
+{
+  "status": "checkpoint_2_in_progress",
+  "ownerQaPreviewUrl": "https://6ac526100e7d67dcc6e0e819--624voice-phase2-owner-qa.netlify.app/",
+  "previewAccess": {
+    "httpBasicAuth": false,
+    "noindexVerified": "X-Robots-Tag on edge gate (no WWW-Authenticate on latest deploy)"
+  },
+  "commits": {
+    "checkpoint1AssessmentFix": "d5f9df7945bc7ae008480ba9c51634cb4298ea01",
+    "checkpoint2Partial": "81fdba720ae1c9d3ad393246195324924e922391",
+    "branchHead": "81fdba720ae1c9d3ad393246195324924e922391"
+  },
+  "checkpoint1": {
+    "summary": "Fixed RG/RM question IDs misclassified as Respond in progress UI (startsWith R bug). Severity 2/3 follow-ups verified in flow tests.",
+    "testsFocused": "assessmentProgress.test.ts + engine/assessmentJourney — pass",
+    "fullSuiteAtCp1": "870 pass / 6 fail baseline (unchanged count before CP2 test additions)"
+  },
+  "checkpoint2Completed": [
+    "PUBLIC_CTA routing module",
+    "/roi-calculator redirect to /assessment (no RoiCalculator, no agent/PDF)",
+    "Nav: single Free Revenue Assessment; header Explore Your Options -> /contact",
+    "Footer mission copy + unified assessment link + Choose a Time",
+    "Homepage: lifecycle copy, unified tool card, removed final trust section, Jessica disclosure cleanup",
+    "Other trade in ROI/assessment models",
+    "phase2-conversion-pass.test.ts"
+  ],
+  "checkpoint2Deferred": [
+    "Demo 4-field form + exact competitor sentence + consent labels",
+    "What We Do full outcome headlines + collections card",
+    "How We Work four-step rewrite",
+    "About production baseline + mission swap + section removals",
+    "Contact intake copy/metadata + optional fleet/website",
+    "Book 30-minute embed verification + loading state + organizer label",
+    "Assessment unified estimate copy (modeled opportunity wording) + duplicate timing message",
+    "Hero background icons on inner pages",
+    "Privacy/terms/SMS accuracy + SMS terms route",
+    "Full analytics event map per spec P",
+    "404 HTTP status + route metadata inventory",
+    "Desktop/mobile screenshot pass per spec Q",
+    "Handoff proof artifacts for frozen ROI/Assessment contracts"
+  ],
+  "frozenContracts": {
+    "generateRoiPdf": "unchanged",
+    "submitAssessmentLead": "unchanged",
+    "roiDownloadAgent": "dormant",
+    "assessmentAgentPathway": "active via submitAssessmentLead.ts"
+  },
+  "testRunLatest": "862 pass / 18 fail / 880 total (includes new failures under investigation; 6 known baseline failures remain)",
+  "build": "pass"
+}
