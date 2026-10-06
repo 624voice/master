@@ -8,22 +8,34 @@ import {
 import type { ReactNode } from "react";
 
 import { ConversionIntentListener } from "~/components/ConversionIntentListener";
+import { PUBLIC_CTA } from "~/content/publicConversion";
 import { isPhase2HostedOwnerQaPreviewBoundary } from "~/server/phase2OwnerQaBoundary";
 import appCss from "~/styles/app.css?url";
+
+const FOOTER_MISSION_COPY =
+  "624 helps home-service companies recover lost revenue and grow without adding office headcount by automating repetitive customer-facing work and moving every opportunity to the next right step, from first contact through repeat business, across the systems they already use.";
 
 function NotFoundPage() {
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center px-6 pt-32 text-center">
       <h1 className="text-3xl font-bold text-brand-secondary">Page not found</h1>
       <p className="mt-4 max-w-md text-gray-600">
-        The page you requested is not available. Return home or contact us for help.
+        The page you requested is not available.
       </p>
-      <a
-        href="/"
-        className="mt-8 rounded-[10px] bg-brand-primary px-6 py-3 text-sm font-semibold text-white"
-      >
-        Back to Home
-      </a>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a
+          href="/"
+          className="rounded-[10px] bg-brand-primary px-6 py-3 text-sm font-semibold text-white"
+        >
+          Back to Home
+        </a>
+        <a
+          href={PUBLIC_CTA.assessmentHref}
+          className="rounded-[10px] border border-brand-primary px-6 py-3 text-sm font-semibold text-brand-primary"
+        >
+          Start the {PUBLIC_CTA.freeRevenueAssessment}
+        </a>
+      </div>
     </main>
   );
 }
@@ -98,8 +110,7 @@ const DESKTOP_NAV_LINKS = [
   { href: "/what-we-do", label: "What We Do" },
   { href: "/how-we-work", label: "How We Work" },
   { href: "/demo", label: "Live Demo" },
-  { href: "/roi-calculator", label: "ROI Calculator" },
-  { href: "/assessment", label: "Free Assessment" },
+  { href: PUBLIC_CTA.assessmentHref, label: PUBLIC_CTA.freeRevenueAssessment },
 ] as const;
 
 const MOBILE_NAV_LINKS = [
@@ -149,10 +160,10 @@ function Nav() {
             </a>
           ))}
           <a
-            href="/book"
+            href={PUBLIC_CTA.exploreOptionsHref}
             className="rounded-[10px] bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark xl:px-5"
           >
-            Book Your AI Growth Systems Consultation
+            {PUBLIC_CTA.exploreOptions}
           </a>
         </nav>
         <details className="group lg:hidden">
@@ -203,10 +214,10 @@ function Nav() {
                 </a>
               ))}
               <a
-                href="/book"
+                href={PUBLIC_CTA.exploreOptionsHref}
                 className="flex min-h-11 items-center justify-center rounded-[10px] bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white"
               >
-                Book Your AI Growth Systems Consultation
+                {PUBLIC_CTA.exploreOptions}
               </a>
             </div>
           </div>
@@ -229,8 +240,7 @@ function Footer() {
               </span>
             </a>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-400">
-              AI growth systems for home services: get found, respond, convert,
-              retain, reduce manual work, and measure what is working.
+              {FOOTER_MISSION_COPY}
             </p>
           </div>
           <div>
@@ -257,11 +267,8 @@ function Footer() {
               <a href="/demo" className="transition-colors hover:text-white">
                 Live AI Demo
               </a>
-              <a href="/roi-calculator" className="transition-colors hover:text-white">
-                Revenue Gap Calculator
-              </a>
-              <a href="/assessment" className="transition-colors hover:text-white">
-                Free Assessment
+              <a href={PUBLIC_CTA.assessmentHref} className="transition-colors hover:text-white">
+                {PUBLIC_CTA.freeRevenueAssessment}
               </a>
             </div>
           </div>
@@ -270,11 +277,11 @@ function Footer() {
               Get Started
             </h4>
             <div className="flex flex-col gap-3 text-sm">
-              <a href="/book" className="transition-colors hover:text-white">
-                Book a Consultation
+              <a href={PUBLIC_CTA.exploreOptionsHref} className="transition-colors hover:text-white">
+                {PUBLIC_CTA.exploreOptions}
               </a>
-              <a href="/contact" className="transition-colors hover:text-white">
-                Send Us a Message
+              <a href={PUBLIC_CTA.bookHref} className="transition-colors hover:text-white">
+                {PUBLIC_CTA.chooseTime}
               </a>
               <a href="mailto:info@624voice.com" className="transition-colors hover:text-white">
                 Email Us

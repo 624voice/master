@@ -50,6 +50,7 @@ export const INTENT_TO_CONVERSION_EVENT: Record<string, ConversionAnalyticsEvent
   home_primary_demo: CONVERSION_ANALYTICS_EVENTS.homepage_demo_click,
   home_demo_cta: CONVERSION_ANALYTICS_EVENTS.homepage_demo_click,
   home_secondary_roi: CONVERSION_ANALYTICS_EVENTS.homepage_roi_click,
+  home_secondary_assessment: CONVERSION_ANALYTICS_EVENTS.homepage_assessment_click,
   home_roi_tool: CONVERSION_ANALYTICS_EVENTS.homepage_roi_click,
   home_final_roi: CONVERSION_ANALYTICS_EVENTS.homepage_roi_click,
   home_assessment_tool: CONVERSION_ANALYTICS_EVENTS.homepage_assessment_click,

@@ -40,7 +40,7 @@ export const Route = createFileRoute("/assessment")({
   head: () => ({
     meta: [
       {
-        title: "Free AI Growth Systems Assessment | 624 Voice",
+        title: "Free Revenue Recovery Assessment for Home Services | 624 Voice",
       },
       {
         name: "description",

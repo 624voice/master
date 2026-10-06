@@ -9,6 +9,7 @@ import {
 import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 import { CLIENT_ENGAGEMENT_STEPS } from "~/content/clientEngagementProcess";
 import { CUSTOMER_JOURNEY_STAGES } from "~/content/customerJourneyStages";
+import { PUBLIC_CTA } from "~/content/publicConversion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -83,7 +84,7 @@ function Home() {
               className="h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse"
               aria-hidden="true"
             />
-            Available 24/7/365
+            AI Agents Available 24/7/365
           </div>
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
             <span className="text-white">{APPROVED_HERO_HEADLINE.split("Booked Work")[0]}</span>
@@ -103,20 +104,13 @@ function Home() {
             >
               Talk With Our AI Voice Agent
             </a>
-            <p className="text-sm text-gray-400">
-              Complete the short access form, then talk with Jessica in your
-              browser.
-            </p>
             <a
-              href="/roi-calculator"
-              data-analytics-intent="home_secondary_roi"
+              href={PUBLIC_CTA.assessmentHref}
+              data-analytics-intent="home_secondary_assessment"
               className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
             >
-              Calculate Your Revenue Gap
+              {PUBLIC_CTA.estimateLostRevenue}
             </a>
-            <p className="text-sm text-gray-400">
-              Get your initial estimate in about a minute.
-            </p>
           </div>
         </div>
       </section>
@@ -126,7 +120,7 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <SectionHeader
             eyebrowClass="text-rose-600 bg-rose-50"
-            eyebrow="Where revenue is leaking"
+            eyebrow="Your Revenue Is Leaking"
             headline="Where Revenue Is Slipping Away"
             supporting="The leads are coming in and the work is getting done. The trouble is everything that has to happen in between, especially when the office is busy or closed."
           />
@@ -167,25 +161,17 @@ function Home() {
       <section className="bg-white px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-5xl">
           <SectionHeader
-            eyebrow="Self-service tools"
+            eyebrow="Find Your Lost Revenue"
             headline="See Where Revenue Is Slipping Away"
-            supporting="Start with the calculator for missed-call opportunity, or take the broader assessment if you are unsure where the constraint is."
+            supporting="One free revenue assessment models missed-call opportunity and broader operational priorities across six areas."
           />
-          <div className="mt-12 grid gap-8 md:grid-cols-2">
+          <div className="mt-12 mx-auto max-w-xl">
             <ToolCard
-              title="Revenue Gap Calculator"
-              body="Focused on missed-call and conversion opportunity. Three modeled scenarios and a downloadable ROI report. See the initial estimate before the report-unlock form."
-              primaryHref="/roi-calculator"
-              primaryLabel="Calculate Your Revenue Gap"
-              primaryHint="Get your initial estimate in about a minute."
-              dataIntent="home_roi_tool"
-            />
-            <ToolCard
-              title="Free Assessment"
-              body="Evaluates broader operational priorities across six areas and produces a business snapshot report. Better when you are unsure where the constraint is."
-              primaryHref="/assessment"
-              primaryLabel="Get Your Free Assessment"
-              primaryHint="About 3-5 minutes."
+              title={PUBLIC_CTA.freeRevenueAssessment}
+              body="Trade, fleet size, call volume, and operational questions in one flow, with a modeled opportunity estimate and combined on-screen results."
+              primaryHref={PUBLIC_CTA.assessmentHref}
+              primaryLabel={PUBLIC_CTA.estimateLostRevenue}
+              primaryHint="About 3-5 minutes total."
               dataIntent="home_assessment_tool"
             />
           </div>
@@ -231,7 +217,7 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <SectionHeader
             eyebrow="A practical path"
-            headline="From Revenue Leak to Working System"
+            headline="From Revenue Leak to Revenue Machine"
             supporting="We begin with how the business works today, then define outcomes, build what is needed, and review results together."
           />
           <ol className="mx-auto mt-12 grid max-w-5xl list-none gap-6 p-0 lg:grid-cols-2">
@@ -252,10 +238,6 @@ function Home() {
               </li>
             ))}
           </ol>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-gray-600">
-            Broader problems that cross several systems may start with a paid
-            Diagnostic before implementation.
-          </p>
           <div className="mt-8 text-center">
             <a
               href="/how-we-work"
@@ -268,51 +250,6 @@ function Home() {
         </div>
       </section>
 
-      {/* 7 — Trust + final CTA */}
-      <section className="bg-brand-secondary px-6 py-20 sm:py-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <Eyebrow variant="dark">Why 624 Voice</Eyebrow>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            18+ Years Turning Technology Into Business Results
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            More than 18 years across communications, enterprise technology,
-            customer experience, contact centers, and modernization, including
-            current work with AI agents and customer operations. We focus on
-            solving the right problem with tools your team can actually use.
-          </p>
-          <h3 className="mt-14 text-2xl font-bold text-white sm:text-3xl">
-            Find Your Biggest Revenue Opportunity
-          </h3>
-          <div className="mt-8 flex flex-col items-center gap-4">
-            <a
-              href="/book"
-              data-analytics-intent="home_final_book"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
-            >
-              Book Your Consultation
-            </a>
-            <p className="text-sm text-gray-400">About 30 minutes.</p>
-            <a
-              href="/roi-calculator"
-              data-analytics-intent="home_final_roi"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
-            >
-              Calculate Your Revenue Gap
-            </a>
-            <p className="text-sm text-gray-400">
-              Get your initial estimate in about a minute.
-            </p>
-            <a
-              href="/demo"
-              className="mt-2 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
-            >
-              Talk With Our AI Voice Agent
-            </a>
-            <p className="text-xs text-gray-500">Short access form required.</p>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
