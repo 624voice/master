@@ -1,14 +1,14 @@
 {
-  "reconciledAt": "2026-10-06T21:40:00Z",
+  "reconciledAt": "2026-10-06T21:45:00Z",
   "shas": {
     "lastApplicationRuntimeChangingCommit": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
     "lastSecurityConfigurationChangingCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
-    "finalPr98Head": "74ecf14d8e8f0c8b0e8e8e8e8e8e8e8e8e8e8e8e",
+    "finalPr98Head": "fbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78",
     "ownerQaDeployedSourceCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
     "ownerQaRuntimeCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
     "prPreviewDeployedSourceCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
     "prPreviewRuntimeCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
-    "evidenceOnlyCommit": "PENDING_AFTER_EVIDENCE_COMMIT"
+    "evidenceOnlyCommit": "fbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78"
   },
   "deployments": {
     "ownerQa": {
@@ -26,5 +26,14 @@
       "gitCommitShaFromAuthenticatedHealth": "80ee91246dd0cffb0f8bbfac192216b82fc00d51"
     }
   },
-  "diffDeployedRuntimeToFinalPrHead": "Run after evidence commit: git diff --name-status 80ee91246dd0cffb0f8bbfac192216b82fc00d51..<FINAL_PR_HEAD>"
+  "diffDeployedRuntimeToFinalPrHead": {
+    "command": "git diff --name-status 80ee91246dd0cffb0f8bbfac192216b82fc00d51..fbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78",
+    "files": [
+      { "path": "scripts/phase2/capture-preview-security-proof.ts", "classification": "Evidence tooling" },
+      { "path": "scripts/phase2/audit-preview-url-inventory.ts", "classification": "Evidence tooling" },
+      { "path": "review-artifacts/phase2/website-polish/*", "classification": "Documentation/handoff artifact, log, screenshot" },
+      { "path": "review-artifacts/phase2/owner-keyboard-walkthrough-v5.md", "classification": "Documentation/handoff artifact" }
+    ],
+    "runtimeImpact": "None from 80ee912 to fbce86d; no redeploy required for evidence-only delta."
+  }
 }
