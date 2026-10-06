@@ -81,13 +81,13 @@ describe("Assessment journey QA X-JRN", () => {
 
   test("X-JRN-03: upstream branch change deletes stale follow-up answers", () => {
     const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
+    engine.onScreeningAnswered("GF", 0);
     engine.setAnswer("GF-F1", 3);
     engine.setAnswer("GF-F2", 3);
     engine.setAnswer("GF-F3", 3);
     expect(engine.getActiveQuestionIds()).toContain("GF-F1");
 
-    engine.onScreeningChanged("GF", 0);
+    engine.onScreeningChanged("GF", 3);
     expect(engine.getFollowUpAnswers("GF")).toEqual([]);
     expect(engine.answers.has("GF-F1")).toBe(false);
     expect(engine.getActiveQuestionIds()).not.toContain("GF-F1");
@@ -102,12 +102,12 @@ describe("Assessment journey QA X-JRN", () => {
     };
     const withOrphanFollowUps = runAssessment({
       ...base,
-      "GF-S": 0,
+      "GF-S": 3,
       "GF-F1": 3,
       "GF-F2": 3,
       "GF-F3": 3,
     });
-    const withoutOrphans = runAssessment({ ...base, "GF-S": 0 });
+    const withoutOrphans = runAssessment({ ...base, "GF-S": 3 });
 
     const orphanGf = withOrphanFollowUps.dimensionResults.find(
       (d) => d.key === "GF",
@@ -115,7 +115,7 @@ describe("Assessment journey QA X-JRN", () => {
     const cleanGf = withoutOrphans.dimensionResults.find((d) => d.key === "GF");
     expect(orphanGf).toEqual(cleanGf);
     if (orphanGf?.status === "scored") {
-      expect(orphanGf.score).toBe(0);
+      expect(orphanGf.score).toBe(100);
     }
 
     const summary = buildAssessmentLeadMessage(withoutOrphans);

@@ -411,11 +411,12 @@ export class AssessmentEngine {
   ): void {
     this.setAnswer(SCREENING_IDS_BY_DIMENSION[dimension], score);
 
-    if (score === 3 || score === 2) {
+    // Choice scores: 0 = "Not at all / rarely" (max deficit), 3 = "Consistently / always" (healthy).
+    if (score === 0 || score === 2) {
       this.openFollowUps(dimension, 3);
     } else if (score === 1 || score === "not_sure") {
       this.openFollowUps(dimension, 1);
-    } else {
+    } else if (score === 3) {
       for (const followUpId of FOLLOWUP_IDS_BY_DIMENSION[dimension]) {
         this.activeQuestionIds.delete(followUpId);
         this.answers.delete(followUpId);

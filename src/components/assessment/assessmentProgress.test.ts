@@ -25,7 +25,7 @@ describe("Assessment progress identity (Checkpoint 1 regression)", () => {
 
   test("severity 2/3 opens follow-ups in question flow order", () => {
     const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
+    engine.onScreeningAnswered("GF", 0);
     engine.onScreeningAnswered("CV", 2);
     const flow = buildQuestionFlow(engine);
     expect(flow).toEqual([

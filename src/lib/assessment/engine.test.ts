@@ -78,7 +78,8 @@ describe("L#3 screening 2, no usable follow-ups", () => {
 describe("L#4 screening 3, follow-ups [0,0,0]", () => {
   test("score 33, Low band, Medium confidence", () => {
     const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
+    engine.setAnswer("GF-S", 3);
+    engine.openFollowUps("GF", 3);
     engine.setAnswer("GF-F1", 0);
     engine.setAnswer("GF-F2", 0);
     engine.setAnswer("GF-F3", 0);
@@ -95,7 +96,8 @@ describe("L#4 screening 3, follow-ups [0,0,0]", () => {
 describe("L#5 screening 3, follow-ups [2,2,2]", () => {
   test("score 100, High band, High confidence", () => {
     const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
+    engine.setAnswer("GF-S", 3);
+    engine.openFollowUps("GF", 3);
     engine.setAnswer("GF-F1", 2);
     engine.setAnswer("GF-F2", 2);
     engine.setAnswer("GF-F3", 2);
@@ -179,13 +181,13 @@ describe("L#11 boundaries 33/34/66/67", () => {
 describe("L#12 screening changed after follow-ups", () => {
   test("stale follow-up answers and IDs removed", () => {
     const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
+    engine.onScreeningAnswered("GF", 0);
     engine.setAnswer("GF-F1", 2);
     engine.setAnswer("GF-F2", 2);
     engine.setAnswer("GF-F3", 2);
     expect(engine.getActiveQuestionIds()).toContain("GF-F1");
 
-    engine.onScreeningChanged("GF", 0);
+    engine.onScreeningChanged("GF", 3);
     expect(engine.getActiveQuestionIds()).not.toContain("GF-F1");
     expect(engine.getActiveQuestionIds()).not.toContain("GF-F2");
     expect(engine.getActiveQuestionIds()).not.toContain("GF-F3");
@@ -231,7 +233,7 @@ describe("L#15 active question IDs max 25", () => {
   test("worst-case branching stays within cap", () => {
     const engine = new AssessmentEngine();
     for (const dimension of ["GF", "CV", "RG", "RM", "MI"] as const) {
-      engine.onScreeningAnswered(dimension, 3);
+      engine.onScreeningAnswered(dimension, 0);
     }
     expect(engine.getActiveQuestionIds().length).toBeLessThanOrEqual(25);
     expect(engine.getActiveQuestionIds().length).toBe(25);
@@ -444,21 +446,21 @@ describe("supplemental S-ENG-04 initial ask order", () => {
   });
 });
 
-describe("supplemental S-ENG-05 screening 0 opens no follow-ups", () => {
-  test("GF dimension stays at screening only", () => {
+describe("supplemental S-ENG-05 screening 0 opens three deficit follow-ups", () => {
+  test("GF dimension adds GF-F1 through GF-F3", () => {
     const engine = new AssessmentEngine();
     engine.onScreeningAnswered("GF", 0);
-    expect(engine.getActiveQuestionIds()).not.toContain("GF-F1");
-  });
-});
-
-describe("supplemental S-ENG-06 screening 3 opens three follow-ups", () => {
-  test("adds GF-F1 through GF-F3", () => {
-    const engine = new AssessmentEngine();
-    engine.onScreeningAnswered("GF", 3);
     expect(engine.getActiveQuestionIds()).toEqual(
       expect.arrayContaining(["GF-F1", "GF-F2", "GF-F3"]),
     );
+  });
+});
+
+describe("supplemental S-ENG-06 screening 3 healthy opens no follow-ups", () => {
+  test("GF dimension stays at screening only", () => {
+    const engine = new AssessmentEngine();
+    engine.onScreeningAnswered("GF", 3);
+    expect(engine.getActiveQuestionIds()).not.toContain("GF-F1");
   });
 });
 
