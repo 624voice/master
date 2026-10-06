@@ -1,6 +1,6 @@
 /**
- * HTTP Basic Auth for the dedicated Phase 2 owner-QA Netlify site only.
- * Deploy-scoped credentials via PHASE2_OWNER_QA_EDGE_BASIC_AUTH_* (never from visitors).
+ * Noindex edge gate for Phase 2 owner-QA and PR deploy-preview surfaces.
+ * HTTP Basic Auth is opt-in only (PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED=1); 624voice.com previews stay open.
  */
 import { getStore } from "@netlify/blobs";
 
@@ -41,10 +41,11 @@ function isOwnerQaPreviewSurface(): boolean {
   return false;
 }
 
-/** HTTP Basic Auth when preview surface is active; opt out via explicit owner-authorized env flag. */
+/** Open previews by default; Basic Auth only when explicitly enabled on a preview surface. */
 function isBasicAuthEnforced(): boolean {
+  if (!isOwnerQaPreviewSurface()) return false;
   if (Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED") === "1") return false;
-  return isOwnerQaPreviewSurface();
+  return Netlify.env.get("PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED") === "1";
 }
 
 async function sha256Bytes(value: string): Promise<Uint8Array> {

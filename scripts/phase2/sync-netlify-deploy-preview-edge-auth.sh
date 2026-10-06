@@ -16,6 +16,7 @@ netlify unlink >/dev/null 2>&1 || true
 netlify link --id "$MAIN_SITE_ID"
 
 netlify env:set PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW "1" --context deploy-preview --force
+netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED "1" --context deploy-preview --force
 netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER "$USER" --context deploy-preview --force
 netlify env:set PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS "$PASS" --context deploy-preview --secret --force
 

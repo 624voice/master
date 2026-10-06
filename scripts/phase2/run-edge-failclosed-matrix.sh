@@ -14,6 +14,7 @@ deploy_draft() {
   netlify deploy --context deploy-preview --message "phase2-failclosed-${label}" \
     --dir=dist/client --functions=.netlify/v1/functions \
     --env "PHASE2_OWNER_QA_PREVIEW=1" --env "NETLIFY_CONTEXT=deploy-preview" \
+    --env "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED=1" \
     "$@" 2>&1 | tee "$log"
   local url
   url="$(grep -Eo 'https://[a-z0-9-]+--624voice-phase2-owner-qa\.netlify\.app' "$log" | tail -1)"
