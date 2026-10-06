@@ -1,83 +1,46 @@
 {
-  "status": "checkpoint_2_complete_pending_owner_visual_review",
-  "ownerQaPreviewUrl": "https://6ac53bbaacc0499e7f834096--624voice-phase2-owner-qa.netlify.app/",
-  "deployedRuntimeSha": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
-  "prHeadSha": "1ef8871a5885beb727bb5ada6809e49e3204203e",
-  "commits": {
-    "checkpoint1ProgressLabel": "d5f9df7945bc7ae008480ba9c51634cb4298ea01",
-    "checkpoint1SeverityBranch": "ccf613ccce2c62af0bf2211f921de14c4b1410a2",
-    "checkpoint2Implementation": "c9ffb76049805adef3e6b97ccefbdb6183461f8d",
-    "checkpoint2Final": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01"
-  },
+  "status": "checkpoint_2_corrective_complete_pending_owner_visual_review",
+  "ownerQaPreviewUrl": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/",
+  "ownerQaDeployId": "6ac567c4268f3b2f994edf33",
+  "pr98DeployPreviewUrl": "https://deploy-preview-98--624voice.netlify.app/",
+  "pr98DeployId": "6ac5678d0a6ca2000754f595",
+  "deployedRuntimeSha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+  "lastApplicationRuntimeSha": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
   "previewAccess": {
-    "httpBasicAuth": false,
-    "scope": "Owner-QA Netlify site only (Phase 2 website-polish review); PR #98 deploy-preview not authorized open unless separately authorized",
-    "noindexProof": "curl -sI owner-QA root returns x-robots-tag: noindex, nofollow, noarchive; no WWW-Authenticate",
-    "productionDomainAttached": false
+    "ownerQaHttpBasicAuth": false,
+    "pr98HttpBasicAuth": true,
+    "scope": "Owner-QA open only; PR #98 fail-closed Basic Auth",
+    "noindexProof": "pr98-deploy-preview-auth-proof.json; owner-qa-health-anonymous-proof.json"
   },
-  "securityDecision": "review-artifacts/phase2/website-polish/security-decision-evidence.json entry checkpoint2-authoritative-owner-qa-basic-auth-waiver-2026-10-06",
   "unifiedAssessment": {
     "canonicalRoute": "/assessment",
     "redirect": "/roi-calculator → /assessment (no PDF, lead, agent, SMS, workflow)",
     "publicName": "Free Revenue Assessment",
-    "activePathway": "submitAssessmentLead.ts (Assessment agent contract unchanged)",
-    "dormantPathway": "generateRoiPdf.ts / ROI Download agent intact, not invoked from unified flow",
-    "duplicateSubmissionGuard": "One form → one lead, one Assessment pathway, optional SMS only with consent"
+    "activePathway": "submitAssessmentLead.ts",
+    "dormantPathway": "generateRoiPdf.ts"
   },
   "ctaRouting": {
     "exploreOptions": "/contact",
     "freeRevenueAssessment": "/assessment",
+    "estimateLostRevenue": "/assessment",
     "chooseTime": "/book",
-    "demoAgent": "/demo",
-    "sendMessage": "/contact"
+    "demoAgent": "/demo"
   },
   "tests": {
-    "finalSuite": "898 pass / 6 fail / 904 total",
+    "finalSuite": "899 pass / 6 fail / 905 total",
     "log": "review-artifacts/phase2/website-polish/bun-test-full.log",
     "buildLog": "review-artifacts/phase2/website-polish/bun-build.log",
-    "acceptedBaselineFailures": [
-      {
-        "file": "src/server/sms/sendState.duplication.test.ts",
-        "name": "duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS"
-      },
-      {
-        "file": "src/server/sms/sendState.duplication.test.ts",
-        "name": "duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener"
-      },
-      {
-        "file": "src/server/sms/sendState.duplication.test.ts",
-        "name": "duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once"
-      },
-      {
-        "file": "src/server/assessment/rateLimitSource.test.ts",
-        "name": "checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured"
-      },
-      {
-        "file": "src/server/assessment/rateLimitSource.test.ts",
-        "name": "checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured"
-      },
-      {
-        "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
-        "name": "Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds"
-      }
-    ]
+    "fourteenFailureAccounting": "review-artifacts/phase2/website-polish/test-failure-14-accounting.md",
+    "sixFailureBaselineEvidence": "review-artifacts/phase2/website-polish/six-failure-baseline-evidence.json"
   },
-  "analytics": {
-    "destination": "In-app/dev sink only (console in DEV); no external GA/analytics destination configured",
-    "conversionEvents": "src/lib/analytics/conversionIntent.ts",
-    "assessmentEvents": "src/lib/analytics/trackEvent.ts (frozen ten-event contract preserved)"
+  "securityEvidence": {
+    "decisions": "review-artifacts/phase2/website-polish/security-decision-evidence.json",
+    "chronology": "review-artifacts/phase2/website-polish/security-chronology.md",
+    "pr98AuthProof": "review-artifacts/phase2/website-polish/pr98-deploy-preview-auth-proof.json",
+    "ownerQaHealthProof": "review-artifacts/phase2/website-polish/owner-qa-health-anonymous-proof.json",
+    "previewUrlInventory": "review-artifacts/phase2/website-polish/preview-url-inventory.json"
   },
-  "legal": {
-    "privacyUpdatedForCheckboxSms": true,
-    "termsOfUseRoute": "/terms",
-    "smsTermsRoute": "/sms-terms",
-    "ownerLegalReviewRequired": true
-  },
-  "screenshots": "review-artifacts/phase2/website-polish/screenshots/",
-  "deferredWork": [
-    "Unified downloadable combined ROI+Assessment PDF report (dormant ROI Download agent until separately approved design)",
-    "Production legal review of Privacy, Terms of Use, and SMS Terms revisions",
-    "Real HTTP 404 status verification on Netlify for unknown routes (UI 404 with noindex present)"
-  ],
+  "notFoundProof": "review-artifacts/phase2/website-polish/not-found-route-proof.json",
+  "handoffMarkdown": "review-artifacts/phase2/website-polish/CHECKPOINT2_CORRECTIVE_FINAL_HANDOFF.md",
   "closingLine": "Private implementation remains in progress. Awaiting owner visual review of the revised conversion-focused preview."
 }

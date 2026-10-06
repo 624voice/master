@@ -1,0 +1,12 @@
+=== corrected: assessment.browserJourney X-JRN-DOM-04 ===
+ 1 pass
+ 21 filtered out
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [12.29s]
+=== corrected: website-polish-regression homepage ===
+
+ 12 pass
+ 0 fail
+ 45 expect() calls
+Ran 12 tests across 1 file. [23.00ms]

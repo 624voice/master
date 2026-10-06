@@ -21,6 +21,7 @@ This chronology separates **attribution** (who authorized a change) from **conta
 | Open | Previews opened for review | Agent narrative + commit `c06761d7aa70619520bd80f109d384a1f58ad6e2` cited in JSON | Opening commit diff should be inspected for `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED` and sync-open scripts |
 | Restore | Fail-closed auth restored | Git commit `d041587f7a6c8e731691d00587fc39141db69a7b` cited in JSON | Archived live checks on 2026-10-05 reported anonymous 401 on PR preview and owner-QA |
 | Regression | Previews opened again during conversion pass | Live verification 2026-10-06: PR #98 returned HTTP 200 anonymously | Corrective action: unset `DISABLED` on deploy-preview, enforce auth in edge gate, redeploy |
+| Regression (3) | `netlify.toml` deploy-preview had `DISABLED=1` | Live verification 2026-10-06 pre-corrective: PR #98 anonymous 200 | Git-proven fix `80ee91246dd0cffb0f8bbfac192216b82fc00d51`; live anonymous 401 after redeploy `6ac5678d0a6ca2000754f595` |
 
 If a row lacks independent Netlify deploy ID / timestamp / live capture, treat the **event** as **unproven** even when a commit SHA exists.
 

@@ -1,0 +1,30 @@
+{
+  "reconciledAt": "2026-10-06T21:40:00Z",
+  "shas": {
+    "lastApplicationRuntimeChangingCommit": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
+    "lastSecurityConfigurationChangingCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+    "finalPr98Head": "PENDING_AFTER_EVIDENCE_COMMIT",
+    "ownerQaDeployedSourceCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+    "ownerQaRuntimeCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+    "prPreviewDeployedSourceCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+    "prPreviewRuntimeCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+    "evidenceOnlyCommit": "PENDING_AFTER_EVIDENCE_COMMIT"
+  },
+  "deployments": {
+    "ownerQa": {
+      "netlifySite": "624voice-phase2-owner-qa",
+      "deployId": "6ac567c4268f3b2f994edf33",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+      "state": "live",
+      "deployLog": "review-artifacts/phase2/website-polish/netlify-deploy-corrective.log"
+    },
+    "pr98DeployPreview": {
+      "netlifySite": "624voice",
+      "deployId": "6ac5678d0a6ca2000754f595",
+      "url": "https://deploy-preview-98--624voice.netlify.app",
+      "state": "live",
+      "gitCommitShaFromAuthenticatedHealth": "80ee91246dd0cffb0f8bbfac192216b82fc00d51"
+    }
+  },
+  "diffDeployedRuntimeToFinalPrHead": "Run after evidence commit: git diff --name-status 80ee91246dd0cffb0f8bbfac192216b82fc00d51..<FINAL_PR_HEAD>"
+}

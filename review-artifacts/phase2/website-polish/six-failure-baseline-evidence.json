@@ -1,0 +1,80 @@
+{
+  "baselineSha": "4d5491e757e8485c49d193417e96aef1b8a8c2ce",
+  "baselineParentOfPolish": "3bfa6021a99d8bbec0a7b7ad323170b1d6e518cf",
+  "currentHeadSha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+  "baselineFullSuiteCommand": "cd /tmp/cp2-baseline-4d5491e && bun install && bun test",
+  "baselineFullSuiteLog": "review-artifacts/phase2/website-polish/bun-test-baseline-4d5491e.log",
+  "baselineFullSuiteSummary": "850 pass / 6 fail / 856 total",
+  "currentFullSuiteLog": "review-artifacts/phase2/website-polish/bun-test-full.log",
+  "currentFullSuiteSummary": "899 pass / 6 fail / 905 total",
+  "failures": [
+    {
+      "fullName": "duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail (Received length: 0, expected 1)",
+      "currentFullSuite": "fail (same)",
+      "isolatedAtCurrentHead": "pass (13/13 in file)",
+      "isolatedLog": "review-artifacts/phase2/website-polish/six-failure-current-reruns.log",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "No change to frozen SMS/agent contracts; failure is shared-state / suite ordering with SPEED2LEAD env from earlier tests.",
+      "implementationDiffSinceBaseline": "Website polish and assessment UI only; sendState duplication tests unchanged.",
+      "focusedRerunCommand": "bun test ./src/server/sms/sendState.duplication.test.ts"
+    },
+    {
+      "fullName": "duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail",
+      "currentFullSuite": "fail",
+      "isolatedAtCurrentHead": "pass",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "Same as ROI opener trio.",
+      "focusedRerunCommand": "bun test ./src/server/sms/sendState.duplication.test.ts"
+    },
+    {
+      "fullName": "duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once",
+      "file": "src/server/sms/sendState.duplication.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail",
+      "currentFullSuite": "fail",
+      "isolatedAtCurrentHead": "pass",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "Same as ROI opener trio.",
+      "focusedRerunCommand": "bun test ./src/server/sms/sendState.duplication.test.ts"
+    },
+    {
+      "fullName": "checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured",
+      "file": "src/server/assessment/rateLimitSource.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail (Redis configured in VM env; expected skipped)",
+      "currentFullSuite": "fail (same)",
+      "isolatedAtCurrentHead": "pass (12/12 in file)",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "Environmental: REDIS_URL or Upstash present in Cloud Agent VM; test expects no Redis. Not introduced by unified /assessment UI.",
+      "focusedRerunCommand": "bun test ./src/server/assessment/rateLimitSource.test.ts"
+    },
+    {
+      "fullName": "checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured",
+      "file": "src/server/assessment/rateLimitSource.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail",
+      "currentFullSuite": "fail",
+      "isolatedAtCurrentHead": "pass (12/12 in file)",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "Redis/env coupling activated during full suite; not a unified Assessment submission defect.",
+      "focusedRerunCommand": "bun test ./src/server/assessment/rateLimitSource.test.ts"
+    },
+    {
+      "fullName": "Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds",
+      "file": "src/server/assessment/assessmentJourneyPipeline.test.ts",
+      "existedAtBaseline": true,
+      "baselineFullSuite": "fail (TypeError: sink is not a function in trackEvent)",
+      "currentFullSuite": "fail (same TypeError)",
+      "isolatedAtCurrentHead": "pass (7/7 in file)",
+      "failsOnlyInFullSuiteOrder": true,
+      "checkpoint2Impact": "Analytics test sink cleared by earlier suite tests; not a duplicate-lead or validation defect in submitAssessmentLead frozen contract.",
+      "focusedRerunCommand": "bun test ./src/server/assessment/assessmentJourneyPipeline.test.ts"
+    }
+  ]
+}

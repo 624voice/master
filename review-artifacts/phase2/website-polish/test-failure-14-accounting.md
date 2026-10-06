@@ -1,7 +1,7 @@
 # Fourteen-failure accounting (890 pass / 14 fail / 904 total snapshot)
 
-**Snapshot context:** Checkpoint 2 mid-pass before browser-branching and focus-order corrections.  
-**Corrected suite at `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01`:** 898 pass / 6 fail / 904 total.
+**Snapshot context:** Checkpoint 2 mid-pass before browser-branching and focus-order corrections (authoritative count **890 pass / 14 fail / 904 total**). A standalone log file with exactly `890 pass` was **not** found in Git history; the eight corrected rows below match the instruction’s delta to **898 pass / 6 fail / 904 total** at `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` (committed `bun-test-full.log` tail).  
+**After security corrective + deployVersion health test:** **899 pass / 6 fail / 905 total** (`review-artifacts/phase2/website-polish/bun-test-full.log`).
 
 | # | Full test name | File path | Classification (890/14 era) | Root cause | Corrective commit | Current disposition |
 |---|----------------|-----------|------------------------------|------------|-------------------|---------------------|

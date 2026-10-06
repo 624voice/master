@@ -67,6 +67,17 @@
       }
     },
     {
+      "id": "checkpoint2-corrective-sanitize-owner-qa-health-2026-10-06",
+      "action": "Remove anonymous deployment metadata from owner-QA /api/health; keep detailed health behind PR preview Basic Auth",
+      "control": "shouldExposeDetailedHealth() / publicHealthJson() in deployVersion + health route",
+      "surfaces": ["624voice-phase2-owner-qa Netlify site (open owner-QA only)"],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Phase 2 Checkpoint 2 corrective completion instruction section D."
+      },
+      "gitCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51"
+    },
+    {
       "id": "checkpoint2-corrective-restore-pr98-basic-auth-2026-10-06",
       "action": "Restore fail-closed HTTP Basic Auth on PR #98 deploy-preview only; keep owner-QA open",
       "control": "Unset PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED on main-site deploy-preview; edge gate enforces auth when not owner-QA open surface",

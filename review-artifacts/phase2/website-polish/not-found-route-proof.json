@@ -1,0 +1,16 @@
+{
+  "capturedAt": "2026-10-06T21:37:00Z",
+  "ownerQaUrl": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+  "route": "/does-not-exist-404",
+  "httpStatus": 404,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "x-robots-tag": "noindex, nofollow, noarchive",
+    "server": "Netlify"
+  },
+  "screenshots": {
+    "desktop1280": "review-artifacts/phase2/website-polish/screenshots/404-desktop-1280.png",
+    "mobile375": "review-artifacts/phase2/website-polish/screenshots/404-mobile-375.png"
+  },
+  "notes": "No redirect to production domain; header/footer present in rendered HTML (see screenshots)."
+}
