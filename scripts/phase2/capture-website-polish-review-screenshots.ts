@@ -14,10 +14,18 @@ if (!base) {
   process.exit(1);
 }
 
-function loadCreds(): { user: string; pass: string } {
+function loadCreds(): { user: string; pass: string } | null {
+  if (process.env.POLISH_SCREENSHOT_SKIP_AUTH === "1") {
+    return null;
+  }
   const artifact =
     process.env.PHASE2_PREVIEW_AUTH_ARTIFACT ?? "/opt/cursor/artifacts/netlify-owner-qa-preview-basic-auth.txt";
-  const text = readFileSync(artifact, "utf8");
+  let text: string;
+  try {
+    text = readFileSync(artifact, "utf8");
+  } catch {
+    return null;
+  }
   const map = Object.fromEntries(
     text
       .split("\n")
@@ -30,7 +38,7 @@ function loadCreds(): { user: string; pass: string } {
   return { user: map.user, pass: map.password };
 }
 
-const { user, pass } = loadCreds();
+const creds = loadCreds();
 
 const desktopRoutes = [
   ["/", "home"],
@@ -41,6 +49,9 @@ const desktopRoutes = [
   ["/about", "about"],
   ["/contact", "contact"],
   ["/book", "book"],
+  ["/privacy", "privacy"],
+  ["/terms", "terms"],
+  ["/sms-terms", "sms-terms"],
   ["/roi-calculator", "roi-calculator"],
   ["/does-not-exist-404", "404"],
 ] as const;
@@ -64,7 +75,9 @@ const browser = await puppeteer.launch({
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 });
 const page = await browser.newPage();
-await page.authenticate({ username: user, password: pass });
+if (creds) {
+  await page.authenticate({ username: creds.user, password: creds.pass });
+}
 
 async function shot(viewport: { width: number; height: number }, prefix: string, route: string, name: string) {
   await page.setViewport(viewport);

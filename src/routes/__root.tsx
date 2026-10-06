@@ -161,6 +161,7 @@ function Nav() {
           ))}
           <a
             href={PUBLIC_CTA.exploreOptionsHref}
+            data-analytics-intent="header_explore_options"
             className="rounded-[10px] bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-primary-dark xl:px-5"
           >
             {PUBLIC_CTA.exploreOptions}
@@ -298,7 +299,11 @@ function Footer() {
             </a>
             <span className="mx-2">|</span>
             <a href="/terms" className="transition-colors hover:text-white">
-              Terms
+              Terms of Use
+            </a>
+            <span className="mx-2">|</span>
+            <a href="/sms-terms" className="transition-colors hover:text-white">
+              SMS Terms
             </a>
           </p>
         </div>

@@ -103,26 +103,12 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
       /new customers find your business/i.test(document.body.innerText),
     );
     const screeningPrompt = await page.evaluate(() => document.body.innerText);
-    const buttons = await page.$$("button.w-full.rounded-lg.border.px-4");
-    for (const button of buttons) {
-      const text = await button.evaluate((el) => el.textContent ?? "");
-      if (/Consistently \/ always/i.test(text)) {
-        await button.click();
-        break;
-      }
-    }
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await clickChoiceMatching(page, "Not at all / rarely");
     await clickButtonMatching(page, "^Continue$");
     const followUpPrompt = await page.evaluate(() => document.body.innerText);
     expect(followUpPrompt).toMatch(/track where new leads come from/i);
     await clickButtonMatching(page, "^Back$");
-    await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll("button"));
-      const low = buttons.find((b) =>
-        /Not at all \/ rarely/i.test(b.textContent ?? ""),
-      );
-      low?.click();
-    });
+    await clickChoiceMatching(page, "Consistently / always");
     await clickButtonMatching(page, "^Continue$");
     const afterDowngrade = await page.evaluate(() => document.body.innerText);
     expect(afterDowngrade).not.toMatch(/track where new leads come from/i);
@@ -282,7 +268,7 @@ describe("Assessment browser journey X-JRN-DOM (safe backend)", () => {
     await activateConditionalFollowUp(page);
     await clickButtonMatching(page, "^Continue$");
     await clickButtonMatching(page, "^Back$");
-    await clickChoiceMatching(page, "Not at all / rarely");
+    await clickChoiceMatching(page, "Consistently / always");
     await clickButtonMatching(page, "^Continue$");
 
     const bodyAfterDowngrade = await page.evaluate(() => document.body.innerText);

@@ -19,6 +19,36 @@
   },
   "decisions": [
     {
+      "id": "checkpoint2-authoritative-owner-qa-basic-auth-waiver-2026-10-06",
+      "action": "Chris explicitly authorizes the 624 Voice owner-QA website-review preview to remain accessible without HTTP Basic Auth.",
+      "control": "HTTP Basic Auth only — disabled for the named owner-QA preview surface",
+      "surfaces": [
+        "624 Voice owner-QA Netlify review preview used for Phase 2 website-polish review (624voice-phase2-owner-qa Netlify site)"
+      ],
+      "explicitlyNotAuthorized": [
+        "Production",
+        "PR #98 deploy-preview unless separately and explicitly authorized",
+        "Unrelated Netlify sites or deploy contexts",
+        "Admin systems",
+        "APIs containing secrets or sensitive operational data",
+        "Any other security control",
+        "Future projects or previews"
+      ],
+      "requiredRetainedControls": [
+        "X-Robots-Tag: noindex, nofollow, noarchive",
+        "No production-domain attachment",
+        "No committed or exposed credentials",
+        "No unnecessary branch, SHA, environment or feature-flag metadata exposed anonymously",
+        "Clear non-production-preview status"
+      ],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Verbatim Phase 2 Checkpoint 2 governing instruction section 2 (EXPLICIT SECURITY-CONTROL DECISION), recorded in this file — not inferred or cross-project."
+      },
+      "ownerMessageRecordedAt": "2026-10-06T17:29:00Z",
+      "recordingRunId": "checkpoint2-authoritative-instruction"
+    },
+    {
       "id": "owner-qa-preview-open-no-basic-auth-checkpoint2-2026-10-06",
       "action": "Authorize owner-QA Netlify preview without HTTP Basic Auth only; noindex edge gate remains",
       "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on 624voice-phase2-owner-qa Netlify site only; HTTP Basic Auth not enforced on that surface",

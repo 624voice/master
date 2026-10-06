@@ -60,6 +60,7 @@ describe("buildAssessmentReportViewModel supplemental", () => {
     expect(viewModel.rankedGroups.length).toBe(result.priorityGroups.length);
     expect(viewModel.clarifyGroup.length).toBe(result.clarifyGroup.length);
     expect(viewModel.disclaimer).toContain("directional");
-    expect(viewModel.disclaimer).toContain("paid AI Revenue and Operations Diagnostic");
+    expect(viewModel.disclaimer).not.toContain("paid AI Revenue and Operations Diagnostic");
+    expect(viewModel.disclaimer).toContain("operational audit");
   });
 });

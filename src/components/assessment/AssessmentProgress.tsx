@@ -36,7 +36,7 @@ export function AssessmentProgress({ questionId, stepKey }: AssessmentProgressPr
       </p>
       <p className="mt-1 text-xs font-medium text-gray-600" aria-hidden="true">
         {stepKey === "bp1" || stepKey === "bp2"
-          ? "Trade and fleet size"
+          ? "Setup only — trade and fleet size before the six-area assessment"
           : "Screening and follow-up questions"}
       </p>
     </div>

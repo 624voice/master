@@ -43,12 +43,17 @@ describe("assessment keyboard model supplement", () => {
       const trace: Array<{ key: string; focus: string; selected?: string }> = [];
       trace.push({ key: "(initial)", focus: formatFocusDescriptor(await readFocused(page)) });
 
-      for (let i = 0; i < 10; i += 1) {
+      let focusedConsistently = false;
+      for (let i = 0; i < 20; i += 1) {
+        const focus = formatFocusDescriptor(await readFocused(page));
+        trace.push({ key: i === 0 ? "(initial)" : "Tab", focus });
+        if (focus.includes("Consistently / always")) {
+          focusedConsistently = true;
+          break;
+        }
         await page.keyboard.press("Tab");
-        trace.push({ key: "Tab", focus: formatFocusDescriptor(await readFocused(page)) });
       }
-      await page.keyboard.press("Tab");
-      trace.push({ key: "Tab", focus: formatFocusDescriptor(await readFocused(page)) });
+      expect(focusedConsistently).toBe(true);
       await page.keyboard.press("Space");
       const selected = await page.evaluate(() => {
         const pressed = Array.from(document.querySelectorAll("fieldset button")).find(

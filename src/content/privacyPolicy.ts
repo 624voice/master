@@ -64,7 +64,7 @@ export const privacyPolicy: LegalDocument = {
       blocks: [
         {
           type: "paragraph",
-          text: "We collect mobile phone numbers solely to send transactional appointment confirmations, reminders, and scheduling updates to customers who have explicitly provided verbal consent during a scheduling call.",
+          text: "We collect mobile phone numbers for SMS only when you separately opt in using an optional, unchecked checkbox on our demo access form, revenue assessment results form, or contact form. Opting in is not required to use those tools, receive email, view results, or submit an inquiry. We may also send transactional appointment messages when consent is obtained during a live scheduling call, as described in our SMS Terms & Conditions.",
         },
         {
           type: "paragraph",

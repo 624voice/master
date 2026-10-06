@@ -3,6 +3,9 @@ import {
   resolveRespondField,
   type VisitorRespondEdits,
 } from "~/lib/assessment/engine";
+import { selectModerateScenarioValue } from "~/lib/assessment/selectModerateScenario";
+import { computeAllScenariosWithOverrides } from "~/lib/roi/computeRoi";
+import { formatCurrency } from "~/lib/roi/formatCurrency";
 import type { TradeKey } from "~/lib/roi/callVolume";
 
 const inputClassName =
@@ -71,6 +74,13 @@ export function RespondAssumptionsReview({
     });
   };
 
+  const scenarios = computeAllScenariosWithOverrides(trade, r1.value, {
+    missedCallRateOverride:
+      r2.edit === "not_sure" ? undefined : r2.value,
+    avgJobValueOverride: r3.edit === "not_sure" ? undefined : r3.value,
+  });
+  const moderateOpportunity = selectModerateScenarioValue(scenarios);
+
   const fields = [
     {
       id: "R1",
@@ -103,6 +113,19 @@ export function RespondAssumptionsReview({
 
   return (
     <div className="space-y-6">
+      {moderateOpportunity != null && (
+        <div className="rounded-xl border border-brand-primary/30 bg-emerald-50/60 p-6 text-center">
+          <p className="text-sm font-semibold text-brand-secondary">
+            Modeled annual revenue opportunity: approximately{" "}
+            <span className="text-brand-primary">
+              {formatCurrency(moderateOpportunity)}
+            </span>
+          </p>
+          <p className="mt-2 text-xs text-gray-600">
+            Based on the assumptions below for missed or unanswered calls.
+          </p>
+        </div>
+      )}
       <div>
         <h2 className="text-lg font-bold text-brand-secondary">
           Review your respond assumptions

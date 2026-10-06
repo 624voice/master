@@ -93,7 +93,9 @@ function DemoPage() {
           firstName,
           lastName,
           businessName,
+          email: "",
           phone,
+          websiteOption: "none",
           smsConsent,
         },
       });

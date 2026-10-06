@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
   normalizeLeadInfo,
+  resolveContactWebsite,
   validateDemoLeadIdentity,
+  validateWebsiteFields,
   type LeadInfo,
 } from "~/lib/lead/validateLead";
 import { scheduleAbandonedDemoRecovery } from "~/server/speed2Lead/agent/demoFlow/abandonedRecovery";
@@ -18,19 +20,26 @@ type DemoLeadRequest = {
   firstName: string;
   lastName: string;
   businessName: string;
-  email?: string;
+  email: string;
   phone: string;
+  websiteOption: "has" | "none" | "";
+  website?: string;
   smsConsent: boolean;
 };
 
 function validateDemoLeadFields(data: DemoLeadRequest): string | null {
-  return validateDemoLeadIdentity({
+  const leadError = validateDemoLeadIdentity({
     firstName: data.firstName,
     lastName: data.lastName,
     businessName: data.businessName,
-    email: data.email ?? "",
+    email: data.email,
     phone: data.phone,
   });
+  if (leadError) {
+    return leadError;
+  }
+
+  return validateWebsiteFields(data.websiteOption, data.website);
 }
 
 export const submitDemoLead = createServerFn({ method: "POST" })
@@ -45,11 +54,11 @@ export const submitDemoLead = createServerFn({ method: "POST" })
       firstName: data.firstName,
       lastName: data.lastName,
       businessName: data.businessName,
-      email: data.email ?? "",
+      email: data.email,
       phone: data.phone,
     });
 
-    const website = "";
+    const website = resolveContactWebsite(data.websiteOption, data.website);
 
     const demoAlreadyUsed = await hasUsedVoiceDemo(
       normalizedLead.email,

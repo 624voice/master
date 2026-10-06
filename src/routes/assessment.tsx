@@ -344,12 +344,8 @@ function AssessmentPage() {
               {step === "bp1" && (
                 <div className="space-y-3 rounded-lg border border-gray-200 bg-white/80 p-4 text-sm text-gray-700">
                   <p>
-                    <span className="font-semibold text-brand-secondary">About 3–5 minutes</span>
-                  </p>
-                  <p>
                     You&apos;ll receive a six-area snapshot, a modeled estimate of the
-                    opportunity tied to missed calls, and a report you can use to prepare
-                    for your next conversation.
+                    opportunity tied to missed calls, and combined on-screen results.
                   </p>
                   <p>Use your best estimate. You can choose &apos;Not sure&apos; where available.</p>
                 </div>
@@ -416,7 +412,7 @@ function AssessmentPage() {
                     )}
                     {teaserModerate != null && (
                       <p className="mt-4 text-sm text-gray-600">
-                        Estimated annual opportunity up to{" "}
+                        Modeled annual revenue opportunity: approximately{" "}
                         <span className="font-semibold text-brand-primary">
                           {formatCurrency(teaserModerate)}
                         </span>

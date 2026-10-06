@@ -73,10 +73,10 @@ export function AssessmentResults({
       {moderateValue != null && (
         <div className="rounded-xl border border-brand-primary/30 bg-emerald-50/60 p-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-accent">
-            Estimated annual opportunity
+            Modeled annual revenue opportunity
           </p>
-          <p className="mt-3 text-4xl font-extrabold tracking-tight text-brand-secondary sm:text-5xl">
-            Up to{" "}
+          <p className="mt-3 text-2xl font-bold leading-snug text-brand-secondary sm:text-3xl">
+            Approximately{" "}
             <span className="text-brand-primary">
               {formatCurrency(moderateValue)}
             </span>

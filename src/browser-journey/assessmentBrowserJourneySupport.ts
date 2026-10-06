@@ -307,7 +307,7 @@ export async function activateConditionalFollowUp(page: Page): Promise<void> {
   await page.waitForFunction(() =>
     /new customers find your business/i.test(document.body.innerText),
   );
-  await clickChoiceMatching(page, "Consistently / always");
+  await clickChoiceMatching(page, "Not at all / rarely");
   await clickButtonMatching(page, "^Continue$");
   await page.waitForFunction(() =>
     /track where new leads come from/i.test(document.body.innerText),

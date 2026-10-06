@@ -7,6 +7,7 @@ export const CONVERSION_ANALYTICS_EVENTS = {
   homepage_demo_click: "homepage_demo_click",
   homepage_roi_click: "homepage_roi_click",
   homepage_assessment_click: "homepage_assessment_click",
+  homepage_explore_options_click: "homepage_explore_options_click",
   homepage_book_click: "homepage_book_click",
   demo_form_started: "demo_form_started",
   demo_form_completed: "demo_form_completed",
@@ -55,6 +56,7 @@ export const INTENT_TO_CONVERSION_EVENT: Record<string, ConversionAnalyticsEvent
   home_final_roi: CONVERSION_ANALYTICS_EVENTS.homepage_roi_click,
   home_assessment_tool: CONVERSION_ANALYTICS_EVENTS.homepage_assessment_click,
   home_final_book: CONVERSION_ANALYTICS_EVENTS.homepage_book_click,
+  header_explore_options: CONVERSION_ANALYTICS_EVENTS.homepage_explore_options_click,
 };
 
 export function conversionEventForIntent(
