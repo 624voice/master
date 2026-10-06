@@ -98,12 +98,13 @@ export function validateContactFields(fields: ContactFields): string | null {
   if (fields.trade === "Other" && !fields.otherTrade?.trim()) {
     return "Please enter your trade.";
   }
-  const websiteError = validateWebsiteFields(
-    fields.websiteOption,
-    fields.website,
-  );
-  if (websiteError) return websiteError;
-  if (!fields.fleetSize.trim()) return "Fleet size is required.";
+  if (fields.websiteOption) {
+    const websiteError = validateWebsiteFields(
+      fields.websiteOption,
+      fields.website,
+    );
+    if (websiteError) return websiteError;
+  }
   if (!fields.message.trim()) return "Please tell us what we can help with.";
   return null;
 }
@@ -132,8 +133,8 @@ export function validateDemoLeadIdentity(lead: LeadInfo): string | null {
   if (!lead.firstName.trim()) return "First name is required.";
   if (!lead.lastName.trim()) return "Last name is required.";
   if (!lead.businessName.trim()) return "Business name is required.";
-  if (!lead.email.trim()) return "Email is required.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim())) {
+  const email = lead.email.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return "Enter a valid email address.";
   }
   if (!lead.phone.trim()) return "Phone number is required.";

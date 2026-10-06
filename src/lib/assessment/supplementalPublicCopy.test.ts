@@ -37,8 +37,8 @@ describe("public copy supplemental S-RT", () => {
 
   test("S-RT-09: what-we-do route uses approved H1", () => {
     const source = readRoute("src/routes/what-we-do.tsx");
-    expect(source).toContain("Improve the Customer Journey");
-    expect(source).toContain("One Priority at a Time");
+    expect(source).toContain("Fix the Gaps Costing You");
+    expect(source).toContain("Leads, Time and Revenue");
   });
 
   test("S-RT-10: visitor-facing lifecycle copy contain no em dashes (owner-approved demo copy excepted)", () => {

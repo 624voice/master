@@ -10,12 +10,6 @@ export type DemoLeadFormProps = {
   setLastName: (value: string) => void;
   businessName: string;
   setBusinessName: (value: string) => void;
-  websiteOption: "has" | "none" | "";
-  setWebsiteOption: (value: "has" | "none" | "") => void;
-  website: string;
-  setWebsite: (value: string) => void;
-  email: string;
-  setEmail: (value: string) => void;
   phone: string;
   setPhone: (value: string) => void;
   smsConsent: boolean;
@@ -77,21 +71,6 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
         />
       </div>
       <div>
-        <label htmlFor="demo-email" className={labelClassName}>
-          Email Address
-        </label>
-        <input
-          id="demo-email"
-          type="email"
-          required
-          value={props.email}
-          onChange={(e) => props.setEmail(e.target.value)}
-          className={inputClassName}
-          placeholder="john@yourcompany.com"
-          autoComplete="email"
-        />
-      </div>
-      <div>
         <label htmlFor="demo-phone" className={labelClassName}>
           Phone Number
         </label>
@@ -106,45 +85,6 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
           autoComplete="tel"
         />
       </div>
-      <fieldset className="space-y-2">
-        <legend className={labelClassName}>Do you have a website?</legend>
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="radio"
-            name="demo-websiteOption"
-            value="has"
-            checked={props.websiteOption === "has"}
-            onChange={() => props.setWebsiteOption("has")}
-            required
-          />
-          Yes
-        </label>
-        {props.websiteOption === "has" && (
-          <input
-            type="text"
-            id="demo-website"
-            value={props.website}
-            onChange={(e) => props.setWebsite(e.target.value)}
-            className={inputClassName}
-            placeholder="https://yourcompany.com"
-            autoComplete="url"
-            required
-          />
-        )}
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="radio"
-            name="demo-websiteOption"
-            value="none"
-            checked={props.websiteOption === "none"}
-            onChange={() => {
-              props.setWebsiteOption("none");
-              props.setWebsite("");
-            }}
-          />
-          No
-        </label>
-      </fieldset>
       <label className="flex items-start gap-3">
         <input
           type="checkbox"
@@ -156,8 +96,7 @@ export function DemoLeadForm(props: DemoLeadFormProps) {
           className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
         />
         <span className="text-xs leading-relaxed text-gray-600">
-          I agree to receive text messages from 624 Voice about my inquiry.
-          Message and data rates may apply. Reply STOP to opt out.
+          Optional: Text me about my demo or next steps. Message and data rates may apply. Reply STOP to opt out.
         </span>
       </label>
       {props.error && (

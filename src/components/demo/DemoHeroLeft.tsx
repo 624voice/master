@@ -59,6 +59,10 @@ export function DemoHeroLeft({
       </p>
 
       <p className="mt-5 max-w-[570px] text-[17px] leading-[1.55] text-[#94A3B8] lg:mx-0 mx-auto sm:text-lg">
+        Every time a customer can&apos;t reach you, they&apos;re likely your
+        competitor&apos;s next booked job.
+      </p>
+      <p className="mt-4 max-w-[570px] text-[17px] leading-[1.55] text-[#94A3B8] lg:mx-0 mx-auto sm:text-lg">
         Hear how naturally Jessica can answer questions, understand what a caller
         needs, and help move the conversation toward a booked appointment. The
         production experience is designed around your business, customers,

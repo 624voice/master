@@ -6,7 +6,7 @@ import { formatCurrency } from "~/lib/roi/formatCurrency";
 import { selectModerateScenarioValue } from "~/lib/assessment/selectModerateScenario";
 
 const DISCLAIMER =
-  "This Assessment is directional and based on the information you provided. It is a starting point, not a full operational diagnosis. A paid AI Revenue and Operations Diagnostic is used only when a deeper review is warranted.";
+  "This Assessment is directional and based on the information you provided. It is a starting point for choosing priorities, not a full operational audit.";
 
 const REPORT_UNAVAILABLE_MESSAGE =
   "Report temporarily unavailable. Please try again in a moment.";

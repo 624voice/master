@@ -26,7 +26,7 @@ function assertNoStaleKeys(serialized: string, label: string): void {
 
 function buildStaleEngine(): AssessmentEngine {
   const engine = new AssessmentEngine();
-  engine.onScreeningAnswered("GF", 3);
+  engine.onScreeningAnswered("GF", 0);
   engine.setAnswer("GF-F1", 2);
   engine.setAnswer("GF-F2", 1);
   engine.setAnswer("GF-F3", 0);
@@ -34,7 +34,7 @@ function buildStaleEngine(): AssessmentEngine {
   engine.setAnswer("RG-S", 0);
   engine.setAnswer("RM-S", 0);
   engine.setAnswer("MI-S", 0);
-  engine.onScreeningChanged("GF", 0);
+  engine.onScreeningChanged("GF", 3);
   return engine;
 }
 

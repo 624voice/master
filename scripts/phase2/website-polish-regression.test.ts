@@ -33,7 +33,7 @@ describe("Phase 2 website polish regression", () => {
     const howTitles = HOW_WE_WORK_STEPS.map((s) => s.title);
     expect(homeTitles).toEqual(howTitles);
     expect(homeTitles).toEqual([
-      "Diagnose the Leaks",
+      "Understand the Opportunity",
       "Build the Roadmap",
       "Connect the System",
       "Prove and Improve",
@@ -52,7 +52,7 @@ describe("Phase 2 website polish regression", () => {
     const index = readFileSync(join(REPO, "src/routes/index.tsx"), "utf8");
     expect(index).toContain('"AI Growth Systems for Home Services | 624 Voice"');
     const book = readFileSync(join(REPO, "src/routes/book.tsx"), "utf8");
-    expect(book).toContain('"Schedule Your Consultation | 624 Voice"');
+    expect(book).toContain('"Schedule Your 30-Minute Consultation | 624 Voice"');
   });
 
   test("footer routes explore options and choose time separately", () => {
@@ -81,7 +81,7 @@ describe("Phase 2 website polish regression", () => {
     const index = readFileSync(join(REPO, "src/routes/index.tsx"), "utf8");
     expect(index).toContain("Never Let Another Good Call Go Unanswered");
     expect(index).toContain("Find Your Lost Revenue");
-    expect(index).toContain(PUBLIC_CTA.assessmentHref);
+    expect(index).toContain("PUBLIC_CTA.assessmentHref");
     expect(index).not.toContain("Why 624 Voice");
     expect(index).not.toContain("18+ Years Turning Technology");
   });

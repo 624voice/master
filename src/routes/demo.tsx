@@ -5,7 +5,7 @@ import {
   trackConversionEvent,
 } from "~/lib/analytics/conversionIntent";
 import { FEATURE_FLAGS } from "~/config/features";
-import { BOOK_MEETING_PATH } from "~/config/features";
+import { PUBLIC_CTA } from "~/content/publicConversion";
 import { is90DayResultsGuaranteeEligible } from "~/lib/marketing/guaranteeEligibility";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
@@ -40,9 +40,6 @@ function DemoPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
-  const [website, setWebsite] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -96,9 +93,6 @@ function DemoPage() {
           firstName,
           lastName,
           businessName,
-          websiteOption,
-          website: websiteOption === "has" ? website : undefined,
-          email,
           phone,
           smsConsent,
         },
@@ -132,12 +126,6 @@ function DemoPage() {
     setLastName,
     businessName,
     setBusinessName,
-    websiteOption,
-    setWebsiteOption,
-    website,
-    setWebsite,
-    email,
-    setEmail,
     phone,
     setPhone,
     smsConsent,
@@ -250,37 +238,15 @@ function DemoPage() {
               Ready to Answer Every Call?
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Book your AI Growth Systems Consultation and we&apos;ll walk through
-              how 624 Voice fits your business.
+              Tell us about your business and we&apos;ll help you choose a sensible
+              next step.
             </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <a
-                href={BOOK_MEETING_PATH}
-                className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
-              >
-                Book Your Consultation
-              </a>
-              <a
-                href="/"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
-              >
-                Back to Home
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </a>
-            </div>
+            <a
+              href={PUBLIC_CTA.exploreOptionsHref}
+              className="mt-8 inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
+            >
+              {PUBLIC_CTA.exploreOptions}
+            </a>
           </div>
         </div>
       </section>

@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
-import { WaveformDetail } from "~/components/marketing/MarketingCards";
+import { PUBLIC_CTA } from "~/content/publicConversion";
+
+const APPROVED_MISSION_COPY =
+  "624 helps home-service companies recover lost revenue and grow without adding office headcount by automating repetitive customer-facing work and moving every opportunity to the next right step, from first contact through repeat business, across the systems they already use.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -11,7 +14,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Learn how 624 Voice brings practical AI, disciplined implementation, and honest recommendations to growing home-service companies.",
+          "Learn why 624 Voice exists, what Matthew 6:24 means for how we work, and how we help home-service companies reclaim time and revenue.",
       },
     ],
   }),
@@ -24,30 +27,23 @@ function About() {
       <MarketingNavyHero
         testId="about-hero"
         headingId="about-hero-heading"
-        eyebrow="Why 624 Voice"
-        supporting="624 Voice helps growing home-service companies improve how they attract, respond to, convert, and retain customers through diagnosis, design, implementation, and measurement."
+        eyebrow="Our Story"
+        decorIcons
+        supporting="Faith, family, and a business that serves you—not the other way around."
       >
-        <span className="text-white">Practical AI for the Work That </span>
-        <span className="text-brand-primary">Keeps a Business Moving</span>
+        <span className="text-white">Built to Help You Serve </span>
+        <span className="text-brand-primary">What Matters Most</span>
       </MarketingNavyHero>
 
       <section className="bg-white px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-2xl border border-brand-primary/20 bg-gradient-to-br from-brand-primary-light/40 to-white p-8 shadow-md">
-            <WaveformDetail className="absolute right-6 top-6 opacity-40" />
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-primary-dark">
-              Matthew 6:24
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="rounded-2xl border border-gray-100 bg-brand-accent-light p-12">
+            <p className="text-2xl font-medium italic leading-relaxed text-brand-secondary sm:text-3xl">
+              &ldquo;No one can serve two masters. Either you will hate the one and
+              love the other, or you will be devoted to the one and despise the
+              other. You cannot serve both God and money.&rdquo;
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-brand-secondary">
-              Why the name 624
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-gray-700">
-              624 references Matthew 6:24: you can&apos;t serve two masters. For
-              us, that&apos;s a simple operating rule: technology should serve the
-              people using it, not the other way around. We&apos;d rather tell a
-              business no immediate change is needed than sell something that
-              doesn&apos;t actually help.
-            </p>
+            <p className="mt-6 text-base text-gray-500">— Matthew 6:24 (NIV)</p>
           </div>
         </div>
       </section>
@@ -55,59 +51,71 @@ function About() {
       <section className="bg-brand-accent-light px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            A Founder-Led Practice
+            Why &ldquo;624&rdquo;?
           </h2>
-          <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            624 Voice is a founder-led practice built to give growing home-service
-            companies direct, accountable guidance from diagnosis through
-            implementation and ongoing improvement.
-          </p>
-          <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            The work is informed by more than 18 years across business
-            communications, enterprise technology, customer experience, contact
-            centers, and modernization. That experience now includes enterprise AI
-            agents and customer operations.
-          </p>
-          <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            Faith shapes how we work through stewardship, integrity, service, and
-            keeping commitments. It also means being honest when the right
-            recommendation is no change at all.
-          </p>
+          <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
+            <p>
+              The number in our name comes from Matthew 6:24 — a verse that
+              uses startling language on purpose. The original Greek word for
+              &ldquo;serve&rdquo; in this passage is <em>douleuō</em>, which literally means
+              &ldquo;to be a slave to.&rdquo;
+            </p>
+            <p>
+              Jesus isn&apos;t being polite here. He&apos;s saying: you will be a slave to
+              something. The question is not{" "}
+              <em>if you will serve a master</em> — it&apos;s{" "}
+              <em>which master you will serve</em>.
+            </p>
+            <p>
+              We started 624 Voice because we saw too many home services
+              owners — good people, skilled tradesmen, family men and women —
+              who had become slaves to their own businesses. The business they
+              built to provide for their family was consuming their family. They
+              were missing dinner, missing games, missing vacations, missing
+              life.
+            </p>
+            <p>
+              We believe your business should serve you — not the other way
+              around. When your business runs on its own, you&apos;re free to serve
+              what matters most: your family, your faith, and your purpose.
+            </p>
+          </div>
         </div>
       </section>
 
       <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Why quarterly reviews matter to us
+            Our Mission
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-gray-700">
-            Quarterly business reviews compare the work with the measures agreed at
-            the start. They show what is working, what needs attention, and
-            whether the next investment is justified.
+            {APPROVED_MISSION_COPY}
           </p>
         </div>
       </section>
 
       <section className="bg-brand-secondary px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm text-gray-400">
-            Bring the problem you want to solve. Leave with a clearer next step.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <a
-              href="/contact"
-              className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
+          <a
+            href={PUBLIC_CTA.exploreOptionsHref}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
+          >
+            {PUBLIC_CTA.exploreOptions}
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
             >
-              Book Your AI Growth Systems Consultation
-            </a>
-            <a
-              href="/assessment"
-              className="inline-flex rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
-            >
-              Get Your Free Assessment
-            </a>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </a>
         </div>
       </section>
     </main>

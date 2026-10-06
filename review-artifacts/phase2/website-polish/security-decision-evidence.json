@@ -19,6 +19,23 @@
   },
   "decisions": [
     {
+      "id": "owner-qa-preview-open-no-basic-auth-checkpoint2-2026-10-06",
+      "action": "Authorize owner-QA Netlify preview without HTTP Basic Auth only; noindex edge gate remains",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on 624voice-phase2-owner-qa Netlify site only; HTTP Basic Auth not enforced on that surface",
+      "surfaces": [
+        "624voice-phase2-owner-qa Netlify site (PHASE2_OWNER_QA_PREVIEW)"
+      ],
+      "scopeFromSpecSection2": "Owner-QA preview for visual/conversion review only: disable visitor HTTP Basic Auth on the phase2 owner-QA Netlify deploy; keep X-Robots-Tag noindex edge gate; do not change production www.624voice.com visitor auth; do not weaken edge gate or extend open access to other surfaces without separate explicit authorization.",
+      "ownerMessageVerbatim": "remember this rule for 624voice.com: do not require HTTP Basic Auth\n\nremove HTTP Basic Auth",
+      "ownerMessageRecordedAt": "2026-10-06T14:51:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Chris authorized owner-QA Netlify preview review without HTTP Basic Auth only, within section 2 scope (owner-QA surface, noindex gate retained, production unchanged)."
+      }
+    },
+    {
       "id": "no-basic-auth-standing-rule-2026-10-06",
       "action": "Remove HTTP Basic Auth from 624voice.com preview surfaces; keep noindex edge gate",
       "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on deploy-preview and owner-QA Netlify contexts",

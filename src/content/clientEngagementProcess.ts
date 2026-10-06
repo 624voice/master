@@ -2,11 +2,9 @@
 export const CLIENT_ENGAGEMENT_STEPS = [
   {
     step: 1,
-    title: "Diagnose the Leaks",
-    body: "Understand how leads, customers, information, and routine work move through the business today. Identify the points where opportunities, time, or visibility are being lost.",
+    title: "Understand the Opportunity",
+    body: "Find where leads, time, and visibility are being lost in the business today.",
     deliverable: "Clear problem definition",
-    noteUnderStep1:
-      "If the real constraint is unclear or crosses several systems, the next step may be a paid AI Revenue and Operations Diagnostic.",
   },
   {
     step: 2,
@@ -31,19 +29,15 @@ export const CLIENT_ENGAGEMENT_STEPS = [
 export const HOW_WE_WORK_STEPS = [
   {
     step: 1,
-    title: "Diagnose the Leaks",
-    body: "We begin with a free AI Growth Systems Consultation focused on the result you want, how the work happens today, where friction is most visible, and which tools are already in place. If the real constraint is unclear or crosses several systems, we may recommend a paid AI Revenue and Operations Diagnostic before anything is built.",
-    deliverable: "Recommended next step or deeper Diagnostic",
-    trustHighlight:
-      "You keep the roadmap whether or not you choose 624 Voice for implementation.",
+    title: "Understand the Opportunity",
+    body: "We begin with a free AI Growth Systems Consultation focused on the result you want, how the work happens today, where friction is most visible, and which tools are already in place. You leave knowing whether the next step is a focused project or genuinely no change right now.",
+    deliverable: "Recommended next step",
   },
   {
     step: 2,
     title: "Build the Roadmap",
-    body: "Whether the work begins with a focused consultation or a deeper Diagnostic, you receive a prioritized plan that explains what to fix first, why it matters, what it depends on, and how success will be measured.",
+    body: "After you choose to engage, we define a prioritized plan that explains what to fix first, why it matters, what it depends on, and how success will be measured.",
     deliverable: "Prioritized roadmap and focused scope",
-    trustHighlight:
-      "You keep the roadmap whether or not you choose 624 Voice for implementation.",
   },
   {
     step: 3,

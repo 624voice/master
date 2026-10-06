@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerLifecycleDiagram } from "~/components/CustomerLifecycleDiagram";
-import { FEATURE_FLAGS } from "~/config/features";
+import { FloatingTradeIcons } from "~/components/icons";
+import { PUBLIC_CTA } from "~/content/publicConversion";
 
 export const Route = createFileRoute("/what-we-do")({
   head: () => ({
@@ -31,32 +32,6 @@ type LifecycleSection = {
   cta?: { label: string; href: string };
 };
 
-const reduceManualWorkCards: CapabilityCard[] = [
-  {
-    title: "CRM Integrations",
-    description:
-      "Connects the systems you already use so information moves through the process without repeated entry.",
-  },
-  {
-    title: "Workflow Automation",
-    description:
-      "Automates the routine handoffs and notifications between tools.",
-  },
-  {
-    title: "Responsible Data Movement",
-    description:
-      "Moves customer and job data between systems accurately, with a clear audit trail.",
-  },
-];
-
-if (FEATURE_FLAGS.SHOW_PAYMENT_BALANCE_CARD) {
-  reduceManualWorkCards.push({
-    title: "Administrative Payment and Balance Reminders",
-    description:
-      "Routine, first-party reminders for your own completed-work invoices, with any dispute, hardship, or legal question handed to a person immediately. Not debt collection.",
-  });
-}
-
 const lifecycleSections: LifecycleSection[] = [
   {
     id: "get-found",
@@ -64,19 +39,19 @@ const lifecycleSections: LifecycleSection[] = [
     body: "If your website is slow, thin on real information, or hard for search and AI tools to understand, some of this starts before the phone ever rings. This is the first link in the chain: nothing downstream matters yet if people can't find you or don't trust what they find.",
     cards: [
       {
-        title: "SEO-Ready Websites",
+        title: "Help Homeowners Find You Online",
         description:
-          "New websites and redesigns built to load quickly, explain your services clearly, and give search engines useful information about the areas you serve.",
+          "Websites and redesigns that load quickly, explain your services clearly, and give search engines useful information about the areas you serve.",
       },
       {
-        title: "Local Search Optimization",
+        title: "Show Up in Local Search",
         description:
-          "Google Business Profile, local listings, and the on-page details that help you show up for nearby searches.",
+          "Google Business Profile, local listings, and on-page details that help you appear for nearby searches.",
       },
       {
-        title: "AI Discoverability Consulting",
+        title: "Get Found in Search and AI Answers",
         description:
-          "Organizing your services, service areas, credentials, and FAQs so search engines and AI assistants can accurately understand your business.",
+          "Services, service areas, credentials, and FAQs organized so search engines and AI assistants understand your business accurately.",
       },
     ],
     cta: { label: "See How the Journey Fits Together", href: "/how-we-work" },
@@ -87,22 +62,22 @@ const lifecycleSections: LifecycleSection[] = [
     body: "A homeowner's need is often immediate. A fast, useful response gives the business a better chance to answer the question, capture the details, and move the request forward. You can hear this stage for yourself in the Live Demo.",
     cards: [
       {
-        title: "Voice AI Receptionists",
+        title: "Book More Jobs",
         description:
-          "Answers calls, takes down what's needed, and can schedule or route the request, day or night.",
+          "Voice AI receptionists that answer calls, capture what is needed, and schedule or route the request day or night.",
       },
       {
-        title: "Voice and Text Speed-to-Lead",
+        title: "Respond in Minutes, Not Hours",
         description:
-          "Follows up on new leads within minutes by voice or text, before the moment passes.",
+          "Voice and text speed-to-lead that follows up within minutes before the moment passes.",
       },
       {
-        title: "AI Chatbots",
+        title: "Capture Web Visitors Who Won't Call",
         description:
-          "Answers common questions and captures details on your website when a visitor doesn't want to call.",
+          "AI chat that answers common questions and collects details when a visitor prefers not to pick up the phone.",
       },
     ],
-    cta: { label: "Try the Live Demo", href: "/demo" },
+    cta: { label: "Try the Live Demo", href: PUBLIC_CTA.demoHref },
   },
   {
     id: "convert",
@@ -110,14 +85,19 @@ const lifecycleSections: LifecycleSection[] = [
     body: "Responding is only part of the job. Estimates still need consistent follow-up, clear ownership, and enough visibility to understand why an opportunity moved forward or stopped.",
     cards: [
       {
-        title: "Automated Estimate Follow-Up",
+        title: "Turn More Quotes Into Booked Jobs",
         description:
-          "Keeps a quote from going cold by following up on a schedule, without relying on someone remembering to.",
+          "Automated estimate follow-up on a schedule instead of relying on memory and spare time.",
       },
       {
-        title: "CRM-Connected Follow-Up Workflows",
+        title: "Keep Follow-Up Out of Someone's Head",
         description:
-          "Connects your CRM to the follow-up work so a lead's status and history move with it instead of living in someone's head.",
+          "CRM-connected workflows so lead status and history move with the work.",
+      },
+      {
+        title: "Cut Your No-Shows",
+        description:
+          "Confirmations and reminders that protect booked capacity before the truck rolls.",
       },
     ],
     cta: { label: "See What a Consultation Covers", href: "/how-we-work" },
@@ -128,33 +108,49 @@ const lifecycleSections: LifecycleSection[] = [
     body: "The relationship can continue after the job closes. Timely review requests, useful reminders, relevant offers, and thoughtful reactivation can help a good customer stay connected.",
     cards: [
       {
-        title: "Automated Google-Review Systems",
+        title: "Win More Repeat Revenue",
         description:
-          "Asks for reviews at the right moment, consistently, instead of whenever someone remembers to.",
+          "Reactivation and seasonal outreach that turns your customer list into recurring demand.",
       },
       {
-        title: "Upsell Campaigns",
+        title: "Raise Your Average Ticket",
         description:
-          "Surfaces relevant add-on or seasonal offers to customers who already trust you.",
+          "Relevant add-on and seasonal offers surfaced while trust is still high.",
       },
       {
-        title: "Customer Reminders",
+        title: "Bring Customers Back Before They Call a Competitor",
         description:
-          "Service and maintenance reminders that bring a customer back before they call a competitor.",
+          "Service and maintenance reminders that keep good customers on your calendar.",
       },
       {
-        title: "Reactivation Campaigns",
+        title: "Voice AI Outbound Collections",
         description:
-          "Reconnects with past customers who haven't booked in a while.",
+          "First-party payment and balance reminders for your own completed-work invoices, with disputes, hardship, or legal questions handed to a person immediately. Not debt collection.",
       },
     ],
     cta: { label: "See How the Journey Fits Together", href: "/how-we-work" },
   },
   {
     id: "reduce-manual-work",
-    heading: "Reduce Manual Work: Is the business still running on manual effort?",
+    heading: "Get Your Time Back: Is the business still running on manual effort?",
     body: "Routine administrative work adds up. We connect systems, automate appropriate handoffs, and keep people responsible for exceptions that require judgment.",
-    cards: reduceManualWorkCards,
+    cards: [
+      {
+        title: "Connect the Tools You Already Use",
+        description:
+          "CRM integrations so information moves through the process without repeated entry.",
+      },
+      {
+        title: "Automate Routine Handoffs",
+        description:
+          "Workflow automation for the notifications and transfers between tools.",
+      },
+      {
+        title: "Move Data Without Retyping It",
+        description:
+          "Responsible data movement between systems with a clear audit trail.",
+      },
+    ],
   },
   {
     id: "measure-and-improve",
@@ -162,29 +158,24 @@ const lifecycleSections: LifecycleSection[] = [
     body: "Improvement needs evidence. Reporting and regular reviews connect day-to-day activity with the business outcomes used to choose the next priority.",
     cards: [
       {
-        title: "Custom Dashboards and Reporting",
+        title: "See What's Working in One Place",
         description:
-          "A clear view of leads, response, booking, and revenue in one place instead of scattered across systems.",
+          "Custom dashboards for leads, response, booking, and revenue instead of scattered reports.",
       },
       {
-        title: "AI Tool Assessments",
+        title: "Review the Numbers That Matter",
         description:
-          "An honest look at what's already in place and what's actually earning its keep. Available as part of the paid AI Revenue and Operations Diagnostic.",
+          "KPI reviews focused on the measures your business actually uses to decide.",
       },
       {
-        title: "KPI Reviews",
+        title: "Connect Changes to Business Results",
         description:
-          "Regular check-ins on the numbers that matter for your business specifically.",
-      },
-      {
-        title: "Quarterly Business Reviews",
-        description:
-          "A standing meeting that connects what changed to what it's worth, and sets the next priority.",
+          "Quarterly business reviews that tie operational changes to outcomes and set the next priority.",
       },
     ],
     cta: {
-      label: "Book Your AI Growth Systems Consultation",
-      href: "/contact",
+      label: PUBLIC_CTA.exploreOptions,
+      href: PUBLIC_CTA.exploreOptionsHref,
     },
   },
 ];
@@ -219,14 +210,15 @@ function SectionCta({ label, href }: { label: string; href: string }) {
 function WhatWeDoPage() {
   return (
     <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="relative overflow-hidden bg-brand-secondary px-6 py-24 sm:py-32">
+        <FloatingTradeIcons className="motion-reduce:opacity-[0.04]" />
+        <div className="relative mx-auto max-w-3xl text-center">
           <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            How it all fits together
+            What we improve
           </span>
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Improve the Customer Journey{" "}
-            <span className="text-brand-primary">One Priority at a Time</span>
+            Fix the Gaps Costing You{" "}
+            <span className="text-brand-primary">Leads, Time and Revenue</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
             Home-service companies rarely need every AI tool on the market. They
@@ -240,7 +232,7 @@ function WhatWeDoPage() {
 
       <section className="bg-white px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <CustomerLifecycleDiagram />
+          <CustomerLifecycleDiagram showHeadline compact />
         </div>
       </section>
 
@@ -286,27 +278,15 @@ function WhatWeDoPage() {
       <section className="bg-brand-secondary px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-lg leading-relaxed text-gray-300">
-            We recommend the right priorities for your business, not every tool
-            on this page. A Consultation is the fastest way to find out which of
-            these six areas is actually worth fixing first.
+            Tell us where leads, follow-up, or routine work are slowing the
+            business down. We&apos;ll help you choose a sensible first priority.
           </p>
-          <p className="mt-4 text-sm text-gray-400">
-            The right scope depends on where your operation needs attention now.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <a
-              href="/contact"
-              className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
-            >
-              Book Your AI Growth Systems Consultation
-            </a>
-            <a
-              href="/assessment"
-              className="inline-flex rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
-            >
-              Get Your Free Assessment
-            </a>
-          </div>
+          <a
+            href={PUBLIC_CTA.exploreOptionsHref}
+            className="mt-8 inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
+          >
+            {PUBLIC_CTA.exploreOptions}
+          </a>
         </div>
       </section>
     </main>

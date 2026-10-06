@@ -26,7 +26,7 @@ export type AssessmentReportViewModel = {
 };
 
 const DISCLAIMER =
-  "This Assessment is directional and based on the information you provided. It is a starting point, not a full operational diagnosis. A paid AI Revenue and Operations Diagnostic is used only when a deeper review is warranted.";
+  "This Assessment is directional and based on the information you provided. It is a starting point for choosing priorities, not a full operational audit.";
 
 function toDimensionView(
   dimension: RunAssessmentResult["priorityGroups"][number][number],

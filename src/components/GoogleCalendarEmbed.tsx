@@ -16,7 +16,7 @@ export function GoogleCalendarEmbed({ className = "" }: { className?: string }) 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       if (!loaded) setFailed(true);
-    }, 12_000);
+    }, 8_000);
     return () => window.clearTimeout(timer);
   }, [loaded]);
 

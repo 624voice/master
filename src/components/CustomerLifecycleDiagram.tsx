@@ -22,12 +22,16 @@ type CustomerLifecycleDiagramProps = {
   className?: string;
   showHeadline?: boolean;
   showNote?: boolean;
+  /** When true, show dimension + primary labels only (no description paragraph). */
+  compact?: boolean;
 };
 
 function StageCard({
   stage,
+  compact = false,
 }: {
   stage: (typeof CUSTOMER_JOURNEY_STAGES)[number];
+  compact?: boolean;
 }) {
   return (
     <div
@@ -45,7 +49,9 @@ function StageCard({
       <p className="text-base font-bold leading-snug text-brand-secondary">
         {stage.primaryLabel}
       </p>
-      <p className="mt-2 text-sm leading-snug text-gray-600">{stage.description}</p>
+      {compact ? null : (
+        <p className="mt-2 text-sm leading-snug text-gray-600">{stage.description}</p>
+      )}
     </div>
   );
 }
@@ -54,6 +60,7 @@ export function CustomerLifecycleDiagram({
   className = "",
   showHeadline = true,
   showNote = false,
+  compact = false,
 }: CustomerLifecycleDiagramProps) {
   return (
     <figure className={className} aria-label={CUSTOMER_JOURNEY_ARIA_LABEL}>
@@ -67,7 +74,7 @@ export function CustomerLifecycleDiagram({
       <ol className="mx-auto flex max-w-md list-none flex-col gap-0 p-0 md:hidden">
         {CUSTOMER_JOURNEY_STAGES.map((stage, index) => (
           <li key={stage.id}>
-            <StageCard stage={stage} />
+            <StageCard stage={stage} compact={compact} />
             {index < CUSTOMER_JOURNEY_STAGES.length - 1 ? (
               <div className="flex justify-center py-2" aria-hidden="true">
                 <span className="text-lg text-brand-accent">↓</span>
@@ -81,7 +88,7 @@ export function CustomerLifecycleDiagram({
       <ol className="mx-auto hidden max-w-4xl list-none grid-cols-2 gap-4 p-0 md:grid lg:hidden">
         {CUSTOMER_JOURNEY_STAGES.map((stage) => (
           <li key={stage.id} className="min-w-0">
-            <StageCard stage={stage} />
+            <StageCard stage={stage} compact={compact} />
           </li>
         ))}
       </ol>
@@ -91,7 +98,7 @@ export function CustomerLifecycleDiagram({
         {CUSTOMER_JOURNEY_STAGES.map((stage, index) => (
           <li key={stage.id} className="flex min-w-0 flex-1 items-stretch">
             <div className="min-w-0 flex-1">
-              <StageCard stage={stage} />
+              <StageCard stage={stage} compact={compact} />
             </div>
             {index < CUSTOMER_JOURNEY_STAGES.length - 1 ? (
               <div

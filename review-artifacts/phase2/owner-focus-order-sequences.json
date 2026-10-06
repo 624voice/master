@@ -15,15 +15,14 @@
     }
   },
   "desktopNavFrom624Voice": {
-    "tabCountToRoiCalculator": 4,
-    "tabCountToBookConsultation": 6,
+    "tabCountToFreeRevenueAssessment": 4,
+    "tabCountToExploreOptions": 5,
     "sequence": [
       "A: What We Do",
       "A: How We Work",
       "A: Live Demo",
-      "A: ROI Calculator",
-      "A: Free Assessment",
-      "A: Book Your AI Growth Systems Consultation"
+      "A: Free Revenue Assessment",
+      "A: Explore Your Options"
     ]
   },
   "captures": [
@@ -65,16 +64,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -180,16 +179,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -279,16 +278,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -378,16 +377,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -477,16 +476,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -576,16 +575,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
@@ -707,16 +706,16 @@
         {
           "tag": "A",
           "role": null,
-          "name": "ROI Calculator",
+          "name": "Free Revenue Assessment",
           "id": null,
-          "href": "/roi-calculator"
+          "href": "/assessment"
         },
         {
           "tag": "A",
           "role": null,
-          "name": "Free Assessment",
+          "name": "Explore Your Options",
           "id": null,
-          "href": "/assessment"
+          "href": "/contact"
         },
         {
           "tag": "A",
