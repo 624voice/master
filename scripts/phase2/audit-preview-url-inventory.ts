@@ -49,7 +49,7 @@ function urlMatches(canonical: string, label: string): boolean {
 }
 
 const canonical =
-  process.env.OWNER_QA_URL ?? "https://6ac53bbaacc0499e7f834096--624voice-phase2-owner-qa.netlify.app";
+  process.env.OWNER_QA_URL ?? "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app";
 const pr98 = process.env.PR98_URL ?? "https://deploy-preview-98--624voice.netlify.app";
 
 const prior = JSON.parse(readFileSync(IN, "utf8")) as { results: Row[] };

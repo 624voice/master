@@ -1,22 +1,46 @@
 /**
  * Sanitized live security proofs. Never prints credentials.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
+
+function loadPreviewBasicAuthCreds(): { user: string; pass: string } | undefined {
+  const user = process.env.PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_USER?.trim();
+  const pass = process.env.PHASE2_NETLIFY_PREVIEW_BASIC_AUTH_PASSWORD?.trim();
+  if (user && pass) return { user, pass };
+  const artifact =
+    process.env.PHASE2_PREVIEW_AUTH_ARTIFACT ??
+    "/opt/cursor/artifacts/netlify-owner-qa-preview-basic-auth.txt";
+  try {
+    const text = readFileSync(artifact, "utf8");
+    const map = Object.fromEntries(
+      text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const i = line.indexOf("=");
+          return [line.slice(0, i), line.slice(i + 1)] as const;
+        }),
+    );
+    if (map.user && map.password) return { user: map.user, pass: map.password };
+  } catch {
+    /* optional artifact */
+  }
+  return undefined;
+}
 
 const OUT =
   process.argv[2] ??
   join(import.meta.dir, "../../review-artifacts/phase2/website-polish/pr98-deploy-preview-auth-proof.json");
 const OWNER_QA_URL = (
-  process.env.OWNER_QA_URL ?? "https://6ac53bbaacc0499e7f834096--624voice-phase2-owner-qa.netlify.app"
+  process.env.OWNER_QA_URL ?? "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app"
 ).replace(/\/$/, "");
 const PR98_URL = (process.env.PR98_URL ?? "https://deploy-preview-98--624voice.netlify.app").replace(
   /\/$/,
   "",
 );
-const MAIN_SITE_ID = process.env.PHASE2_NETLIFY_MAIN_SITE_ID ?? "4a60ce60-c975-4c5f-901e-451adcbb16ab";
-
 type Capture = {
   label: string;
   url: string;
@@ -55,20 +79,15 @@ function capture(label: string, url: string, auth?: { user: string; pass: string
   };
 }
 
-execSync("netlify unlink >/dev/null 2>&1 || true", { stdio: "ignore" });
-execSync(`netlify link --id ${MAIN_SITE_ID}`, { stdio: "ignore" });
-const user = execSync("netlify env:get PHASE2_OWNER_QA_EDGE_BASIC_AUTH_USER --context deploy-preview", {
-  encoding: "utf8",
-}).trim();
-const pass = execSync("netlify env:get PHASE2_OWNER_QA_EDGE_BASIC_AUTH_PASS --context deploy-preview", {
-  encoding: "utf8",
-}).trim();
+const auth = loadPreviewBasicAuthCreds();
 
-const homeHtml = execSync(`curl -sS '${PR98_URL}/'`, { encoding: "utf8" });
+const homeHtml = auth
+  ? execSync(`curl -sS -u '${auth.user.replace(/'/g, "'\\''")}:${auth.pass.replace(/'/g, "'\\''")}' '${PR98_URL}/'`, {
+      encoding: "utf8",
+    })
+  : execSync(`curl -sS '${PR98_URL}/'`, { encoding: "utf8" });
 const assetMatch = homeHtml.match(/\/assets\/[^"'\s]+\.js/);
-const assetPath = assetMatch?.[0] ?? "/assets/";
-
-const auth = user && pass ? { user, pass } : undefined;
+const assetPath = assetMatch?.[0] ?? "/assets/index-2mKZHDUI.js";
 
 const results = {
   capturedAt: new Date().toISOString(),
