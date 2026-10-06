@@ -133,6 +133,6 @@
     "Demo form disclosure and optional SMS",
     "ROI assumptions before unlock",
     "Book embed timezone (ctz) and 30-minute Google Calendar admin step",
-    "Protected preview login via owner credential artifact only"
+    "Open preview URLs (no Basic Auth); confirm noindex in page source or response headers"
   ]
 }

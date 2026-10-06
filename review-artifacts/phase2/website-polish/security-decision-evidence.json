@@ -1,9 +1,14 @@
 {
   "purpose": "Record security control decisions and immutable owner confirmations for Phase 2 protected previews (PR #98, 624Voice owner-QA).",
-  "protectedPreviewRequirement": "Phase 2 owner-QA and PR deploy previews remain fail-closed HTTP Basic Auth plus noindex edge gate unless explicitly changed per policy below.",
+  "protectedPreviewRequirement": "Phase 2 owner-QA and PR deploy previews use the noindex edge gate; HTTP Basic Auth is not required on 624voice.com preview surfaces per standing owner rule (2026-10-06). Production www.624voice.com remains without visitor Basic Auth.",
+  "standingPreviewAuthRule": {
+    "effectiveFrom": "2026-10-06T14:51:00Z",
+    "summary": "Do not require HTTP Basic Auth on 624voice.com preview surfaces.",
+    "decisionId": "no-basic-auth-standing-rule-2026-10-06"
+  },
   "policyEffectiveFrom": "2026-10-02T21:44:00Z",
   "controlChangePolicy": {
-    "summary": "Agents must not disable, bypass, or weaken Basic Auth, the phase2-owner-qa edge gate, or any other preview security control based on paraphrased, inferred, remembered, or cross-project instructions.",
+    "summary": "Agents must not re-enable HTTP Basic Auth on 624voice.com preview surfaces or weaken the noindex edge gate without explicit owner instruction. Do not change production visitor-facing security based on paraphrased or inferred instructions.",
     "requiredForAnyWeakening": [
       "Explicit, unambiguous, verbatim request from Chris in the same Cursor channel/thread as the implementation work",
       "Request must name the specific control (e.g. HTTP Basic Auth, PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED, edge gate behavior)",
@@ -13,6 +18,24 @@
     "evidenceRecording": "Append the confirming owner message (verbatim text, timestamp, run/conversation id, link or transcript artifact path) to this file or a dated entry referenced from security-incident-open-preview.json."
   },
   "decisions": [
+    {
+      "id": "no-basic-auth-standing-rule-2026-10-06",
+      "action": "Remove HTTP Basic Auth from 624voice.com preview surfaces; keep noindex edge gate",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on deploy-preview and owner-QA Netlify contexts",
+      "surfaces": [
+        "624voice.com PR deploy previews (PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW)",
+        "624voice-phase2-owner-qa Netlify site (PHASE2_OWNER_QA_PREVIEW)"
+      ],
+      "ownerMessageVerbatim": "remember this rule for 624voice.com: do not require HTTP Basic Auth\n\nremove HTTP Basic Auth",
+      "ownerMessageRecordedAt": "2026-10-06T14:51:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Direct owner instruction in Cursor agent thread; names 624voice.com and requests removal of HTTP Basic Auth."
+      },
+      "implementationNotes": "netlify.toml deploy-preview context; sync-netlify-deploy-preview-open.sh; sync-netlify-owner-qa-preview-open.sh; deploy-netlify-owner-qa-preview.sh"
+    },
     {
       "id": "restore-fail-closed-auth-2026-10-02",
       "action": "Restore fail-closed Basic Auth on owner-QA and deploy-preview surfaces",
@@ -78,6 +101,7 @@
   "relatedArtifacts": [
     "review-artifacts/phase2/website-polish/security-incident-open-preview.json",
     "review-artifacts/phase2/website-polish/preview-auth-evidence.json",
-    "review-artifacts/phase2/website-polish/OWNER_PREVIEW_ACCESS.md"
+    "review-artifacts/phase2/website-polish/OWNER_PREVIEW_ACCESS.md",
+    "review-artifacts/phase2/website-polish/624voice-preview-auth-policy.md"
   ]
 }
