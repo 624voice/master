@@ -1,6 +1,6 @@
 {
   "rangeStartSha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
-  "rangeEndSha": "df4c9d1f87819e7e68414c0711b5c7b2ce76811d",
+  "rangeEndSha": "0a52557482cb6eec09d41a6af44d44aaac9e5ded",
   "gitLogReverse": "9a8a8dec301b74697970b1aed90d682a8752e325 2026-10-06T21:38:21+00:00 fix(phase2): load preview auth creds from artifact for live proof capture\n74ecf147c695514ea949c8223dff00832fa08aa7 2026-10-06T21:38:23+00:00 docs(phase2): corrective security evidence, test baselines, and owner-QA deploy proofs\nfbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78 2026-10-06T21:38:33+00:00 docs(phase2): pin SHA reconciliation table to evidence HEAD\ndf4c9d1f87819e7e68414c0711b5c7b2ce76811d 2026-10-06T21:38:59+00:00 docs(phase2): align SHA reconciliation with evidence HEAD",
   "commits": [
     {
@@ -36,8 +36,15 @@
       "sha": "df4c9d1f87819e7e68414c0711b5c7b2ce76811d",
       "timestampUtc": "2026-10-06T21:38:59+00:00",
       "subject": "docs(phase2): align SHA reconciliation with evidence HEAD",
-      "role": "range_endpoint_at_time_of_verification",
       "classification": "Documentation/handoff artifact",
+      "affectsRuntime": false
+    },
+    {
+      "sha": "0a52557482cb6eec09d41a6af44d44aaac9e5ded",
+      "timestampUtc": "2026-10-07T11:47:26+00:00",
+      "subject": "docs(phase2): evidence-record corrections — Oct 5 timeline, commit range, 14-fail table, preview taxonomy",
+      "role": "range_endpoint_evidence_head",
+      "classification": "Documentation/handoff artifact + evidence tooling (audit script taxonomy)",
       "affectsRuntime": false
     }
   ],
