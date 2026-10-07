@@ -120,35 +120,81 @@
     },
     {
       "id": "second-open-preview-and-restore-2026-10-05",
-      "action": "Second cycle: previews were opened, then the conversion pass restored fail-closed protection",
-      "openAccessCommit": "c06761d7aa70619520bd80f109d384a1f58ad6e2",
-      "openAccessDeployedApprox": "2026-10-05T17:20:00Z",
-      "openAccessSurfaces": [
-        "https://deploy-preview-98--624voice.netlify.app/",
-        "624voice-phase2-owner-qa Netlify site (deploy 6ac3ce0b4ddd1b7b069d8a19)"
-      ],
+      "action": "Second cycle: previews were opened, then fail-closed protection was restored inside a broader conversion commit",
+      "gitCorrectionInterval": {
+        "openingCommitSha": "c06761d7aa70619520bd80f109d384a1f58ad6e2",
+        "openingAuthorTimestampUtc": "2026-10-05T16:18:36Z",
+        "openingCommitterTimestampUtc": "2026-10-05T16:18:36Z",
+        "restoringCommitSha": "d041587f7a6c8e731691d00587fc39141db69a7b",
+        "restoringAuthorTimestampUtc": "2026-10-05T17:24:44Z",
+        "restoringCommitterTimestampUtc": "2026-10-05T17:24:44Z",
+        "duration": "66 minutes 8 seconds",
+        "note": "Git interval only; not equivalent to live anonymous-exposure duration."
+      },
+      "openingCommitMessageAuthorizationClaim": {
+        "verbatimInCommitBody": "Explicit owner request for deploy-preview-98 and phase2 owner-QA surfaces",
+        "status": "UNVERIFIED",
+        "evidenceType": "Self-asserted agent commit message; not independent authorization evidence."
+      },
+      "liveExposureWindows": {
+        "confirmedFromNetlifyDeployTimestamps": [
+          {
+            "surface": "624voice-phase2-owner-qa (open owner-QA deploy)",
+            "netlifyDeployId": "6ac3ce0b4ddd1b7b069d8a19",
+            "deployCreatedAtUtc": "2026-10-05T16:19:23.094Z",
+            "deployReadyAtUtc": "2026-10-05T16:20:00.782Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "https://6ac3ce0b4ddd1b7b069d8a19--624voice-phase2-owner-qa.netlify.app"
+          },
+          {
+            "surface": "624voice main-site PR deploy-preview (deploy-preview-98 alias)",
+            "netlifyDeployId": "6ac3cde417611f0008ae73bd",
+            "deployCreatedAtUtc": "2026-10-05T16:18:44.335Z",
+            "deployReadyAtUtc": "2026-10-05T16:19:50.257Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "UNPROVEN (alias URL; not stored on deploy record)"
+          }
+        ],
+        "restoringDeployments": [
+          {
+            "surface": "624voice-phase2-owner-qa (protected owner-QA deploy)",
+            "netlifyDeployId": "6ac3dda882a472ad10fb0280",
+            "deployCreatedAtUtc": "2026-10-05T17:26:00.154Z",
+            "deployReadyAtUtc": "2026-10-05T17:26:39.059Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app"
+          },
+          {
+            "surface": "624voice main-site PR deploy-preview",
+            "netlifyDeployId": "6ac3dd64bcbba5000899e071",
+            "deployCreatedAtUtc": "2026-10-05T17:24:52.179Z",
+            "deployReadyAtUtc": "2026-10-05T17:25:54.960Z",
+            "deployReadyField": "updated_at (published_at was null)"
+          }
+        ],
+        "ownerQaAnonymousExposureDurationFromDeployReady": "66 minutes 38.277 seconds (16:20:00.782Z → 17:26:39.059Z)",
+        "prDeployPreviewAnonymousExposureDurationFromDeployReady": "66 minutes 4.703 seconds (16:19:50.257Z → 17:25:54.960Z)",
+        "archivedLiveResponseEvidenceWhileOpen": "NOT PRESERVED (no repository artifact with anonymous HTTP 200 captures timestamped to the open deploy window)",
+        "archivedLiveResponseEvidenceAfterRestore": "review-artifacts/phase2/website-polish/preview-auth-evidence.json (401 anonymous root/health; agent-captured; verifiedAt 2026-10-05T17:30:00Z in prior record)"
+      },
+      "restoringCommitScope": {
+        "securityOnly": false,
+        "gitProvenNote": "d041587f7a6c8e731691d00587fc39141db69a7b also changes homepage, marketing components, and conversion tests; security restore is via netlify.toml (removed PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED from deploy-preview context) and scripts/phase2/deploy-netlify-owner-qa-preview.sh (fail-closed deploy + sync-netlify-deploy-preview-edge-auth.sh)."
+      },
       "authorizationSource": {
         "decisionId": "open-preview-owner-review-2026-10-05",
         "status": "UNVERIFIED",
-        "authorizationExplanation": "Unverified attribution: the implementation agent reported an owner instruction authorizing open preview access, but the cited support resolves only to an earlier agent-authored record of the same disputed instruction. No independent transcript artifact or owner confirmation has been produced.",
-        "note": "Attribution only. Technical containment for this cycle (restore of fail-closed protection, live 401 verification, correctiveProtectionCommit) remains COMPLETE and unchanged; controlChangePolicy remains in force."
+        "authorizationExplanation": "No immutable owner transcript. Opening commit message self-asserts owner request; that text is not independent evidence."
       },
       "containmentStatus": "COMPLETE",
       "correctiveProtectionCommit": "d041587f7a6c8e731691d00587fc39141db69a7b",
-      "protectionRestoredApprox": "2026-10-05T17:26:01Z",
-      "protectionRestoredDeployId": "6ac3dda882a472ad10fb0280",
-      "correctiveSurfaces": [
-        "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app/",
-        "https://deploy-preview-98--624voice.netlify.app/"
-      ],
       "liveVerificationAfterRestore": {
         "anonymousRootStatus": 401,
         "anonymousHealthStatus": 401,
         "wwwAuthenticatePresent": true,
-        "verifiedAt": "2026-10-05T17:30:00Z"
-      },
-      "netlifyConfigNote": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED removed from netlify.toml in corrective commit; edge gate unchanged.",
-      "standingSecurityControlRule": "controlChangePolicy in this file remains in force; no weakening without explicit owner instruction naming control and surface."
+        "verifiedAt": "2026-10-05T17:30:00Z",
+        "evidenceArtifact": "review-artifacts/phase2/website-polish/preview-auth-evidence.json"
+      }
     },
     {
       "id": "open-preview-owner-review-2026-10-05",

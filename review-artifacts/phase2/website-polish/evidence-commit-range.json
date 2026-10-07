@@ -1,0 +1,46 @@
+{
+  "rangeStartSha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+  "rangeEndSha": "df4c9d1f87819e7e68414c0711b5c7b2ce76811d",
+  "gitLogReverse": "9a8a8dec301b74697970b1aed90d682a8752e325 2026-10-06T21:38:21+00:00 fix(phase2): load preview auth creds from artifact for live proof capture\n74ecf147c695514ea949c8223dff00832fa08aa7 2026-10-06T21:38:23+00:00 docs(phase2): corrective security evidence, test baselines, and owner-QA deploy proofs\nfbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78 2026-10-06T21:38:33+00:00 docs(phase2): pin SHA reconciliation table to evidence HEAD\ndf4c9d1f87819e7e68414c0711b5c7b2ce76811d 2026-10-06T21:38:59+00:00 docs(phase2): align SHA reconciliation with evidence HEAD",
+  "commits": [
+    {
+      "sha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+      "timestampUtc": "2026-10-06T21:26:33+00:00",
+      "subject": "fix(security): restore PR deploy-preview auth, sanitize owner-QA health",
+      "role": "range_start_runtime_and_security",
+      "classification": "Runtime/deployment configuration + application health route",
+      "affectsRuntime": true
+    },
+    {
+      "sha": "9a8a8dec301b74697970b1aed90d682a8752e325",
+      "timestampUtc": "2026-10-06T21:38:21+00:00",
+      "subject": "fix(phase2): load preview auth creds from artifact for live proof capture",
+      "classification": "Evidence tooling only",
+      "affectsRuntime": false
+    },
+    {
+      "sha": "74ecf147c695514ea949c8223dff00832fa08aa7",
+      "timestampUtc": "2026-10-06T21:38:23+00:00",
+      "subject": "docs(phase2): corrective security evidence, test baselines, and owner-QA deploy proofs",
+      "classification": "Documentation, logs, screenshots",
+      "affectsRuntime": false
+    },
+    {
+      "sha": "fbce86d151cae5a4aa1d7fb1463ad17e1ac1bd78",
+      "timestampUtc": "2026-10-06T21:38:33+00:00",
+      "subject": "docs(phase2): pin SHA reconciliation table to evidence HEAD",
+      "classification": "Documentation/handoff artifact",
+      "affectsRuntime": false
+    },
+    {
+      "sha": "df4c9d1f87819e7e68414c0711b5c7b2ce76811d",
+      "timestampUtc": "2026-10-06T21:38:59+00:00",
+      "subject": "docs(phase2): align SHA reconciliation with evidence HEAD",
+      "role": "range_endpoint_at_time_of_verification",
+      "classification": "Documentation/handoff artifact",
+      "affectsRuntime": false
+    }
+  ],
+  "gitDiffNameStatusLiteral": "M review-artifacts/phase2/owner-keyboard-walkthrough-v5.md\nM review-artifacts/phase2/owner-keyboard-walkthrough-v5.sha256\nA review-artifacts/phase2/website-polish/CHECKPOINT2_CORRECTIVE_FINAL_HANDOFF.md\nM review-artifacts/phase2/website-polish/bun-build.log\nA review-artifacts/phase2/website-polish/bun-test-baseline-4d5491e.log\nM review-artifacts/phase2/website-polish/bun-test-full.log\nM review-artifacts/phase2/website-polish/final-visual-review-handoff.json\nA review-artifacts/phase2/website-polish/netlify-deploy-corrective.log\nA review-artifacts/phase2/website-polish/not-found-route-proof.json\nA review-artifacts/phase2/website-polish/owner-qa-health-anonymous-proof.json\nA review-artifacts/phase2/website-polish/pr98-deploy-preview-auth-proof.json\nA review-artifacts/phase2/website-polish/preview-url-inventory-live.json\nM review-artifacts/phase2/website-polish/preview-url-inventory.json\nA review-artifacts/phase2/website-polish/screenshots/404-desktop-1280.png\nA review-artifacts/phase2/website-polish/screenshots/404-mobile-375.png\nM review-artifacts/phase2/website-polish/security-chronology.md\nM review-artifacts/phase2/website-polish/security-decision-evidence.json\nA review-artifacts/phase2/website-polish/sha-reconciliation.json\nA review-artifacts/phase2/website-polish/six-failure-baseline-evidence.json\nA review-artifacts/phase2/website-polish/six-failure-current-reruns.log\nM review-artifacts/phase2/website-polish/test-failure-14-accounting.md\nA review-artifacts/phase2/website-polish/test-failure-corrected-reruns.log\nM scripts/phase2/audit-preview-url-inventory.ts\nM scripts/phase2/capture-preview-security-proof.ts",
+  "conclusion": "Literal diff from 80ee912 to df4c9d1 (at independent verification) contains no shipped application/runtime code changes—only evidence tooling under scripts/phase2 and review-artifacts."
+}

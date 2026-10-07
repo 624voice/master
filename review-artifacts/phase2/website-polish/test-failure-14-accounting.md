@@ -1,23 +1,13 @@
-# Fourteen-failure accounting (890 pass / 14 fail / 904 total snapshot)
+# Fourteen-failure accounting
 
-**Snapshot context:** Checkpoint 2 mid-pass before browser-branching and focus-order corrections (authoritative count **890 pass / 14 fail / 904 total**). A standalone log file with exactly `890 pass` was **not** found in Git history; the eight corrected rows below match the instruction’s delta to **898 pass / 6 fail / 904 total** at `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` (committed `bun-test-full.log` tail).  
-**After security corrective + deployVersion health test:** **899 pass / 6 fail / 905 total** (`review-artifacts/phase2/website-polish/bun-test-full.log`).
+> **Limitation:** The original **890 pass / 14 fail / 904 total** full-suite log was **not preserved**. Historical accounting for the eight resolved failures is **reconstructed** from identified commits, test files, focused runs, and retained artifacts; it is **not** a verbatim recovery of the missing run.
 
-| # | Full test name | File path | Classification (890/14 era) | Root cause | Corrective commit | Current disposition |
-|---|----------------|-----------|------------------------------|------------|-------------------|---------------------|
-| 1 | duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS | `src/server/sms/sendState.duplication.test.ts` | Accepted baseline (order/env) | Full-suite ordering / shared Redis mock state | — | **Still fails** (baseline) |
-| 2 | duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener | `src/server/sms/sendState.duplication.test.ts` | Accepted baseline | Same | — | **Still fails** (baseline) |
-| 3 | duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once | `src/server/sms/sendState.duplication.test.ts` | Accepted baseline | Same | — | **Still fails** (baseline) |
-| 4 | checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured | `src/server/assessment/rateLimitSource.test.ts` | Accepted baseline | Redis present in VM env during “no Redis” test | — | **Still fails** (baseline) |
-| 5 | checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured | `src/server/assessment/rateLimitSource.test.ts` | Accepted baseline | Same | — | **Still fails** (baseline) |
-| 6 | Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds | `src/server/assessment/assessmentJourneyPipeline.test.ts` | Accepted baseline (order-dependent) | Full-suite ordering | — | **Still fails** (baseline; see baseline evidence JSON) |
-| 7 | Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-04: conditional branch activation and removal in DOM | `src/browser-journey/assessment.browserJourney.test.ts` | Corrected (CP1 branching) | Test assumed score 3 opens GF follow-ups; CP1 uses score 0 | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 8 | Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-15: rendered stale-answer removal after branch downgrade | `src/browser-journey/assessment.browserJourney.test.ts` | Corrected | Same branching + downgrade path | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 9 | assessment stale follow-up payload removal > X-SAFE-PREVIEW-FOCUS-03: onScreeningChanged clears GF-F1/F2/F3 answers from active state | `scripts/phase2/assessmentStaleAnswerPayload.test.ts` | Corrected | Stale test assumed inverted score-3 follow-ups | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 10 | assessment stale submission serialization > X-SAFE-PREVIEW-FOCUS-06: production path excludes GF-F1/F2/F3 after GF-S lowered | `scripts/phase2/assessmentStaleSubmissionPayload.test.ts` | Corrected | Same | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 11 | assessment keyboard model supplement > X-SAFE-PREVIEW-FOCUS-02: GF-S choice buttons use Tab+Space (not native radio arrows) | `scripts/phase2/assessmentKeyboardModel.test.ts` | Corrected | Tab count drift; updated to tab-to-target | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 12 | BP1/BP2 keyboard model supplement > X-SAFE-PREVIEW-FOCUS-04: BP1 and BP2 are native SELECT controls with ArrowDown+Tab model | `scripts/phase2/bp1Bp2KeyboardModel.test.ts` | Corrected | Fleet label trucks + select focus model | `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` | **Pass** |
-| 13 | shared header sequence across routes > X-SAFE-PREVIEW-FOCUS-05: header Tab order matches on all listed desktop routes | `scripts/phase2/headerSequenceRoutes.test.ts` | Corrected | Stale `owner-focus-order-sequences.json` (ROI Calculator link) | `c9ffb76049805adef3e6b97ccefbdb6183461f8d` | **Pass** |
-| 14 | Phase 2 website polish regression > homepage conversion sections without removed final trust block | `scripts/phase2/website-polish-regression.test.ts` | Corrected | Test expected literal `/assessment` vs `PUBLIC_CTA.assessmentHref` | `c9ffb76049805adef3e6b97ccefbdb6183461f8d` | **Pass** |
+**Machine-readable table (all 14 rows, per-row evidence sources):** [`test-failure-14-accounting.json`](test-failure-14-accounting.json)
 
-Focused rerun commands and literal outputs for corrected items are in `test-failure-corrected-reruns.log` (generated at corrective commit).
+**Verified successor snapshot:** `c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01` → **898 / 6 / 904** (committed `bun-test-full.log` via `git show c6ae9b4:…`).
+
+**Current full suite:** **899 / 6 / 905** — [`bun-test-full.log`](bun-test-full.log) (+1 pass: `deployVersion.test.ts` minimal health after security corrective).
+
+**Baseline for remaining six:** `4d5491e757e8485c49d193417e96aef1b8a8c2ce` — [`bun-test-baseline-4d5491e.log`](bun-test-baseline-4d5491e.log), [`six-failure-baseline-evidence.json`](six-failure-baseline-evidence.json).
+
+**Focused reruns (corrected rows):** [`test-failure-corrected-reruns.log`](test-failure-corrected-reruns.log).

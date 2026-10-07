@@ -12,18 +12,28 @@ This chronology separates **attribution** (who authorized a change) from **conta
 
 ## Incident: second open preview and restore (2026-10-05)
 
-**Attribution:** `UNVERIFIED` for the instruction to open previews (`open-preview-owner-review-2026-10-05`). Chris has not confirmed the agent-recorded quotations from memory; see `security-decision-evidence.json`.
+**Attribution:** `UNVERIFIED` for opening previews. The opening commit message (“Explicit owner request for deploy-preview-98 and phase2 owner-QA surfaces”) is a **self-asserted agent claim**, not independent authorization evidence.
 
-**Technical history (Git-proven where SHA listed):**
+### Intervals (do not conflate)
 
-| Phase | Claimed fact | Evidence type | Notes |
-|-------|----------------|---------------|-------|
-| Open | Previews opened for review | Agent narrative + commit `c06761d7aa70619520bd80f109d384a1f58ad6e2` cited in JSON | Opening commit diff should be inspected for `PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED` and sync-open scripts |
-| Restore | Fail-closed auth restored | Git commit `d041587f7a6c8e731691d00587fc39141db69a7b` cited in JSON | Archived live checks on 2026-10-05 reported anonymous 401 on PR preview and owner-QA |
-| Regression | Previews opened again during conversion pass | Live verification 2026-10-06: PR #98 returned HTTP 200 anonymously | Corrective action: unset `DISABLED` on deploy-preview, enforce auth in edge gate, redeploy |
-| Regression (3) | `netlify.toml` deploy-preview had `DISABLED=1` | Live verification 2026-10-06 pre-corrective: PR #98 anonymous 200 | Git-proven fix `80ee91246dd0cffb0f8bbfac192216b82fc00d51`; live anonymous 401 after redeploy `6ac5678d0a6ca2000754f595` |
+| Interval type | Value | Evidence |
+|---------------|--------|----------|
+| **Git correction interval** | **66 minutes 8 seconds** | `c06761d7aa70619520bd80f109d384a1f58ad6e2` @ 2026-10-05T16:18:36Z → `d041587f7a6c8e731691d00587fc39141db69a7b` @ 2026-10-05T17:24:44Z |
+| **Owner-QA live open window (deploy-ready proxy)** | **66 minutes 38.277 seconds** | Netlify deploy `6ac3ce0b4ddd1b7b069d8a19` ready @ 2026-10-05T16:20:00.782Z (`updated_at`; `published_at` null) → protected deploy `6ac3dda882a472ad10fb0280` ready @ 2026-10-05T17:26:39.059Z |
+| **PR #98 deploy-preview live open window (deploy-ready proxy)** | **66 minutes 4.703 seconds** | Main-site deploy `6ac3cde417611f0008ae73bd` ready @ 2026-10-05T16:19:50.257Z → deploy `6ac3dd64bcbba5000899e071` ready @ 2026-10-05T17:25:54.960Z |
 
-If a row lacks independent Netlify deploy ID / timestamp / live capture, treat the **event** as **unproven** even when a commit SHA exists.
+**NOT PRESERVED:** timestamped anonymous HTTP 200 captures during the open deploy window. **Archived after restore:** `preview-auth-evidence.json` (401 anonymous `/` and `/api/health`, verified ~2026-10-05T17:30:00Z).
+
+**Restoring commit scope:** `d041587f…` is **not** security-only—it is a broad homepage/conversion commit; protection restored via `netlify.toml` + `deploy-netlify-owner-qa-preview.sh` / edge-auth sync (see Git diff).
+
+Full machine-readable timeline: `security-decision-evidence.json` → `second-open-preview-and-restore-2026-10-05`.
+
+### Later regressions (2026-10-06)
+
+| Event | Evidence |
+|-------|----------|
+| PR #98 anonymous 200 pre-corrective | Live verification; fixed in `80ee91246dd0cffb0f8bbfac192216b82fc00d51` |
+| Owner-QA health metadata leak | Sanitized in same commit; anonymous `{"status":"ok"}` only |
 
 ## Checkpoint 2 corrective (2026-10-06)
 
