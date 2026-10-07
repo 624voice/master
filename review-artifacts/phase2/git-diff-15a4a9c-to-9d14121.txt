@@ -1,0 +1,15 @@
+M	docs/PHASE2_PRIVATE_IMPLEMENTATION_REPORT.md
+M	review-artifacts/phase2/ending-sha.txt
+M	review-artifacts/phase2/final-verification.json
+M	review-artifacts/phase2/protected-manifest-table.json
+M	review-artifacts/phase2/safe-qa-harness-isolation-results.json
+M	review-artifacts/phase2/stability-five-full-suite-runs.json
+M	review-artifacts/phase2/stability-messagesid-three-runs.json
+M	review-artifacts/phase2/typescript-comparison.json
+M	src/components/CustomerLifecycleDiagram.test.tsx
+M	src/lib/analytics/trackEvent.test.ts
+M	src/lib/assessment/browserPiiBoundaries.test.ts
+M	src/server/assessment/rateLimitSource.test.ts
+M	src/server/assessment/submitAssessmentLead.pipeline.test.ts
+M	tsconfig.json
+M	tsconfig.test.json

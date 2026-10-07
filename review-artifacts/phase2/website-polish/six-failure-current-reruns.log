@@ -1,0 +1,21 @@
+=== src/server/sms/sendState.duplication.test.ts ===
+(pass) duplication-boundary replay of real upstream triggers > internal alert: the same logical event is claimed once [0.25ms]
+
+ 13 pass
+ 0 fail
+ 32 expect() calls
+Ran 13 tests across 1 file. [98.00ms]
+=== src/server/assessment/rateLimitSource.test.ts ===
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured [0.06ms]
+
+ 12 pass
+ 0 fail
+ 20 expect() calls
+Ran 12 tests across 1 file. [19.00ms]
+=== src/server/assessment/assessmentJourneyPipeline.test.ts ===
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-07: retryable report failure exposes visitor recovery message [1.21ms]
+
+ 7 pass
+ 0 fail
+ 22 expect() calls
+Ran 7 tests across 1 file. [540.00ms]

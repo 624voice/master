@@ -4,6 +4,7 @@ export const CALL_VOLUME_TRADES = {
   HVAC: { label: "HVAC", callsPerTruckPerMonth: 70 },
   Roofers: { label: "Roofers", callsPerTruckPerMonth: 20 },
   PestControl: { label: "Pest Control", callsPerTruckPerMonth: 35 },
+  Other: { label: "Other home service", callsPerTruckPerMonth: 45 },
 } as const;
 
 /** Client-safe trade list (label + calls-per-truck only). */

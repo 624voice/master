@@ -1,0 +1,351 @@
+✔ Linked to 624voice-phase2-owner-qa
+Setting Deploy Preview scoped QA environment (names only in logs)...
+$ vite build
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 269 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/report-print-D9T3Mj1E.css             12.67 kB │ gzip:   2.72 kB
+dist/client/assets/app-sHfJbHfp.css                      66.33 kB │ gzip:  11.12 kB
+dist/client/assets/roi-calculator-DtqBFgK5.js             0.04 kB │ gzip:   0.06 kB
+dist/client/assets/features-DqFfrVlN.js                   0.35 kB │ gzip:   0.29 kB
+dist/client/assets/validateLead-DSl6-Yw6.js               0.83 kB │ gzip:   0.43 kB
+dist/client/assets/MarketingNavyHero-Bo5nWFME.js          0.94 kB │ gzip:   0.53 kB
+dist/client/assets/roiModel-DjfJ1iZf.js                   1.41 kB │ gzip:   0.59 kB
+dist/client/assets/book-Bq0axQvk.js                       1.72 kB │ gzip:   0.82 kB
+dist/client/assets/customerJourneyStages-B0nU8B0K.js      1.75 kB │ gzip:   0.73 kB
+dist/client/assets/GoogleCalendarEmbed-BqyRWZdJ.js        1.76 kB │ gzip:   0.94 kB
+dist/client/assets/how-we-work-XNPQjd0r.js                1.78 kB │ gzip:   0.91 kB
+dist/client/assets/JourneyStageIcon-WTeTEdBC.js           2.17 kB │ gzip:   0.79 kB
+dist/client/assets/LegalDocumentPage-B0kdHVen.js          2.38 kB │ gzip:   0.82 kB
+dist/client/assets/terms-C4_o_nDU.js                      2.62 kB │ gzip:   1.22 kB
+dist/client/assets/DemoWaveform-wSzLSA0m.js               2.75 kB │ gzip:   1.24 kB
+dist/client/assets/about-BDxFDylI.js                      3.80 kB │ gzip:   1.60 kB
+dist/client/assets/computeRoi-yWcxGojb.js                 4.31 kB │ gzip:   1.15 kB
+dist/client/assets/createServerFn-c6VF7B8E.js             4.37 kB │ gzip:   1.85 kB
+dist/client/assets/reportCopy-WXJagmA8.js                 4.46 kB │ gzip:   2.14 kB
+dist/client/assets/clientEngagementProcess-CKYAIIVm.js    5.00 kB │ gzip:   1.54 kB
+dist/client/assets/google-calendar-CXI2HLrV.js            5.03 kB │ gzip:   1.69 kB
+dist/client/assets/sms-terms-BVBvnvEi.js                  5.69 kB │ gzip:   2.11 kB
+dist/client/assets/icons-DuUa-3SB.js                      5.72 kB │ gzip:   1.21 kB
+dist/client/assets/northstar-DUERptdC.js                  7.06 kB │ gzip:   3.23 kB
+dist/client/assets/privacy-GYOMBv_B.js                    7.58 kB │ gzip:   2.75 kB
+dist/client/assets/contact-CqAT81Gv.js                    9.93 kB │ gzip:   3.02 kB
+dist/client/assets/what-we-do-BRIuyHSA.js                10.64 kB │ gzip:   4.03 kB
+dist/client/assets/index-BcHLr6LJ.js                     10.64 kB │ gzip:   3.55 kB
+dist/client/assets/report-preview-vNI1pEPi.js            16.97 kB │ gzip:   4.61 kB
+dist/client/assets/demo-ChFbTTTl.js                      24.62 kB │ gzip:   7.88 kB
+dist/client/assets/assessment-D9GQ8dr-.js                30.97 kB │ gzip:   9.69 kB
+dist/client/assets/vapi-CWPOKVzv.js                     302.13 kB │ gzip:  79.04 kB
+dist/client/assets/index-2mKZHDUI.js                    339.32 kB │ gzip: 108.25 kB
+✓ built in 2.50s
+vite v7.3.6 building ssr environment for production...
+transforming...
+"createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
+"RawStream" is imported from external module "@tanstack/router-core" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+"hydrate" and "json" are imported from external module "@tanstack/router-core/ssr/client" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+✓ 321 modules transformed.
+Export "resolveGoogleCalendarId" of module "src/server/appointmentLifecycle/googleCalendarAuth.ts" was reexported through module "src/server/appointmentLifecycle/config.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/server/appointmentLifecycle/calendarOAuthSmoke.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.
+
+dist/server/assets/start-HYkvq4Ni.js                             0.06 kB
+dist/server/assets/roi-calculator-BTU5dmpx.js                    0.08 kB
+dist/server/assets/empty-plugin-adapters-BFgPZ6_d.js             0.13 kB
+dist/server/assets/formatCurrency-BHf_Mhdz.js                    0.22 kB
+dist/server/assets/createServerRpc-D_-6bKnO.js                   0.30 kB
+dist/server/assets/createSsrRpc-l1y8KE69.js                      0.43 kB
+dist/server/assets/report-preview-BSajQ_rS.js                    0.89 kB
+dist/server/assets/submitAssessmentLead-D9Mbm1sS.js              1.12 kB
+dist/server/assets/reportTokens-CV6zxnY9.js                      1.25 kB
+dist/server/assets/MarketingNavyHero-DIXX8c8r.js                 1.46 kB
+dist/server/assets/northstar-BVGoJNVm.js                         1.47 kB
+dist/server/assets/phase2OwnerQaAdapterAudit-DfKPwECG.js         1.66 kB
+dist/server/assets/reportStyles.server-stkd0eUc.js               1.77 kB
+dist/server/assets/demoAccess-DnA7hG4Q.js                        1.80 kB
+dist/server/assets/serveReportTokenPdf.server-DaEk0GjV.js        1.95 kB
+dist/server/assets/customerJourneyStages-hkNvqx_T.js             2.18 kB
+dist/server/assets/book-JqviUKMZ.js                              2.40 kB
+dist/server/assets/leads-CQ-SjIn0.js                             2.52 kB
+dist/server/assets/roiModel-DYqN9W88.js                          2.71 kB
+dist/server/assets/JourneyStageIcon-BhcFFhaC.js                  2.74 kB
+dist/server/assets/how-we-work-Cg2NLl7e.js                       2.80 kB
+dist/server/assets/GoogleCalendarEmbed-tV9A0ba0.js               2.80 kB
+dist/server/assets/submitDemoLead-Fhr6pOA-.js                    3.11 kB
+dist/server/assets/DemoWaveform-CcGIHJ-e.js                      3.19 kB
+dist/server/assets/demoUsage-CttC5IfO.js                         3.19 kB
+dist/server/assets/profile-Cwu1xDId.js                           3.34 kB
+dist/server/assets/terms-BlwoDVZi.js                             3.42 kB
+dist/server/assets/LegalDocumentPage-iOyEdecO.js                 3.53 kB
+dist/server/assets/validateLead-CUfCPNkK.js                      3.74 kB
+dist/server/assets/renderReportPdf.server-CJy-_WNL.js            4.05 kB
+dist/server/assets/calendarOAuthSmoke-B9j3LdeS.js                4.22 kB
+dist/server/assets/_tanstack-start-manifest_v-B7_CSeGB.js        4.36 kB
+dist/server/assets/provider-DKwQY3mc.js                          4.37 kB
+dist/server/assets/about-C1HL6tF1.js                             5.22 kB
+dist/server/assets/reportCopy-CGIeraPR.js                        6.22 kB
+dist/server/assets/clientEngagementProcess-Dhy5j1o1.js           6.34 kB
+dist/server/assets/submitContactLead-B8uLSMOv.js                 6.34 kB
+dist/server/assets/rollout-B4Nlc3sO.js                           6.43 kB
+dist/server/assets/icons-DwvAhQ6O.js                             7.30 kB
+dist/server/assets/phone-BLdDd3JP.js                             7.52 kB
+dist/server/assets/sms-terms-CPkPsmjR.js                         7.70 kB
+dist/server/assets/google-calendar-CK_x9JpG.js                   8.54 kB
+dist/server/assets/computeRoi-1Dwz-erh.js                        9.35 kB
+dist/server/assets/formatReportMeta-kRBNpeyE.js                 10.05 kB
+dist/server/assets/privacy-CWDeBjqD.js                          10.39 kB
+dist/server/assets/submitAssessmentLead.server-DPbaDR9a.js      13.04 kB
+dist/server/assets/what-we-do-DJoxb1Az.js                       13.97 kB
+dist/server/assets/index-DwmTMkl3.js                            14.56 kB
+dist/server/assets/contact-Dv-uLWYE.js                          15.95 kB
+dist/server/assets/selectModerateScenario-Cz7m8fYZ.js           18.69 kB
+dist/server/assets/serveAssessmentTokenPdf.server-BFqo0ZfD.js   18.72 kB
+dist/server/assets/RoiReport-CMBnln24.js                        27.42 kB
+dist/server/assets/greetingName-BXwVrYys.js                     36.84 kB
+dist/server/assets/demo-BS39aCZV.js                             38.32 kB
+dist/server/assets/assessment-Dk9uKgt2.js                       40.53 kB
+dist/server/assets/openerEpisode-Dd_fBDUM.js                    64.39 kB
+dist/server/server.js                                           66.20 kB
+dist/server/assets/router-BXplwA3-.js                          363.87 kB
+9:27:05 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs
+
+✓ built in 1.32s
+✔ Linked to 624voice
+Set environment variable PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW=1 in the deploy-preview branch
+Changes will require a redeploy to take effect on any deployed versions of your project.
+Unset environment variable PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED in the deploy-preview branch
+Changes will require a redeploy to take effect on any deployed versions of your project.
+Set environment variable PHASE2_OWNER_QA_EDGE_BASIC_AUTH_ENABLED=1 in the deploy-preview branch
+Changes will require a redeploy to take effect on any deployed versions of your project.
+Main site deploy-preview: fail-closed Basic Auth enabled (credential values not printed).
+✔ Linked to 624voice-phase2-owner-qa
+Owner-QA site: open preview (no Basic Auth), noindex via edge gate.
+✔ Linked to 624voice-phase2-owner-qa
+Deploying draft/preview build to QA Netlify site (deploy-preview context)...
+​
+Netlify Build                                                 
+────────────────────────────────────────────────────────────────
+​
+❯ Version
+  @netlify/build 36.4.2
+​
+❯ Flags
+  accountId: 6a527623cf4702bf9269b6f7
+  deployId: 6ac567c4268f3b2f994edf33
+​
+❯ Current directory
+  /workspace
+​
+❯ Config file
+  /workspace/netlify.toml
+​
+❯ Context
+  deploy-preview
+​
+build.command from netlify.toml                               
+────────────────────────────────────────────────────────────────
+​
+$ npm run build
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 269 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/report-print-D9T3Mj1E.css             12.67 kB │ gzip:   2.72 kB
+dist/client/assets/app-sHfJbHfp.css                      66.33 kB │ gzip:  11.12 kB
+dist/client/assets/roi-calculator-DtqBFgK5.js             0.04 kB │ gzip:   0.06 kB
+dist/client/assets/features-DqFfrVlN.js                   0.35 kB │ gzip:   0.29 kB
+dist/client/assets/validateLead-DSl6-Yw6.js               0.83 kB │ gzip:   0.43 kB
+dist/client/assets/MarketingNavyHero-Bo5nWFME.js          0.94 kB │ gzip:   0.53 kB
+dist/client/assets/roiModel-DjfJ1iZf.js                   1.41 kB │ gzip:   0.59 kB
+dist/client/assets/book-Bq0axQvk.js                       1.72 kB │ gzip:   0.82 kB
+dist/client/assets/customerJourneyStages-B0nU8B0K.js      1.75 kB │ gzip:   0.73 kB
+dist/client/assets/GoogleCalendarEmbed-BqyRWZdJ.js        1.76 kB │ gzip:   0.94 kB
+dist/client/assets/how-we-work-XNPQjd0r.js                1.78 kB │ gzip:   0.91 kB
+dist/client/assets/JourneyStageIcon-WTeTEdBC.js           2.17 kB │ gzip:   0.79 kB
+dist/client/assets/LegalDocumentPage-B0kdHVen.js          2.38 kB │ gzip:   0.82 kB
+dist/client/assets/terms-C4_o_nDU.js                      2.62 kB │ gzip:   1.22 kB
+dist/client/assets/DemoWaveform-wSzLSA0m.js               2.75 kB │ gzip:   1.24 kB
+dist/client/assets/about-BDxFDylI.js                      3.80 kB │ gzip:   1.60 kB
+dist/client/assets/computeRoi-yWcxGojb.js                 4.31 kB │ gzip:   1.15 kB
+dist/client/assets/createServerFn-c6VF7B8E.js             4.37 kB │ gzip:   1.85 kB
+dist/client/assets/reportCopy-WXJagmA8.js                 4.46 kB │ gzip:   2.14 kB
+dist/client/assets/clientEngagementProcess-CKYAIIVm.js    5.00 kB │ gzip:   1.54 kB
+dist/client/assets/google-calendar-CXI2HLrV.js            5.03 kB │ gzip:   1.69 kB
+dist/client/assets/sms-terms-BVBvnvEi.js                  5.69 kB │ gzip:   2.11 kB
+dist/client/assets/icons-DuUa-3SB.js                      5.72 kB │ gzip:   1.21 kB
+dist/client/assets/northstar-DUERptdC.js                  7.06 kB │ gzip:   3.23 kB
+dist/client/assets/privacy-GYOMBv_B.js                    7.58 kB │ gzip:   2.75 kB
+dist/client/assets/contact-CqAT81Gv.js                    9.93 kB │ gzip:   3.02 kB
+dist/client/assets/what-we-do-BRIuyHSA.js                10.64 kB │ gzip:   4.03 kB
+dist/client/assets/index-BcHLr6LJ.js                     10.64 kB │ gzip:   3.55 kB
+dist/client/assets/report-preview-vNI1pEPi.js            16.97 kB │ gzip:   4.61 kB
+dist/client/assets/demo-ChFbTTTl.js                      24.62 kB │ gzip:   7.88 kB
+dist/client/assets/assessment-D9GQ8dr-.js                30.97 kB │ gzip:   9.69 kB
+dist/client/assets/vapi-CWPOKVzv.js                     302.13 kB │ gzip:  79.04 kB
+dist/client/assets/index-2mKZHDUI.js                    339.32 kB │ gzip: 108.25 kB
+✓ built in 2.36s
+vite v7.3.6 building ssr environment for production...
+transforming...
+"createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
+"RawStream" is imported from external module "@tanstack/router-core" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+"hydrate" and "json" are imported from external module "@tanstack/router-core/ssr/client" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+✓ 321 modules transformed.
+Export "resolveGoogleCalendarId" of module "src/server/appointmentLifecycle/googleCalendarAuth.ts" was reexported through module "src/server/appointmentLifecycle/config.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/server/appointmentLifecycle/calendarOAuthSmoke.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /workspace/src/server/appointmentLifecycle/googleOAuthFlow.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts, /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/server/appointmentLifecycle/googleCalendarAuth.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /workspace/src/server/appointmentLifecycle/calendarBookingSmoke.ts is dynamically imported by /workspace/src/server/appointmentLifecycle/googleOAuthHandlers.ts but also statically imported by /workspace/src/routes/api/cron/calendar-booking-smoke.ts, /workspace/src/server/appointmentLifecycle/calendarCapabilitySmoke.ts, dynamic import will not move module into another chunk.
+
+dist/server/assets/start-HYkvq4Ni.js                             0.06 kB
+dist/server/assets/roi-calculator-BTU5dmpx.js                    0.08 kB
+dist/server/assets/empty-plugin-adapters-BFgPZ6_d.js             0.13 kB
+dist/server/assets/formatCurrency-BHf_Mhdz.js                    0.22 kB
+dist/server/assets/createServerRpc-D_-6bKnO.js                   0.30 kB
+dist/server/assets/createSsrRpc-l1y8KE69.js                      0.43 kB
+dist/server/assets/report-preview-_3LrHmay.js                    0.89 kB
+dist/server/assets/submitAssessmentLead-D9Mbm1sS.js              1.12 kB
+dist/server/assets/reportTokens-CV6zxnY9.js                      1.25 kB
+dist/server/assets/MarketingNavyHero-DIXX8c8r.js                 1.46 kB
+dist/server/assets/northstar-BVGoJNVm.js                         1.47 kB
+dist/server/assets/phase2OwnerQaAdapterAudit-DfKPwECG.js         1.66 kB
+dist/server/assets/reportStyles.server-stkd0eUc.js               1.77 kB
+dist/server/assets/demoAccess-DnA7hG4Q.js                        1.80 kB
+dist/server/assets/serveReportTokenPdf.server-DaEk0GjV.js        1.95 kB
+dist/server/assets/customerJourneyStages-hkNvqx_T.js             2.18 kB
+dist/server/assets/book-JqviUKMZ.js                              2.40 kB
+dist/server/assets/leads-CQ-SjIn0.js                             2.52 kB
+dist/server/assets/roiModel-DYqN9W88.js                          2.71 kB
+dist/server/assets/JourneyStageIcon-BhcFFhaC.js                  2.74 kB
+dist/server/assets/how-we-work-2eyh6dzs.js                       2.80 kB
+dist/server/assets/GoogleCalendarEmbed-tV9A0ba0.js               2.80 kB
+dist/server/assets/submitDemoLead-B6kOGNHf.js                    3.11 kB
+dist/server/assets/DemoWaveform-CcGIHJ-e.js                      3.19 kB
+dist/server/assets/demoUsage-CttC5IfO.js                         3.19 kB
+dist/server/assets/profile-Cwu1xDId.js                           3.34 kB
+dist/server/assets/terms-BlwoDVZi.js                             3.42 kB
+dist/server/assets/LegalDocumentPage-iOyEdecO.js                 3.53 kB
+dist/server/assets/validateLead-CUfCPNkK.js                      3.74 kB
+dist/server/assets/renderReportPdf.server-CJy-_WNL.js            4.05 kB
+dist/server/assets/calendarOAuthSmoke-D6mo4NrU.js                4.22 kB
+dist/server/assets/_tanstack-start-manifest_v-B7_CSeGB.js        4.36 kB
+dist/server/assets/provider-BPxo78B4.js                          4.37 kB
+dist/server/assets/about-BlAmiK-e.js                             5.22 kB
+dist/server/assets/reportCopy-CGIeraPR.js                        6.22 kB
+dist/server/assets/clientEngagementProcess-Dhy5j1o1.js           6.34 kB
+dist/server/assets/submitContactLead-B8uLSMOv.js                 6.34 kB
+dist/server/assets/rollout-CrHte7gg.js                           6.43 kB
+dist/server/assets/icons-DwvAhQ6O.js                             7.30 kB
+dist/server/assets/phone-BLdDd3JP.js                             7.52 kB
+dist/server/assets/sms-terms-CPkPsmjR.js                         7.70 kB
+dist/server/assets/google-calendar-CMozUDBI.js                   8.54 kB
+dist/server/assets/computeRoi-1Dwz-erh.js                        9.35 kB
+dist/server/assets/formatReportMeta-kRBNpeyE.js                 10.05 kB
+dist/server/assets/privacy-CWDeBjqD.js                          10.39 kB
+dist/server/assets/submitAssessmentLead.server-DPbaDR9a.js      13.04 kB
+dist/server/assets/what-we-do-B69R3dOH.js                       13.97 kB
+dist/server/assets/index-BdOEjqrp.js                            14.56 kB
+dist/server/assets/contact-GGDDfR0Q.js                          15.95 kB
+dist/server/assets/selectModerateScenario-Cz7m8fYZ.js           18.69 kB
+dist/server/assets/serveAssessmentTokenPdf.server-BFqo0ZfD.js   18.72 kB
+dist/server/assets/RoiReport-CMBnln24.js                        27.42 kB
+dist/server/assets/greetingName-BXwVrYys.js                     36.84 kB
+dist/server/assets/demo-DLViowB9.js                             38.32 kB
+dist/server/assets/assessment-Dk9uKgt2.js                       40.53 kB
+dist/server/assets/openerEpisode-Dd_fBDUM.js                    64.39 kB
+dist/server/server.js                                           66.20 kB
+dist/server/assets/router-DKMs8yin.js                          363.87 kB
+9:27:38 PM [vite] ⬥ Netlify ✓ Wrote SSR entry point to .netlify/v1/functions/server.mjs
+
+✓ built in 1.26s
+​
+(build.command completed in 5.8s)
+​
+Functions bundling                                            
+────────────────────────────────────────────────────────────────
+​
+Packaging Functions generated by your framework:
+ - server.mjs
+​
+Packaging Functions from netlify/functions directory:
+ - appointment-calendar-sync.mts
+ - appointment-reminders.mts
+ - speed2lead-followups.mts
+​
+​
+(Functions bundling completed in 8.3s)
+​
+Edge Functions bundling                                       
+────────────────────────────────────────────────────────────────
+​
+Packaging Edge Functions from netlify/edge-functions directory:
+ - phase2-owner-qa-gate
+​
+(Edge Functions bundling completed in 541ms)
+
+Deploying to Netlify
+────────────────────────────────────────────────────────────────
+
+Deploy path:        /workspace/dist/client
+Functions path:     /workspace/.netlify/v1/functions
+Configuration path: /workspace/netlify.toml
+
+⠋ Uploading blobs to deploy store...
+
+✔ Finished uploading blobs to deploy store
+⠋ Hashing files...
+⠋ Looking for a functions cache...
+✔ Deploying functions from cache (use --skip-functions-cache to override)
+✔ Finished hashing 44 files, 4 functions and edge functions
+⠋ CDN diffing files...
+✔ CDN requesting 3 files and 1 functions and 1 edge functions
+⠋ Uploading 5 files
+✔ Finished uploading 5 assets
+⠋ Waiting for deploy to go live...
+✔ Deploy is live!
+​
+Netlify Build Complete                                        
+────────────────────────────────────────────────────────────────
+​
+(Netlify Build completed in 30.5s)
+
+🚀 Deploy complete
+────────────────────────────────────────────────────────────────
+
+Draft URL: <https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app>
+
+Build logs: <https://app.netlify.com/projects/624voice-phase2-owner-qa/deploys/6ac567c4268f3b2f994edf33>
+Function logs: <https://app.netlify.com/projects/624voice-phase2-owner-qa/logs/functions?scope=deploy:6ac567c4268f3b2f994edf33>
+Edge function logs: <https://app.netlify.com/projects/624voice-phase2-owner-qa/logs/edge-functions?scope=deployid:6ac567c4268f3b2f994edf33>
+
+If everything looks good on your draft URL, deploy it to your main project URL with the --prod flag:
+netlify deploy --prod
+
+Preview URL: https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app
+{
+  "out": "/workspace/review-artifacts/phase2/owner-keyboard-walkthrough-v5.md",
+  "checks": 34,
+  "sha256": "e03576b65efa6b30270aa4c9807f48450a7b587dfa44faaebd1a2474bd084d14"
+}
+{
+  "ok": true,
+  "auditedFile": "/workspace/review-artifacts/phase2/owner-keyboard-walkthrough-v5.md",
+  "sha256": "e03576b65efa6b30270aa4c9807f48450a7b587dfa44faaebd1a2474bd084d14",
+  "statedTotal": 34,
+  "parsedCheckCount": 34,
+  "failures": []
+}
+Done. Owner-QA preview is open (no Basic Auth); noindex via edge gate.

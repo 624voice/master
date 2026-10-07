@@ -1,24 +1,50 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { GoogleCalendarEmbed } from "~/components/GoogleCalendarEmbed";
+import { FloatingTradeIcons } from "~/components/icons";
+import {
+  CONVERSION_ANALYTICS_EVENTS,
+  trackConversionEvent,
+} from "~/lib/analytics/conversionIntent";
 
 export const Route = createFileRoute("/book")({
+  head: () => ({
+    meta: [
+      { title: "Schedule Your 30-Minute Consultation | 624 Voice" },
+      {
+        name: "description",
+        content:
+          "Pick a 30-minute consultation time after your assessment, report, or contact inquiry.",
+      },
+    ],
+  }),
   component: BookMeeting,
 });
 
 function BookMeeting() {
+  useEffect(() => {
+    trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.booking_page_reached, {
+      source: "book_route_mount",
+    });
+  }, []);
+
   return (
     <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="relative overflow-hidden bg-brand-secondary px-6 py-24 sm:py-32">
+        <FloatingTradeIcons className="motion-reduce:opacity-[0.04]" />
+        <div className="relative mx-auto max-w-3xl text-center">
           <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
             Schedule a Call
           </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Book a Meeting
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <span className="text-white">Book Your </span>
+            <span className="text-brand-primary">30-Minute</span>
+            <span className="text-white"> Consultation</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Pick a time that works for you. We&apos;ll walk through how 624 Voice
-            can help your business answer every call and recover missed revenue.
+            About 30 minutes. Pick a time that works for you. We&apos;ll discuss
+            the result you want, where opportunities are slowing down, and the
+            most sensible next step for your business.
           </p>
         </div>
       </section>

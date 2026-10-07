@@ -1,0 +1,138 @@
+{
+  "protectedOwnerReviewPreviewUrl": "https://6ac50e3369994e0e57d5e413--624voice-phase2-owner-qa.netlify.app/",
+  "pr98DeployPreviewUrl": "https://deploy-preview-98--624voice.netlify.app/",
+  "sha": {
+    "finalPrHead": "77fd369d58b177fca6786aad72171ececc09ec1e",
+    "finalDeployedSourceCommit": "77fd369d58b177fca6786aad72171ececc09ec1e",
+    "ownerQaRuntime": "77fd369d58b177fca6786aad72171ececc09ec1e",
+    "prPreviewRuntime": "77fd369d58b177fca6786aad72171ececc09ec1e",
+    "evidenceOnlyCommit": "f77cc68e72163a59ca77dc23121a738e400b2b39"
+  },
+  "homepage": {
+    "beforeLines": 537,
+    "afterLines": 411,
+    "beforeSections": 11,
+    "afterSections": 7,
+    "sevenSectionInventory": [
+      "HERO (24/7, demo primary, ROI secondary, book in header)",
+      "WHERE REVENUE IS LEAKING",
+      "TALK WITH JESSICA",
+      "SEE WHAT YOU ARE MISSING",
+      "TURN MORE OPPORTUNITIES INTO REVENUE",
+      "FROM REVENUE LEAK TO WORKING SYSTEM",
+      "TRUST + FINAL CTA"
+    ]
+  },
+  "ctaDestinationMap": {
+    "Talk With Our AI Voice Agent": "/demo",
+    "Calculate Your Revenue Gap": "/roi-calculator",
+    "Book Your AI Growth Systems Consultation": "/book",
+    "Book Your Consultation": "/book",
+    "Get Your Free Assessment": "/assessment",
+    "Send Us a Message": "/contact"
+  },
+  "heroRedesignsComplete": [
+    "src/components/assessment/AssessmentPageHero.tsx",
+    "src/routes/about.tsx",
+    "src/routes/contact.tsx",
+    "src/routes/how-we-work.tsx"
+  ],
+  "howWeWorkVisualPass": "src/components/marketing/MarketingCards.tsx HowWeWorkStepCard; src/routes/how-we-work.tsx 2-column grid",
+  "googleCalendar30Min": {
+    "status": "BLOCKED",
+    "artifact": "review-artifacts/phase2/website-polish/google-calendar-30min-status.json"
+  },
+  "securityDecisionRecord": "review-artifacts/phase2/website-polish/security-decision-evidence.json entry second-open-preview-and-restore-2026-10-05",
+  "focusOrderArtifact": "review-artifacts/phase2/owner-focus-order-sequences.json",
+  "analytics": {
+    "externalDestination": "Unconfigured (no production analytics tag)",
+    "conversionPipeline": "src/lib/analytics/conversionIntent.ts + ConversionIntentListener.tsx",
+    "lockedAssessmentPipeline": "src/lib/analytics/trackEvent.ts (ten events)",
+    "eventInventoryFile": "See analytics.eventInventory in prior revision; all handlers wired in conversionIntent.ts, demo.tsx, RoiCalculator.tsx, contact.tsx, book.tsx, assessment.tsx"
+  },
+  "screenshots": {
+    "directory": "review-artifacts/phase2/website-polish/screenshots/",
+    "desktop1280Pages": [
+      "home",
+      "what-we-do",
+      "how-we-work",
+      "demo",
+      "assessment",
+      "about",
+      "contact",
+      "book",
+      "roi-calculator",
+      "404"
+    ],
+    "mobile375Pages": [
+      "home",
+      "what-we-do",
+      "how-we-work",
+      "demo",
+      "assessment",
+      "roi-calculator",
+      "about",
+      "contact",
+      "book",
+      "404"
+    ],
+    "visualInspectionNotes": "Regenerated against protected owner-QA deploy 6ac40367602c353d0518d26c; no credentials in repo."
+  },
+  "testRun": {
+    "bunTestSummary": "867 pass / 6 fail / 873 total",
+    "bunBuild": "pass",
+    "verifiedAt": "2026-10-05T22:58:00Z",
+    "command": "bun test (full suite, 117 files)",
+    "failingTestsExact": [
+      {
+        "name": "ROI opener: two triggers before the episode exists send one SMS",
+        "file": "src/server/sms/sendState.duplication.test.ts"
+      },
+      {
+        "name": "same episode replay after session drop still sends one ROI opener",
+        "file": "src/server/sms/sendState.duplication.test.ts"
+      },
+      {
+        "name": "ROI then Contact for the same phone are different episodes and each send once",
+        "file": "src/server/sms/sendState.duplication.test.ts"
+      },
+      {
+        "name": "S-RT-03: skips rate limit when Redis is not configured",
+        "file": "src/server/assessment/rateLimitSource.test.ts"
+      },
+      {
+        "name": "S-IDEM-12: skips idempotency when Redis is not configured",
+        "file": "src/server/assessment/rateLimitSource.test.ts"
+      },
+      {
+        "name": "X-JRN-PIPE-02: corrected resubmission after validation failure succeeds",
+        "file": "src/server/assessment/assessmentJourneyPipeline.test.ts"
+      }
+    ],
+    "staleSeventhFailureReconciliation": {
+      "priorHandoffError": "866 pass / 7 fail implied one unnamed failure beyond the six baseline tests.",
+      "identification": "The extra failure was Phase 2 website polish regression > assessment hero component stays mounted outside step conditionals (scripts/phase2/website-polish-regression.test.ts).",
+      "classification": "Does not reproduce on current accepted baseline (passes after conversion-pass hero fix). Was transient during conversion work; not environmental/order-dependent; no merge blocker."
+    },
+    "introducedByThisPass": [],
+    "acceptedBaselineFailures": [
+      "duplication-boundary replay of real upstream triggers (3 tests)",
+      "checkAssessmentSourceRateLimit supplemental S-RT-03",
+      "checkAssessmentPhoneIdempotency supplemental S-IDEM-12",
+      "Assessment journey pipeline X-JRN-PIPE-02"
+    ],
+    "resolvedByThisPass": [
+      "owner focus order supplement X-SAFE-PREVIEW-FOCUS-01",
+      "Phase 2 website polish regression assessment hero"
+    ]
+  },
+  "ownerReviewChecklist": [
+    "Seven-section homepage and CTA hierarchy",
+    "Assessment, About, Contact navy/green heroes",
+    "How We Work step cards at 1280 and 375",
+    "Demo form disclosure and optional SMS",
+    "ROI assumptions before unlock",
+    "Book embed timezone (ctz) and 30-minute Google Calendar admin step",
+    "Open preview URLs (no Basic Auth); confirm noindex in page source or response headers"
+  ]
+}

@@ -6,6 +6,24 @@ export type LeadInfo = {
   phone: string;
 };
 
+export const FLEET_SIZE_RANGES = [
+  "1-2",
+  "3-7",
+  "8-20",
+  "21-50",
+  "50+",
+] as const;
+
+export type FleetSizeRange = (typeof FLEET_SIZE_RANGES)[number];
+
+export const FLEET_SIZE_LABELS: Record<FleetSizeRange, string> = {
+  "1-2": "1–2 trucks",
+  "3-7": "3–7 trucks",
+  "8-20": "8–20 trucks",
+  "21-50": "21–50 trucks",
+  "50+": "50+ trucks",
+};
+
 export const CONTACT_TRADES = [
   "Plumbing",
   "Electrical",
@@ -80,12 +98,13 @@ export function validateContactFields(fields: ContactFields): string | null {
   if (fields.trade === "Other" && !fields.otherTrade?.trim()) {
     return "Please enter your trade.";
   }
-  const websiteError = validateWebsiteFields(
-    fields.websiteOption,
-    fields.website,
-  );
-  if (websiteError) return websiteError;
-  if (!fields.fleetSize.trim()) return "Fleet size is required.";
+  if (fields.websiteOption) {
+    const websiteError = validateWebsiteFields(
+      fields.websiteOption,
+      fields.website,
+    );
+    if (websiteError) return websiteError;
+  }
   if (!fields.message.trim()) return "Please tell us what we can help with.";
   return null;
 }
@@ -114,8 +133,8 @@ export function validateDemoLeadIdentity(lead: LeadInfo): string | null {
   if (!lead.firstName.trim()) return "First name is required.";
   if (!lead.lastName.trim()) return "Last name is required.";
   if (!lead.businessName.trim()) return "Business name is required.";
-  if (!lead.email.trim()) return "Email is required.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim())) {
+  const email = lead.email.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return "Enter a valid email address.";
   }
   if (!lead.phone.trim()) return "Phone number is required.";

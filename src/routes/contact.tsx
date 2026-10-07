@@ -1,9 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { CONTACT_TRADES } from "~/lib/lead/validateLead";
+import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
+import { FEATURE_FLAGS } from "~/config/features";
+import { PUBLIC_CTA } from "~/content/publicConversion";
+import { CONVERSION_ANALYTICS_EVENTS, trackConversionEvent } from "~/lib/analytics/conversionIntent";
+import { CONTACT_TRADES, FLEET_SIZE_LABELS, FLEET_SIZE_RANGES } from "~/lib/lead/validateLead";
 import { submitContactLead } from "~/server/submitContactLead";
 
 export const Route = createFileRoute("/contact")({
+  head: () => ({
+    meta: [
+      { title: "Explore Your Options | 624 Voice" },
+      {
+        name: "description",
+        content:
+          "Tell us where leads, follow-up, customer communication, or routine work are slowing the business down. We respond within one business day.",
+      },
+    ],
+  }),
   component: Contact,
 });
 
@@ -51,6 +65,9 @@ function Contact() {
         },
       });
       setSuccess(true);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.contact_form_submitted, {
+        source: "contact_form",
+      });
       setSentWithSms(smsConsent);
       setFirstName("");
       setLastName("");
@@ -77,35 +94,26 @@ function Contact() {
 
   return (
     <main className="pt-20">
-      {/* HERO */}
-      <section className="bg-brand-secondary px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            Get Started
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Ready to Answer{" "}
-            <span className="text-brand-primary">Every Call?</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Let's talk about how 624 Voice can help your business run
-            itself — so you can focus on what matters most.
-          </p>
-        </div>
-      </section>
+      <MarketingNavyHero
+        testId="contact-hero"
+        headingId="contact-hero-heading"
+        eyebrow="Get in touch"
+        decorIcons
+        supporting="Share a little context about your business and what you want to improve. If you opt in to text messages, we may follow up by SMS; otherwise we respond by email within one business day."
+      >
+        <span className="text-white">{PUBLIC_CTA.exploreOptions}</span>
+      </MarketingNavyHero>
 
-      {/* CONTACT */}
       <section className="bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-12 lg:grid-cols-2">
-            {/* Contact form */}
             <div>
               <h2 className="text-2xl font-bold text-brand-secondary">
                 Send Us a Message
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Fill out the form below and we'll get back to you within 24
-                hours to schedule your personalized demo.
+                Share a little about your business and the result you want.
+                We&apos;ll respond within one business day.
               </p>
               {success ? (
                 <div className="mt-8 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6">
@@ -114,8 +122,10 @@ function Contact() {
                   </h3>
                   <p className="mt-2 text-sm text-brand-secondary">
                     Thanks — we received your message and will get back to you
-                    within 24 hours.
-                    {sentWithSms ? " Watch for a text from Chris at 624Voice." : ""}
+                    within one business day.
+                    {sentWithSms
+                      ? " Watch for a text from 624 Voice about next steps."
+                      : " We'll follow up using the email address you provided."}
                   </p>
                   <button
                     type="button"
@@ -234,7 +244,7 @@ function Contact() {
                   )}
                   <fieldset className="space-y-3">
                     <legend className="block text-sm font-medium text-gray-700">
-                      What is your website?
+                      Website <span className="font-normal text-gray-500">(optional)</span>
                     </legend>
                     <label className="flex items-center gap-2 text-sm text-gray-700">
                       <input
@@ -243,7 +253,6 @@ function Contact() {
                         value="has"
                         checked={websiteOption === "has"}
                         onChange={() => setWebsiteOption("has")}
-                        required
                       />
                       I have a website
                     </label>
@@ -314,20 +323,21 @@ function Contact() {
                       htmlFor="fleetSize"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      Fleet Size (approx. trucks)
+                      Fleet Size (approx. trucks){" "}
+                      <span className="font-normal text-gray-500">(optional)</span>
                     </label>
                     <select
                       id="fleetSize"
                       value={fleetSize}
                       onChange={(e) => setFleetSize(e.target.value)}
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                      required
                     >
                       <option value="">Select fleet size...</option>
-                      <option value="1-2">1–2 Trucks</option>
-                      <option value="3-7">3–7 Trucks</option>
-                      <option value="7-20">7–20 Trucks</option>
-                      <option value="20-50">20–50 Trucks</option>
+                      {FLEET_SIZE_RANGES.map((range) => (
+                        <option key={range} value={range}>
+                          {FLEET_SIZE_LABELS[range]}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -358,9 +368,7 @@ function Contact() {
                       className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
                     />
                     <span className="text-sm text-gray-600">
-                      I agree to receive text messages from 624 Voice about my
-                      inquiry. Message and data rates may apply. Reply STOP to
-                      opt out.
+                      Optional: Text me about my inquiry or next steps. Message and data rates may apply. Reply STOP to opt out.
                     </span>
                   </label>
                   {error && (
@@ -373,13 +381,12 @@ function Contact() {
                     disabled={loading}
                     className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {loading ? "Sending…" : "Send Message"}
+                    {loading ? "Sending…" : PUBLIC_CTA.exploreOptions}
                   </button>
                 </form>
               )}
             </div>
 
-            {/* Contact info & CTA */}
             <div className="flex flex-col justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-brand-secondary">
@@ -393,6 +400,7 @@ function Contact() {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -416,57 +424,51 @@ function Contact() {
                   </div>
                 </div>
 
-                <div className="mt-12 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
-                  <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-                    90-Day{" "}
-                    <span className="text-brand-primary">Results Guarantee</span>
-                  </h3>
-                  <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-                    We guarantee you recover at least our service investment in
-                    booked service-visit revenue within 90 days of go-live —{" "}
-                    <span className="font-semibold text-brand-primary">
-                      or we keep working, for free, until you do.
-                    </span>
-                  </p>
-                  <p className="mt-3 text-base leading-relaxed text-brand-secondary">
-                    If we don&apos;t perform, you don&apos;t pay beyond the{" "}
-                    <span className="font-medium">Results Engagement Period</span>.
-                  </p>
-                </div>
+                {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE ? (
+                  <div className="mt-12 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+                    <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                      90-Day{" "}
+                      <span className="text-brand-primary">Results Guarantee</span>
+                    </h3>
+                    <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                      We guarantee you recover at least our service investment in
+                      booked service-visit revenue within 90 days of go-live —{" "}
+                      <span className="font-semibold text-brand-primary">
+                        or we keep working, for free, until you do.
+                      </span>
+                    </p>
+                  </div>
+                ) : null}
+                <p className="mt-8 rounded-lg border border-brand-primary/20 bg-brand-primary-light/40 px-4 py-3 text-sm text-gray-700">
+                  Ready to choose a time?{" "}
+                  <a
+                    href={PUBLIC_CTA.bookHref}
+                    className="font-semibold text-brand-primary hover:text-brand-primary-dark"
+                  >
+                    {PUBLIC_CTA.scheduleConsultation}
+                  </a>
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FINAL CTA */}
       <section className="bg-brand-accent-light px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
-            Not Ready Yet? No Problem.
+            Want a Directional Read First?
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Bookmark us. When you're ready to stop missing calls and start
-            living your life, we'll be here.
+            Take the free {PUBLIC_CTA.freeRevenueAssessment.toLowerCase()} to
+            see where leads, follow-up, and visibility may be costing you
+            revenue.
           </p>
           <a
-            href="/"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
+            href={PUBLIC_CTA.assessmentHref}
+            className="mt-8 inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
           >
-            Back to Home
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
+            {PUBLIC_CTA.estimateLostRevenue}
           </a>
         </div>
       </section>

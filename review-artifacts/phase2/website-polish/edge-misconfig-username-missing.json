@@ -1,0 +1,38 @@
+{
+  "baseUrl": "https://6abe962ee1e6d472ef63ecce--624voice-phase2-owner-qa.netlify.app",
+  "scenario": "username_missing",
+  "results": [
+    {
+      "scenario": "username_missing",
+      "path": "/",
+      "status": 503,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": null,
+      "bodySample": "Owner QA preview authentication is not configured."
+    },
+    {
+      "scenario": "username_missing",
+      "path": "/assessment",
+      "status": 503,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": null,
+      "bodySample": "Owner QA preview authentication is not configured."
+    },
+    {
+      "scenario": "username_missing",
+      "path": "/api/health",
+      "status": 503,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": null,
+      "bodySample": "Owner QA preview authentication is not configured."
+    },
+    {
+      "scenario": "username_missing",
+      "path": "/logo.png",
+      "status": 503,
+      "xRobotsTag": "noindex",
+      "wwwAuthenticate": null,
+      "bodySample": "Owner QA preview authentication is not configured."
+    }
+  ]
+}

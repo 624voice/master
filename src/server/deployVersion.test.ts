@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { buildDeployVersionInfo } from "~/server/deployVersion";
+import {
+  buildDeployVersionInfo,
+  deployVersionJson,
+  shouldExposeDetailedHealth,
+} from "~/server/deployVersion";
 
 describe("deploy version diagnostic", () => {
   test("returns non-sensitive Netlify metadata fields", () => {
@@ -26,5 +30,13 @@ describe("deploy version diagnostic", () => {
     expect(info.deployUrl).toContain("deploy-preview-61");
     expect(JSON.stringify(info)).not.toContain("TWILIO");
     expect(JSON.stringify(info)).not.toContain("OPENAI");
+  });
+
+  test("open owner-QA preview returns minimal public health JSON", () => {
+    process.env.PHASE2_OWNER_QA_PREVIEW = "1";
+    process.env.PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED = "1";
+    process.env.COMMIT_REF = "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01";
+    expect(shouldExposeDetailedHealth()).toBe(false);
+    expect(deployVersionJson()).toBe('{"status":"ok"}');
   });
 });

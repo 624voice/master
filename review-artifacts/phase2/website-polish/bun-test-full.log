@@ -1,0 +1,1479 @@
+bun test v1.3.14 (0d9b296a)
+
+src/browser-journey/assessment.browserJourney.test.ts:
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-01: forward navigation through universal steps to gate [4114.39ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-02: back navigation from bp2 to bp1 [908.83ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-03: return after back preserves valid answers [1010.65ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-04: conditional branch activation and removal in DOM [1025.90ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-05: assumptions-review edit updates rendered field [1010.78ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-06: lead-gate validation rejection in DOM [4321.09ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-07: corrected resubmission reaches rendered results [4300.49ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-08: SMS consent unchecked by default [4070.72ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-09: results render without SMS consent [4567.68ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-10: results render with SMS consent checked [4152.41ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-11: priority ordering presentation in results DOM [4127.55ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-12: invalid report token renders plain-text failure [571.47ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-13: validation failure recovery enables resubmission [4347.00ms]
+(pass) Assessment browser journey X-JRN-DOM (fail-closed backend) > X-JRN-DOM-14: results DOM omits Download button without reportUrl [4248.71ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-15: rendered stale-answer removal after branch downgrade [3673.47ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-16: successful report access through visitor UI [5148.50ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-17: repeat report access through same visitor link [5170.70ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-18: invalid report-link UI state [560.57ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-19: expired report-link UI state [5012.16ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-20: retryable report failure and visitor recovery [4845.05ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-21: PDF access without SMS consent through rendered route [4930.47ms]
+(pass) Assessment browser journey X-JRN-DOM (safe backend) > X-JRN-DOM-22: tied-priority presentation in rendered results [4229.04ms]
+
+src/config/rateLimits.test.ts:
+(pass) rate limit config supplemental S-RATE > S-RATE-01: source limit is 30 per hour [0.03ms]
+(pass) rate limit config supplemental S-RATE > S-RATE-02: phone limit is 5 per day [0.01ms]
+(pass) rate limit config supplemental S-RATE > S-RATE-03: redis key prefix is assessment-scoped [0.01ms]
+(pass) rate limit config supplemental S-RATE > S-RATE-04: RATE_LIMITS object matches exported constants [0.02ms]
+
+src/components/CustomerLifecycleDiagram.test.tsx:
+(pass) CustomerLifecycleDiagram additional tests > X-LIFECYCLE-01: six stage label pairs match approved verbatim list [0.10ms]
+(pass) CustomerLifecycleDiagram additional tests > X-LIFECYCLE-02: headline and note are em-dash-free [0.11ms]
+(pass) CustomerLifecycleDiagram additional tests > X-LIFECYCLE-03: reference PNG hash matches approved asset identity [0.54ms]
+(pass) CustomerLifecycleDiagram additional tests > X-LIFECYCLE-05: reference PNG is RGBA with actual alpha transparency [17.56ms]
+(pass) CustomerLifecycleDiagram additional tests > X-LIFECYCLE-04: component source uses semantic ol/li structure [0.22ms]
+
+src/server/phase2NetlifyOwnerQaBoundary.test.ts:
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-01 positive: both PHASE2_OWNER_QA_PREVIEW and deploy-preview context activate boundary [0.08ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-02 negative: flag without deploy-preview context does not activate boundary [0.03ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-03 negative: deploy-preview context without flag does not activate boundary [0.01ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-04 negative: missing credentials/flags alone do not activate execution boundary [0.03ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-05: visitor-controlled inputs cannot set boundary env keys [0.47ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-06: assessment route does not read visitor QA switches [0.11ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-08: hosted preview report links are same-origin relative paths [0.19ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-07: hosted preview report URLs use deploy origin not production default [0.13ms]
+(pass) Phase 2 Netlify owner QA boundary > X-NETLIFY-OWNER-QA-04: report fail-once requires boundary plus explicit flag [0.06ms]
+
+src/server/generateRoiPdf.workflow.test.ts:
+(pass) generateRoiPdf workflow ordering > handler source preserves saveLead → renderReportPdf → SMS order [0.29ms]
+Speed2Lead initial SMS failed: 29 |       isSpeed2LeadEnabled: () => true,
+30 |     }));
+31 | 
+32 |     mock.module("~/server/speed2Lead/reportTokens", () => ({
+33 |       createReportToken: mock(async () => {
+34 |         throw new Error("redis down");
+                       ^
+error: redis down
+      at <anonymous> (/workspace/src/server/generateRoiPdf.workflow.test.ts:34:19)
+      at generateRoiPdfHandler (/workspace/src/server/generateRoiPdfHandler.server.ts:71:33)
+      at async <anonymous> (/workspace/src/server/generateRoiPdf.workflow.test.ts:46:26)
+
+(pass) generateRoiPdf workflow ordering > SMS failure does not block PDF response [1326.08ms]
+(pass) generateRoiPdf workflow ordering > report token route uses V2 PDF server handler [0.28ms]
+
+src/server/deployVersion.test.ts:
+(pass) deploy version diagnostic > returns non-sensitive Netlify metadata fields [2.85ms]
+(pass) deploy version diagnostic > open owner-QA preview returns minimal public health JSON [0.06ms]
+
+src/server/phase2SafeQaHarness.test.ts:
+(pass) Phase 2 safe QA harness production isolation > X-SAFE-QA-01: no fixture mode query param or public route in source [0.24ms]
+(pass) Phase 2 safe QA harness production isolation > X-SAFE-QA-02: harness requires explicit env; missing credential alone does not enable it [0.02ms]
+(pass) Phase 2 safe QA harness production isolation > X-SAFE-QA-03: safe QA script strips production provider credentials in child env [0.15ms]
+(pass) Phase 2 safe QA harness production isolation > X-SAFE-QA-04A: missing credentials and unset harness do not enable fixture paths [18.64ms]
+(pass) Phase 2 safe QA harness production isolation > X-SAFE-QA-04B: production bundle ignores PHASE2_SAFE_QA_HARNESS [5147.66ms]
+
+scripts/phase2/safePreviewFocusOrder.test.ts:
+(pass) owner focus order supplement (not human A11Y-090) > X-SAFE-PREVIEW-FOCUS-01: desktop nav Tab order matches approved conversion navigation [8950.47ms]
+
+scripts/phase2/safePreviewReachability.test.ts:
+SKIP: Docker required for owner-reachable preview proof
+(pass) owner browser reachability (Docker internal network) > X-SAFE-PREVIEW-30: host loads / and /assessment via 127.0.0.1:3000 port publish [152.48ms]
+(pass) owner browser reachability (Docker internal network) > X-SAFE-PREVIEW-37: owner-QA report fail-once fixture returns 503 then PDF [150.45ms]
+(pass) owner browser reachability (Docker internal network) > X-SAFE-PREVIEW-31: preview not publicly bound on 0.0.0.0 on host [149.70ms]
+
+scripts/phase2/safePreviewReportFixtureGuard.test.ts:
+(pass) report fail-once fixture production guard > X-SAFE-PREVIEW-38: fail-once flag alone without PHASE2_SAFE_PREVIEW does not activate fixture [0.14ms]
+(pass) report fail-once fixture production guard > X-SAFE-PREVIEW-39: visitor-controlled inputs are not read by fixture guard [0.04ms]
+(pass) report fail-once fixture production guard > X-SAFE-PREVIEW-40: both safe-preview and fail-once flags activate first-request 503 only [0.07ms]
+
+scripts/phase2/bp1Bp2KeyboardModel.test.ts:
+(pass) BP1/BP2 keyboard model supplement > X-SAFE-PREVIEW-FOCUS-04: BP1 and BP2 are native SELECT controls with ArrowDown+Tab model [8931.80ms]
+
+scripts/phase2/assessmentStaleAnswerPayload.test.ts:
+(pass) assessment stale follow-up payload removal > X-SAFE-PREVIEW-FOCUS-03: onScreeningChanged clears GF-F1/F2/F3 answers from active state [1.02ms]
+
+scripts/phase2/assessmentKeyboardModel.test.ts:
+(pass) assessment keyboard model supplement > X-SAFE-PREVIEW-FOCUS-02: GF-S choice buttons use Tab+Space (not native radio arrows) [9234.59ms]
+
+scripts/phase2/safePreviewBrowserCsp.test.ts:
+CSP: default-src 'self' http://127.0.0.1:* http://localhost:* data: blob:; connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*; img-src 'self' data: http://127.0.0.1:* http://localhost:*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:* http://localhost:*; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src 'self' http://127.0.0.1:* http://localhost:*; form-action 'self' http://127.0.0.1:* http://localhost:*; frame-ancestors 'none'; base-uri 'self'
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-22: complete CSP header string [0.10ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-23: browser fetch external blocked [143.10ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-24: browser external image blocked [138.19ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-25: browser external script blocked [149.51ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-26: browser sendBeacon external blocked [148.88ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-27: browser XHR external blocked [148.99ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-28: WebSocket guard — no app WebSocket paths; guard blocks wss:// [182.15ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-29: node:tls non-loopback blocked [23.96ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-32: browser external font load blocked [148.59ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-33: browser external iframe blocked [147.13ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-34: browser external form submission blocked [128.15ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-35: browser WebSocket external blocked [152.50ms]
+(pass) safe preview browser CSP > X-SAFE-PREVIEW-36: top-level external navigation — CSP limitation documented [151.85ms]
+
+scripts/phase2/headerSequenceRoutes.test.ts:
+(pass) shared header sequence across routes > X-SAFE-PREVIEW-FOCUS-05: header Tab order matches on all listed desktop routes [1.17ms]
+
+scripts/phase2/prepare-safe-preview-deps.test.ts:
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-01: lockfile byte-identical before and after preparation [62.02ms]
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-02: preparation child env excludes fake parent credentials [0.55ms]
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-06: preparation disclosure states self-test allowlist and installer/docker boundary [79.82ms]
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-03: prep egress blocks Twilio, SendGrid, Upstash, Google, CRM, analytics, agent destinations [22.09ms]
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-04: Docker build uses minimal context; Dockerfile has no COPY/ADD [153.06ms]
+(pass) prepare-safe-preview-deps secret safety > X-SAFE-PREP-05: isolated temp workspace — fake secrets absent from output and image layers [2733.51ms]
+
+scripts/phase2/phase2-conversion-pass.test.ts:
+(pass) Phase 2 conversion pass (Checkpoint 2) > roi-calculator route redirects to assessment without side effects [0.10ms]
+(pass) Phase 2 conversion pass (Checkpoint 2) > nav exposes one unified assessment link [0.16ms]
+(pass) Phase 2 conversion pass (Checkpoint 2) > Explore Your Options routes to contact [0.05ms]
+(pass) Phase 2 conversion pass (Checkpoint 2) > Other trade is selectable in call volume model [0.06ms]
+
+scripts/phase2/start-safe-assessment-preview.test.ts:
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-01: builds fresh child env without parent credentials [1.87ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-02: negative probe — parent fake credentials do not reach child [72.17ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-03: fail closed when prohibited variable injected after sanitization [0.59ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-04: caller cannot override ASSESSMENT_ROI_AGENT_LIVE_ENABLED via parent [0.35ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-05: launcher uses Docker internal network and fail-closed preflight [0.09ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters [11.25ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-07: no visitor-controlled activation path in assessment route [0.22ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars [0.40ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-09: fetch non-loopback blocked with exit 0 meaning block observed [35.58ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build [0.48ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only [0.41ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-12: parent HOME and credential file paths are not reused [0.43ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-13: local .env secrets do not load into sanitized build child [25.07ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-14: startup aborts when Redis stub script missing [0.10ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-15: node:http non-loopback request is blocked [32.21ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-16: node:https non-loopback request is blocked [33.56ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-17: node:net non-loopback connect is blocked [36.84ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-18: child_process curl command is blocked by loopback-only namespace [14.36ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-19: safe preview serve binds loopback and sets CSP [0.11ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-20: trackEvent default sink makes no network request in production build [14.15ms]
+(pass) start-safe-assessment-preview isolation > X-SAFE-PREVIEW-21: frozen install command uses guard and fails closed on missing lock [35.98ms]
+
+scripts/phase2/website-polish-regression.test.ts:
+(pass) Phase 2 website polish regression > fleet five-band labels include 50+ trucks in Assessment and Contact [0.92ms]
+(pass) Phase 2 website polish regression > four-step engagement titles match on Home and How We Work [0.09ms]
+(pass) Phase 2 website polish regression > customer journey has six stages with accessible descriptions [0.08ms]
+(pass) Phase 2 website polish regression > page title strings [0.07ms]
+(pass) Phase 2 website polish regression > footer routes explore options and choose time separately [0.10ms]
+(pass) Phase 2 website polish regression > header primary CTA routes to contact; assessment results keep book path [0.06ms]
+(pass) Phase 2 website polish regression > homepage conversion sections without removed final trust block [0.05ms]
+(pass) Phase 2 website polish regression > assessment hero component stays mounted outside step conditionals [0.05ms]
+(pass) Phase 2 website polish regression > SHOW_VOICE_AI_GUARANTEE default false [0.01ms]
+(pass) Phase 2 website polish regression > demo copy does not claim visitor voice selector [0.04ms]
+(pass) Phase 2 website polish regression > roi-calculator route redirects to assessment [0.02ms]
+(pass) Phase 2 website polish regression > booking embed loading and fallback copy [0.03ms]
+
+scripts/phase2/assessmentStaleSubmissionPayload.test.ts:
+(pass) assessment stale submission serialization > X-SAFE-PREVIEW-FOCUS-06: production path excludes GF-F1/F2/F3 after GF-S lowered [5.75ms]
+
+src/components/assessment/assessmentProgress.test.ts:
+(pass) Assessment progress identity (Checkpoint 1 regression) > RG and RM question IDs are not misclassified as Respond [0.08ms]
+(pass) Assessment progress identity (Checkpoint 1 regression) > step numbering does not move backward from Convert to Retain [0.04ms]
+(pass) Assessment progress identity (Checkpoint 1 regression) > severity 2/3 opens follow-ups in question flow order [0.09ms]
+
+src/server/sms/sendState.test.ts:
+(pass) opener send-state key scope > agent opener is phone + flow + episode, not phone-only [0.15ms]
+(pass) opener send-state key scope > legacy demo opener is phone + episode, not phone-only [0.03ms]
+(pass) opener send-state key scope > booking-link and lifecycle keys are unchanged [0.05ms]
+(pass) classifyProviderSendError > timeouts and connection resets are indeterminate [0.09ms]
+(pass) classifyProviderSendError > conclusive 5xx / 429 are retryable [0.02ms]
+(pass) classifyProviderSendError > conclusive 4xx are terminal [0.01ms]
+(pass) classifyProviderSendError > unconfigured Twilio never reached the provider and is retryable [0.02ms]
+(pass) sendSmsWithState crash and provider-fake outcomes > crash-before-submitting: stale claimed lease is reclaimed and sent [1.16ms]
+sms_send_indeterminate {
+  key: "unit-stale-submitting",
+  attemptCount: 1,
+  attemptId: "crashed",
+  submittingAttemptId: "crashed",
+  reason: "stale_submitting",
+  claimedAt: "2026-10-06T21:35:28.522Z",
+  leaseExpiresAt: "2026-10-06T21:35:28.522Z",
+}
+(pass) sendSmsWithState crash and provider-fake outcomes > crash-after-submitting: stale submitting becomes indeterminate and is not resent [0.18ms]
+sms_send_indeterminate {
+  key: "unit-timeout",
+  attemptCount: 1,
+  attemptId: "a8057308-4bd0-4103-8bf0-da409d6a4c57",
+  submittingAttemptId: "a8057308-4bd0-4103-8bf0-da409d6a4c57",
+  reason: "Twilio request timeout",
+  claimedAt: "2026-10-06T21:36:28.523Z",
+  leaseExpiresAt: "2026-10-06T21:36:58.523Z",
+}
+sms_send_indeterminate {
+  key: "unit-timeout",
+  attemptCount: 1,
+  attemptId: "a8057308-4bd0-4103-8bf0-da409d6a4c57",
+  submittingAttemptId: "a8057308-4bd0-4103-8bf0-da409d6a4c57",
+  reason: "replay_saw_indeterminate",
+  claimedAt: "2026-10-06T21:36:28.523Z",
+  leaseExpiresAt: "2026-10-06T21:36:58.523Z",
+}
+(pass) sendSmsWithState crash and provider-fake outcomes > provider timeout after submitting is indeterminate and is not retried as a send [0.31ms]
+(pass) sendSmsWithState crash and provider-fake outcomes > confirmed provider 5xx is failed_retryable and a later attempt can send [0.26ms]
+(pass) sendSmsWithState crash and provider-fake outcomes > a live lease on claimed is not stolen by a second worker [0.11ms]
+(pass) sendSmsWithState crash and provider-fake outcomes > already sent replays do not call the provider again [0.16ms]
+
+src/server/sms/sendState.duplication.test.ts:
+113 |     enableSpeed2LeadEnv();
+114 |   });
+115 | 
+116 |   test("ROI opener: two triggers before the episode exists send one SMS", async () => {
+117 |     await Promise.all([startAgentConversation(roiInput), startAgentConversation(roiInput)]);
+118 |     expect(capturedOutboundSms).toHaveLength(1);
+                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 0
+
+      at <anonymous> (/workspace/src/server/sms/sendState.duplication.test.ts:118:33)
+(fail) duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS [0.34ms]
+(pass) duplication-boundary replay of real upstream triggers > contact opener: two triggers before the episode exists send one SMS [2.00ms]
+133 |     expect(capturedOutboundSms).toHaveLength(1);
+134 |   });
+135 | 
+136 |   test("same episode replay after session drop still sends one ROI opener", async () => {
+137 |     await startAgentConversation(roiInput);
+138 |     expect(capturedOutboundSms).toHaveLength(1);
+                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 0
+
+      at <anonymous> (/workspace/src/server/sms/sendState.duplication.test.ts:138:33)
+(fail) duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener [0.10ms]
+143 |   });
+144 | 
+145 |   test("ROI then Contact for the same phone are different episodes and each send once", async () => {
+146 |     const phone = "+15550001011";
+147 |     await startAgentConversation({ ...roiInput, phone, email: "jamie-cross@example.com" });
+148 |     expect(capturedOutboundSms).toHaveLength(1);
+                                      ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 0
+
+      at <anonymous> (/workspace/src/server/sms/sendState.duplication.test.ts:148:33)
+(fail) duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once [0.08ms]
+startContactAgentConversation skipped opener {
+  phoneSuffix: "1012",
+  reason: "agent_session:contact",
+}
+(pass) duplication-boundary replay of real upstream triggers > a later Contact episode after a booked Contact episode sends once [0.49ms]
+startDemoAgentConversation skipped opener {
+  phoneSuffix: "1013",
+  reason: "agent_session:demo",
+}
+(pass) duplication-boundary replay of real upstream triggers > demo v2: same vapiCallId concurrent and replayed sends one opener [1.02ms]
+(pass) duplication-boundary replay of real upstream triggers > demo v2: a different vapiCallId after a booked demo is a new episode [0.31ms]
+(pass) duplication-boundary replay of real upstream triggers > legacy demo: same Vapi call replayed at the trigger boundary sends one opener [1.06ms]
+(pass) duplication-boundary replay of real upstream triggers > legacy demo: a different Vapi call for the same phone is a new episode [0.31ms]
+(pass) duplication-boundary replay of real upstream triggers > inbound reply: the same Twilio MessageSid delivered twice sends one reply [3.68ms]
+{"component":"appointmentLifecycle","event":"booking_link_followup_sent","at":"2026-10-06T21:36:28.597Z","phone":"+15550001004","stage":0}
+(pass) duplication-boundary replay of real upstream triggers > booking-link follow-up: two workers on the same due touch send one SMS [0.98ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","method":"phone"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:28.598Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:28.600Z","eventId":"evt-dup-confirm-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:28.600Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"confirmation_sent","at":"2026-10-06T21:36:28.600Z","phone":"+15550001005","messageType":"confirmation","eventId":"evt-dup-confirm-1"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:28.600Z","eventId":"evt-dup-confirm-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:28.600Z","eventId":"evt-dup-confirm-1","phone":"+15550001005","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:28.600Z","eventId":"evt-dup-confirm-1","phone":"+15550001005"}
+(pass) duplication-boundary replay of real upstream triggers > calendar confirmation: same eligible Google event processed twice sends one SMS [3.30ms]
+{"component":"appointmentLifecycle","event":"human_alert_sent","at":"2026-10-06T21:36:28.601Z","reason":"explicit_human_request","subjectId":"+15550001006","skipped":"no_escalation_phone"}
+(pass) duplication-boundary replay of real upstream triggers > internal alert: the same logical event is claimed once [0.22ms]
+
+src/server/sms/inboundRecovery.characterization.test.ts:
+(pass) inbound ownership (current, not redesigned) > ingress routes to the rebuilt agent only when an AgentSession exists [0.05ms]
+(pass) inbound ownership (current, not redesigned) > missing AgentSession is unknown inbound on the legacy handler [1.13ms]
+(pass) inbound ownership (current, not redesigned) > legacy ROI session still gets unknownInboundMessage, not advanceConversation [0.68ms]
+(pass) inbound ownership (current, not redesigned) > a live AgentSession is the rebuilt-engine ownership signal [0.10ms]
+{"component":"appointmentLifecycle","event":"global_opt_out_processed","at":"2026-10-06T21:36:28.606Z","phone":"+15550003004"}
+(pass) inbound ownership (current, not redesigned) > Twilio-classified STOP does not request an application confirmation SMS [0.34ms]
+{"component":"appointmentLifecycle","event":"global_opt_out_processed","at":"2026-10-06T21:36:28.606Z","phone":"+15550003005"}
+(pass) inbound ownership (current, not redesigned) > application fallback STOP without an AgentSession still requests legacy confirmation [0.08ms]
+
+src/server/sms/optOut.test.ts:
+{"component":"appointmentLifecycle","event":"global_opt_out_processed","at":"2026-10-06T21:36:28.608Z","phone":"+15551111111"}
+{"component":"appointmentLifecycle","event":"global_opt_in_processed","at":"2026-10-06T21:36:28.608Z","phone":"+15552222222"}
+{"component":"appointmentLifecycle","event":"compliance_help_received","at":"2026-10-06T21:36:28.608Z","phone":"+15553333333"}
+(pass) ingress compliance > Twilio STOP/START/HELP are handled distinctly with no app confirmation flag [0.29ms]
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:28.608Z","phone":"+15554444444"}
+{"component":"appointmentLifecycle","event":"global_opt_out_processed","at":"2026-10-06T21:36:28.608Z","phone":"+15554444444"}
+(pass) ingress compliance > fallback STOP with an agent session is silent [0.20ms]
+{"component":"appointmentLifecycle","event":"global_opt_out_processed","at":"2026-10-06T21:36:28.608Z","phone":"+15555555555"}
+(pass) ingress compliance > fallback STOP without an agent session requests legacy confirmation [0.07ms]
+(pass) ingress compliance > normal yes from an opted-in prospect is not intercepted [0.04ms]
+{"component":"appointmentLifecycle","event":"global_opt_in_processed","at":"2026-10-06T21:36:28.608Z","phone":"+15557777777"}
+(pass) ingress compliance > fallback START only evaluates when locally opted out [0.07ms]
+(pass) ingress compliance > START keywords never include yes [0.02ms]
+
+src/server/demoSpeed2Lead/flows.test.ts:
+(pass) demo natural-language flow > yes branch asks workload then calendar [0.63ms]
+(pass) demo natural-language flow > strong positive sends calendar immediately [0.10ms]
+(pass) demo natural-language flow > mild positive asks workload question first [0.12ms]
+(pass) demo natural-language flow > no branch asks objection then may offer calendar [0.16ms]
+(pass) demo natural-language flow > negative feedback branch completes [0.08ms]
+(pass) demo global intents > price question completes immediately [0.05ms]
+(pass) demo global intents > ready to book completes immediately [0.05ms]
+(pass) demo global intents > meeting booked completes with confirmation [0.09ms]
+(pass) demo session bootstrap > initial message uses business name and fit question [0.04ms]
+
+src/server/appointmentLifecycle/intents.test.ts:
+(pass) lifecycle intents > reschedule phrases [0.93ms]
+(pass) lifecycle intents > cancel phrases [0.09ms]
+(pass) lifecycle intents > ambiguous cancellation is flagged [0.04ms]
+(pass) lifecycle intents > STOP is not a lifecycle cancel [0.04ms]
+
+src/server/appointmentLifecycle/consultationSlots.test.ts:
+(pass) consultationSlots deterministic availability > busy calendar events remove conflicting slots [1.86ms]
+(pass) consultationSlots deterministic availability > 10-minute meeting buffers are respected [0.22ms]
+(pass) consultationSlots deterministic availability > 25-minute consultation duration is respected [1.05ms]
+(pass) consultationSlots deterministic availability > slots are limited to configured business hours [3.49ms]
+(pass) consultationSlots deterministic availability > weekends are excluded [0.87ms]
+(pass) consultationSlots deterministic availability > past times are excluded [0.95ms]
+(pass) consultationSlots deterministic availability > returned slots are ordered chronologically [1.29ms]
+(pass) consultationSlots deterministic availability > cancelled events do not block availability [0.26ms]
+(pass) consultationSlots deterministic availability > candidate slots use 15-minute intervals [7.31ms]
+
+src/server/appointmentLifecycle/googleMeetBooking.test.ts:
+(pass) Google Meet booking invariants > service-account provider disables attendee invites [0.58ms]
+(pass) Google Meet booking invariants > booking confirmation includes persisted Meet URL and not email-invite copy [1.04ms]
+(pass) Google Meet booking invariants > 24-hour and 2-hour reminders share the same Meet URL [0.36ms]
+(pass) Google Meet booking invariants > reminder schedule targets start minus 24h and 2h windows [0.18ms]
+(pass) Google Meet booking invariants > cancelled bookings suppress reminders [0.02ms]
+(pass) Google Meet booking invariants > rescheduled start clears prior reminder send timestamps [0.03ms]
+
+src/server/appointmentLifecycle/00-store.invariants.test.ts:
+(pass) store lifecycle invariants > superseded lifecycle is not active [0.08ms]
+(pass) store lifecycle invariants > reschedule_pending suppresses reminders [0.04ms]
+(pass) store lifecycle invariants > stale reschedule_pending expires after 48h [0.04ms]
+(pass) store lifecycle invariants > incomplete reschedule within 48h stays pending [0.02ms]
+
+src/server/appointmentLifecycle/calendarCapabilitySmoke.test.ts:
+(pass) classifyCalendarCapability > CASE_A when hangoutsMeet is explicitly allowed [0.06ms]
+(pass) classifyCalendarCapability > CASE_B when conference properties exist without hangoutsMeet [0.02ms]
+(pass) classifyCalendarCapability > CASE_C when conference properties are absent [0.02ms]
+(pass) classifyCalendarCapability > CASE_C when allowedConferenceSolutionTypes is empty [0.01ms]
+(pass) probeGoogleCalendarCapability > parses calendars.get and calendarList.get with sanitized auth context [2.53ms]
+(pass) probeGoogleCalendarCapability > reports calendar list absence explicitly and classifies CASE_B [1.01ms]
+(pass) handleCalendarCapabilitySmokeRequest > requires auth [0.30ms]
+(pass) handleCalendarCapabilitySmokeRequest > returns sanitized capability probe on success [0.86ms]
+(pass) handleCalendarCapabilitySmokeRequest > returns 404 outside preview diagnostic context [0.10ms]
+
+src/server/appointmentLifecycle/googleOAuth.test.ts:
+(pass) Google OAuth redirect URI resolution > preview OAuth start uses request origin even when production URL env is set [0.13ms]
+(pass) Google OAuth redirect URI resolution > production config resolves www.624voice.com callback when production context is active [0.03ms]
+(pass) Google OAuth redirect URI resolution > preview without request falls back to Netlify deploy URL env [0.02ms]
+(pass) Google OAuth authorization URL > uses required minimum scopes with offline access [0.20ms]
+{"component":"googleOAuth","event":"connection_saved","at":"2026-10-06T21:36:28.667Z","connectionId":"primary","connectedEmail":"info@624voice.com","calendarId":"info@624voice.com","refreshTokenHash":"a2affc908c15","scopes":["https://www.googleapis.com/auth/calendar","openid","email","profile"]}
+(pass) Google OAuth callback and token storage > validates OAuth state and stores refresh token securely [1.30ms]
+(pass) Google OAuth callback and token storage > rejects invalid OAuth state [0.06ms]
+(pass) Google OAuth callback and token storage > refresh obtains usable access token without exposing secrets [0.41ms]
+(pass) Google OAuth callback and token storage > token refresh failure returns typed auth error [0.18ms]
+(pass) OAuth provider selection > uses OAuth token after OAuth provider selected [0.11ms]
+(pass) OAuth provider selection > does not use service account when OAuth connection is active [0.06ms]
+(pass) OAuth setup and smoke handlers > status handler requires auth and never returns tokens [0.56ms]
+(pass) OAuth setup and smoke handlers > valid setup token reaches OAuth start redirect [0.29ms]
+(pass) OAuth setup and smoke handlers > start handler redirects to Google OAuth with preview callback URI [0.20ms]
+(pass) OAuth setup and smoke handlers > oauth smoke handler reports not connected before authorization [1.39ms]
+{"component":"googleOAuth","event":"connection_saved","at":"2026-10-06T21:36:28.671Z","connectionId":"primary","connectedEmail":"info@624voice.com","calendarId":"info@624voice.com","refreshTokenHash":"a2affc908c15","scopes":["https://www.googleapis.com/auth/calendar","openid","email","profile"]}
+(pass) OAuth callback setup continuation > successful callback redirects to authorized setup continuation [0.72ms]
+(pass) OAuth callback setup continuation > invalid OAuth state is rejected without setup continuation [0.12ms]
+
+src/server/appointmentLifecycle/googleCredentials.test.ts:
+(pass) googleCredentials > normalizes escaped newlines from Netlify-style storage [1.01ms]
+(pass) googleCredentials > normalizes double-escaped newlines [0.05ms]
+(pass) googleCredentials > strips surrounding quotes [0.02ms]
+(pass) googleCredentials > parses private key id from JSON credential blob [0.08ms]
+(pass) googleCredentials > inspectGooglePrivateKey reports PEM header/footer validity [0.03ms]
+(pass) googleCredentials > sanitizeGoogleApiErrorBody extracts reason and message [0.04ms]
+
+src/server/appointmentLifecycle/matchLead.test.ts:
+(pass) matchLead production safety > phone exact match with consent-eligible lead [0.52ms]
+(pass) matchLead production safety > unique name alone produces unmatched_booking [0.16ms]
+(pass) matchLead production safety > same first/last name across multiple leads cannot cause SMS without email [0.08ms]
+(pass) matchLead production safety > shared office phone requires email disambiguation [0.16ms]
+(pass) matchLead production safety > email resolves duplicate phone safely [0.09ms]
+(pass) matchLead production safety > phone match rejected when attendee name conflicts [0.08ms]
+(pass) matchLead production safety > wrong customer cannot receive another person appointment via email [0.06ms]
+(pass) extractPhoneFromText > numeric-local-part emails cannot produce a phone [0.18ms]
+(pass) extractPhoneFromText > URLs containing long digit runs cannot produce a phone [0.02ms]
+(pass) extractPhoneFromText > tel: URI is extracted even when a numeric-local-part email is present [0.02ms]
+(pass) extractPhoneFromText > labeled phone is extracted even when a numeric-local-part email is present [0.01ms]
+(pass) extractPhoneFromText > ordinary formatted phone values still parse [0.02ms]
+(pass) extractPhoneFromText > digits inside a longer numeric sequence are not a phone [0.01ms]
+(pass) extractPhoneFromText > alphanumeric identifiers are not phones [0.02ms]
+(pass) extractEmailFromText > extracts a plain email [0.03ms]
+
+src/server/appointmentLifecycle/googleCalendarSetupSearch.test.ts:
+(pass) parseGoogleCalendarSetupSearch > recognizes token from raw searchStr [0.12ms]
+(pass) parseGoogleCalendarSetupSearch > recognizes setup session from callback redirect [0.03ms]
+(pass) parseGoogleCalendarSetupSearch > missing auth stays empty [0.05ms]
+(pass) parseGoogleCalendarSetupSearch > coerces JSON-parsed numeric token values from router search [0.02ms]
+(pass) parseGoogleCalendarSetupSearch > prefers raw searchStr over router search object [0.01ms]
+(pass) Google Calendar setup URLs > status request preserves query token [0.03ms]
+(pass) Google Calendar setup URLs > status request preserves setup session [0.02ms]
+(pass) Google Calendar setup URLs > connect OAuth URL preserves setup session [0.01ms]
+(pass) Google Calendar setup URLs > callback setup page URL preserves setup session and connected flag [0.02ms]
+
+src/server/appointmentLifecycle/calendarBookingSmoke.test.ts:
+(pass) parseBookingSmokeMode > accepts handset mode [0.04ms]
+(pass) parseBookingSmokeMode > accepts create_only mode [0.01ms]
+(pass) parseBookingSmokeMode > defaults omitted mode to compare [0.01ms]
+(pass) parseBookingSmokeMode > returns null for unknown mode [0.01ms]
+(pass) handleCalendarBookingSmokeRequest mode routing > mode=compare invokes compare diagnostic [0.59ms]
+(pass) handleCalendarBookingSmokeRequest mode routing > mode=handset invokes handset bookProviderSlot diagnostic [0.16ms]
+(pass) handleCalendarBookingSmokeRequest mode routing > mode=create_only invokes create-only diagnostic [0.13ms]
+(pass) handleCalendarBookingSmokeRequest mode routing > unknown mode returns 400 without compare fallback [0.08ms]
+
+src/server/appointmentLifecycle/smsEncoding.test.ts:
+(pass) smsEncoding > detects non-GSM-7 em dash [0.67ms]
+(pass) smsEncoding > accepts hyphen and apostrophe [0.04ms]
+(pass) smsEncoding > counts single-segment GSM-7 message [0.11ms]
+(pass) smsEncoding > counts multi-segment GSM-7 message [0.03ms]
+
+src/server/appointmentLifecycle/messages.test.ts:
+(pass) appointment messages GSM-7 > confirmation uses SMS-safe punctuation and Google Meet link [0.24ms]
+(pass) appointment messages GSM-7 > 24h reminder uses persisted Google Meet URL [0.14ms]
+(pass) appointment messages GSM-7 > 2h reminder uses the same Google Meet URL [0.10ms]
+(pass) appointment messages GSM-7 > representative segment counts [0.26ms]
+(pass) Twilio Smart Encoding > not configured in codebase [0.02ms]
+
+src/server/appointmentLifecycle/parseCalendarEvent.lifecycle.test.ts:
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:28.689Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:28.689Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","source":"roi","confidence":"confident"}
+(pass) production Appointment Schedule identity lifecycle > raw Google event → parse → resolveBookingIdentity matches the guest lead [0.93ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","source":"roi","confidence":"confident"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278","method":"phone"}
+{"component":"appointmentLifecycle","event":"confirmation_sent","at":"2026-10-06T21:36:28.690Z","phone":"+12149722278","messageType":"confirmation","eventId":"2prb1u0gu3287k6t5rbl2kd6t0"}
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:28.690Z","phone":"+12149722278"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:28.690Z","eventId":"2prb1u0gu3287k6t5rbl2kd6t0","phone":"+12149722278"}
+(pass) production Appointment Schedule identity lifecycle > identity match → confirmed lifecycle → AgentSession booked → booking-link campaign cancelled [0.93ms]
+
+src/server/appointmentLifecycle/googleMeetConference.test.ts:
+(pass) googleMeetConference payload > conference solution type is exactly hangoutsMeet [0.10ms]
+(pass) googleMeetConference payload > requestId is present, non-empty, and not a fixed constant [0.03ms]
+(pass) googleMeetConference payload > requestId for same booking key differs across attempts [0.06ms]
+(pass) extractGoogleMeetUrl > prefers video entry point over hangoutLink [0.02ms]
+(pass) extractGoogleMeetUrl > falls back to hangoutLink when video entry point is missing [0.01ms]
+(pass) extractGoogleMeetUrl > does not fabricate a Meet URL
+(pass) conference status helpers > readConferenceStatus reads createRequest and conferenceStatus [0.03ms]
+(pass) conference status helpers > pending and failure status predicates [0.03ms]
+(pass) insertCalendarEventWithDiagnostic conference wiring > events.insert includes conferenceDataVersion=1 and hangoutsMeet type [0.66ms]
+(pass) resolveCreatedEventMeetUrl pending conference > bounded re-read resolves Meet URL after pending conference status [752.42ms]
+(pass) resolveCreatedEventMeetUrl pending conference > failure conference status returns typed failure without Meet URL [0.25ms]
+
+src/server/appointmentLifecycle/googleCalendar.consultation.test.ts:
+(pass) googleCalendar consultation booking > getConsultationSlots returns ordered ISO starts from calendar conflicts [2.98ms]
+(pass) googleCalendar consultation booking > slot is re-checked immediately before booking [2.87ms]
+(pass) googleCalendar consultation booking > a newly occupied slot fails safely instead of double-booking [1.46ms]
+(pass) googleCalendar consultation booking > duplicate booking attempts are idempotent [1.56ms]
+(pass) googleCalendar consultation booking > successful creation returns the Google Calendar event ID [1.51ms]
+(pass) googleCalendar consultation booking > external lead email does not add Google attendees on service-account path [1.61ms]
+(pass) googleCalendar consultation booking > supportsAttendeeInvites is false for service-account provider [0.17ms]
+(pass) googleCalendar consultation booking > missing attendee email still books with Google Meet and without sendUpdates [1.44ms]
+{"component":"appointmentLifecycle","event":"calendar_api_error","at":"2026-10-06T21:36:29.464Z","action":"create_event","status":500,"body":"error"}
+{"component":"googleCalendarProvider","event":"provider_diagnostic","at":"2026-10-06T21:36:29.464Z","serviceAccountEmail":"agent@test.iam.gserviceaccount.com","calendarId":"test-calendar","privateKeyPresent":true,"privateKeyPemHeaderValid":true,"privateKeyPemFooterValid":true,"privateKeyLineCount":28,"privateKeyIdConfigured":null,"privateKeyIdFromCredentials":null,"privateKeyIdMatchesConfigured":null,"tokenGenerationSucceeded":true,"failureStage":"calendar_api","requestEndpoint":"calendar.events.insert","requestStartIso":"2026-10-14T15:00:00.000Z","requestEndIso":"2026-10-14T15:30:00.000Z","httpStatus":500,"googleErrorMessage":"error","attendeeCount":0,"conferenceRequested":true}
+(pass) googleCalendar consultation booking > failed calendar creation never reports success [1.71ms]
+(pass) googleCalendar consultation booking > conference failure after insert returns conference_error without Meet URL [1.77ms]
+(pass) googleCalendar consultation booking > missing Meet URL after insert returns conference_error [1.76ms]
+(pass) googleCalendar consultation booking > isStartAvailableAgainstBusy respects duration and buffer [0.43ms]
+
+src/server/appointmentLifecycle/reminderSchedule.test.ts:
+(pass) reminderSchedule > booking >24h away schedules confirmation + 24h + 2h [0.07ms]
+(pass) reminderSchedule > booking 12h away skips 24h reminder [0.03ms]
+(pass) reminderSchedule > booking 90m away skips both follow-up reminders at confirm time [0.02ms]
+(pass) reminderSchedule > 24h reminder does not send after cancellation [0.02ms]
+(pass) reminderSchedule > 24h reminder does not send twice [0.02ms]
+(pass) reminderSchedule > 24h reminder fires at exactly T−24h [0.03ms]
+(pass) reminderSchedule > 2h reminder fires at exactly T−2h [0.03ms]
+(pass) reminderSchedule > rescheduled event resets reminder eligibility via cleared timestamps [0.02ms]
+(pass) precise reminder windows (never send early) > 24h reminder is false at T−24h−1 minute [0.01ms]
+(pass) precise reminder windows (never send early) > 24h reminder is true at exactly T−24h [0.01ms]
+(pass) precise reminder windows (never send early) > 24h reminder remains eligible within approved late window (T−23h) [0.02ms]
+(pass) precise reminder windows (never send early) > 24h reminder is false after late window closes [0.01ms]
+(pass) precise reminder windows (never send early) > 24h reminder is not sent twice [0.02ms]
+(pass) precise reminder windows (never send early) > 2h reminder is false at T−2h−1 minute [0.01ms]
+(pass) precise reminder windows (never send early) > 2h reminder is true at exactly T−2h [0.01ms]
+(pass) precise reminder windows (never send early) > 2h reminder remains eligible within approved late window (T−1h30m)
+(pass) precise reminder windows (never send early) > 2h reminder is false after late window closes [0.01ms]
+(pass) precise reminder windows (never send early) > 2h reminder is not sent twice [0.02ms]
+(pass) Wednesday 10:30am CT live booking timing > 24h cannot send Tuesday 9:30am CT [0.01ms]
+(pass) Wednesday 10:30am CT live booking timing > 24h can send Tuesday 10:30am CT
+(pass) Wednesday 10:30am CT live booking timing > 2h cannot send Wednesday 8:00am CT
+(pass) Wednesday 10:30am CT live booking timing > 2h can send Wednesday 8:30am CT
+(pass) timezone handling > uses absolute UTC instants so America/Chicago DST is respected [0.02ms]
+
+src/server/appointmentLifecycle/googleBookingProviderProbe.test.ts:
+(pass) probeHandsetEquivalentBookProviderSlot > returns sanitized configuration error when SPEED2LEAD_TEST_PHONES is unset [1.22ms]
+(pass) probeHandsetEquivalentBookProviderSlot > uses first allowlisted test phone without exposing full number in response [0.29ms]
+(pass) probeHandsetEquivalentBookProviderSlot > accepts explicit phone override for handset-equivalent diagnostic [0.11ms]
+
+src/server/appointmentLifecycle/calendarMetadata.test.ts:
+(pass) calendar metadata upsert > markers are brand-neutral and Source displays MULTI_TOUCH [0.04ms]
+(pass) calendar metadata upsert > neither marker → append [0.03ms]
+(pass) calendar metadata upsert > both markers → replace only the interior [0.06ms]
+(pass) calendar metadata upsert > only one marker is malformed — append, do not truncate [0.03ms]
+(pass) calendar metadata upsert > UNKNOWN display does not imply a lead source rewrite [0.02ms]
+
+src/server/appointmentLifecycle/zz-lifecycle.integration.test.ts:
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_api_error","at":"2026-10-06T21:36:29.484Z","action":"patch_description","status":503,"body":"{\"error\":\"offline_suite_unmocked_url\",\"url\":\"https://www.googleapis.com/calendar/v3/calendars/test-calendar/events/agent-evt-1\"}"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.484Z","eventId":"agent-evt-1","phone":"+15551234567"}
+(pass) bookConsultation lifecycle integration > successful agent-created booking enters lifecycle exactly once [8.43ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_api_error","at":"2026-10-06T21:36:29.486Z","action":"patch_description","status":503,"body":"{\"error\":\"offline_suite_unmocked_url\",\"url\":\"https://www.googleapis.com/calendar/v3/calendars/test-calendar/events/agent-evt-1\"}"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"duplicate_prevented","at":"2026-10-06T21:36:29.486Z","eventId":"agent-evt-1","action":"confirmation"}
+(pass) bookConsultation lifecycle integration > Apps Script sync does not duplicate lifecycle confirmation [1.80ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.487Z","eventId":"agent-evt-1","phone":"+15551234567","candidateCount":1,"method":"phone"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.487Z","eventId":"agent-evt-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.487Z","eventId":"agent-evt-1","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_api_error","at":"2026-10-06T21:36:29.487Z","action":"patch_description","status":503,"body":"{\"error\":\"offline_suite_unmocked_url\",\"url\":\"https://www.googleapis.com/calendar/v3/calendars/test-calendar/events/agent-evt-1\"}"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.487Z","eventId":"agent-evt-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.488Z","eventId":"agent-evt-1","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.488Z","eventId":"agent-evt-1","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"duplicate_prevented","at":"2026-10-06T21:36:29.488Z","eventId":"agent-evt-1","action":"confirmation"}
+(pass) bookConsultation lifecycle integration > idempotent bookConsultation replay does not duplicate lifecycle SMS [1.61ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-1","phone":"+15551234567"}
+(pass) processEvent production safety > matching lead with consent sends SMS [0.52ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-no-consent","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-no-consent","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.488Z","eventId":"evt-no-consent","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"sms_suppressed_no_consent","at":"2026-10-06T21:36:29.488Z","phone":"+15551234567","source":"roi"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.488Z","eventId":"evt-no-consent"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.488Z","eventId":"evt-no-consent","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+(pass) processEvent production safety > matching lead without consent sends no SMS [0.24ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-optout","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-optout","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.489Z","eventId":"evt-optout","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-optout"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.489Z","eventId":"evt-optout","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+(pass) processEvent production safety > opted-out lead sends no lifecycle SMS [0.18ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-new","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.489Z","eventId":"evt-new","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.489Z","eventId":"evt-new","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"lifecycle_superseded","at":"2026-10-06T21:36:29.489Z","oldEventId":"evt-old","newEventId":"evt-new","phone":"+15551234567","replacement":"yes","calendarCancelled":false}
+{"component":"appointmentLifecycle","event":"manual_cleanup_required","at":"2026-10-06T21:36:29.489Z","eventId":"evt-old","phone":"+15551234567","reason":"replacement_without_api_cancel"}
+{"component":"appointmentLifecycle","event":"booking_replacement_matched","at":"2026-10-06T21:36:29.489Z","eventId":"evt-new","oldEventId":"evt-old","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-new"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.490Z","eventId":"evt-new","phone":"+15551234567","source":"roi","messageType":"reschedule_confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-new","phone":"+15551234567"}
+(pass) processEvent production safety > two different event IDs for same lead supersede old lifecycle [0.97ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","source":"roi","confidence":"confident","method":"correlation_fallback"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","phone":"+15551234567","source":"roi","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"duplicate_prevented","at":"2026-10-06T21:36:29.490Z","eventId":"evt-1","action":"confirmation"}
+(pass) processEvent production safety > duplicate calendar sync after booking does not duplicate confirmation [0.34ms]
+(pass) smsEligibility > leadHasSmsConsent requires explicit true [0.15ms]
+{"component":"appointmentLifecycle","event":"sms_suppressed_no_consent","at":"2026-10-06T21:36:29.490Z","phone":"+15551234567","source":"roi"}
+(pass) smsEligibility > canSendLifecycleSms blocks missing consent [0.09ms]
+
+src/server/appointmentLifecycle/parseCalendarEvent.test.ts:
+(pass) parseCalendarEvent > parses Google API event with phone in description [0.65ms]
+(pass) parseCalendarEvent > parses webhook payload [0.16ms]
+(pass) parseCalendarEvent > returns null for incomplete API event [0.02ms]
+(pass) parseCalendarEvent > normal non-Appointment-Schedule invite still selects the single external attendee [0.08ms]
+(pass) guest attendee selection > A: Appointment Schedule production shape selects the external prospect, not self/organizer [0.09ms]
+(pass) guest attendee selection > B: reordered Appointment Schedule attendees still select the prospect [0.07ms]
+(pass) guest attendee selection > C: external prospect organizer is selected when calendar owner is self [0.05ms]
+(pass) guest attendee selection > D: one external attendee with no self/organizer duplication is selected [0.03ms]
+(pass) guest attendee selection > E: only self/owner attendee falls through to description extraction [0.13ms]
+(pass) guest attendee selection > F: resource attendee is never selected as the guest [0.07ms]
+(pass) guest attendee selection > F-resource-without-google-domain: resource=true is excluded even with a normal email [0.04ms]
+(pass) guest attendee selection > G: multiple external humans — structured Booked-by email selects that candidate [0.07ms]
+(pass) guest attendee selection > H: multiple external humans with no reliable identity do not pick by array order [0.09ms]
+(pass) guest attendee selection > attendee order does not change a unique external guest [0.05ms]
+(pass) guest attendee selection > self/owner is never selected when a valid external guest exists [0.06ms]
+(pass) guest attendee selection > creator.email alone does not exclude an external creator who is the prospect [0.05ms]
+(pass) guest attendee selection > tel: URI in description wins over a numeric-local-part email [0.05ms]
+(pass) guest attendee selection > unreliable parenthetical summary is not used as a guest name [0.07ms]
+
+src/server/appointmentLifecycle/bookingIdentity.test.ts:
+(pass) lead email index key > two emails do not collide on the email index [0.18ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.496Z","eventId":"evt-1","phone":"+15551234567","candidateCount":3,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_ambiguous","at":"2026-10-06T21:36:29.496Z","eventId":"evt-1","reason":"multi_touch"}
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi","phone":"+15551234567","candidateCount":3,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_ambiguous","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi","reason":"multi_touch"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:29.496Z","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi","phone":"+15551234567","source":"demo","messageType":"confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.496Z","eventId":"evt-multi","phone":"+15551234567"}
+(pass) §9 identity vs attribution > three-flow multi-touch: identity confident, attribution multi_touch, no HUMAN_FOLLOW_UP, sources unchanged [0.96ms]
+{"component":"appointmentLifecycle","event":"identity_match_ambiguous","at":"2026-10-06T21:36:29.496Z","eventId":"evt-1","emailPhones":"+15551111111","phonePhones":"+15552222222"}
+{"component":"appointmentLifecycle","event":"identity_match_ambiguous","at":"2026-10-06T21:36:29.496Z","eventId":"evt-conflict","emailPhones":"+15551111111","phonePhones":"+15552222222"}
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:29.497Z","phone":"+15551111111"}
+{"component":"appointmentLifecycle","event":"human_follow_up_created","at":"2026-10-06T21:36:29.497Z","phone":"+15551111111","reason":"identity_match_ambiguous","priorStage":"booking_link_pending"}
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:29.497Z","phone":"+15552222222"}
+{"component":"appointmentLifecycle","event":"human_follow_up_created","at":"2026-10-06T21:36:29.497Z","phone":"+15552222222","reason":"identity_match_ambiguous","priorStage":"booking_link_pending"}
+{"component":"appointmentLifecycle","event":"human_alert_sent","at":"2026-10-06T21:36:29.497Z","reason":"identity_match_ambiguous","subjectId":"evt-conflict","skipped":"no_escalation_phone"}
+{"component":"appointmentLifecycle","event":"booking_unmatched","at":"2026-10-06T21:36:29.497Z","eventId":"evt-conflict","reason":"identity_match_ambiguous"}
+(pass) §9 identity vs attribution > email and phone point to two different people → identity_match_ambiguous → HUMAN_FOLLOW_UP [0.52ms]
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"identity_match_confirmed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","phone":"+15551234567","candidateCount":1,"method":"both"}
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","source":"roi","confidence":"confident"}
+{"component":"appointmentLifecycle","event":"booking_matched","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","phone":"+15551234567","method":"phone"}
+{"component":"appointmentLifecycle","event":"lifecycle_superseded","at":"2026-10-06T21:36:29.497Z","oldEventId":"evt-old","newEventId":"evt-new","phone":"+15551234567","replacement":"yes","calendarCancelled":false}
+{"component":"appointmentLifecycle","event":"manual_cleanup_required","at":"2026-10-06T21:36:29.497Z","eventId":"evt-old","phone":"+15551234567","reason":"replacement_without_api_cancel"}
+{"component":"appointmentLifecycle","event":"booking_replacement_matched","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","oldEventId":"evt-old","phone":"+15551234567"}
+{"component":"appointmentLifecycle","event":"calendar_metadata_patch_failed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new"}
+{"component":"appointmentLifecycle","event":"booking_detected","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","phone":"+15551234567","source":"roi","messageType":"reschedule_confirmation"}
+{"component":"appointmentLifecycle","event":"booking_confirmed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-new","phone":"+15551234567"}
+(pass) §9 identity vs attribution > same person with active lifecycle is not excluded from identity match [0.50ms]
+{"component":"appointmentLifecycle","event":"booking_source_attributed","at":"2026-10-06T21:36:29.497Z","eventId":"evt-1","source":"demo","confidence":"confident","method":"correlation_fallback"}
+(pass) §9 identity vs attribution > correlation fallback with exactly one historical source is confident [0.06ms]
+{"component":"appointmentLifecycle","event":"booking_source_ambiguous","at":"2026-10-06T21:36:29.497Z","eventId":"evt-1","reason":"multi_touch_no_link_history"}
+(pass) §9 identity vs attribution > correlation fallback with multiple historical sources is multi_touch, not a guess [0.03ms]
+
+src/server/report/bundleBoundary.test.ts:
+(pass) assessment PDF bundle boundary > X-BND-06: components/report/AssessmentReport.tsx avoids server-only imports [0.22ms]
+(pass) assessment PDF bundle boundary > X-BND-07: lib/assessment/buildAssessmentReportViewModel.ts avoids server-only imports [0.07ms]
+(pass) assessment PDF bundle boundary > X-BND-08: lib/assessment/runAssessment.ts avoids server-only imports [0.04ms]
+(pass) assessment PDF bundle boundary > X-BND-09: lib/assessment/engine.ts avoids server-only imports [0.04ms]
+(pass) assessment PDF bundle boundary > X-BND-10: lib/assessment/questions.ts avoids server-only imports [0.06ms]
+(pass) assessment PDF bundle boundary > X-BND-11: lib/assessment/validateAssessmentAnswers.ts avoids server-only imports [0.06ms]
+(pass) assessment PDF bundle boundary > X-BND-12: lib/assessment/buildLeadSummary.ts avoids server-only imports [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in components/report/AssessmentReport.tsx [0.18ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in components/report/AssessmentReport.tsx [0.06ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in components/report/AssessmentReport.tsx [0.07ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in components/report/AssessmentReport.tsx [0.06ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in components/report/AssessmentReport.tsx [0.07ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/buildAssessmentReportViewModel.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/buildAssessmentReportViewModel.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/buildAssessmentReportViewModel.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/buildAssessmentReportViewModel.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/buildAssessmentReportViewModel.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/runAssessment.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/runAssessment.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/runAssessment.ts [0.05ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/runAssessment.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/runAssessment.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/engine.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/engine.ts [0.06ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/engine.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/engine.ts [0.05ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/engine.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/questions.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/questions.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/questions.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/questions.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/questions.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/validateAssessmentAnswers.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/validateAssessmentAnswers.ts [0.05ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/validateAssessmentAnswers.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/validateAssessmentAnswers.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/validateAssessmentAnswers.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-01 (puppeteer-core) not referenced in lib/assessment/buildLeadSummary.ts [0.03ms]
+(pass) assessment PDF bundle boundary > S-BND-02 (@sparticuz/chromium) not referenced in lib/assessment/buildLeadSummary.ts [0.02ms]
+(pass) assessment PDF bundle boundary > S-BND-03 (assessment HMAC secret env) not referenced in lib/assessment/buildLeadSummary.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-04 (Upstash Redis credentials) not referenced in lib/assessment/buildLeadSummary.ts [0.04ms]
+(pass) assessment PDF bundle boundary > S-BND-05 (Redis client accessor) not referenced in lib/assessment/buildLeadSummary.ts [0.02ms]
+(pass) assessment PDF bundle boundary > X-BND-13: assessment token route dynamically imports isolated server handler [0.18ms]
+(pass) assessment PDF bundle boundary > X-BND-14: assessment PDF bytes use isolated renderAssessmentPdf pipeline [0.14ms]
+
+src/server/vapi/demoUsage.test.ts:
+(pass) demoUsageKeys > normalizes email to lowercase [0.08ms]
+(pass) demoUsageKeys > normalizes phone to E.164 [0.01ms]
+(pass) demoFormKeys > uses separate form submission keys [0.03ms]
+
+src/server/vapi/parseEndOfCallReport.test.ts:
+(pass) parseEndOfCallReport > parses end-of-call-report with artifact transcript and metadata [0.85ms]
+(pass) parseEndOfCallReport > extracts structuredOutputs from call.artifact [0.06ms]
+(pass) parseEndOfCallReport > returns null for non end-of-call-report messages [0.03ms]
+
+src/server/speed2Lead/bookingSafety.test.ts:
+(pass) controlled phone test booking safety (code paths unchanged) > agent scheduling provider calls real getConsultationSlots [0.08ms]
+(pass) controlled phone test booking safety (code paths unchanged) > bookConsultation creates calendar events through createConsultationEvent [0.03ms]
+(pass) controlled phone test booking safety (code paths unchanged) > google calendar consultation path re-checks slot availability before create [0.08ms]
+(pass) controlled phone test booking safety (code paths unchanged) > rebuilt inbound engine does not call conversational scheduling [0.09ms]
+(pass) controlled phone test booking safety (code paths unchanged) > preview calendar availability requires configured Google credentials [0.02ms]
+
+src/server/speed2Lead/testPhoneAllowlist.test.ts:
+(pass) SPEED2LEAD_TEST_PHONES allowlist > parses comma and whitespace separated E.164 numbers [0.13ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > allowlisted preview test phone can use LLM path when LLM enabled [0.06ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > non-allowlisted phone cannot use LLM when preview allowlist is active [0.02ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > absence of SPEED2LEAD_TEST_PHONES preserves existing LLM behavior [0.02ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > production-style config remains LLM disabled without test phones [0.06ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > resolveDiagnosticTestPhone fails clearly when allowlist is unset [0.02ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > resolveDiagnosticTestPhone selects first allowlisted phone with suffix only metadata [0.02ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > resolveDiagnosticTestPhone honors explicit override without reading env first [0.02ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > STOP is handled before demo routing [0.04ms]
+(pass) SPEED2LEAD_TEST_PHONES allowlist > appointment lifecycle still bypasses demo routing [0.02ms]
+(pass) resetSpeed2LeadTestPhone > clears only the requested allowlisted phone state [0.56ms]
+(pass) nurture follow-up cron safety > registers and sends stage 1 once when due [1.34ms]
+(pass) nurture follow-up cron safety > does not send after customer reply [0.05ms]
+(pass) nurture follow-up cron safety > does not send for confirmed booking [0.15ms]
+(pass) nurture follow-up cron safety > does not send for soft_closed disposition [0.04ms]
+(pass) nurture follow-up cron safety > skips send and clears index when STOP opted out [0.11ms]
+(pass) nurture follow-up cron safety > does not enqueue or send for allowlisted test phones [0.09ms]
+(pass) nurture follow-up cron safety > demo follow-up index stays separate from nurture index [0.08ms]
+
+src/server/speed2Lead/resetTestPhoneHandler.test.ts:
+(pass) resetTestPhoneHandler > resolveResetTestPhoneSecret prefers query param over header [0.10ms]
+(pass) resetTestPhoneHandler > rejects missing secret [0.17ms]
+(pass) resetTestPhoneHandler > rejects phone not on allowlist [0.08ms]
+(pass) resetTestPhoneHandler > successful reset clears agent session key [0.17ms]
+
+src/server/speed2Lead/naturalLanguage.test.ts:
+(pass) analyzeMessage > detects missed calls and after hours from natural language [0.11ms]
+(pass) analyzeMessage > detects office workload pain [0.08ms]
+(pass) analyzeMessage > detects multiple problems [0.05ms]
+(pass) analyzeMessage > detects explicit meeting readiness [0.03ms]
+(pass) analyzeMessage > treats interested as mild positive not explicit meeting ready [0.05ms]
+(pass) analyzeMessage > treats sounds good as mild positive without context [0.03ms]
+(pass) analyzeMessage > sends calendar for mild positive when context exists [0.03ms]
+(pass) analyzeMessage > detects pain plus urgency for immediate calendar [0.04ms]
+(pass) analyzeMessage > detects strong positive separately from mild [0.06ms]
+
+src/server/speed2Lead/config.llm.test.ts:
+(pass) speed2Lead LLM config > LLM orchestrator is disabled by default [0.04ms]
+(pass) speed2Lead LLM config > LLM orchestrator requires explicit enable flag [0.02ms]
+(pass) speed2Lead LLM config > model is configurable via environment [0.02ms]
+
+src/server/speed2Lead/conversationSimulations.test.ts:
+(pass) Speed2Lead conversation simulation audit > runs 36 scenarios across all flows [0.08ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: missed calls after 5 typo [0.15ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: CSR drowning slang [0.09ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: all of it [0.08ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: pain plus urgency same reply [0.04ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: one-word interested [0.08ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: sounds good no context [0.11ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: explicit can we talk [0.03ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: I need this [0.03ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: call me [0.02ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: how much [0.05ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: answering service objection [0.03ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: receptionist handles this [0.02ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: not interested [0.03ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: who is this [0.05ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: long answer with follow-up pain [0.12ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: pain then sounds good [0.08ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: customer asks question instead [0.04ms]
+(pass) Speed2Lead conversation simulation audit > ROI: ROI: vague k [0.04ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: that was awesome [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: pretty cool [0.11ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: interested [0.04ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: I need this [0.03ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: can we talk [0.03ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: yes workload path [0.04ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: no with objection resolved [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: negative feedback [0.07ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: demo error [0.10ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: how much [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: already use AI [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: I booked [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: not interested [0.04ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: who is this [0.05ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: maybe [0.06ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: sounds good [0.04ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: just testing [0.06ms]
+(pass) Speed2Lead conversation simulation audit > DEMO: Demo: how do we get started [0.03ms]
+(pass) Speed2Lead conversation simulation audit > summary: no scenario violations [0.07ms]
+(pass) ROI opening behavior > always uses standard conversational opening regardless of ROI value [0.08ms]
+(pass) meeting readiness nuance > ROI: interested alone asks one question before calendar [0.16ms]
+(pass) meeting readiness nuance > ROI: can we talk sends calendar with zero questions [0.05ms]
+(pass) meeting readiness nuance > Demo: pretty cool asks workload question before calendar [0.08ms]
+
+src/server/speed2Lead/envFlags.test.ts:
+(pass) resolveSpeed2LeadEnvFlag > prefers runtime env when set [0.03ms]
+
+src/server/speed2Lead/session.memory.test.ts:
+(pass) session memory normalization > legacy sessions deserialize with V2 memory defaults [0.27ms]
+(pass) session memory normalization > new ROI sessions include seeded knownFacts and empty scheduling [0.11ms]
+(pass) session memory normalization > ROI sessions seed lead-form facts when provided [0.03ms]
+(pass) session memory normalization > legacy Contact sessions deserialize with customerGoal from form summary [0.07ms]
+(pass) session memory normalization > new Demo sessions seed email and business metadata [0.04ms]
+(pass) session message history > records opening assistant messages [0.05ms]
+(pass) session message history > appends inbound and outbound turns in order [0.15ms]
+(pass) session message history > caps message history at the latest 20 entries [0.68ms]
+(pass) session message history > does not duplicate identical consecutive user messages [0.09ms]
+(pass) session message history > does not duplicate identical consecutive assistant messages [0.05ms]
+(pass) applyConfirmedScheduling > sets scheduling confirmation fields without changing conversation state [0.10ms]
+(pass) seedKnownFacts > uses ROI primary opportunity as initial customerGoal [0.02ms]
+
+src/server/speed2Lead/flows.test.ts:
+(pass) ROI natural-language flow > clear pain skips priority and sends calendar [0.35ms]
+(pass) ROI natural-language flow > pain plus urgency skips priority question [0.13ms]
+(pass) ROI natural-language flow > meeting-ready reply sends calendar immediately [0.06ms]
+(pass) ROI natural-language flow > mild interested asks one question before calendar [0.13ms]
+(pass) ROI natural-language flow > price question completes with calendar link [0.04ms]
+(pass) ROI opening message > uses report-reaction opening [0.04ms]
+
+src/server/assessment/rateLimitSource.test.ts:
+(pass) checkAssessmentSourceRateLimit supplemental > S-RT-01: allows request when Lua returns allowed [0.39ms]
+(pass) checkAssessmentSourceRateLimit supplemental > S-RT-02: blocks request when Lua returns limited [0.11ms]
+117 |     const result = await checkAssessmentSourceRateLimit({
+118 |       clientIp: "203.0.113.3",
+119 |       userAgent: "test-agent",
+120 |     });
+121 | 
+122 |     expect(result).toEqual({
+                         ^
+error: expect(received).toEqual(expected)
+
+  {
+    "allowed": true,
+-   "count": 0,
+-   "status": "skipped",
++   "count": 1,
++   "status": "allowed",
+  }
+
+- Expected  - 2
++ Received  + 2
+
+      at <anonymous> (/workspace/src/server/assessment/rateLimitSource.test.ts:122:20)
+(fail) checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured [0.34ms]
+(pass) checkAssessmentSourceRateLimit supplemental > S-RT-04: invokes source Lua with fingerprinted key and window args [0.24ms]
+(pass) checkAssessmentSourceRateLimit supplemental > S-RT-05: fails closed when assessment secret is absent [0.13ms]
+(pass) checkAssessmentSourceRateLimit supplemental > S-RT-06: buildAssessmentPayloadHash returns stable hex digest [0.12ms]
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-07: case a fresh allows first submission [0.15ms]
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-08: case b replay_exact returns cached response [0.10ms]
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-09: case c replay_conflict on payload mismatch [0.08ms]
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-10: case c replay_conflict when phone limit exceeded [0.07ms]
+(pass) checkAssessmentPhoneIdempotency supplemental > S-IDEM-11: case d replay_stale allows resubmission [0.08ms]
+354 |       idempotencyKey: "idem-skipped",
+355 |       payloadHash: "hash-skipped",
+356 |       cachedResponse: '{"report":"skipped"}',
+357 |     });
+358 | 
+359 |     expect(result).toEqual({
+                         ^
+error: expect(received).toEqual(expected)
+
+  {
+-   "allowed": true,
+-   "case": "a",
++   "allowed": false,
++   "cachedResponse": undefined,
++   "case": 1,
+    "count": 0,
+-   "substate": "fresh",
++   "substate": 1,
+  }
+
+- Expected  - 3
++ Received  + 4
+
+      at <anonymous> (/workspace/src/server/assessment/rateLimitSource.test.ts:359:20)
+(fail) checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured [0.17ms]
+
+src/server/assessment/supplementalIdempotency.test.ts:
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-01: phone idempotency Lua defines fresh case [0.58ms]
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-02: phone idempotency Lua handles replay exact match [0.06ms]
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-03: phone idempotency Lua handles replay conflict [0.02ms]
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-04: phone idempotency Lua handles stale lease reclaim [0.02ms]
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-05: source Lua uses sorted-set sliding window [0.02ms]
+(pass) idempotency Lua supplemental S-IDEM > S-IDEM-06: source Lua member uses unique request id not idempotency key [0.04ms]
+
+src/server/assessment/supplementalAbuse.test.ts:
+(pass) assessment abuse supplemental S-ABUSE > S-ABUSE-13: source rate limit blocks when Lua returns limited [0.27ms]
+(pass) assessment abuse supplemental S-ABUSE > S-ABUSE-14: phone idempotency conflict rejects replay with different payload [0.31ms]
+(pass) assessment abuse supplemental S-ABUSE > S-ABUSE-15: missing secret causes source check to throw (fail closed) [0.15ms]
+
+src/server/assessment/assessmentJourneyPipeline.test.ts:
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-01: lead-gate validation errors surface required fields [0.17ms]
+49 | 
+50 | export function trackEvent(
+51 |   name: AnalyticsEventName,
+52 |   props: AnalyticsEventProps = {},
+53 | ): void {
+54 |   sink(name, props);
+       ^
+TypeError: sink is not a function. (In 'sink(name, props)', 'sink' is null)
+      at trackEvent (/workspace/src/lib/analytics/trackEvent.ts:54:3)
+      at submitAssessmentLeadHandler (/workspace/src/server/submitAssessmentLead.server.ts:67:3)
+      at <anonymous> (/workspace/src/server/assessment/assessmentJourneyPipeline.test.ts:167:26)
+(fail) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds [0.69ms]
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-03: results and PDF access with SMS consent unchecked [0.82ms]
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-04: consent checked but agent flag false still returns report [0.54ms]
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-05: repeat report access under approved token contract [403.92ms]
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-06: invalid and expired report tokens return 404 plain text [0.38ms]
+(pass) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-07: retryable report failure exposes visitor recovery message [1.18ms]
+
+src/server/assessment/supplementalPipeline.test.ts:
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-08: fail-closed when secret absent returns persistenceAvailable false [0.84ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-09: invalid lead info throws before assessment runs [0.14ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-10: invalid answers throw before persistence [0.14ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-11: ASSESSMENT_ROI_AGENT_LIVE_ENABLED remains false in features [0.06ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-12: startAssessmentRoiAgent delegates to startAgentConversation [0.25ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-13: live agent path gated by ASSESSMENT_ROI_AGENT_LIVE_ENABLED [0.13ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-14: agent failure is caught and does not throw to caller [0.10ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-15: report token creation uses assessment namespace [0.46ms]
+(pass) submitAssessmentLead pipeline supplemental S-PL > S-PL-16: thin client wrapper re-exports server handler only [0.13ms]
+
+src/server/assessment/protectedAgentParity.test.ts:
+(pass) S-PARITY protected agent regression > S-PARITY-01: Contact Us startConversation contract unchanged [0.06ms]
+(pass) S-PARITY protected agent regression > S-PARITY-02: ROI Download startAgentConversation contract unchanged [0.06ms]
+(pass) S-PARITY protected agent regression > S-PARITY-03: Demo startConversation contract unchanged [0.03ms]
+(pass) S-PARITY protected agent regression > S-PARITY-04: webhook and dispatch entrypoints unchanged [0.09ms]
+(pass) S-PARITY protected agent regression > S-PARITY-05: frozen-file-diff matches immutable Git-object baseline manifest [1.41ms]
+(pass) S-PARITY protected agent regression > S-PARITY-05 negative control: deliberately incorrect in-memory hash fails without mutating files [0.57ms]
+
+src/server/assessment/submitAssessmentLead.pipeline.test.ts:
+(pass) submitAssessmentLead pipeline > L#30: invokes ROI agent with formatted annualOpportunity when eligible [1.07ms]
+(pass) submitAssessmentLead pipeline > L#31: skips agent when no usable dollar estimate [0.37ms]
+Assessment Speed2Lead initial SMS failed: 186 |       ASSESSMENT_ROI_AGENT_LIVE_ENABLED: true,
+187 |     }));
+188 | 
+189 |     mock.module("~/server/speed2Lead/agent/startConversation", () => ({
+190 |       startAgentConversation: mock(async () => {
+191 |         throw new Error("twilio down");
+                        ^
+error: twilio down
+      at <anonymous> (/workspace/src/server/assessment/submitAssessmentLead.pipeline.test.ts:191:19)
+      at startAssessmentRoiAgent (/workspace/src/server/submitAssessmentLead.server.ts:37:9)
+      at submitAssessmentLeadHandler (/workspace/src/server/submitAssessmentLead.server.ts:150:13)
+      at async <anonymous> (/workspace/src/server/assessment/submitAssessmentLead.pipeline.test.ts:199:26)
+
+(pass) submitAssessmentLead pipeline > L#32 A-RESILIENCE-01: agent throw does not block results or report [0.75ms]
+(pass) submitAssessmentLead pipeline > L#33: agent never invoked without SMS consent [0.55ms]
+
+src/server/assessment/hmacKeys.test.ts:
+(pass) hmacKeys supplemental > S-HMAC-01: buildCanonicalFingerprint sorts keys and joins canonically [0.12ms]
+(pass) hmacKeys supplemental > S-HMAC-02: normalizeAssessmentPhone normalizes to E.164 [0.01ms]
+(pass) hmacKeys supplemental > S-HMAC-03: sourceFingerprintKey uses v1:source: domain separation [0.04ms]
+(pass) hmacKeys supplemental > S-HMAC-04: phoneFingerprintKey uses v1:phone: domain [0.02ms]
+(pass) hmacKeys supplemental > S-HMAC-05: domain prefixes are distinct [0.01ms]
+(pass) hmacKeys supplemental > S-HMAC-06: source and phone domains produce different digests [0.02ms]
+(pass) hmacKeys supplemental > S-HMAC-07: fingerprint keys do not embed raw PII [0.02ms]
+(pass) hmacKeys supplemental > S-HMAC-08: digest uses v1:source: prefix in HMAC message [0.02ms]
+(pass) hmacKeys supplemental > S-HMAC-09: idempotencyFingerprintKey uses v1:idempotency: prefix [0.02ms]
+(pass) hmacKeys supplemental > S-HMAC-10: idempotency and source digests differ for same payload string [0.01ms]
+
+src/server/assessment/assessmentSecurity.test.ts:
+(pass) assessmentSecurity supplemental > S-PL-04: returns null when secret env var is missing [0.04ms]
+(pass) assessmentSecurity supplemental > S-PL-05: returns null when secret is shorter than 32 chars [0.01ms]
+(pass) assessmentSecurity supplemental > S-PL-06: returns trimmed secret when configured [0.02ms]
+(pass) assessmentSecurity supplemental > S-PL-07: isAssessmentSecurityConfigured fails closed without secret [0.01ms]
+
+src/server/assessment/getTrustedClientIp.test.ts:
+(pass) getTrustedClientIp pipeline > S-PL-01: returns platform-resolved client IP [0.13ms]
+(pass) getTrustedClientIp pipeline > S-PL-02: returns undefined when platform IP is unavailable [0.07ms]
+(pass) getTrustedClientIp pipeline > S-PL-03: requests xForwardedFor trust from platform helper [0.11ms]
+
+src/server/assessment/rateLimitLua.test.ts:
+(pass) rate limit Lua supplemental > S-LUA-01: source rate limit Lua script is non-empty [0.66ms]
+(pass) rate limit Lua supplemental > S-LUA-02: source rate limit Lua contains sliding-window commands [0.04ms]
+(pass) rate limit Lua supplemental > S-LUA-03: phone idempotency Lua script is non-empty [0.02ms]
+(pass) rate limit Lua supplemental > X-LUA-01: phone idempotency Lua contains idempotency and rate-limit commands [0.02ms]
+
+src/lib/analytics/trackEvent.test.ts:
+(pass) trackEvent > S-AN-01: typed dispatch through no-op adapter [0.10ms]
+(pass) trackEvent > S-AN-02: limited-payload authorization confined to exactly four events [0.08ms]
+
+src/lib/analytics/conversionIntent.test.ts:
+(pass) conversion intent analytics > maps homepage demo intent to homepage_demo_click [0.65ms]
+(pass) conversion intent analytics > intent map covers homepage book and ROI intents [0.10ms]
+(pass) conversion intent analytics > trackConversionEvent reaches sink for booking page [0.07ms]
+
+src/lib/analytics/analyticsContract.test.ts:
+(pass) analytics privacy contract > S-AN-02: exactly four limited-payload events; six prohibit contact/answer/token props [0.08ms]
+(pass) analytics privacy contract > S-AN-03: contract defines all ten events with dispatch points [0.04ms]
+(pass) analytics privacy contract > S-AN-04 positive assessment_started: permitted props pass allowlist [0.12ms]
+(pass) analytics privacy contract > S-AN-05 negative assessment_started: forbidden contact/answer/token props rejected [0.15ms]
+(pass) analytics privacy contract > S-AN-04 positive assessment_question_answered: permitted props pass allowlist [0.05ms]
+(pass) analytics privacy contract > S-AN-05 negative assessment_question_answered: forbidden contact/answer/token props rejected [0.01ms]
+(pass) analytics privacy contract > S-AN-04 positive assessment_branch_opened: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative assessment_branch_opened: forbidden contact/answer/token props rejected [0.03ms]
+(pass) analytics privacy contract > S-AN-04 positive assessment_teaser_viewed: permitted props pass allowlist [0.02ms]
+(pass) analytics privacy contract > S-AN-05 negative assessment_teaser_viewed: forbidden contact/answer/token props rejected [0.01ms]
+(pass) analytics privacy contract > S-AN-04 positive lead_gate_complete: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative lead_gate_complete: forbidden contact/answer/token props rejected [0.05ms]
+(pass) analytics privacy contract > S-AN-04 positive sms_consent_opt_in: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative sms_consent_opt_in: forbidden contact/answer/token props rejected
+(pass) analytics privacy contract > S-AN-04 positive assessment_complete: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative assessment_complete: forbidden contact/answer/token props rejected [0.02ms]
+(pass) analytics privacy contract > S-AN-04 positive assessment_report_downloaded: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative assessment_report_downloaded: forbidden contact/answer/token props rejected [0.01ms]
+(pass) analytics privacy contract > S-AN-04 positive roi_agent_triggered: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative roi_agent_triggered: forbidden contact/answer/token props rejected [0.02ms]
+(pass) analytics privacy contract > S-AN-04 positive roi_document_generated: permitted props pass allowlist
+(pass) analytics privacy contract > S-AN-05 negative roi_document_generated: forbidden contact/answer/token props rejected [0.01ms]
+(pass) analytics privacy contract > X-AN-01: assessment route trackEvent calls exclude raw contact fields [0.16ms]
+(pass) analytics privacy contract > X-AN-02: server submit handler trackEvent calls exclude raw contact fields [0.05ms]
+
+src/lib/analytics/analyticsLockedContractComparison.test.ts:
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP positive lead_gate_complete: dispatched fields satisfy locked contract [0.10ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP negative lead_gate_complete: prohibited contact fields rejected [0.07ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP positive sms_consent_opt_in: dispatched fields satisfy locked contract
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP negative sms_consent_opt_in: prohibited contact fields rejected [0.02ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP positive assessment_complete: dispatched fields satisfy locked contract
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP negative assessment_complete: prohibited contact fields rejected [0.01ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP positive roi_agent_triggered: dispatched fields satisfy locked contract
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP negative roi_agent_triggered: prohibited contact fields rejected [0.01ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP-05: durable comparison artifact exists for four limited events [0.14ms]
+(pass) analytics locked contract comparison X-AN-CMP > X-AN-CMP-06: submit handler call-site lines recorded [0.20ms]
+
+src/lib/marketing/guaranteeEligibility.test.ts:
+(pass) 90-day guarantee eligibility > eligible for Convert, Revenue, and Orchestrate [0.04ms]
+(pass) 90-day guarantee eligibility > not eligible for Get Found or website-only contexts [0.02ms]
+
+src/lib/report/renderReportPdf.test.ts:
+(pass) renderReportPdf > generates a 4-page PDF with gold-standard structure and on-site booking link [1457.52ms]
+(pass) renderReportPdf > gold-standard fixture reproduces reference totals through the real engine [1095.95ms]
+
+src/lib/report/formatProspectLines.test.ts:
+(pass) formatPreparedForLine > includes business name when present [0.87ms]
+(pass) formatPreparedForLine > omits business name when missing [0.05ms]
+(pass) formatPreparedForLine > omits business name when only one character [0.02ms]
+(pass) formatPreparedForLine > renders first name alone when last name missing [0.02ms]
+
+src/lib/report/buildReportViewModel.test.ts:
+(pass) buildReportViewModel > northstar fixture derives totals from ROI engine [0.60ms]
+(pass) buildReportViewModel > includes three scenarios with capture ranges [0.12ms]
+(pass) buildReportViewModel > includes five drivers with bar percentages capped at 1 [0.12ms]
+(pass) buildReportViewModel > largestDriver matches moderate scenario max driver [0.07ms]
+(pass) buildReportViewModel > scenario assumptions match SHARED and TRADES by index [0.14ms]
+(pass) buildReportViewModel > preparedForLine uses personalization fallbacks [0.01ms]
+(pass) buildReportViewModel > cta links to on-site booking page [0.01ms]
+(pass) buildReportViewModel > trade content interpolates model values, not hardcoded benchmarks [0.17ms]
+
+src/lib/roi/supplementalRoi.test.ts:
+(pass) S-ROI supplemental overrides > S-ROI-01: empty overrides match baseline scenarios [0.07ms]
+(pass) S-ROI supplemental overrides > S-ROI-02: missedCallRateOverride changes moderate scenario [0.06ms]
+(pass) S-ROI supplemental overrides > S-ROI-03: avgJobValueOverride scales benefit [0.06ms]
+(pass) S-ROI supplemental overrides > S-ROI-04: lower call volume input changes missed-call driver [0.03ms]
+(pass) S-ROI supplemental overrides > S-ROI-05: computeRoi returns five driver buckets [0.03ms]
+(pass) S-ROI supplemental overrides > S-ROI-06: scenario index ordering is conservative, moderate, aggressive [0.03ms]
+(pass) S-ROI supplemental overrides > S-ROI-07: zero monthly calls yields null payback [0.02ms]
+(pass) S-ROI supplemental overrides > S-ROI-08: driver sum equals totalAnnualBenefit [0.04ms]
+
+src/lib/roi/computeRoi.captureRatio.test.ts:
+(pass) recoveredCallCaptureRatio model correction > frozen array is implemented verbatim [0.06ms]
+(pass) recoveredCallCaptureRatio model correction > per-trade effective moderate recovery rates match B3 table [0.06ms]
+(pass) recoveredCallCaptureRatio model correction > Roofers 200 calls/month scenario totals match B3 expected outcomes [0.13ms]
+(pass) recoveredCallCaptureRatio model correction > gold-standard Plumbers fixture matches all six B3 expected values [0.25ms]
+(pass) recoveredCallCaptureRatio model correction > scenario cards expose trade-specific recovered booking rates, not 15/25/35 [0.57ms]
+(pass) recoveredCallCaptureRatio model correction > driver totals reconcile to scenario totals for every trade [0.09ms]
+(pass) recoveredCallCaptureRatio model correction > no-double-counting pool separation remains intact [0.07ms]
+(pass) recoveredCallCaptureRatio model correction > report view model figures equal engine figures [0.54ms]
+(pass) recoveredCallCaptureRatio model correction > both PDF paths return identical moderate totals for the same inputs [2533.69ms]
+
+src/lib/roi/computeRoi.test.ts:
+(pass) estimateMonthlyCalls > Plumbers 5 trucks → 300 [0.07ms]
+(pass) estimateMonthlyCalls > HVAC 10 trucks → 700 [0.02ms]
+(pass) estimateMonthlyCalls > Electricians 3 trucks → 90 [0.01ms]
+(pass) estimateMonthlyCalls > PestControl 4 trucks → 140
+(pass) estimateMonthlyCalls > Roofers 2 trucks → 40 [0.01ms]
+(pass) computeAllScenarios > returns three scenarios in increasing order [0.11ms]
+(pass) computeRoi spot-check > HVAC conservative at 700 calls/mo uses trade-relative missed-call recovery [0.08ms]
+(pass) edge cases > handles zero calls without divide-by-zero on payback [0.11ms]
+(pass) edge cases > driver breakdown sums to total annual benefit [0.06ms]
+(pass) L#16 computeAllScenariosWithOverrides empty overrides > byte-identical to computeAllScenarios [0.07ms]
+(pass) L#30a shuffled scenarios semantic moderate selection > selectModerateScenario finds scenarioIndex === 1 [0.04ms]
+(pass) estimateMonthlyCalls scales linearly > Plumbers doubles when truck count doubles [0.02ms]
+(pass) estimateMonthlyCalls scales linearly > HVAC doubles when truck count doubles
+(pass) estimateMonthlyCalls scales linearly > Electricians doubles when truck count doubles
+(pass) estimateMonthlyCalls scales linearly > Roofers doubles when truck count doubles
+(pass) estimateMonthlyCalls scales linearly > PestControl doubles when truck count doubles
+
+src/lib/assessment/supplementalPublicCopy.test.ts:
+(pass) public copy supplemental S-RT > S-RT-07: homepage route exists with approved hero headline [0.10ms]
+(pass) public copy supplemental S-RT > S-RT-08: assessment route is registered in generated route tree [0.11ms]
+(pass) public copy supplemental S-RT > S-RT-09: what-we-do route uses approved H1 [0.04ms]
+(pass) public copy supplemental S-RT > S-RT-10: visitor-facing lifecycle copy contain no em dashes (owner-approved demo copy excepted) [0.19ms]
+(pass) public copy supplemental S-RT > S-RT-11: nav includes Free Revenue Assessment link [0.05ms]
+(pass) public copy supplemental S-RT > S-RT-12: assessment report route uses server handler import [0.03ms]
+
+src/lib/assessment/validateAssessmentAnswers.test.ts:
+(pass) validateAssessmentAnswers supplemental > S-VAL-01: rejects unknown answer fields [0.12ms]
+(pass) validateAssessmentAnswers supplemental > S-VAL-02: accepts known valid answers [0.08ms]
+(pass) validateAssessmentAnswers supplemental > S-VAL-03: validates business_profile string answers [0.07ms]
+(pass) validateAssessmentAnswers supplemental > S-VAL-04: validates respond numeric and not_sure answers [0.06ms]
+(pass) validateAssessmentAnswers supplemental > S-VAL-05: accepts positive finite truckCount [0.03ms]
+(pass) validateAssessmentAnswers supplemental > S-VAL-06: rejects invalid truckCount values [0.07ms]
+
+src/lib/assessment/browserPiiBoundaries.test.ts:
+(pass) Assessment browser and transport PII boundaries > X-PII-01: Assessment client code does not persist PII in browser storage [0.33ms]
+(pass) Assessment browser and transport PII boundaries > X-PII-02: AssessmentGate keeps contact fields in transient React state only [0.05ms]
+(pass) Assessment browser and transport PII boundaries > X-PII-03: report token URL carries opaque token only, no query-string PII [0.11ms]
+(pass) Assessment browser and transport PII boundaries > X-PII-04: four limited-payload events; six prohibit contact/answer/token; dispatch excludes raw contact [0.29ms]
+(pass) Assessment browser and transport PII boundaries > X-PII-05: server-side Redis identifiers use domain-separated HMAC, not raw PII [0.17ms]
+(pass) Assessment browser and transport PII boundaries > X-PII-06: Assessment submission uses POST body transport, not URL query parameters [0.10ms]
+
+src/lib/assessment/supplementalComponents.test.ts:
+(pass) assessment components supplemental S-CMP > S-CMP-01: AssessmentGate component exports gate form [0.06ms]
+(pass) assessment components supplemental S-CMP > S-CMP-02: selectModerateScenarioValue picks scenarioIndex 1 [0.04ms]
+(pass) assessment components supplemental S-CMP > S-CMP-03: AssessmentQuestion renders question types [0.05ms]
+(pass) assessment components supplemental S-CMP > S-CMP-04: AssessmentProgress tracks step state [0.02ms]
+(pass) assessment components supplemental S-CMP > S-CMP-05: AssessmentResults shows ranked groups [0.03ms]
+(pass) assessment components supplemental S-CMP > S-CMP-06: RespondAssumptionsReview exposes respond inputs [0.03ms]
+(pass) assessment components supplemental S-CMP > S-CMP-07: assessment route wires step orchestration [0.05ms]
+(pass) assessment components supplemental S-CMP > S-CMP-08: AssessmentGate includes separate SMS consent copy [0.03ms]
+(pass) assessment components supplemental S-CMP > S-CMP-09: moderate scenario selection uses scenarioIndex 1 in PDF view model [0.03ms]
+(pass) assessment components supplemental S-CMP > S-CMP-10: AssessmentResults includes disclaimer reference [0.04ms]
+
+src/lib/assessment/supplementalPdf.test.ts:
+(pass) assessment PDF supplemental S-PDF > S-PDF-04: view model includes reportGeneratedAt when provided [0.04ms]
+(pass) assessment PDF supplemental S-PDF > S-PDF-05: view model formats moderate annual benefit [0.05ms]
+(pass) assessment PDF supplemental S-PDF > S-PDF-06: token PDF handler uses private no-store cache control [0.07ms]
+(pass) assessment PDF supplemental S-PDF > S-PDF-07: assessment report tokens use isolated prefix [0.03ms]
+(pass) assessment PDF supplemental S-PDF > S-PDF-08: AssessmentReport component avoids server imports [0.05ms]
+
+src/lib/assessment/assessParity.test.ts:
+(pass) assessment client/server parity S-ASSESS-PARITY > S-ASSESS-PARITY-01: validated answers produce same engine output client-side [0.21ms]
+(pass) assessment client/server parity S-ASSESS-PARITY > S-ASSESS-PARITY-02: dollar estimate shape matches between runAssessment and view model [0.18ms]
+(pass) assessment client/server parity S-ASSESS-PARITY > S-ASSESS-PARITY-03: combined provenance label preserved in view model [0.13ms]
+(pass) assessment client/server parity S-ASSESS-PARITY > S-ASSESS-PARITY-04: clarify group preserved in view model [0.15ms]
+(pass) assessment client/server parity S-ASSESS-PARITY > S-ASSESS-PARITY-05: respond assumptions copied to view model [0.11ms]
+
+src/lib/assessment/supplementalValidation.test.ts:
+(pass) validateAssessmentAnswers extended supplemental > S-VAL-07: rejects non-finite numeric respond answers [0.89ms]
+(pass) validateAssessmentAnswers extended supplemental > S-VAL-08: screening answers must be 0-3 or not_sure [0.08ms]
+(pass) validateAssessmentAnswers extended supplemental > S-VAL-09: follow-up answers accept 0-3 and not_sure [0.09ms]
+(pass) validateAssessmentAnswers extended supplemental > S-VAL-10: truckCount above MAX is rejected at handler layer placeholder [0.04ms]
+
+src/lib/assessment/engine.test.ts:
+(pass) L#1 screening 0, no follow-ups > score 0, Low band [0.08ms]
+(pass) L#2 screening 1, no usable follow-ups > score 33, Low band [0.08ms]
+(pass) L#3 screening 2, no usable follow-ups > score 67, High band [0.05ms]
+(pass) L#4 screening 3, follow-ups [0,0,0] > score 33, Low band, Medium confidence [0.06ms]
+(pass) L#5 screening 3, follow-ups [2,2,2] > score 100, High band, High confidence [0.03ms]
+(pass) L#6 screening 2, follow-ups [0,1,2] > score 56, Moderate band [0.02ms]
+(pass) L#7 not sure screening, clarification 0 > score 0, Low confidence [0.02ms]
+(pass) L#8 not sure screening, clarification 1 > score 50, Low confidence [0.04ms]
+(pass) L#9 not sure screening, clarification 2 > score 100, Low confidence [0.01ms]
+(pass) L#10 not sure screening, clarification not sure > needs_clarification, Low confidence, no numeric rank [0.03ms]
+(pass) L#11 boundaries 33/34/66/67 > exact band transitions [0.02ms]
+(pass) L#12 screening changed after follow-ups > stale follow-up answers and IDs removed [0.09ms]
+(pass) L#13 identical band+score+confidence > grouped together, not force-ranked [0.27ms]
+(pass) L#14 Respond never gets screening/conditional Q > any path keeps Respond to R1-R3 only [0.12ms]
+(pass) L#15 active question IDs max 25 > worst-case branching stays within cap [0.04ms]
+(pass) L#17 R2 = 0% > Low band [0.03ms]
+(pass) L#18 R2 = 10% > Low band inclusive boundary [0.01ms]
+(pass) L#19 R2 = 10.01% > Moderate band [0.01ms]
+(pass) L#20 R2 = 20% > Moderate band inclusive boundary [0.01ms]
+(pass) L#21 R2 = 20.01% > High band [0.02ms]
+(pass) L#22 R2 visitor-provided > confidence High regardless of band [0.02ms]
+(pass) L#23 R2 modeled/default/not-sure > confidence Low regardless of band [0.02ms]
+(pass) L#24 R2 unusable > needs_clarification, Low confidence, not ranked [0.03ms]
+(pass) L#25 R1/R3 change, R2 same > Respond band/confidence/score unchanged [0.03ms]
+(pass) L#26 dollar estimate up, R2 same > Respond band/score unchanged [0.06ms]
+(pass) L#27 all modeled combined label > exact F.1 string [0.03ms]
+(pass) L#28 all visitor-provided combined label > exact F.1 string [0.02ms]
+(pass) L#29 mixed sources combined label > exact F.1 string [0.02ms]
+(pass) supplemental S-ENG-01 roundHalfUp > uses half-up not banker's rounding [0.01ms]
+(pass) supplemental S-ENG-02 confidence with unavailable answers > two or more unavailable applicable answers yields Low
+(pass) supplemental S-ENG-03 material conflict confidence > screening vs follow-up divergence yields Medium [0.02ms]
+(pass) supplemental S-ENG-04 initial ask order > starts with BP1 through MI-S [0.02ms]
+(pass) supplemental S-ENG-05 screening 0 opens three deficit follow-ups > GF dimension adds GF-F1 through GF-F3 [0.03ms]
+(pass) supplemental S-ENG-06 screening 3 healthy opens no follow-ups > GF dimension stays at screening only [0.03ms]
+(pass) supplemental S-ENG-07 not sure opens one follow-up > adds only first follow-up id [0.02ms]
+(pass) supplemental S-ENG-08 respond severity score cap > internal tie-break score never exceeds 100 [0.03ms]
+(pass) supplemental S-ENG-09 priority order band precedence > High band ranks before Low band [0.04ms]
+(pass) supplemental S-ENG-10 clarify group separation > needs_clarification dimensions excluded from ranked groups [0.04ms]
+(pass) supplemental S-ENG-11 screening-only formula > score equals roundHalfUp(screen/3*100) [0.02ms]
+(pass) supplemental S-ENG-12 onScreeningChanged clears answers > follow-up answers removed from engine state [0.06ms]
+(pass) supplemental S-ENG-13 exact tie grouping > three-way tie stays in one group [0.06ms]
+(pass) supplemental S-ENG-14 respond question types > Respond questions are respond type only [0.05ms]
+(pass) supplemental S-ENG-15 runAssessment end-to-end > orchestrates engine from answers [0.14ms]
+
+src/lib/assessment/assessmentBranching.test.ts:
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > GF severity-2 (score 2) opens three follow-ups under same dimension [0.14ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > GF severity-3 (score 0) opens three follow-ups under same dimension [0.05ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > GF severity-1 healthy (score 3) does not open follow-ups [0.03ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > CV severity-2 (score 2) opens three follow-ups under same dimension [0.01ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > CV severity-3 (score 0) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > CV severity-1 healthy (score 3) does not open follow-ups
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RG severity-2 (score 2) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RG severity-3 (score 0) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RG severity-1 healthy (score 3) does not open follow-ups
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RM severity-2 (score 2) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RM severity-3 (score 0) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > RM severity-1 healthy (score 3) does not open follow-ups
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > MI severity-2 (score 2) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > MI severity-3 (score 0) opens three follow-ups under same dimension
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > MI severity-1 healthy (score 3) does not open follow-ups
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > Get Found severity-3 literal: GF-S score 0 then GF-F1 before CV-S [0.04ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > Get Found severity-2 literal: GF-S score 2 then GF-F1 before CV-S [0.05ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > Convert severity-3 literal: flow places CV follow-up before RG-S [0.04ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > severity-2 to severity-3 on same dimension replaces branch and clears stale follow-up answers [0.07ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > severity-3 to severity-2 on same dimension replaces branch cleanly [0.03ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > back from first question after GF severity-3 returns to respond step [0.06ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > forward navigation preserves screening and follow-up answers in engine state [0.04ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > Respond progress ids exclude RG and RM question ids [0.02ms]
+(pass) Assessment screening branch matrix (Checkpoint 1 corrective) > resolveBackQuestionIndex maps MAX_SAFE_INTEGER to last flow slot [0.09ms]
+
+src/lib/assessment/assessmentJourney.test.ts:
+(pass) Assessment journey QA X-JRN > X-JRN-01: forward navigation covers all universal steps [0.05ms]
+(pass) Assessment journey QA X-JRN > X-JRN-02: back navigation preserves valid answers [0.07ms]
+(pass) Assessment journey QA X-JRN > X-JRN-03: upstream branch change deletes stale follow-up answers [1.25ms]
+(pass) Assessment journey QA X-JRN > X-JRN-04: respond assumptions review acceptance (modeled defaults) [0.23ms]
+(pass) Assessment journey QA X-JRN > X-JRN-05: respond assumptions review with visitor edits [0.08ms]
+(pass) Assessment journey QA X-JRN > X-JRN-06: mixed R1/R2/R3 provenance label [0.05ms]
+(pass) Assessment journey QA X-JRN > X-JRN-07: Low, Moderate, and High Respond outcomes [0.13ms]
+(pass) Assessment journey QA X-JRN > X-JRN-08: needs-clarification outcome [0.10ms]
+(pass) Assessment journey QA X-JRN > X-JRN-09: missing-Moderate-scenario degradation [0.13ms]
+(pass) Assessment journey QA X-JRN > X-JRN-10: priority ordering and tied priorities [0.14ms]
+(pass) Assessment journey QA X-JRN > X-JRN-11: back from teaser returns to last question [0.08ms]
+
+src/lib/assessment/selectModerateScenario.test.ts:
+(pass) selectModerateScenario supplemental > S-CMP-02: selectModerateScenarioValue and missing-moderate guard [0.16ms]
+
+src/lib/assessment/buildAssessmentReportViewModel.test.ts:
+(pass) buildAssessmentReportViewModel supplemental > S-PDF-01: formats moderate annual benefit from scenarioIndex 1 [0.11ms]
+(pass) buildAssessmentReportViewModel supplemental > S-PDF-02: exposes respond assumptions and combined label [0.04ms]
+(pass) buildAssessmentReportViewModel supplemental > S-PDF-03: includes ranked groups, clarify group, and disclaimer [0.02ms]
+
+src/server/speed2Lead/agent/bookingLinkFollowUps.test.ts:
+(pass) booking-link follow-up campaign > enterBookingLinkPending cancels no-response so a phone is in at most one campaign index [0.44ms]
+(pass) booking-link follow-up campaign > RESUME-style nextValid skips passed offsets and does not replay them [0.11ms]
+{"component":"appointmentLifecycle","event":"booking_link_followup_sent","at":"2026-10-06T21:36:35.304Z","phone":"+15550002222","stage":0}
+(pass) booking-link follow-up campaign > scheduled route runner sends a due booking-link follow-up [0.71ms]
+
+src/server/speed2Lead/agent/state.test.ts:
+(pass) createAgentSession > starts in discovery with empty history and no offered slots [0.09ms]
+(pass) appendMessage > appends without mutating the original session [0.04ms]
+
+src/server/speed2Lead/agent/persistedLegacyStage.inbound.test.ts:
+(pass) persisted pre-Phase-B scheduling stages (read-compat) > inbound meeting-intent branch still owns offering_slots / confirming [0.16ms]
+{"component":"appointmentLifecycle","event":"meeting_intent_confirmed","at":"2026-10-06T21:36:35.307Z","phone":"+15550001001","flow":"roi"}
+{"component":"appointmentLifecycle","event":"booking_link_check_sync_failed","at":"2026-10-06T21:36:35.308Z","phone":"+15550001001"}
+{"component":"appointmentLifecycle","event":"lead_index_target_not_found","at":"2026-10-06T21:36:35.308Z","phone":"+15550001001","flow":"roi"}
+{"component":"appointmentLifecycle","event":"booking_link_sent","at":"2026-10-06T21:36:35.308Z","phone":"+15550001001","flow":"roi"}
+(pass) persisted pre-Phase-B scheduling stages (read-compat) > offering_slots + meeting intent enters booking-link, not conversational book [1.37ms]
+{"component":"appointmentLifecycle","event":"meeting_intent_confirmed","at":"2026-10-06T21:36:35.308Z","phone":"+15550001002","flow":"roi"}
+{"component":"appointmentLifecycle","event":"booking_link_check_sync_failed","at":"2026-10-06T21:36:35.308Z","phone":"+15550001002"}
+{"component":"appointmentLifecycle","event":"lead_index_target_not_found","at":"2026-10-06T21:36:35.309Z","phone":"+15550001002","flow":"roi"}
+{"component":"appointmentLifecycle","event":"booking_link_sent","at":"2026-10-06T21:36:35.309Z","phone":"+15550001002","flow":"roi"}
+(pass) persisted pre-Phase-B scheduling stages (read-compat) > confirming + meeting intent enters booking-link, not conversational book [0.29ms]
+(pass) persisted pre-Phase-B scheduling stages (read-compat) > offering_slots + non-intent persist remaps to bridge and is not stuck [0.12ms]
+(pass) persisted pre-Phase-B scheduling stages (read-compat) > confirming + non-intent persist remaps to bridge and is not stuck [0.07ms]
+
+src/server/speed2Lead/agent/bookingLinkHandoff.test.ts:
+(pass) §4 meeting-intent evaluators > 4a Path A fires on explicit scheduling ask before pending [0.08ms]
+(pass) §4 meeting-intent evaluators > 4a Path B fires on bare yes only after a delivered bridge [0.24ms]
+(pass) §4 meeting-intent evaluators > 4a Path A still fires for persisted offering_slots / confirming sessions [0.05ms]
+(pass) §4 meeting-intent evaluators > 4a does not fire when already pending [0.08ms]
+(pass) §11 copy is exact > ROI / Contact / Demo handoff + resend + follow-ups [0.10ms]
+(pass) §7 absolute offsets > all three offsets are independent from bookingLinkSentAt [0.04ms]
+(pass) §5 precise lead write > updates only the sending session's record and never changes source [0.40ms]
+{"component":"appointmentLifecycle","event":"meeting_intent_confirmed","at":"2026-10-06T21:36:35.314Z","phone":"+15550001111","flow":"roi"}
+{"component":"appointmentLifecycle","event":"booking_link_check_sync_failed","at":"2026-10-06T21:36:35.314Z","phone":"+15550001111"}
+{"component":"appointmentLifecycle","event":"booking_link_sent","at":"2026-10-06T21:36:35.314Z","phone":"+15550001111","flow":"roi"}
+(pass) §4a persist booking_link_pending > does not let a stale Redis session clobber the in-memory pending transition [0.63ms]
+
+src/server/speed2Lead/agent/roiDeclineHandling.test.ts:
+(pass) buildRoiDeclineReframeFallback > cites report context and the profile guarantee [0.22ms]
+(pass) buildRoiDeclineReframeFallback > omits the guarantee clause when the field is unset [0.07ms]
+(pass) resolveRoiDeclineAction > returns none for non-roi flows [0.13ms]
+(pass) resolveRoiDeclineAction > first decline sends a reframe and is not terminal [0.22ms]
+(pass) resolveRoiDeclineAction > second consecutive decline is a terminal graceful exit [0.10ms]
+
+src/server/speed2Lead/agent/humanFollowUp.test.ts:
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:35.333Z","phone":"+15558880000"}
+{"component":"appointmentLifecycle","event":"human_follow_up_created","at":"2026-10-06T21:36:35.333Z","phone":"+15558880000","reason":"explicit_human_request","priorStage":"booking_link_pending"}
+(pass) human follow-up > enterHumanFollowUp is an atomic handoff setter and pauses automation [0.30ms]
+{"component":"appointmentLifecycle","event":"human_follow_up_campaign_restored","at":"2026-10-06T21:36:35.334Z","phone":"+15558881111","stage":1}
+{"component":"appointmentLifecycle","event":"human_follow_up_resolved","at":"2026-10-06T21:36:35.334Z","phone":"+15558881111","action":"RESUME"}
+(pass) human follow-up > RESUME from booking_link_pending re-enqueues a live follow-up and does not replay a passed offset [0.49ms]
+{"component":"appointmentLifecycle","event":"human_follow_up_resolved","at":"2026-10-06T21:36:35.334Z","phone":"+15558882222","action":"RESUME"}
+(pass) human follow-up > RESUME from discovery does not reconstruct nurture [0.11ms]
+{"component":"appointmentLifecycle","event":"human_follow_up_resolved","at":"2026-10-06T21:36:35.334Z","phone":"+15558883333","action":"CLOSE"}
+(pass) human follow-up > CLOSE is terminal declined [0.07ms]
+{"component":"appointmentLifecycle","event":"human_follow_up_booked_refused","at":"2026-10-06T21:36:35.334Z","phone":"+15558884444"}
+(pass) human follow-up > BOOKED without a real lifecycle is refused [0.07ms]
+{"component":"appointmentLifecycle","event":"booking_link_campaign_cancelled","at":"2026-10-06T21:36:35.334Z","phone":"+15558885555"}
+{"component":"appointmentLifecycle","event":"human_follow_up_resolved","at":"2026-10-06T21:36:35.334Z","phone":"+15558885555","action":"BOOKED"}
+(pass) human follow-up > BOOKED with a real lifecycle reconciles via enterBooked [0.18ms]
+
+src/server/speed2Lead/agent/schedulingBoundary.test.ts:
+(pass) rebuilt-agent scheduling boundary > getActiveProfile fails closed to bookingMode link [0.02ms]
+(pass) rebuilt-agent scheduling boundary > LLM turn contract has no conversational-scheduling actions or stages [0.21ms]
+(pass) rebuilt-agent scheduling boundary > inbound engine does not import or invoke conversational booking [0.13ms]
+(pass) rebuilt-agent scheduling boundary > profile type cannot express a conversational booking mode [0.05ms]
+
+src/server/speed2Lead/agent/slotPreferences.test.ts:
+(pass) slotPreferences (read-compat preference detection) > parseExactDateFromMessage resolves August 31st [0.26ms]
+(pass) slotPreferences (read-compat preference detection) > tomorrow preference is preference-only, not a slot selection [2.47ms]
+
+src/server/speed2Lead/agent/greetingName.test.ts:
+(pass) usableGreetingName > accepts ordinary names [0.03ms]
+(pass) usableGreetingName > rejects empty, single-character, and digits-only values [0.03ms]
+(pass) usableGreetingName > rejects the exact placeholder list [0.17ms]
+(pass) usableGreetingName > does not reject names that merely contain a listed token [0.01ms]
+
+src/server/speed2Lead/agent/llmTurn.test.ts:
+(pass) enforceReplyHygiene > leaves short replies unchanged [0.10ms]
+(pass) enforceReplyHygiene > does not split a word when truncating past 320 chars [0.16ms]
+(pass) enforceReplyHygiene > prefers a sentence boundary in the last 40 characters [0.03ms]
+
+src/server/speed2Lead/agent/painPrompt.test.ts:
+(pass) buildOpenerMessage1 > greets by name and states the opportunity with no question attached [0.10ms]
+(pass) buildOpenerMessage1 > omits the name when none is known [0.02ms]
+(pass) buildOpenerMessage1 > omits a single-character or placeholder first name [0.08ms]
+(pass) buildPainPromptMessage > lists the profile's headline pain labels as a question [0.11ms]
+
+src/server/speed2Lead/agent/bookingAttributionBoundary.test.ts:
+(pass) S2LSource / flow-identity boundary > multi_touch and unknown are never written into LeadIndexEntry.source, AgentSession.flow, or S2LSource [8.38ms]
+(pass) S2LSource / flow-identity boundary > S2LSource type stays roi|contact|demo [0.12ms]
+(pass) S2LSource / flow-identity boundary > enterHumanFollowUp is the only stage handoff assignment in agent code [1.58ms]
+
+src/server/speed2Lead/agent/discoveryGuard.test.ts:
+(pass) maxDiscoveryQuestionsForFlow > returns 2 for roi, contact, and demo [0.05ms]
+(pass) applyRoiDiscoveryCap > increments the counter when a discovery question is still allowed [0.14ms]
+(pass) applyRoiDiscoveryCap > overrides a third discovery question with the scheduling kickoff [0.06ms]
+(pass) applyRoiDiscoveryCap > does not rewrite contact or demo turns [0.04ms]
+
+src/server/speed2Lead/agent/profile.test.ts:
+(pass) painOutcomeFor > returns the matching pain outcome by key [0.94ms]
+(pass) painOutcomeFor > falls back to a general outcome for an unknown or missing key [0.04ms]
+(pass) DEFAULT_624VOICE_PROFILE.resultsGuarantee > uses the 90-day results-guarantee wording [0.01ms]
+
+src/server/speed2Lead/agent/noResponseCampaign.test.ts:
+(pass) buildNoResponseMessage1 > greets by name with em dash when first name is known [0.12ms]
+(pass) buildNoResponseMessage1 > drops the name greeting when none is known [0.02ms]
+(pass) buildNoResponseMessage2 > greets by name with a period when first name is known [0.04ms]
+(pass) buildNoResponseMessage2 > drops the name greeting when none is known [0.02ms]
+(pass) buildNoResponseMessage3 > asks which pain to fix first without a name greeting [0.03ms]
+(pass) buildNoResponseMessage4 > uses the profile meeting length and does not greet by name [0.03ms]
+(pass) buildNoResponseMessage5 > closes the loop without an ask [0.02ms]
+(pass) buildNoResponseMessage > dispatches to the stage builder by index [0.06ms]
+(pass) noResponseDueAt > offsets from session.createdAt using profile delay minutes [0.03ms]
+(pass) scheduleNoResponseCampaign > enqueues stage 0 with the first due time [0.08ms]
+(pass) cancelPendingNoResponseCampaign > marks the campaign resolved and clears the next due time [0.05ms]
+(pass) cancelPendingNoResponseCampaign > is a no-op when already resolved [0.03ms]
+
+src/server/speed2Lead/agent/turnGuards.test.ts:
+(pass) turnGuards > detects ambiguous pain replies [0.08ms]
+(pass) turnGuards > pain hint overrides ambiguity [1.21ms]
+(pass) turnGuards > sessionAwaitingPainAnswer when pain prompt sent and no pain yet [0.18ms]
+(pass) turnGuards > buildPainClarifyingReply references report pains [0.13ms]
+(pass) turnGuards > isMeetingDecline catches polite meeting no [0.05ms]
+
+src/server/speed2Lead/agent/contactFlow/discoveryReply.test.ts:
+(pass) discoveryReply > varies duplicate consequence questions [1.02ms]
+(pass) discoveryReply > caps consequence re-ask after one already sent [0.05ms]
+
+src/server/speed2Lead/agent/contactFlow/intentDetect.test.ts:
+(pass) isOffTopicRedirect > does not misfire on legitimate discovery answers mentioning calling customers back [0.13ms]
+(pass) isOffTopicRedirect > still redirects truly off-topic or third-party contact requests [0.05ms]
+
+src/server/speed2Lead/agent/contactFlow/openers.test.ts:
+(pass) classifyInquiryClarity > classifies vague generic interest [0.03ms]
+(pass) classifyInquiryClarity > classifies clear problem statement [0.02ms]
+(pass) classifyInquiryClarity > classifies already-clear when problem and outcome present [0.06ms]
+(pass) contact openers > clear need opener uses help summary and diagnostic question [0.10ms]
+(pass) contact openers > vague opener asks what is prompting them now [0.04ms]
+(pass) contact openers > already-clear opener bridges toward meeting [0.15ms]
+(pass) contact openers > summarizeHelpText delegates to need summary [0.04ms]
+(pass) contact openers > omits a clearly broken first name from the greeting [0.07ms]
+(pass) buildSkepticismDeclineResponse > cites the profile 90-day guarantee [0.09ms]
+(pass) buildSkepticismDeclineResponse > omits the guarantee clause when the field is unset [0.05ms]
+
+src/server/speed2Lead/agent/contactFlow/discoveryGuard.test.ts:
+(pass) discoveryGuard > caps discovery questions at two [0.88ms]
+(pass) discoveryGuard > blocks discovery questions once closed [0.17ms]
+(pass) discoveryGuard > does not block scheduling preference replies during offering_slots [0.27ms]
+
+src/server/speed2Lead/agent/contactFlow/declineHandling.test.ts:
+(pass) resolveContactDeclineAction > first decline sends diagnosis question [0.18ms]
+(pass) resolveContactDeclineAction > skepticism path uses profile resultsGuarantee [0.13ms]
+(pass) resolveContactDeclineAction > timing reply after diagnosis exits gracefully [0.03ms]
+
+src/server/speed2Lead/agent/contactFlow/noResponseCampaign.test.ts:
+(pass) buildContactNoResponseMessage3 > includes the profile 90-day guarantee [1.02ms]
+(pass) buildContactNoResponseMessage3 > omits the guarantee clause when the field is unset [0.07ms]
+
+src/server/speed2Lead/agent/contactFlow/crossFlow.test.ts:
+(pass) isTerminalAgentSession > booked, declined, and handoff are terminal [0.12ms]
+(pass) isTerminalAgentSession > in-progress stages are not terminal [0.06ms]
+(pass) shouldSkipAgentOpener > terminal agent session on one flow does not block a new opener [0.15ms]
+(pass) shouldSkipAgentOpener > terminal agent session without flow field does not block [0.14ms]
+(pass) shouldSkipAgentOpener > non-terminal agent session blocks a new opener on another flow [0.10ms]
+(pass) shouldSkipAgentOpener > non-terminal agent session missing flow still blocks [0.09ms]
+(pass) shouldSkipAgentOpener > non-terminal legacy session still blocks [0.25ms]
+
+src/server/speed2Lead/agent/scheduling/replyGuard.test.ts:
+(pass) scheduling replyGuard > detects fabricated booking claims [1.01ms]
+(pass) scheduling replyGuard > detects unauthorized meeting platforms [0.06ms]
+(pass) scheduling replyGuard > keeps at most one question [0.09ms]
+(pass) scheduling replyGuard > strips combined bridge and day ask with one question mark [0.02ms]
+Speed2Lead scheduling failure flagged for follow-up {
+  phoneSuffix: "2278",
+  reason: "unauthorized_meeting_platform",
+  stage: "confirming",
+  requestedDate: undefined,
+}
+(pass) scheduling replyGuard > blocks booked stage without a real event [0.24ms]
+Speed2Lead scheduling failure flagged for follow-up {
+  phoneSuffix: "2278",
+  reason: "booked_stage_without_event",
+  stage: "bridge",
+  requestedDate: undefined,
+}
+(pass) scheduling replyGuard > rolls LLM booked-without-event back to bridge even if session.stage is already booked [0.08ms]
+(pass) scheduling replyGuard > shouldPreserveTerminalStage only protects real bookings and declines [0.06ms]
+(pass) scheduling replyGuard > allows code-owned confirmation path marker [0.04ms]
+
+src/server/speed2Lead/agent/demoFlow/openers.test.ts:
+(pass) demo openers > full-call opener uses Jessica stand-out question [0.08ms]
+(pass) demo openers > short-call opener mentions cut out early [0.06ms]
+(pass) demo openers > omits a clearly broken first name from the greeting [0.04ms]
+(pass) computeDemoCallOutcome > under 45 seconds is short [0.03ms]
+
+src/server/speed2Lead/agent/demoFlow/demoSummary.test.ts:
+(pass) parseDemoSummaryFromVapiPayload > empty analysis.structuredData does not block call.artifact structuredOutputs [1.09ms]
+(pass) parseDemoSummaryFromVapiPayload > prefers message.artifact structuredOutputs over call.artifact [0.04ms]
+(pass) parseDemoSummaryFromVapiPayload > reads meaningful analysis.structuredData before artifacts [0.02ms]
+(pass) hasDemoSummarySourceData > rejects empty object [0.03ms]
+(pass) hasDemoSummarySourceData > accepts partial schema payloads [0.01ms]
+
+src/server/speed2Lead/agent/demoFlow/noResponseCampaign.test.ts:
+(pass) demo no-response guarantee copy > stage 3 includes the profile 90-day guarantee and Jessica/business copy [0.11ms]
+(pass) demo no-response guarantee copy > stage 4 includes the profile 90-day guarantee [0.04ms]
+(pass) demo no-response guarantee copy > omits the guarantee clause when the field is unset [0.05ms]
+
+6 tests failed:
+(fail) duplication-boundary replay of real upstream triggers > ROI opener: two triggers before the episode exists send one SMS [0.34ms]
+(fail) duplication-boundary replay of real upstream triggers > same episode replay after session drop still sends one ROI opener [0.10ms]
+(fail) duplication-boundary replay of real upstream triggers > ROI then Contact for the same phone are different episodes and each send once [0.08ms]
+(fail) checkAssessmentSourceRateLimit supplemental > S-RT-03: skips rate limit when Redis is not configured [0.34ms]
+(fail) checkAssessmentPhoneIdempotency supplemental > S-IDEM-12: skips idempotency when Redis is not configured [0.17ms]
+(fail) Assessment journey pipeline X-JRN-PIPE > X-JRN-PIPE-02: corrected resubmission after validation failure succeeds [0.69ms]
+
+ 899 pass
+ 6 fail
+ 2560 expect() calls
+Ran 905 tests across 120 files. [145.72s]

@@ -1,0 +1,10 @@
+{
+  "screenshot": "review-artifacts/phase2/website-polish/screenshots/assessment-results-1280.png",
+  "method": "react-dom/server render of real AssessmentResults component",
+  "fixture": "runAssessment() with HVAC trade, 50+ fleet, and representative screening/follow-up answers",
+  "script": "scripts/phase2/capture-assessment-results-screenshot.tsx",
+  "noLeadSubmit": true,
+  "noSms": true,
+  "noExternalWorkflow": true,
+  "noRealCustomerData": true
+}

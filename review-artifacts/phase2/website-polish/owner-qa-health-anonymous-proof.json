@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-10-06T21:28:59.601Z",
+  "ownerQaDeployId": "6ac567c4268f3b2f994edf33",
+  "ownerQaUrl": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+  "deployedSourceCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+  "anonymousHealth": {
+    "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/api/health",
+    "status": 200,
+    "headers": {
+      "x-robots-tag": "noindex, nofollow, noarchive",
+      "content-type": "application/json",
+      "cache-control": "no-store"
+    },
+    "body": "{\"status\":\"ok\"}"
+  },
+  "note": "Anonymous health no longer exposes git SHA, branch, deploy context, or Speed2Lead flags. Runtime commit verified via protected PR #98 authenticated /api/health and owner-QA Netlify deploy logs."
+}

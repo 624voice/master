@@ -87,6 +87,16 @@ export const TRADES = {
     avgUpsellValue: 80,
     campaignJobs: [4, 7, 10],
   },
+  Other: {
+    label: "Other home service",
+    callsPerTruckPerMonth: 45,
+    avgJobValue: 400,
+    missedCallRate: 0.28,
+    noShowRate: 0.15,
+    baseBookingConv: 0.55,
+    avgUpsellValue: 150,
+    campaignJobs: [2, 4, 6],
+  },
 } as const;
 
 export type ScenarioIndex = 0 | 1 | 2;

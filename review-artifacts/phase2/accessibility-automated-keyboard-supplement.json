@@ -1,0 +1,200 @@
+{
+  "executedAt": "2026-09-15T19:59:07.175Z",
+  "safeEnvironment": "buildAssessmentBrowserServer({ safeBackend: true }) — Redis stub, stripped credentials, no live providers",
+  "automationMethod": "Puppeteer page.keyboard / page.click (not human-operated)",
+  "operatorRole": "automated — does not satisfy A11Y-090 human operator requirement",
+  "supplementOnly": true,
+  "routesAndStatesChecked": [
+    "/",
+    "/",
+    "/",
+    "/what-we-do",
+    "/how-we-work",
+    "/demo",
+    "/about",
+    "/contact",
+    "/services",
+    "/does-not-exist-404",
+    "/assessment",
+    "/assessment bp1",
+    "/assessment bp2",
+    "/assessment universal questions",
+    "/assessment assumptions review",
+    "/assessment conditional branch",
+    "/assessment lead gate",
+    "/assessment gate validation error",
+    "/assessment results",
+    "/assessment report 503 failure",
+    "/assessment report recovery",
+    "/assessment report success after recovery"
+  ],
+  "requirementsChecked": [
+    "desktop-nav-reachability",
+    "mobile-nav-open-enter",
+    "mobile-nav-links-reachable",
+    "mobile-nav-no-trap",
+    "/-keyboard-reachability",
+    "/-focus-visible",
+    "/what-we-do-keyboard-reachability",
+    "/what-we-do-focus-visible",
+    "/how-we-work-keyboard-reachability",
+    "/how-we-work-focus-visible",
+    "/demo-keyboard-reachability",
+    "/demo-focus-visible",
+    "/about-keyboard-reachability",
+    "/about-focus-visible",
+    "/contact-keyboard-reachability",
+    "/contact-focus-visible",
+    "services-redirect",
+    "/does-not-exist-404-keyboard-reachability",
+    "/does-not-exist-404-focus-visible",
+    "assessment-back-navigation",
+    "assessment-assumptions-edit",
+    "assessment-conditional-branch",
+    "assessment-validation-error",
+    "assessment-sms-consent-space",
+    "assessment-results-reachable",
+    "assessment-report-503-alert",
+    "assessment-report-recovery-keyboard",
+    "assessment-report-recovery-success"
+  ],
+  "requirementResults": [
+    {
+      "id": "desktop-nav-reachability",
+      "pass": true,
+      "note": "A:624 Voice | A:What We Do | A:How We Work | A:Live Demo | A:Free Assessment | A:About"
+    },
+    {
+      "id": "mobile-nav-open-enter",
+      "pass": true,
+      "note": "details/summary opened with Enter"
+    },
+    {
+      "id": "mobile-nav-links-reachable",
+      "pass": true,
+      "note": "A:What We Do | A:How We Work | A:Live Demo | A:Free Assessment | A:About | A:Book Your AI Growth Systems Consultation"
+    },
+    {
+      "id": "mobile-nav-no-trap",
+      "pass": true,
+      "note": "Escape did not trap focus"
+    },
+    {
+      "id": "/-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | A:Book Your AI Growth Systems Consultation | A:Get Your Free Assessment | A:See the System Work | A:See How the Customer Journey Fits Togeth | A:Explore What We Do | A:Start the Live Demonstration"
+    },
+    {
+      "id": "/-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "/what-we-do-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | A:See How the Journey Fits Together | A:Try the Live Demo | A:See What a Consultation Covers | A:See How the Journey Fits Together | A:Book Your AI Growth Systems Consultation | A:Book Your AI Growth Systems Consultation"
+    },
+    {
+      "id": "/what-we-do-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "/how-we-work-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | A:Book Your AI Growth Systems Consultation | A:Get Your Free Assessment | A:624 Voice | A:What We Do | A:How We Work | A:Free Assessment"
+    },
+    {
+      "id": "/how-we-work-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "/demo-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | BUTTON:Start your demo with Jessica | BUTTON:Start live demo with Jessica | A:Schedule Your Demo | A:Back to Home | A:624 Voice | A:What We Do"
+    },
+    {
+      "id": "/demo-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "/about-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | A:Book Your AI Growth Systems Consultation | A:Get Your Free Assessment | A:624 Voice | A:What We Do | A:How We Work | A:Free Assessment"
+    },
+    {
+      "id": "/about-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "/contact-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | INPUT: | INPUT: | INPUT: | SELECT:Select your trade...\nPlumbing\nElectrical | INPUT: | INPUT:"
+    },
+    {
+      "id": "/contact-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "services-redirect",
+      "pass": true,
+      "note": "final url http://127.0.0.1:3000/what-we-do"
+    },
+    {
+      "id": "/does-not-exist-404-keyboard-reachability",
+      "pass": true,
+      "note": "A:624 Voice | SUMMARY: | A:Back to Home | A:624 Voice | A:What We Do | A:How We Work | A:Free Assessment | A:Live Demo"
+    },
+    {
+      "id": "/does-not-exist-404-focus-visible",
+      "pass": true,
+      "note": "after Tab sample"
+    },
+    {
+      "id": "assessment-back-navigation",
+      "pass": true
+    },
+    {
+      "id": "assessment-assumptions-edit",
+      "pass": true
+    },
+    {
+      "id": "assessment-conditional-branch",
+      "pass": true
+    },
+    {
+      "id": "assessment-validation-error",
+      "pass": true
+    },
+    {
+      "id": "assessment-sms-consent-space",
+      "pass": true
+    },
+    {
+      "id": "assessment-results-reachable",
+      "pass": true
+    },
+    {
+      "id": "assessment-report-503-alert",
+      "pass": true
+    },
+    {
+      "id": "assessment-report-recovery-keyboard",
+      "pass": true
+    },
+    {
+      "id": "assessment-report-recovery-success",
+      "pass": true
+    }
+  ],
+  "defectsFound": [],
+  "fixesApplied": [],
+  "retestResult": "pass",
+  "finalResult": "pass",
+  "evidenceNotes": "Full keyboard-focused verification across desktop/mobile navigation, all public routes, complete assessment flow, lead gate validation, SMS consent Space toggle, results, report 503 alert/recovery, and successful PDF recovery.",
+  "noLiveExternalSideEffects": true
+}

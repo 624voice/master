@@ -1,8 +1,8 @@
 import type { LegalDocument } from "~/components/LegalDocumentPage";
 
 export const smsTerms: LegalDocument = {
-  title: "SMS Campaign Terms & Conditions",
-  badge: "Terms & Conditions",
+  title: "SMS Terms & Conditions",
+  badge: "SMS Terms",
   effectiveDate: "July 17, 2026",
   lastUpdated:
     "These Campaign Terms and Conditions were last updated on July 17, 2026.",
@@ -21,11 +21,15 @@ export const smsTerms: LegalDocument = {
       blocks: [
         {
           type: "paragraph",
-          text: "The 624 Voice SMS Program sends appointment confirmations and appointment reminders to customers who provide verbal consent during a live scheduling call with 624 Voice.",
+          text: "The 624 Voice SMS Program sends scheduling assistance, follow-up, and appointment-related text messages when you opt in on our website or provide consent during a live scheduling call.",
         },
         {
           type: "paragraph",
-          text: 'Opt-In Method: Verbal consent is obtained during a live scheduling call. Before any message is sent, the representative states:',
+          text: "Website opt-in: Optional, unchecked checkboxes on the demo access form, assessment results form, and contact form are the only way we authorize automated text follow-up from those forms. Labels state that SMS is optional, message and data rates may apply, and you can reply STOP to opt out.",
+        },
+        {
+          type: "paragraph",
+          text: 'Live-call opt-in: Verbal consent may be obtained during a scheduling call. Before any message is sent, the representative may state:',
         },
         {
           type: "paragraph",

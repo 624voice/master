@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { computeAllScenarios, computeRoi } from "./computeRoi";
+import {
+  computeAllScenarios,
+  computeAllScenariosWithOverrides,
+  computeRoi,
+} from "./computeRoi";
+import { selectModerateScenario } from "~/lib/assessment/selectModerateScenario";
 import { estimateMonthlyCalls, type TradeKey } from "./roiModel";
 
 describe("estimateMonthlyCalls", () => {
@@ -59,6 +64,24 @@ describe("edge cases", () => {
       result.drivers.jobCloserUpsells.annualValue +
       result.drivers.timeSavings.annualValue;
     expect(driverSum).toBe(result.totalAnnualBenefit);
+  });
+});
+
+describe("L#16 computeAllScenariosWithOverrides empty overrides", () => {
+  test("byte-identical to computeAllScenarios", () => {
+    const baseline = computeAllScenarios("HVAC", 700);
+    const overridden = computeAllScenariosWithOverrides("HVAC", 700, {});
+    expect(overridden).toEqual(baseline);
+  });
+});
+
+describe("L#30a shuffled scenarios semantic moderate selection", () => {
+  test("selectModerateScenario finds scenarioIndex === 1", () => {
+    const scenarios = computeAllScenarios("HVAC", 700);
+    const shuffled = [scenarios[2]!, scenarios[0]!, scenarios[1]!];
+    const moderate = selectModerateScenario(shuffled);
+    expect(moderate.scenarioIndex).toBe(1);
+    expect(moderate.totalAnnualBenefit).toBe(scenarios[1]!.totalAnnualBenefit);
   });
 });
 

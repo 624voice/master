@@ -8,6 +8,7 @@ import { resolveSpeed2LeadEnvFlag } from "~/server/speed2Lead/envFlags";
 export type DeployVersionInfo = {
   gitCommitSha: string;
   branch: string;
+  phase2OwnerQaPreviewFlag: boolean;
   deployContext: string;
   deployUrl: string;
   deployId: string;
@@ -18,6 +19,7 @@ export type DeployVersionInfo = {
   speed2LeadAgentV2Enabled: boolean;
   speed2LeadContactAgentV2Enabled: boolean;
   speed2LeadDemoAgentV2Enabled: boolean;
+  runtimeContext?: string | null;
 };
 
 function readEnv(name: string): string | undefined {
@@ -72,6 +74,8 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
   return {
     gitCommitSha,
     branch,
+    phase2OwnerQaPreviewFlag: readEnv("PHASE2_OWNER_QA_PREVIEW") === "1",
+    runtimeContext: readEnv("CONTEXT") ?? readEnv("NETLIFY_CONTEXT") ?? null,
     deployContext,
     deployUrl,
     deployId,
@@ -85,6 +89,23 @@ export function buildDeployVersionInfo(now = new Date()): DeployVersionInfo {
   };
 }
 
+/** Anonymous-safe health payload for open owner-QA preview (no SHAs, flags, or deploy metadata). */
+export function publicHealthJson(): string {
+  return JSON.stringify({ status: "ok" });
+}
+
+export function shouldExposeDetailedHealth(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (env.PHASE2_OWNER_QA_PREVIEW === "1" && env.PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED === "1") {
+    return false;
+  }
+  return true;
+}
+
 export function deployVersionJson(now = new Date()): string {
+  if (!shouldExposeDetailedHealth()) {
+    return publicHealthJson();
+  }
   return JSON.stringify(buildDeployVersionInfo(now), null, 2);
 }

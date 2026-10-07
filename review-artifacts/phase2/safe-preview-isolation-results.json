@@ -1,0 +1,32 @@
+{
+  "script": "scripts/phase2/start-safe-assessment-preview.ts",
+  "environmentModule": "scripts/phase2/safePreviewEnvironment.ts",
+  "networkGuard": "scripts/phase2/safePreviewNetworkGuard.ts",
+  "testCommand": "bun test scripts/phase2/start-safe-assessment-preview.test.ts",
+  "testResults": {
+    "pass": true,
+    "testsRun": 11,
+    "testsPassed": 11,
+    "testsFailed": 0
+  },
+  "testNames": [
+    "X-SAFE-PREVIEW-01: builds fresh child env without parent credentials",
+    "X-SAFE-PREVIEW-02: negative probe — parent fake credentials do not reach child",
+    "X-SAFE-PREVIEW-03: fail closed when prohibited variable injected after sanitization",
+    "X-SAFE-PREVIEW-04: caller cannot override ASSESSMENT_ROI_AGENT_LIVE_ENABLED via parent",
+    "X-SAFE-PREVIEW-05: script source constructs isolated env and asserts before spawn",
+    "X-SAFE-PREVIEW-06: missing credentials alone do not activate safe preview adapters",
+    "X-SAFE-PREVIEW-07: no visitor-controlled activation path in assessment route",
+    "X-SAFE-PREVIEW-08: prohibited key catalog covers integration env vars",
+    "X-SAFE-PREVIEW-09: outbound non-loopback network is blocked in safe preview child",
+    "X-SAFE-PREVIEW-10: startup fails when PHASE2_SAFE_PREVIEW boundary missing after build",
+    "X-SAFE-PREVIEW-11: env construction uses allowlist bootstrap keys only"
+  ],
+  "envConstructionModel": "allowlist (BOOTSTRAP_KEYS only from parent, then forced safe overrides)",
+  "networkGuardShellProbe": {
+    "command": "bun --preload scripts/phase2/safePreviewNetworkGuard.ts scripts/phase2/safePreviewNetworkProbe.ts https://example.com",
+    "exitStatus": 0,
+    "meaning": "non-loopback fetch rejected before connection"
+  },
+  "adapterIsolationArtifact": "review-artifacts/phase2/safe-preview-adapter-isolation.json"
+}

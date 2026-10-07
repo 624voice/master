@@ -22,6 +22,8 @@ function getFromNumber(): string {
 }
 
 export async function sendSms(to: string, body: string): Promise<{ sid: string }> {
+  const { recordLiveProviderAttempt } = await import("~/server/phase2OwnerQaAdapterAudit");
+  recordLiveProviderAttempt("liveTwilioSmsAttempts");
   const client = getTwilioClient();
   const message = await client.messages.create({
     to: normalizePhone(to),

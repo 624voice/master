@@ -1,0 +1,46 @@
+{
+  "status": "checkpoint_2_corrective_complete_pending_owner_visual_review",
+  "ownerQaPreviewUrl": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/",
+  "ownerQaDeployId": "6ac567c4268f3b2f994edf33",
+  "pr98DeployPreviewUrl": "https://deploy-preview-98--624voice.netlify.app/",
+  "pr98DeployId": "6ac5678d0a6ca2000754f595",
+  "deployedRuntimeSha": "80ee91246dd0cffb0f8bbfac192216b82fc00d51",
+  "lastApplicationRuntimeSha": "c6ae9b4ba2b1735bd5849c1e88a18b16c8ec3b01",
+  "previewAccess": {
+    "ownerQaHttpBasicAuth": false,
+    "pr98HttpBasicAuth": true,
+    "scope": "Owner-QA open only; PR #98 fail-closed Basic Auth",
+    "noindexProof": "pr98-deploy-preview-auth-proof.json; owner-qa-health-anonymous-proof.json"
+  },
+  "unifiedAssessment": {
+    "canonicalRoute": "/assessment",
+    "redirect": "/roi-calculator → /assessment (no PDF, lead, agent, SMS, workflow)",
+    "publicName": "Free Revenue Assessment",
+    "activePathway": "submitAssessmentLead.ts",
+    "dormantPathway": "generateRoiPdf.ts"
+  },
+  "ctaRouting": {
+    "exploreOptions": "/contact",
+    "freeRevenueAssessment": "/assessment",
+    "estimateLostRevenue": "/assessment",
+    "chooseTime": "/book",
+    "demoAgent": "/demo"
+  },
+  "tests": {
+    "finalSuite": "899 pass / 6 fail / 905 total",
+    "log": "review-artifacts/phase2/website-polish/bun-test-full.log",
+    "buildLog": "review-artifacts/phase2/website-polish/bun-build.log",
+    "fourteenFailureAccounting": "review-artifacts/phase2/website-polish/test-failure-14-accounting.md",
+    "sixFailureBaselineEvidence": "review-artifacts/phase2/website-polish/six-failure-baseline-evidence.json"
+  },
+  "securityEvidence": {
+    "decisions": "review-artifacts/phase2/website-polish/security-decision-evidence.json",
+    "chronology": "review-artifacts/phase2/website-polish/security-chronology.md",
+    "pr98AuthProof": "review-artifacts/phase2/website-polish/pr98-deploy-preview-auth-proof.json",
+    "ownerQaHealthProof": "review-artifacts/phase2/website-polish/owner-qa-health-anonymous-proof.json",
+    "previewUrlInventory": "review-artifacts/phase2/website-polish/preview-url-inventory.json"
+  },
+  "notFoundProof": "review-artifacts/phase2/website-polish/not-found-route-proof.json",
+  "handoffMarkdown": "review-artifacts/phase2/website-polish/CHECKPOINT2_CORRECTIVE_FINAL_HANDOFF.md",
+  "closingLine": "Private implementation remains in progress. Awaiting owner visual review of the revised conversion-focused preview."
+}
