@@ -1,32 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RoiCalculator } from "~/components/RoiCalculator";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/roi-calculator")({
-  component: RoiCalculatorPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/assessment" });
+  },
+  component: () => null,
 });
-
-function RoiCalculatorPage() {
-  return (
-    <main className="pt-20">
-      <section className="bg-brand-secondary px-6 py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-400">
-            Revenue Gap Calculator
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            See What{" "}
-            <span className="text-brand-primary">You&apos;re Missing</span>
-          </h1>
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Pick your trade, enter your truck count, and see how much revenue
-            slips away each year — across three scenarios, in seconds.
-          </p>
-        </div>
-      </section>
-
-      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
-        <RoiCalculator />
-      </section>
-    </main>
-  );
-}

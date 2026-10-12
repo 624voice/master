@@ -26,6 +26,7 @@ const MODERATE_EFFECTIVE_RATES: Record<TradeKey, number> = {
   Plumbers: 0.23925,
   Electricians: 0.2175,
   Roofers: 0.15225,
+  Other: 0.23925,
 };
 
 const ROOFERS_200_EXPECTED = {

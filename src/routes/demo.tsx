@@ -1,5 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  CONVERSION_ANALYTICS_EVENTS,
+  trackConversionEvent,
+} from "~/lib/analytics/conversionIntent";
+import { FEATURE_FLAGS } from "~/config/features";
+import { PUBLIC_CTA } from "~/content/publicConversion";
+import { is90DayResultsGuaranteeEligible } from "~/lib/marketing/guaranteeEligibility";
 import { DemoAgentOverview } from "~/components/DemoAgentOverview";
 import { DemoLeadForm } from "~/components/DemoLeadForm";
 import { DemoLimitPanel } from "~/components/DemoLimitPanel";
@@ -17,12 +24,12 @@ export const Route = createFileRoute("/demo")({
   head: () => ({
     meta: [
       {
-        title: "Talk to Jessica — Live AI Receptionist Demo | 624 Voice",
+        title: "Live AI Receptionist Demo | 624 Voice",
       },
       {
         name: "description",
         content:
-          "Experience what your customers hear when they call your business. Talk to Jessica, our AI voice agent, live in your browser.",
+          "Hear Jessica, a live AI receptionist demo for home-service companies, in a natural conversation in English or Spanish.",
       },
     ],
   }),
@@ -33,15 +40,23 @@ function DemoPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [websiteOption, setWebsiteOption] = useState<"has" | "none" | "">("");
-  const [website, setWebsite] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lead, setLead] = useState<DemoLead | null>(null);
   const [pageView, setPageView] = useState<PageView>("gate");
+  const formStartedTracked = useRef(false);
+  const demoStartedTracked = useRef(false);
+
+  useEffect(() => {
+    if (pageView === "form" && !formStartedTracked.current) {
+      formStartedTracked.current = true;
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_form_started, {
+        source: "demo_lead_form",
+      });
+    }
+  }, [pageView]);
 
   const voiceDemo = useVoiceDemo({
     lead,
@@ -57,6 +72,12 @@ function DemoPage() {
     }
 
     if (pageView === "demo" && lead) {
+      if (!demoStartedTracked.current) {
+        demoStartedTracked.current = true;
+        trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_started, {
+          source: "demo_voice_mic",
+        });
+      }
       void voiceDemo.startCall();
     }
   }, [lead, pageView, voiceDemo.isBusy, voiceDemo.startCall]);
@@ -72,10 +93,9 @@ function DemoPage() {
           firstName,
           lastName,
           businessName,
-          websiteOption,
-          website: websiteOption === "has" ? website : undefined,
-          email,
+          email: "",
           phone,
+          websiteOption: "none",
           smsConsent,
         },
       });
@@ -85,6 +105,9 @@ function DemoPage() {
       }
 
       setLead(result.lead);
+      trackConversionEvent(CONVERSION_ANALYTICS_EVENTS.demo_form_completed, {
+        source: "demo_lead_form",
+      });
       voiceDemo.reset();
       setPageView("demo");
     } catch (err) {
@@ -105,12 +128,6 @@ function DemoPage() {
     setLastName,
     businessName,
     setBusinessName,
-    websiteOption,
-    setWebsiteOption,
-    website,
-    setWebsite,
-    email,
-    setEmail,
     phone,
     setPhone,
     smsConsent,
@@ -134,18 +151,18 @@ function DemoPage() {
 
   return (
     <main className="bg-[#152233] pt-20">
-      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden overflow-y-visible px-5 pb-2 pt-1 sm:px-8 lg:px-10 lg:pb-3 lg:pt-2">
+      <section className="relative min-h-[calc(100dvh-5rem)] overflow-x-hidden px-5 pb-2 pt-1 sm:px-8 lg:px-10 lg:pb-3 lg:pt-2">
         <DemoBackground />
 
-        <div className="relative mx-auto max-w-[1450px] overflow-visible">
-          <div className="grid items-start gap-6 overflow-visible lg:grid-cols-[44%_56%] lg:gap-12 xl:gap-14">
+        <div className="relative mx-auto max-w-[1450px] overflow-x-hidden">
+          <div className="grid min-w-0 max-w-full grid-cols-1 items-start gap-6 overflow-x-hidden lg:grid-cols-2 lg:gap-8 xl:gap-10">
             <DemoHeroLeft
               onStartDemo={handleStartDemo}
               startDisabled={startDisabled}
               showCta={pageView === "gate" || pageView === "demo"}
             />
 
-            <div className="flex justify-center overflow-visible pt-1 lg:justify-end lg:pt-2">
+            <div className="flex min-w-0 max-w-full justify-center overflow-x-hidden pt-1 lg:justify-end lg:pt-2">
               {pageView === "form" ? (
                 <DemoBrowserCard>
                   <h2 className="text-center text-xl font-bold text-[#18222f]">
@@ -189,64 +206,49 @@ function DemoPage() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-16 sm:py-24">
+      <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
           <DemoAgentOverview />
         </div>
       </section>
 
+      {FEATURE_FLAGS.SHOW_VOICE_AI_GUARANTEE &&
+      is90DayResultsGuaranteeEligible("624-convert") ? (
+        <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
+              <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
+                90-Day{" "}
+                <span className="text-brand-primary">Results Guarantee</span>
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-brand-secondary">
+                We guarantee you recover at least our service investment in booked
+                service-visit revenue within 90 days of go-live —{" "}
+                <span className="font-semibold text-brand-primary">
+                  or we keep working, for free, until you do.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="bg-brand-accent-light px-6 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6 sm:p-8">
-            <h3 className="text-xl font-bold tracking-tight text-brand-secondary sm:text-2xl">
-              90-Day{" "}
-              <span className="text-brand-primary">Results Guarantee</span>
-            </h3>
-            <p className="mt-4 text-base leading-relaxed text-brand-secondary">
-              We guarantee you recover at least our service investment in booked
-              service-visit revenue within 90 days of go-live —{" "}
-              <span className="font-semibold text-brand-primary">
-                or we keep working, for free, until you do.
-              </span>
-            </p>
-          </div>
-
           <div className="mt-12 text-center">
             <h2 className="text-3xl font-bold tracking-tight text-brand-secondary">
               Ready to Answer Every Call?
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Book a meeting and we&apos;ll walk through how 624 Voice fits your
-              business.
+              Tell us about your business and we&apos;ll help you choose a sensible
+              next step.
             </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <a
-                href="/contact"
-                className="inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
-              >
-                Schedule Your Demo
-              </a>
-              <a
-                href="/"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-primary-dark"
-              >
-                Back to Home
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </a>
-            </div>
+            <a
+              href={PUBLIC_CTA.exploreOptionsHref}
+              className="mt-8 inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-primary/25 transition-all hover:bg-brand-primary-dark"
+            >
+              {PUBLIC_CTA.exploreOptions}
+            </a>
           </div>
         </div>
       </section>

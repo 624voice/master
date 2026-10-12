@@ -1,5 +1,5 @@
 const painPoints = [
-  "20–40% of home service calls go unanswered. Every one is a job your competitor just booked.",
+  "20–40% of home-service calls go unanswered.",
   "Voicemail doesn't book jobs. Callers hang up and call the next name on Google before the beep ends.",
   "No-shows and late cancellations waste technician time and shrink your day before it starts.",
 ] as const;

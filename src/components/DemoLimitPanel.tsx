@@ -24,7 +24,7 @@ export function DemoLimitPanel({
               onDark ? "text-white" : "text-brand-secondary"
             }`}
           >
-            One demo call per visitor
+            One live demo session
           </h2>
           <p
             className={`mt-3 text-sm leading-relaxed ${
@@ -56,7 +56,7 @@ export function DemoLimitPanel({
     <div className="space-y-8">
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
         <h2 className="text-xl font-bold text-brand-secondary">
-          One demo call per visitor
+          One live demo session
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-gray-700">
           You&apos;ve already experienced our live AI demo. To keep things fair

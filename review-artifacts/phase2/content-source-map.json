@@ -1,0 +1,91 @@
+[
+  {
+    "route": "/",
+    "authoritativeDocument": "624VoiceHomepageCopy-v2.1-EXTRACTED.txt §2",
+    "sourceSection": "Hero, 11 sections",
+    "destinationFile": "src/routes/index.tsx",
+    "featureGate": "SHOW_DIAGNOSTIC_CREDIT_MENTION, SHOW_VOICE_AI_GUARANTEE (both false)",
+    "status": "implemented",
+    "verification": "S-RT-07, safe-qa/screenshots/*/home.png"
+  },
+  {
+    "route": "/what-we-do",
+    "authoritativeDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §4",
+    "sourceSection": "Full page copy + lifecycle",
+    "destinationFile": "src/routes/what-we-do.tsx",
+    "featureGate": "none",
+    "status": "implemented",
+    "verification": "S-RT-09, safe-qa summary status 200"
+  },
+  {
+    "route": "/how-we-work",
+    "authoritativeDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §5",
+    "destinationFile": "src/routes/how-we-work.tsx",
+    "status": "implemented",
+    "verification": "safe-qa summary status 200"
+  },
+  {
+    "route": "/demo",
+    "authoritativeDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §6",
+    "sourceSection": "Body copy + SEO meta",
+    "destinationFile": "src/routes/demo.tsx",
+    "featureGate": "none",
+    "status": "implemented",
+    "verification": "src_routes_demo.tsx.diff (presentation only), safe-qa"
+  },
+  {
+    "route": "/about",
+    "authoritativeDocument": "624VoiceWebsiteContentPhase2Final-EXTRACTED.txt §7",
+    "destinationFile": "src/routes/about.tsx",
+    "status": "implemented",
+    "verification": "safe-qa summary status 200"
+  },
+  {
+    "route": "/contact",
+    "authoritativeDocument": "Phase 2Final contact copy (pre-existing)",
+    "destinationFile": "src/routes/contact.tsx",
+    "status": "unchanged vs 05def6b",
+    "verification": "src_routes_contact.tsx.diff (no diff)"
+  },
+  {
+    "route": "/assessment",
+    "authoritativeDocument": "Phase2Final Assessment UX + analytics contract",
+    "destinationFile": "src/routes/assessment.tsx",
+    "status": "implemented",
+    "verification": "S-CMP-07, safe-qa assessmentFlow_*"
+  },
+  {
+    "route": "/assessment-report/$token",
+    "authoritativeDocument": "Phase2Final token PDF route",
+    "destinationFile": "src/routes/assessment-report/$token.ts",
+    "status": "implemented",
+    "verification": "S-RT-12, S-PDF-06"
+  },
+  {
+    "route": "/services",
+    "authoritativeDocument": "Redirect to /what-we-do",
+    "destinationFile": "src/routes/services.tsx",
+    "status": "implemented",
+    "verification": "safe-qa services-redirect.png redirected true"
+  },
+  {
+    "route": "404",
+    "authoritativeDocument": "Default not-found in router",
+    "destinationFile": "src/router.tsx",
+    "status": "implemented",
+    "verification": "safe-qa 404.png"
+  },
+  {
+    "route": "desktop nav",
+    "authoritativeDocument": "Phase2Final nav labels",
+    "destinationFile": "src/routes/__root.tsx",
+    "status": "implemented",
+    "verification": "S-RT-11"
+  },
+  {
+    "route": "mobile nav",
+    "destinationFile": "src/routes/__root.tsx",
+    "status": "implemented",
+    "verification": "safe-qa focusableCount on mobile widths"
+  }
+]

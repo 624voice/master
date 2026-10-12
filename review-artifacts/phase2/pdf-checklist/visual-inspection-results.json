@@ -1,0 +1,1064 @@
+[
+  {
+    "fixture": "01-all-modeled",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/01-all-modeled.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "01-all-modeled + existing review-artifacts/phase2/pdf-checklist/01-all-modeled.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + rankedGroups=3"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + groups=3"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + Estimate based on your business type and size."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + Estimate based on your business type and size."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + $362,409"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + 111959 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/01-all-modeled.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "02-all-visitor",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/02-all-visitor.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "02-all-visitor + existing review-artifacts/phase2/pdf-checklist/02-all-visitor.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + rankedGroups=4"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + groups=4"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + $217,021"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + 112855 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/02-all-visitor.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "03-mixed-provenance",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/03-mixed-provenance.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "03-mixed-provenance + existing review-artifacts/phase2/pdf-checklist/03-mixed-provenance.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + rankedGroups=4"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + groups=4"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + Calculated using your information and modeled assumptions."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + Calculated using your information and modeled assumptions."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + $101,071"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + 112846 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/03-mixed-provenance.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "04-low-respond",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/04-low-respond.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "04-low-respond + existing review-artifacts/phase2/pdf-checklist/04-low-respond.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + rankedGroups=2"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + groups=2"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + $70,816"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + 110453 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/04-low-respond.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "05-moderate-respond",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/05-moderate-respond.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "05-moderate-respond + existing review-artifacts/phase2/pdf-checklist/05-moderate-respond.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + rankedGroups=3"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + groups=3"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + $194,817"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + 112152 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/05-moderate-respond.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "06-high-respond",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/06-high-respond.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "06-high-respond + existing review-artifacts/phase2/pdf-checklist/06-high-respond.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + rankedGroups=3"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + groups=3"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + $431,755"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + 111652 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/06-high-respond.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "07-needs-clarification",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/07-needs-clarification.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "07-needs-clarification + existing review-artifacts/phase2/pdf-checklist/07-needs-clarification.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + rankedGroups=3"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + groups=3"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + clarify=1"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + $194,817"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + 112751 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/07-needs-clarification.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "08-missing-moderate",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/08-missing-moderate.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "08-missing-moderate + existing review-artifacts/phase2/pdf-checklist/08-missing-moderate.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + rankedGroups=2"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + groups=2"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + $18,000"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "N/A (not longest fixture)"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + 109969 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/08-missing-moderate.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  },
+  {
+    "fixture": "09-longest-realistic",
+    "existingPdf": "review-artifacts/phase2/pdf-checklist/09-longest-realistic.pdf",
+    "renderedPageEvidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png",
+    "overall": "PASS",
+    "checks": [
+      {
+        "id": "intended_fixture_state",
+        "result": "PASS",
+        "evidence": "09-longest-realistic + existing review-artifacts/phase2/pdf-checklist/09-longest-realistic.pdf"
+      },
+      {
+        "id": "six_dimensions",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + rankedGroups=3"
+      },
+      {
+        "id": "respond_severity",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "priority_order",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + groups=3"
+      },
+      {
+        "id": "per_field_provenance",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "combined_provenance_label",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + Calculated using the numbers you provided."
+      },
+      {
+        "id": "needs_clarification_treatment",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + clarify=0"
+      },
+      {
+        "id": "cta",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "disclaimer",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + This Assessment is directional and based on the information you provided. It is "
+      },
+      {
+        "id": "missing_moderate_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + $935,038"
+      },
+      {
+        "id": "longest_content_behavior",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png"
+      },
+      {
+        "id": "clipping",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "overlap",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "font_legibility",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "margins",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "pagination",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "split_cards_or_tables",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "orphaned_headings",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "missing_content",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png rendered-page inspection"
+      },
+      {
+        "id": "blank_page_artifacts",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + 111973 bytes"
+      },
+      {
+        "id": "debug_or_internal_leakage",
+        "result": "PASS",
+        "evidence": "review-artifacts/phase2/pdf-checklist/visual-pages/09-longest-realistic.png + view model JSON scan"
+      },
+      {
+        "id": "pii_in_token_or_url",
+        "result": "PASS",
+        "evidence": "HTML render scan: no token URL or lead email in report HTML"
+      }
+    ]
+  }
+]

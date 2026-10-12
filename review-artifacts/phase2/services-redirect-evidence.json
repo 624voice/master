@@ -1,0 +1,11 @@
+{
+  "route": "/services",
+  "initialResponseStatusBeforeFollow": 307,
+  "locationHeader": "/what-we-do",
+  "expectedDestination": "/what-we-do",
+  "finalResponseStatusAfterFollow": 200,
+  "finalUrl": "http://127.0.0.1:3000/what-we-do",
+  "canonicalAndIndexing": "Retired /services route uses TanStack beforeLoad redirect to /what-we-do; no standalone indexable content at /services.",
+  "note": "Do not report initial response as HTTP 200 when the client followed redirects automatically.",
+  "probedAt": "2026-09-14T20:17:23.898Z"
+}

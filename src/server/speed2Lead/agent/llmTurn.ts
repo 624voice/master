@@ -357,6 +357,8 @@ export async function runAgentTurn(
     throw new Error("OpenAI is not configured");
   }
 
+  const { recordLiveProviderAttempt } = await import("~/server/phase2OwnerQaAdapterAudit");
+  recordLiveProviderAttempt("liveOpenAiAgentAttempts");
   const client = deps.client ?? new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const response = await client.responses.create({

@@ -1,0 +1,30 @@
+{
+  "totalUniqueIds": 78,
+  "totalRows": 78,
+  "passing": 78,
+  "failing": 0,
+  "skipped": 0,
+  "timedOut": 0,
+  "duplicateIds": [],
+  "malformedIds": [],
+  "includesXJrnDom15Through22": [
+    "X-JRN-DOM-15",
+    "X-JRN-DOM-16",
+    "X-JRN-DOM-17",
+    "X-JRN-DOM-18",
+    "X-JRN-DOM-19",
+    "X-JRN-DOM-20",
+    "X-JRN-DOM-21",
+    "X-JRN-DOM-22"
+  ],
+  "dom15to22Count": 8,
+  "previouslyReported70Explanation": "The prior additional-tests-table.json was a hand-maintained generator with 70 rows. It included X-JRN-DOM-01–14 only (not 15–22), synthetic X-BND rows without exact executable names, and X-AN-CMP rows with event suffixes. Mechanical extraction from executable tests yields a different but authoritative count.",
+  "allOutsideApproved162": true,
+  "reconciliation": {
+    "priorReportedCount": 70,
+    "mechanicalTotal": 78,
+    "mechanicalUniqueIds": 78,
+    "deltaFrom70": 8,
+    "deltaExplanation": "+8: primarily X-JRN-DOM-15–22 (+8) and fully enumerated X-BND/X-AN-CMP rows vs abbreviated prior generator."
+  }
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "baselinePath": "src/server/speed2Lead/reportTokens.ts",
+    "baselineSha256": "597d51151dd6bac91a28114747757ea251630d97cdd1f30acfcfa4742f073cf7",
+    "currentSha256": "597d51151dd6bac91a28114747757ea251630d97cdd1f30acfcfa4742f073cf7",
+    "match": true
+  },
+  {
+    "baselinePath": "src/routes/report/$token.ts",
+    "baselineSha256": "20e5f44ee44a82efd8e159aa48ca4066633937542cb1b3df2554887638368bfb",
+    "currentSha256": "20e5f44ee44a82efd8e159aa48ca4066633937542cb1b3df2554887638368bfb",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/generateRoiPdfHandler.server.ts",
+    "baselineSha256": "a136a9f088d1b13910fa58017d1fa8a06ca2f479c3358cc97bbc8d685ed40e10",
+    "currentSha256": "a136a9f088d1b13910fa58017d1fa8a06ca2f479c3358cc97bbc8d685ed40e10",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/agent/startConversation.ts",
+    "baselineSha256": "5eaed6ff27319d7f0964fc36e0591d53dafe19afa6da9c72b65b8ab68bd31ecc",
+    "currentSha256": "5eaed6ff27319d7f0964fc36e0591d53dafe19afa6da9c72b65b8ab68bd31ecc",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/agent/contactFlow/startConversation.ts",
+    "baselineSha256": "9f5a4a559abc4aef8bbab65c2fa7f5f0a5faec936d6e661f595c224d1c17c11f",
+    "currentSha256": "9f5a4a559abc4aef8bbab65c2fa7f5f0a5faec936d6e661f595c224d1c17c11f",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/agent/demoFlow/startConversation.ts",
+    "baselineSha256": "1e9b10e8a40b151a8a53de48a3b6669148fb7078c694a58293224f5487e6ad28",
+    "currentSha256": "1e9b10e8a40b151a8a53de48a3b6669148fb7078c694a58293224f5487e6ad28",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/types.ts",
+    "baselineSha256": "c0d180bc3af7803f647055dd892bb6bdd5d097c6edca6dc531415e7fcf3f6636",
+    "currentSha256": "c0d180bc3af7803f647055dd892bb6bdd5d097c6edca6dc531415e7fcf3f6636",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/inboundDisposition.ts",
+    "baselineSha256": "42c7aa93c6046550c09e6d720ef9ba9710850d059542991a4d580bd048227181",
+    "currentSha256": "42c7aa93c6046550c09e6d720ef9ba9710850d059542991a4d580bd048227181",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/agent/handleInbound.ts",
+    "baselineSha256": "e1c030165e0b0b64eebcaf75d64730ee5c937b075a4b44c2cde45dd8137d68ee",
+    "currentSha256": "e1c030165e0b0b64eebcaf75d64730ee5c937b075a4b44c2cde45dd8137d68ee",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/speed2Lead/agent/state.ts",
+    "baselineSha256": "a3b25f656661031b4522d8734a53fb5e7d46134d512c018930803bdf8217f4a8",
+    "currentSha256": "a3b25f656661031b4522d8734a53fb5e7d46134d512c018930803bdf8217f4a8",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/submitDemoLead.ts",
+    "baselineSha256": "e4be4ed222efe9a9711f14071147efff9c69834782f41522cad0f0d792df81e7",
+    "currentSha256": "e4be4ed222efe9a9711f14071147efff9c69834782f41522cad0f0d792df81e7",
+    "match": true
+  },
+  {
+    "baselinePath": "src/server/submitContactLead.ts",
+    "baselineSha256": "1ae695ff5e9db08bf15a1d676159316a47e8ad79a157833b15181a03bc9400c9",
+    "currentSha256": "1ae695ff5e9db08bf15a1d676159316a47e8ad79a157833b15181a03bc9400c9",
+    "match": true
+  },
+  {
+    "baselinePath": "docs/claude-handoff/CURRENT_SYSTEM_PROMPT.txt",
+    "baselineSha256": "9a1b18827027cf5945461aed1a4533a6e95204eec9dc38679f1db6cafc615951",
+    "currentSha256": "9a1b18827027cf5945461aed1a4533a6e95204eec9dc38679f1db6cafc615951",
+    "match": true
+  }
+]

@@ -1,0 +1,26 @@
+diff --git a/scripts/phase2/run-accessibility-qa.ts b/scripts/phase2/run-accessibility-qa.ts
+index 962188a..f089624 100644
+--- a/scripts/phase2/run-accessibility-qa.ts
++++ b/scripts/phase2/run-accessibility-qa.ts
+@@ -1428,7 +1428,7 @@ function writeOutputs(): void {
+   });
+ 
+   const humanKbPath = join(REPO_ROOT, "review-artifacts/phase2/accessibility-human-keyboard-qa.json");
+-  let humanKbResult: {
++  type HumanKbResult = {
+     finalResult?: string;
+     executedAt?: string;
+     safeEnvironment?: string;
+@@ -1436,9 +1436,10 @@ function writeOutputs(): void {
+     defectsFound?: string[];
+     fixesApplied?: string[];
+     retestResult?: string;
+-  } | null = null;
++  };
++  let humanKbResult: HumanKbResult | null = null;
+   if (existsSync(humanKbPath)) {
+-    humanKbResult = JSON.parse(readFileSync(humanKbPath, "utf8")) as typeof humanKbResult;
++    humanKbResult = JSON.parse(readFileSync(humanKbPath, "utf8")) as HumanKbResult;
+   }
+   (rawSummary.humanKeyboardQa as Record<string, unknown>) = humanKbResult ?? {
+     status: "not executed",

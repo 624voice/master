@@ -3,7 +3,7 @@ export function DemoBackground() {
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div className="absolute inset-0 bg-gradient-to-br from-[#152233] via-[#152233] to-[#0f1a28]" />
 
-      <div className="absolute right-0 top-1/4 h-[520px] w-[520px] -translate-y-1/2 translate-x-1/4 rounded-full bg-[#10b981]/12 blur-3xl" />
+      <div className="absolute right-0 top-1/4 h-[520px] w-[520px] max-w-[min(520px,100%)] -translate-y-1/2 rounded-full bg-[#10b981]/12 blur-3xl" />
 
       <svg
         className="absolute right-0 top-0 h-full w-[45%] opacity-[0.12]"

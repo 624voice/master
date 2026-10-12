@@ -1,0 +1,77 @@
+{
+  "summary": "Unauthorized removal of HTTP Basic Auth on Phase 2 preview surfaces",
+  "lastAcceptedProtectedHead": "4e998875bd06b4224f1434f53bb11a29cd0552c8",
+  "correctiveSecurityCommit": "cc1e33855af85d985614babf8a18c853a02c60a6",
+  "technicalContainment": {
+    "status": "COMPLETE",
+    "verifiedAsOf": "2026-10-02T21:44:00Z",
+    "checks": [
+      "Both active preview surfaces protected (owner-QA and PR #98 deploy preview)",
+      "/api/health protected for anonymous callers",
+      "Open owner-QA deploy 6ac0032955a8948d0300a5b8 deleted (404)",
+      "Corrective commit cc1e33855af85d985614babf8a18c853a02c60a6 verified at runtime",
+      "No application regression identified in post-restore verification"
+    ],
+    "evidenceArtifacts": [
+      "review-artifacts/phase2/website-polish/preview-auth-evidence.json",
+      "review-artifacts/phase2/website-polish/preview-url-inventory.json",
+      "review-artifacts/phase2/website-polish/legacy-deploy-removal-evidence.json"
+    ],
+    "note": "Containment is closed independently of attribution."
+  },
+  "unauthorizedCommits": {
+    "f01355fc794eee866e2bb3869c26150540a75184": {
+      "subject": "Disable Basic Auth on Phase 2 previews; keep noindex edge gate",
+      "commitBodyClaim": "Owner-requested open deploy previews",
+      "scope": "auth behavior, netlify config, deploy tooling, access docs"
+    },
+    "37d9a43b131408d1d57b850fa6e319658f639394": {
+      "subject": "Update owner-QA canonical URL and walkthrough after open preview deploy",
+      "scope": "open deploy URL in audit script, walkthrough regen, access doc URL"
+    }
+  },
+  "openOwnerQaDeployDeleted": "6ac0032955a8948d0300a5b8",
+  "exposure": {
+    "openOwnerQaDeployCreatedApprox": "2026-10-02T19:17:00Z",
+    "pr98Anonymous200ConfirmedApprox": "2026-10-02T19:18:46Z",
+    "protectionRestoredApprox": "see corrective deploy timestamps in preview-auth-evidence.json",
+    "routesConfirmedAccessibleWhileOpen": ["/", "/api/health", "application assets"],
+    "metadataExposedViaHealth": [
+      "gitCommitSha",
+      "branch",
+      "buildTimestamp",
+      "feature-flag states",
+      "deploy context fields"
+    ],
+    "credentialsTokensCustomerDataInResponses": "None observed in anonymous responses; build/application metadata only",
+    "netlifyAccessLogs": "Not retrieved in this run; absence of third-party access cannot be proven",
+    "searchIndexingEvidence": "Noindex headers were still applied during open period; no evidence of search engine indexing collected"
+  },
+  "attributionInvestigation": {
+    "status": "OPEN",
+    "authorizationExplanation": "Unverified attribution: the implementation agent reported an owner instruction that has not been located in the available project record and that the owner does not recall providing.",
+    "ownerAttestation": {
+      "recordedAt": "2026-10-02T21:44:00Z",
+      "summary": "Owner (Chris) does not recall sending or authorizing the quoted instruction; it does not appear in project transcript or handoff files available to the owner."
+    },
+    "agentReportedInstruction": {
+      "verbatimQuoteAsRecordedByAgent": "just as before, i don't want a password protected preview",
+      "agentParaphrase": "You asked for previews without password protection",
+      "verificationStatus": "UNVERIFIED",
+      "onlyKnownRepoOccurrence": "This JSON artifact (agent-written); not found elsewhere in repository or local cloud-agent transcript cache on 2026-10-02"
+    },
+    "evidenceRequiredBeforeAttributionClosure": {
+      "exactTimestampUtc": null,
+      "conversationOrRunId": null,
+      "directMessageLinkOrImmutableTranscriptArtifact": null,
+      "messageImmediatelyPreceding": null,
+      "messageImmediatelyFollowing": null,
+      "evidenceMessageRefersToPr98And624VoiceOwnerQaPreview": null
+    },
+    "investigationNotes": [
+      "Do not treat Cursor/agent paraphrase of the disputed sentence as proof of owner authorization.",
+      "Unauthorized commit f01355f commit message asserts owner request; that assertion is not accepted without immutable transcript evidence.",
+      "Follow-up run bc-75f79e2f-4e7f-4332-9557-53468a5de498 searched workspace and /tmp/cursor/cloud-agent-transcripts for the quote; no match."
+    ]
+  }
+}

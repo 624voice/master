@@ -1,0 +1,383 @@
+{
+  "auditedAt": "2026-10-07T11:45:41.922Z",
+  "canonicalOwnerQa": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+  "pr98": "https://deploy-preview-98--624voice.netlify.app",
+  "taxonomy": [
+    "current authorized open owner-QA deployment",
+    "protected",
+    "deleted or 404",
+    "fail-closed because of missing configuration",
+    "superseded and still anonymously accessible"
+  ],
+  "inventoryConclusion": {
+    "supersededOwnerQaUrlServesApplicationAnonymously": false,
+    "anyNonCurrentSurfaceServesApplicationAnonymously": false,
+    "narrative": "No audited URL other than the current authorized owner-QA deployment returned anonymous HTTP 200 HTML for / at audit time."
+  },
+  "audited": [
+    {
+      "label": "canonical-owner-qa",
+      "url": "https://6ac0121facb1d8ddf724b36e--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6ac0121facb1d8ddf724b36e--624voice-phase2-owner-qa.netlify.app/",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "canonical-owner-qa",
+      "url": "https://6ac0121facb1d8ddf724b36e--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6ac0121facb1d8ddf724b36e--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "deleted-open-6ac00329",
+      "url": "https://6ac0032955a8948d0300a5b8--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6ac0032955a8948d0300a5b8--624voice-phase2-owner-qa.netlify.app/",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XHV636SS51A9F7DAH1CT Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "deleted-open-6ac00329",
+      "url": "https://6ac0032955a8948d0300a5b8--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6ac0032955a8948d0300a5b8--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XHX069R8CF4PT7MMTAJK Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "legacy-6abd567",
+      "url": "https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XHZM8D7H0JDSAKQT332J Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "legacy-6abd567",
+      "url": "https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abd56734482b0f2f00832ab--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XJ1D20B0X46H3J345BY2 Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "legacy-6abd458",
+      "url": "https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XJ40KDHVKHEMJN5QF6PS Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "legacy-6abd458",
+      "url": "https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abd458bd2f3ce714ff6827a--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XJ5T207ZZBB211WSCSPW Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "pr98-deploy-preview",
+      "url": "https://deploy-preview-98--624voice.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://deploy-preview-98--624voice.netlify.app/",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "pr98-deploy-preview",
+      "url": "https://deploy-preview-98--624voice.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://deploy-preview-98--624voice.netlify.app/api/health",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "misconfig-both-missing",
+      "url": "https://6abe96031bef15a6e720a18c--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe96031bef15a6e720a18c--624voice-phase2-owner-qa.netlify.app/",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "misconfig-both-missing",
+      "url": "https://6abe96031bef15a6e720a18c--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe96031bef15a6e720a18c--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "qa-deploy-6abe938e",
+      "url": "https://6abe938e1c7372fd14f78262--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe938e1c7372fd14f78262--624voice-phase2-owner-qa.netlify.app/",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "qa-deploy-6abe938e",
+      "url": "https://6abe938e1c7372fd14f78262--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe938e1c7372fd14f78262--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "qa-deploy-6abe9653",
+      "url": "https://6abe96530466c407b762fea6--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe96530466c407b762fea6--624voice-phase2-owner-qa.netlify.app/",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "qa-deploy-6abe9653",
+      "url": "https://6abe96530466c407b762fea6--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe96530466c407b762fea6--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "qa-deploy-6abe962e",
+      "url": "https://6abe962ee1e6d472ef63ecce--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe962ee1e6d472ef63ecce--624voice-phase2-owner-qa.netlify.app/",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "qa-deploy-6abe962e",
+      "url": "https://6abe962ee1e6d472ef63ecce--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe962ee1e6d472ef63ecce--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 503,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview authentication is not configured."
+      },
+      "classification": "fail-closed because of missing configuration"
+    },
+    {
+      "label": "qa-deploy-6abe9361",
+      "url": "https://6abe93610cc4975d8dd13b7e--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe93610cc4975d8dd13b7e--624voice-phase2-owner-qa.netlify.app/",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XT50HEHN14PFHCRFX6N4 Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "qa-deploy-6abe9361",
+      "url": "https://6abe93610cc4975d8dd13b7e--624voice-phase2-owner-qa.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe93610cc4975d8dd13b7e--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 404,
+        "wwwAuthenticate": null,
+        "xRobotsTag": null,
+        "contentType": "text/plain; charset=utf-8",
+        "bodySample": "Not Found - Request ID: 01M4B2XT6QYJ98A94DC22JSR78 Build and deploy your own site for free: https://netlify.new/?utm_ca"
+      },
+      "classification": "deleted or 404"
+    },
+    {
+      "label": "accidental-main-draft",
+      "url": "https://6abe93610cc4975d8dd13b7e--624voice.netlify.app/",
+      "path": "/",
+      "live": {
+        "url": "https://6abe93610cc4975d8dd13b7e--624voice.netlify.app/",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "accidental-main-draft",
+      "url": "https://6abe93610cc4975d8dd13b7e--624voice.netlify.app/",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6abe93610cc4975d8dd13b7e--624voice.netlify.app/api/health",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "pr98-deploy-preview",
+      "url": "https://deploy-preview-98--624voice.netlify.app",
+      "path": "/",
+      "live": {
+        "url": "https://deploy-preview-98--624voice.netlify.app/",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "pr98-deploy-preview",
+      "url": "https://deploy-preview-98--624voice.netlify.app",
+      "path": "/api/health",
+      "live": {
+        "url": "https://deploy-preview-98--624voice.netlify.app/api/health",
+        "status": 401,
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex",
+        "contentType": "text/plain;charset=UTF-8",
+        "bodySample": "Owner QA preview — authentication required."
+      },
+      "classification": "protected"
+    },
+    {
+      "label": "canonical-owner-qa-current",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+      "path": "/",
+      "live": {
+        "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/",
+        "status": 200,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "text/html; charset=utf-8",
+        "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-s"
+      },
+      "classification": "current authorized open owner-QA deployment"
+    },
+    {
+      "label": "canonical-owner-qa-current",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app",
+      "path": "/api/health",
+      "live": {
+        "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/api/health",
+        "status": 200,
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex",
+        "contentType": "application/json",
+        "bodySample": "{\"status\":\"ok\"}"
+      },
+      "classification": "current authorized open owner-QA deployment"
+    }
+  ]
+}

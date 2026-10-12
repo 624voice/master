@@ -59,9 +59,14 @@ export function DemoHeroLeft({
       </p>
 
       <p className="mt-5 max-w-[570px] text-[17px] leading-[1.55] text-[#94A3B8] lg:mx-0 mx-auto sm:text-lg">
-        Jessica can answer questions, qualify callers, book appointments, offer
-        maintenance plans, and send confirmations, all in one natural
-        conversation.
+        Every time a customer can&apos;t reach you, they&apos;re likely your
+        competitor&apos;s next booked job.
+      </p>
+      <p className="mt-4 max-w-[570px] text-[17px] leading-[1.55] text-[#94A3B8] lg:mx-0 mx-auto sm:text-lg">
+        Hear how naturally Jessica can answer questions, understand what a caller
+        needs, and help move the conversation toward a booked appointment. The
+        production experience is designed around your business, customers,
+        services, and workflow.
       </p>
 
       <div className="mt-6 flex items-center justify-center gap-3 lg:justify-start">
@@ -78,7 +83,7 @@ export function DemoHeroLeft({
             onClick={onStartDemo}
             disabled={startDisabled}
             aria-label="Start your demo with Jessica"
-            className="inline-flex h-16 w-full max-w-[336px] items-center justify-center gap-3 rounded-xl bg-[#10b981] px-6 text-lg font-semibold text-white shadow-lg shadow-[#10b981]/30 transition-all hover:bg-[#059669] hover:shadow-xl hover:shadow-[#10b981]/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#10b981]/40 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[66px] sm:text-xl"
+            className="inline-flex h-16 w-full max-w-[336px] items-center justify-center gap-3 rounded-xl bg-brand-primary px-6 text-lg font-semibold text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary-dark hover:shadow-xl hover:shadow-brand-primary/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[66px] sm:text-xl"
           >
             <SparkleIcon />
             Start Your Demo

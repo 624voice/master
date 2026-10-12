@@ -1,0 +1,106 @@
+{
+  "capturedAt": "2026-10-06T21:31:31.201Z",
+  "pr98DeployPreview": {
+    "anonymousRoot": {
+      "label": "pr98-anonymous-root",
+      "url": "https://deploy-preview-98--624voice.netlify.app/",
+      "status": 401,
+      "headers": {
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/plain;charset=UTF-8"
+      },
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    "anonymousHealth": {
+      "label": "pr98-anonymous-health",
+      "url": "https://deploy-preview-98--624voice.netlify.app/api/health",
+      "status": 401,
+      "headers": {
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/plain;charset=UTF-8"
+      },
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    "anonymousAsset": {
+      "label": "pr98-anonymous-asset",
+      "url": "https://deploy-preview-98--624voice.netlify.app/assets/index-DTWd0qQH.js",
+      "status": 401,
+      "headers": {
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/plain;charset=UTF-8"
+      },
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    "badCredentialsRoot": {
+      "label": "pr98-bad-credentials-root",
+      "url": "https://deploy-preview-98--624voice.netlify.app/",
+      "status": 401,
+      "headers": {
+        "wwwAuthenticate": "Basic realm=\"624voice Phase 2 Owner QA\", charset=\"UTF-8\"",
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/plain;charset=UTF-8"
+      },
+      "bodySample": "Owner QA preview — authentication required."
+    },
+    "goodCredentialsRoot": {
+      "label": "pr98-good-credentials-root",
+      "url": "https://deploy-preview-98--624voice.netlify.app/",
+      "status": 200,
+      "headers": {
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/html; charset=utf-8"
+      },
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"robots\" content=\"noindex, nofollow\"/><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"/logo.png\"/><link rel=\"preload\" as=\"image\" href=\"/jessica-avatar.png\"/><link rel=\"stylesheet\" href=\"/assets/app-sHfJbHfp.css\" data-precedence=\"default\"/><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600&amp;family=Comfortaa:wght@500;600"
+    },
+    "goodCredentialsHealth": {
+      "label": "pr98-good-credentials-health",
+      "url": "https://deploy-preview-98--624voice.netlify.app/api/health",
+      "status": 200,
+      "headers": {
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "application/json"
+      },
+      "bodySample": "{ \"gitCommitSha\": \"80ee91246dd0cffb0f8bbfac192216b82fc00d51\", \"branch\": \"pull/98/head\", \"phase2OwnerQaPreviewFlag\": false, \"runtimeContext\": null, \"deployContext\": \"deploy-preview\", \"deployUrl\": \"https://www.624voice.com\", \"deployId\": \"unknown\", \"buildId\": \"unknown\", \"buildTimestamp\": \"2026-10-06T21:27:01.449Z\", \"environment\": \"preview\", \"speed2LeadLlmEnabled\": true, \"speed2LeadAgentV2Enabled\": true, \"speed2LeadContactAgentV2Enabled\": true, \"speed2LeadDemoAgentV2Enabl"
+    }
+  },
+  "ownerQaOpen": {
+    "anonymousRoot": {
+      "label": "owner-qa-anonymous-root",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/",
+      "status": 200,
+      "headers": {
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/html; charset=utf-8"
+      },
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"/logo.png\"/><link rel=\"preload\" as=\"image\" href=\"/jessica-avatar.png\"/><link rel=\"stylesheet\" href=\"/assets/app-sHfJbHfp.css\" data-precedence=\"default\"/><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600&amp;family=Comfortaa:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800&am"
+    },
+    "anonymousHealth": {
+      "label": "owner-qa-anonymous-health",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/api/health",
+      "status": 200,
+      "headers": {
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "application/json"
+      },
+      "bodySample": "{\"status\":\"ok\"}"
+    },
+    "anonymous404": {
+      "label": "owner-qa-anonymous-404",
+      "url": "https://6ac567c4268f3b2f994edf33--624voice-phase2-owner-qa.netlify.app/does-not-exist-404",
+      "status": 404,
+      "headers": {
+        "wwwAuthenticate": null,
+        "xRobotsTag": "noindex, nofollow, noarchive",
+        "contentType": "text/html; charset=utf-8"
+      },
+      "bodySample": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"/logo.png\"/><link rel=\"stylesheet\" href=\"/assets/app-sHfJbHfp.css\" data-precedence=\"default\"/><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400;500;600&amp;family=Comfortaa:wght@500;600;700&amp;family=Inter:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swa"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "checklistId": "A11Y-090-owner-human-keyboard-v5",
+  "status": "awaiting owner completion — Chris must physically operate the keyboard",
+  "purpose": "Human-operated keyboard-only QA. Automated supplements (X-SAFE-PREVIEW-FOCUS-01/02/03) do NOT satisfy this row.",
+  "procedureArtifact": "review-artifacts/phase2/owner-keyboard-walkthrough-v5.md",
+  "totalChecks": 34,
+  "operatorInstructions": {
+    "who": "Chris (owner) — physical keyboard only",
+    "inputRules": [
+      "Google Chrome on macOS only",
+      "Chrome DevTools Responsive mode: desktop 1280×900 CSS px; mobile 375×800 CSS px",
+      "Physical keyboard only — no mouse, trackpad, Puppeteer, or scripted input",
+      "Use Tab, Shift+Tab, Enter, Space, Arrow keys as specified per check",
+      "STOP if any action could contact live SMS, email, CRM, Redis production, or analytics"
+    ]
+  },
+  "safeProcedure": {
+    "checkoutCommand": "git checkout 3109ad77d25a864b5a38cb248b14421b554d54ef",
+    "preparationCommand": "bun run scripts/phase2/prepare-safe-preview-deps.ts",
+    "startupCommand": "bun run scripts/phase2/start-safe-assessment-preview.ts",
+    "localUrl": "http://127.0.0.1:3000",
+    "shutdownCommand": "Ctrl+C in preview terminal"
+  },
+  "attestationTemplate": {
+    "operatorRoleOrIdentifier": "",
+    "executedAtIso": "",
+    "testedGitSha": "3109ad77d25a864b5a38cb248b14421b554d54ef",
+    "confirmedPhysicalKeyboardOnly": "",
+    "confirmedNoProductionCredentials": "",
+    "confirmedNoLiveExternalSideEffects": "",
+    "checks": "Copy all 34 checks with PASS or FAIL",
+    "finalConclusion": ""
+  }
+}

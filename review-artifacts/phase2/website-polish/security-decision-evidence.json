@@ -1,0 +1,232 @@
+{
+  "purpose": "Record security control decisions and immutable owner confirmations for Phase 2 protected previews (PR #98, 624Voice owner-QA).",
+  "protectedPreviewRequirement": "Phase 2 previews use the noindex edge gate. Owner-QA may be open without Basic Auth only when explicitly authorized and DISABLED=1. PR deploy-preview remains fail-closed Basic Auth unless separately authorized.",
+  "readableChronology": "review-artifacts/phase2/website-polish/security-chronology.md",
+  "standingPreviewAuthRule": {
+    "effectiveFrom": "2026-10-06T21:00:00Z",
+    "summary": "Owner-QA open; PR #98 deploy-preview protected (fail-closed Basic Auth).",
+    "decisionId": "checkpoint2-corrective-preview-auth-split-2026-10-06"
+  },
+  "policyEffectiveFrom": "2026-10-02T21:44:00Z",
+  "controlChangePolicy": {
+    "summary": "Agents must not re-enable HTTP Basic Auth on 624voice.com preview surfaces or weaken the noindex edge gate without explicit owner instruction. Do not change production visitor-facing security based on paraphrased or inferred instructions.",
+    "requiredForAnyWeakening": [
+      "Explicit, unambiguous, verbatim request from Chris in the same Cursor channel/thread as the implementation work",
+      "Request must name the specific control (e.g. HTTP Basic Auth, PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED, edge gate behavior)",
+      "Request must name the specific preview surface (e.g. PR #98 deploy preview URL, 624voice-phase2-owner-qa Netlify site)"
+    ],
+    "ifAmbiguousOrConflictsWithProtectedPreviewRequirement": "Stop implementation; obtain written confirmation before acting.",
+    "evidenceRecording": "Append the confirming owner message (verbatim text, timestamp, run/conversation id, link or transcript artifact path) to this file or a dated entry referenced from security-incident-open-preview.json."
+  },
+  "decisions": [
+    {
+      "id": "checkpoint2-authoritative-owner-qa-basic-auth-waiver-2026-10-06",
+      "action": "Chris explicitly authorizes the 624 Voice owner-QA website-review preview to remain accessible without HTTP Basic Auth.",
+      "control": "HTTP Basic Auth only — disabled for the named owner-QA preview surface",
+      "surfaces": [
+        "624 Voice owner-QA Netlify review preview used for Phase 2 website-polish review (624voice-phase2-owner-qa Netlify site)"
+      ],
+      "explicitlyNotAuthorized": [
+        "Production",
+        "PR #98 deploy-preview unless separately and explicitly authorized",
+        "Unrelated Netlify sites or deploy contexts",
+        "Admin systems",
+        "APIs containing secrets or sensitive operational data",
+        "Any other security control",
+        "Future projects or previews"
+      ],
+      "requiredRetainedControls": [
+        "X-Robots-Tag: noindex, nofollow, noarchive",
+        "No production-domain attachment",
+        "No committed or exposed credentials",
+        "No unnecessary branch, SHA, environment or feature-flag metadata exposed anonymously",
+        "Clear non-production-preview status"
+      ],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Verbatim Phase 2 Checkpoint 2 governing instruction section 2 (owner-QA only). Does not authorize PR #98 deploy-preview."
+      },
+      "ownerMessageRecordedAt": "2026-10-06T17:29:00Z",
+      "recordingRunId": "checkpoint2-authoritative-instruction"
+    },
+    {
+      "id": "owner-qa-preview-open-no-basic-auth-checkpoint2-2026-10-06",
+      "action": "Authorize owner-QA Netlify preview without HTTP Basic Auth only; noindex edge gate remains",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on 624voice-phase2-owner-qa Netlify site only; HTTP Basic Auth not enforced on that surface",
+      "surfaces": [
+        "624voice-phase2-owner-qa Netlify site (PHASE2_OWNER_QA_PREVIEW)"
+      ],
+      "scopeFromSpecSection2": "Owner-QA preview for visual/conversion review only: disable visitor HTTP Basic Auth on the phase2 owner-QA Netlify deploy; keep X-Robots-Tag noindex edge gate; do not change production www.624voice.com visitor auth; do not weaken edge gate or extend open access to other surfaces without separate explicit authorization.",
+      "ownerMessageVerbatim": "remember this rule for 624voice.com: do not require HTTP Basic Auth\n\nremove HTTP Basic Auth",
+      "ownerMessageRecordedAt": "2026-10-06T14:51:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation; same recordingRunId as other disputed entries. Superseded by scoped Checkpoint 2 governing instruction for owner-QA only."
+      }
+    },
+    {
+      "id": "checkpoint2-corrective-sanitize-owner-qa-health-2026-10-06",
+      "action": "Remove anonymous deployment metadata from owner-QA /api/health; keep detailed health behind PR preview Basic Auth",
+      "control": "shouldExposeDetailedHealth() / publicHealthJson() in deployVersion + health route",
+      "surfaces": ["624voice-phase2-owner-qa Netlify site (open owner-QA only)"],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Phase 2 Checkpoint 2 corrective completion instruction section D."
+      },
+      "gitCommit": "80ee91246dd0cffb0f8bbfac192216b82fc00d51"
+    },
+    {
+      "id": "checkpoint2-corrective-restore-pr98-basic-auth-2026-10-06",
+      "action": "Restore fail-closed HTTP Basic Auth on PR #98 deploy-preview only; keep owner-QA open",
+      "control": "Unset PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED on main-site deploy-preview; edge gate enforces auth when not owner-QA open surface",
+      "surfaces": ["https://deploy-preview-98--624voice.netlify.app/"],
+      "explicitlyNotAuthorized": ["Opening PR #98 deploy-preview anonymously"],
+      "authorizationSource": {
+        "status": "EVIDENCED",
+        "note": "Phase 2 Checkpoint 2 corrective completion instruction section C (2026-10-06)."
+      },
+      "implementation": [
+        "scripts/phase2/sync-netlify-deploy-preview-protect.sh",
+        "netlify/edge-functions/phase2-owner-qa-gate.ts",
+        "netlify.toml deploy-preview context"
+      ]
+    },
+    {
+      "id": "no-basic-auth-standing-rule-2026-10-06",
+      "action": "Remove HTTP Basic Auth from 624voice.com preview surfaces; keep noindex edge gate",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 on deploy-preview and owner-QA Netlify contexts",
+      "surfaces": [
+        "624voice.com PR deploy previews (PHASE2_EDGE_PROTECT_DEPLOY_PREVIEW)",
+        "624voice-phase2-owner-qa Netlify site (PHASE2_OWNER_QA_PREVIEW)"
+      ],
+      "ownerMessageVerbatim": "remember this rule for 624voice.com: do not require HTTP Basic Auth\n\nremove HTTP Basic Auth",
+      "ownerMessageRecordedAt": "2026-10-06T14:51:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation; not independently verified. Over-broad (included PR deploy-preview). Superseded by corrective split policy."
+      },
+      "implementationNotes": "Historical; deploy-preview open state reverted by checkpoint2-corrective-restore-pr98-basic-auth-2026-10-06"
+    },
+    {
+      "id": "restore-fail-closed-auth-2026-10-02",
+      "action": "Restore fail-closed Basic Auth on owner-QA and deploy-preview surfaces",
+      "basis": "Owner explicit denial of authorization for open previews; technical containment",
+      "gitCommit": "cc1e33855af85d985614babf8a18c853a02c60a6",
+      "ownerConfirmationOnRecord": "Owner message requiring security restore (same incident thread); not duplicated here to avoid paraphrase drift."
+    },
+    {
+      "id": "second-open-preview-and-restore-2026-10-05",
+      "action": "Second cycle: previews were opened, then fail-closed protection was restored inside a broader conversion commit",
+      "gitCorrectionInterval": {
+        "openingCommitSha": "c06761d7aa70619520bd80f109d384a1f58ad6e2",
+        "openingAuthorTimestampUtc": "2026-10-05T16:18:36Z",
+        "openingCommitterTimestampUtc": "2026-10-05T16:18:36Z",
+        "restoringCommitSha": "d041587f7a6c8e731691d00587fc39141db69a7b",
+        "restoringAuthorTimestampUtc": "2026-10-05T17:24:44Z",
+        "restoringCommitterTimestampUtc": "2026-10-05T17:24:44Z",
+        "duration": "66 minutes 8 seconds",
+        "note": "Git interval only; not equivalent to live anonymous-exposure duration."
+      },
+      "openingCommitMessageAuthorizationClaim": {
+        "verbatimInCommitBody": "Explicit owner request for deploy-preview-98 and phase2 owner-QA surfaces",
+        "status": "UNVERIFIED",
+        "evidenceType": "Self-asserted agent commit message; not independent authorization evidence."
+      },
+      "liveExposureWindows": {
+        "confirmedFromNetlifyDeployTimestamps": [
+          {
+            "surface": "624voice-phase2-owner-qa (open owner-QA deploy)",
+            "netlifyDeployId": "6ac3ce0b4ddd1b7b069d8a19",
+            "deployCreatedAtUtc": "2026-10-05T16:19:23.094Z",
+            "deployReadyAtUtc": "2026-10-05T16:20:00.782Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "https://6ac3ce0b4ddd1b7b069d8a19--624voice-phase2-owner-qa.netlify.app"
+          },
+          {
+            "surface": "624voice main-site PR deploy-preview (deploy-preview-98 alias)",
+            "netlifyDeployId": "6ac3cde417611f0008ae73bd",
+            "deployCreatedAtUtc": "2026-10-05T16:18:44.335Z",
+            "deployReadyAtUtc": "2026-10-05T16:19:50.257Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "UNPROVEN (alias URL; not stored on deploy record)"
+          }
+        ],
+        "restoringDeployments": [
+          {
+            "surface": "624voice-phase2-owner-qa (protected owner-QA deploy)",
+            "netlifyDeployId": "6ac3dda882a472ad10fb0280",
+            "deployCreatedAtUtc": "2026-10-05T17:26:00.154Z",
+            "deployReadyAtUtc": "2026-10-05T17:26:39.059Z",
+            "deployReadyField": "updated_at (published_at was null)",
+            "deployUrl": "https://6ac3dda882a472ad10fb0280--624voice-phase2-owner-qa.netlify.app"
+          },
+          {
+            "surface": "624voice main-site PR deploy-preview",
+            "netlifyDeployId": "6ac3dd64bcbba5000899e071",
+            "deployCreatedAtUtc": "2026-10-05T17:24:52.179Z",
+            "deployReadyAtUtc": "2026-10-05T17:25:54.960Z",
+            "deployReadyField": "updated_at (published_at was null)"
+          }
+        ],
+        "ownerQaAnonymousExposureDurationFromDeployReady": "66 minutes 38.277 seconds (16:20:00.782Z → 17:26:39.059Z)",
+        "prDeployPreviewAnonymousExposureDurationFromDeployReady": "66 minutes 4.703 seconds (16:19:50.257Z → 17:25:54.960Z)",
+        "archivedLiveResponseEvidenceWhileOpen": "NOT PRESERVED (no repository artifact with anonymous HTTP 200 captures timestamped to the open deploy window)",
+        "archivedLiveResponseEvidenceAfterRestore": "review-artifacts/phase2/website-polish/preview-auth-evidence.json (401 anonymous root/health; agent-captured; verifiedAt 2026-10-05T17:30:00Z in prior record)"
+      },
+      "restoringCommitScope": {
+        "securityOnly": false,
+        "gitProvenNote": "d041587f7a6c8e731691d00587fc39141db69a7b also changes homepage, marketing components, and conversion tests; security restore is via netlify.toml (removed PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED from deploy-preview context) and scripts/phase2/deploy-netlify-owner-qa-preview.sh (fail-closed deploy + sync-netlify-deploy-preview-edge-auth.sh)."
+      },
+      "authorizationSource": {
+        "decisionId": "open-preview-owner-review-2026-10-05",
+        "status": "UNVERIFIED",
+        "authorizationExplanation": "No immutable owner transcript. Opening commit message self-asserts owner request; that text is not independent evidence."
+      },
+      "containmentStatus": "COMPLETE",
+      "correctiveProtectionCommit": "d041587f7a6c8e731691d00587fc39141db69a7b",
+      "liveVerificationAfterRestore": {
+        "anonymousRootStatus": 401,
+        "anonymousHealthStatus": 401,
+        "wwwAuthenticatePresent": true,
+        "verifiedAt": "2026-10-05T17:30:00Z",
+        "evidenceArtifact": "review-artifacts/phase2/website-polish/preview-auth-evidence.json"
+      }
+    },
+    {
+      "id": "open-preview-owner-review-2026-10-05",
+      "action": "Disable HTTP Basic Auth on PR #98 deploy preview and phase2 owner-QA Netlify site; keep noindex edge gate",
+      "control": "PHASE2_OWNER_QA_EDGE_BASIC_AUTH_DISABLED=1 (edge gate remains; Basic Auth not enforced)",
+      "surfaces": [
+        "https://deploy-preview-98--624voice.netlify.app/",
+        "624voice-phase2-owner-qa Netlify site (CLI owner-QA deploys)"
+      ],
+      "ownerMessageVerbatim": "Disable HTTP Basic Auth on deploy-preview-98 and the phase2 owner-QA Netlify site so I can review without a password.",
+      "ownerMessageRecordedAt": "2026-10-05T16:17:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "authorizationSource": {
+        "status": "UNVERIFIED",
+        "note": "Agent-recorded quotation only; no immutable owner transcript artifact linked."
+      }
+    },
+    {
+      "id": "attribution-unverified-2026-10-02",
+      "action": "Do not close incident attribution on agent-quoted owner instruction",
+      "basis": "Owner attestation: does not recall disputed quote; quote not in owner-visible project record",
+      "authorizationExplanation": "Unverified attribution: the implementation agent reported an owner instruction that has not been located in the available project record and that the owner does not recall providing.",
+      "ownerMessageRecordedAt": "2026-10-02T21:44:00Z",
+      "recordingRunId": "bc-75f79e2f-4e7f-4332-9557-53468a5de498",
+      "recordingRunUrl": "https://cursor.com/agents/bc-75f79e2f-4e7f-4332-9557-53468a5de498"
+    }
+  ],
+  "relatedArtifacts": [
+    "review-artifacts/phase2/website-polish/security-incident-open-preview.json",
+    "review-artifacts/phase2/website-polish/preview-auth-evidence.json",
+    "review-artifacts/phase2/website-polish/OWNER_PREVIEW_ACCESS.md",
+    "review-artifacts/phase2/website-polish/624voice-preview-auth-policy.md"
+  ]
+}

@@ -42,6 +42,19 @@ function formatCentralTimestamp(date = new Date()): string {
  * Point the webhook at Zapier, HubSpot, n8n, email, etc. No DB dependency.
  */
 export async function saveLead(payload: LeadPayload): Promise<void> {
+  const { isPhase2OwnerQaExecutionActive } = await import(
+    "~/server/phase2OwnerQaBoundary"
+  );
+  if (isPhase2OwnerQaExecutionActive()) {
+    const { recordQaAdapterUse } = await import("~/server/phase2OwnerQaAdapterAudit");
+    recordQaAdapterUse("qaLeadAdapterUses");
+    const { recordPhase2OwnerQaLead } = await import(
+      "~/server/phase2OwnerQaInMemoryStore"
+    );
+    recordPhase2OwnerQaLead(payload);
+    return;
+  }
+
   const url = process.env.LEADS_WEBHOOK_URL;
   if (!url) {
     throw new Error(
@@ -56,6 +69,8 @@ export async function saveLead(payload: LeadPayload): Promise<void> {
     return;
   }
 
+  const { recordLiveProviderAttempt } = await import("~/server/phase2OwnerQaAdapterAudit");
+  recordLiveProviderAttempt("liveCrmWebhookAttempts");
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
