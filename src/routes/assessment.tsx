@@ -40,12 +40,12 @@ export const Route = createFileRoute("/assessment")({
   head: () => ({
     meta: [
       {
-        title: "Free Revenue Recovery Assessment for Home Services | 624 Voice",
+        title: "Free Revenue Leak Report for Home Services | 624 Voice",
       },
       {
         name: "description",
         content:
-          "Rank six areas where home-service businesses leak revenue and time, with a modeled opportunity estimate and downloadable report.",
+          "Rank six areas where home-service businesses leak revenue and time, with a modeled opportunity estimate and on-screen results.",
       },
     ],
   }),
@@ -342,13 +342,19 @@ function AssessmentPage() {
           ) : (
             <div className="space-y-8">
               {step === "bp1" && (
-                <div className="space-y-3 rounded-lg border border-gray-200 bg-white/80 p-4 text-sm text-gray-700">
-                  <p>
-                    You&apos;ll receive a six-area snapshot, a modeled estimate of the
-                    opportunity tied to missed calls, and combined on-screen results.
-                  </p>
-                  <p>Use your best estimate. You can choose &apos;Not sure&apos; where available.</p>
-                </div>
+                <ul className="list-disc space-y-2 rounded-lg border border-gray-200 bg-white/80 p-4 pl-8 text-sm text-gray-700">
+                  <li>
+                    Estimate revenue at risk from missed calls and follow-up gaps.
+                  </li>
+                  <li>Identify priorities across six business areas.</li>
+                  <li>See where to start.</li>
+                </ul>
+              )}
+              {step === "bp1" && (
+                <p className="text-xs text-gray-500">
+                  Modeled estimates only. Use your best numbers, or choose
+                  &apos;Not sure&apos; where available.
+                </p>
               )}
 
               {progressQuestionId && (
@@ -420,8 +426,8 @@ function AssessmentPage() {
                     )}
                   </div>
                   <p className="text-sm text-gray-600">
-                    Unlock your full breakdown — ranked priorities, areas worth
-                    clarifying, and a downloadable report.
+                    Complete the short form to unlock your full on-screen report:
+                    ranked priorities, assumptions, and recommended next step.
                   </p>
                 </div>
               )}

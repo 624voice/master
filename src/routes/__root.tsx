@@ -5,7 +5,7 @@ import {
   createRootRoute,
   useRouterState,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { ConversionIntentListener } from "~/components/ConversionIntentListener";
 import { PUBLIC_CTA } from "~/content/publicConversion";
@@ -16,6 +16,10 @@ const FOOTER_MISSION_COPY =
   "624 helps home-service companies recover lost revenue and grow without adding office headcount by automating repetitive customer-facing work and moving every opportunity to the next right step, from first contact through repeat business, across the systems they already use.";
 
 function NotFoundPage() {
+  useEffect(() => {
+    document.title = "Page Not Found | 624 Voice";
+  }, []);
+
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center px-6 pt-32 text-center">
       <h1 className="text-3xl font-bold text-brand-secondary">Page not found</h1>
@@ -33,7 +37,7 @@ function NotFoundPage() {
           href={PUBLIC_CTA.assessmentHref}
           className="rounded-[10px] border border-brand-primary px-6 py-3 text-sm font-semibold text-brand-primary"
         >
-          Start the {PUBLIC_CTA.freeRevenueAssessment}
+          {PUBLIC_CTA.findMyRevenueLeaks}
         </a>
       </div>
     </main>
@@ -110,7 +114,7 @@ const DESKTOP_NAV_LINKS = [
   { href: "/what-we-do", label: "What We Do" },
   { href: "/how-we-work", label: "How We Work" },
   { href: "/demo", label: "Live Demo" },
-  { href: PUBLIC_CTA.assessmentHref, label: PUBLIC_CTA.freeRevenueAssessment },
+  { href: PUBLIC_CTA.assessmentHref, label: PUBLIC_CTA.revenueLeakReport },
 ] as const;
 
 const MOBILE_NAV_LINKS = [
@@ -269,7 +273,7 @@ function Footer() {
                 Live AI Demo
               </a>
               <a href={PUBLIC_CTA.assessmentHref} className="transition-colors hover:text-white">
-                {PUBLIC_CTA.freeRevenueAssessment}
+                {PUBLIC_CTA.revenueLeakReport}
               </a>
             </div>
           </div>

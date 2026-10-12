@@ -51,9 +51,9 @@ describe("public copy supplemental S-RT", () => {
     expect(combined).not.toMatch(/[\u2013\u2014]/);
   });
 
-  test("S-RT-11: nav includes Free Revenue Assessment link", () => {
+  test("S-RT-11: nav includes Revenue Leak Report link", () => {
     const root = readRoute("src/routes/__root.tsx");
-    expect(root).toContain("PUBLIC_CTA.freeRevenueAssessment");
+    expect(root).toContain("PUBLIC_CTA.revenueLeakReport");
     expect(root).toContain("PUBLIC_CTA.assessmentHref");
   });
 

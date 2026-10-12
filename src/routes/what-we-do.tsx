@@ -36,7 +36,7 @@ const lifecycleSections: LifecycleSection[] = [
   {
     id: "get-found",
     heading: "Get Found: Can the right homeowners find you and trust what they see?",
-    body: "If your website is slow, thin on real information, or hard for search and AI tools to understand, some of this starts before the phone ever rings. This is the first link in the chain: nothing downstream matters yet if people can't find you or don't trust what they find.",
+    body: "If your website is slow or hard for search and AI tools to understand, some gaps start before the phone rings.",
     cards: [
       {
         title: "Help Homeowners Find You Online",
@@ -59,7 +59,7 @@ const lifecycleSections: LifecycleSection[] = [
   {
     id: "respond",
     heading: "Respond: Do you answer fast enough to win the job?",
-    body: "A homeowner's need is often immediate. A fast, useful response gives the business a better chance to answer the question, capture the details, and move the request forward. You can hear this stage for yourself in the Live Demo.",
+    body: "When need is immediate, a fast response captures details and moves the request forward. Hear this stage in the Live Demo.",
     cards: [
       {
         title: "Book More Jobs",
@@ -123,9 +123,9 @@ const lifecycleSections: LifecycleSection[] = [
           "Service and maintenance reminders that keep good customers on your calendar.",
       },
       {
-        title: "Voice AI Outbound Collections",
+        title: "Recover More Outstanding Revenue",
         description:
-          "First-party payment and balance reminders for your own completed-work invoices, with disputes, hardship, or legal questions handed to a person immediately. Not debt collection.",
+          "Voice AI follows up consistently on overdue balances, helping customers resolve outstanding payments without adding repetitive collection work to your office team. First-party completed-work invoices only; disputes, hardship, or legal questions go to a person immediately. Not debt collection.",
       },
     ],
     cta: { label: "See How the Journey Fits Together", href: "/how-we-work" },
@@ -221,11 +221,9 @@ function WhatWeDoPage() {
             <span className="text-brand-primary">Leads, Time and Revenue</span>
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            Home-service companies rarely need every AI tool on the market. They
-            need the parts of the customer journey that lose opportunities, slow
-            down the office, or hide results to work better together. We identify
-            the first priority, build the right capability, and connect it with
-            the tools worth keeping.
+            Most home-service companies need the parts of the customer journey
+            that lose opportunities or slow the office to work better together,
+            not every AI tool on the market.
           </p>
         </div>
       </section>

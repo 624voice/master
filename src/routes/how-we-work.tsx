@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HowWeWorkStepCard } from "~/components/marketing/MarketingCards";
 import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
-import { JourneyStageIcon } from "~/components/marketing/JourneyStageIcon";
 import { HOW_WE_WORK_STEPS } from "~/content/clientEngagementProcess";
 import { PUBLIC_CTA } from "~/content/publicConversion";
 
@@ -21,8 +20,6 @@ export const Route = createFileRoute("/how-we-work")({
   component: HowWeWorkPage,
 });
 
-const STEP_ICONS = ["compass", "chart", "gears", "phone"] as const;
-
 function HowWeWorkPage() {
   return (
     <main className="pt-20">
@@ -40,19 +37,13 @@ function HowWeWorkPage() {
       <section className="overflow-x-hidden bg-white px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-4xl">
           <ol className="grid list-none gap-6 p-0 sm:grid-cols-2 sm:gap-8">
-            {HOW_WE_WORK_STEPS.map((step, index) => (
+            {HOW_WE_WORK_STEPS.map((step) => (
               <li key={step.step} className="relative flex">
                 <HowWeWorkStepCard
                   step={step.step}
                   title={step.title}
                   body={step.body}
                   deliverable={step.deliverable}
-                  icon={
-                    <JourneyStageIcon
-                      iconId={STEP_ICONS[index] ?? "chart"}
-                      className="h-6 w-6"
-                    />
-                  }
                 />
               </li>
             ))}

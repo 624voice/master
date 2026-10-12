@@ -76,8 +76,11 @@ export function RespondAssumptionsReview({
 
   const scenarios = computeAllScenariosWithOverrides(trade, r1.value, {
     missedCallRateOverride:
-      r2.edit === "not_sure" ? undefined : r2.value,
-    avgJobValueOverride: r3.edit === "not_sure" ? undefined : r3.value,
+      edits.missedCallRatePct === "not_sure"
+        ? undefined
+        : r2.value / 100,
+    avgJobValueOverride:
+      edits.avgJobValue === "not_sure" ? undefined : r3.value,
   });
   const moderateOpportunity = selectModerateScenarioValue(scenarios);
 

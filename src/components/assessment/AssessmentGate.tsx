@@ -49,7 +49,7 @@ export function AssessmentGate({ loading, onSubmit }: AssessmentGateProps) {
       </h2>
       <p className="mt-2 text-sm text-gray-600">
         Enter your details to see ranked priorities, clarification areas, and
-        your downloadable report.
+        your full on-screen report.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">

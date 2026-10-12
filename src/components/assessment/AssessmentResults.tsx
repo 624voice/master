@@ -37,6 +37,12 @@ export function AssessmentResults({
     results.dollarEstimate &&
     selectModerateScenarioValue(results.dollarEstimate);
 
+  const topPriority = results.priorityGroups[0];
+  const recommendedStart =
+    topPriority && topPriority.length > 0
+      ? topPriority.map((d) => d.label).join(" · ")
+      : null;
+
   const [reportError, setReportError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -85,9 +91,20 @@ export function AssessmentResults({
         </div>
       )}
 
+      {recommendedStart ? (
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <h2 className="text-lg font-bold text-brand-secondary">
+            Recommended next step
+          </h2>
+          <p className="mt-2 text-base font-semibold text-brand-primary">
+            {recommendedStart}
+          </p>
+        </div>
+      ) : null}
+
       <div>
         <h2 className="text-xl font-bold text-brand-secondary">
-          Your priority areas
+          Prioritized revenue leaks
         </h2>
         <p className="mt-2 text-sm text-gray-600">
           Ranked by severity, confidence, and readiness to improve.

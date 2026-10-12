@@ -144,7 +144,7 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
     await fillValidLead(page);
     await clickButtonMatching(page, "See My Full Results");
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     expect(await page.$("#gate-first-name")).toBeNull();
   }, 120_000);
@@ -162,7 +162,7 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
     await fillValidLead(page);
     await clickButtonMatching(page, "See My Full Results");
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     const text = await page.evaluate(() => document.body.innerText);
     expect(text).toContain("Priority");
@@ -174,7 +174,7 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
     await page.click('input[type="checkbox"]');
     await clickButtonMatching(page, "See My Full Results");
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     const checked = await page.evaluate(() =>
       document.querySelector('input[type="checkbox"]') == null,
@@ -217,7 +217,7 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
     await fillValidLead(page);
     await clickButtonMatching(page, "See My Full Results");
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     expect(await page.$('[role="alert"]')).toBeNull();
   }, 120_000);
@@ -227,14 +227,14 @@ describe("Assessment browser journey X-JRN-DOM (fail-closed backend)", () => {
     await fillValidLead(page);
     await clickButtonMatching(page, "See My Full Results");
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     const hasDownload = await page.evaluate(() =>
       /Download Assessment Report/i.test(document.body.innerText),
     );
     expect(hasDownload).toBe(false);
     const persistenceMessage = await page.evaluate(() => document.body.innerText);
-    expect(persistenceMessage).toMatch(/temporarily unavailable|Your priority areas/i);
+    expect(persistenceMessage).toMatch(/temporarily unavailable|Prioritized revenue leaks/i);
   }, 120_000);
 });
 
@@ -292,7 +292,7 @@ describe("Assessment browser journey X-JRN-DOM (safe backend)", () => {
     await clickButtonMatching(page, "See My Full Results");
     const submitKeys = await submitCapture.waitForKeys();
     await page.waitForFunction(() =>
-      /Your priority areas/i.test(document.body.innerText),
+      /Prioritized revenue leaks/i.test(document.body.innerText),
     );
     expect(submitKeys).not.toContain("GF-F1");
   }, 180_000);
@@ -360,7 +360,7 @@ describe("Assessment browser journey X-JRN-DOM (safe backend)", () => {
     expect(failed.access.status).toBe(503);
     expect(failed.access.attempts).toBe(1);
 
-    expect(await page.evaluate(() => /Your priority areas/i.test(document.body.innerText))).toBe(
+    expect(await page.evaluate(() => /Prioritized revenue leaks/i.test(document.body.innerText))).toBe(
       true,
     );
 

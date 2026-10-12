@@ -53,10 +53,8 @@ const PROBLEM_CARDS = [
 const APPROVED_HERO_HEADLINE =
   "Turn More Leads Into Booked Work and Keep Customers Coming Back";
 
-const PROCESS_ICONS = ["compass", "chart", "gears", "phone"] as const;
-
 const HOME_PROCESS_BODY: Record<number, string> = {
-  1: "Find where leads, time, and visibility are being lost in the business today.",
+  1: "Find where leads, time, and visibility are being lost today.",
   2: "Set priorities, scope, integrations, and measures of success before building.",
   3: "Connect approved capabilities with the tools and processes worth keeping.",
   4: "Measure performance and decide what deserves attention next.",
@@ -92,9 +90,9 @@ function Home() {
             <span className="text-white">{APPROVED_HERO_HEADLINE.split("Booked Work")[1]}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 sm:text-xl">
-            624 Voice finds the gaps between your website, phones, estimates,
-            follow-up, and customer data, then connects the right AI agents,
-            automation, and reporting around how your business already runs.
+            Recover lost opportunities, automate repetitive customer-facing work,
+            and connect the systems you already use so more calls turn into booked
+            jobs without adding office headcount.
           </p>
           <div className="mt-10 flex flex-col items-stretch gap-4 sm:items-center">
             <a
@@ -109,7 +107,7 @@ function Home() {
               data-analytics-intent="home_secondary_assessment"
               className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:border-gray-400 hover:bg-white/5"
             >
-              {PUBLIC_CTA.estimateLostRevenue}
+              {PUBLIC_CTA.findMyRevenueLeaks}
             </a>
           </div>
         </div>
@@ -121,7 +119,7 @@ function Home() {
           <SectionHeader
             eyebrowClass="text-rose-600 bg-rose-50"
             eyebrow="Your Revenue Is Leaking"
-            headline="Where Revenue Is Slipping Away"
+            headline="Here's Where It's Getting Lost"
             supporting="The leads are coming in and the work is getting done. The trouble is everything that has to happen in between, especially when the office is busy or closed."
           />
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -161,23 +159,23 @@ function Home() {
       <section className="bg-white px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-5xl">
           <SectionHeader
-            eyebrow="Find Your Lost Revenue"
-            headline="See Where Revenue Is Slipping Away"
-            supporting="One free revenue assessment models missed-call opportunity and broader operational priorities across six areas."
+            eyebrow={PUBLIC_CTA.revenueLeakReport}
+            headline={PUBLIC_CTA.revenueLeakHeadline}
+            supporting={PUBLIC_CTA.revenueLeakSupporting}
           />
           <div className="mt-12 mx-auto max-w-xl">
             <ToolCard
-              title={PUBLIC_CTA.freeRevenueAssessment}
-              body="Trade, fleet size, call volume, and operational questions in one flow, with a modeled opportunity estimate and combined on-screen results."
+              title={PUBLIC_CTA.revenueLeakReport}
+              body="Trade, fleet size, call volume, and operational questions in one flow, with a modeled opportunity estimate and prioritized on-screen results."
               primaryHref={PUBLIC_CTA.assessmentHref}
-              primaryLabel={PUBLIC_CTA.estimateLostRevenue}
+              primaryLabel={PUBLIC_CTA.findMyRevenueLeaks}
               primaryHint="About 3-5 minutes total."
               dataIntent="home_assessment_tool"
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-gray-500">
-            Get your complete results and personalized report by email. Text
-            updates are optional.
+            See your modeled revenue opportunity, prioritized revenue leaks and
+            recommended next step in your on-screen report.
           </p>
         </div>
       </section>
@@ -195,9 +193,9 @@ function Home() {
               <JourneyStageCard
                 key={stage.id}
                 primaryLabel={stage.primaryLabel}
-                description={stage.description}
                 iconId={stage.iconId}
                 accentClass={stage.accentClass}
+                compact
               />
             ))}
           </div>
@@ -221,19 +219,13 @@ function Home() {
             supporting="We begin with how the business works today, then define outcomes, build what is needed, and review results together."
           />
           <ol className="mx-auto mt-12 grid max-w-5xl list-none gap-6 p-0 lg:grid-cols-2">
-            {CLIENT_ENGAGEMENT_STEPS.map((step, index) => (
+            {CLIENT_ENGAGEMENT_STEPS.map((step) => (
               <li key={step.step} className="list-none">
                 <ProcessStepCard
                   step={step.step}
                   title={step.title}
                   body={HOME_PROCESS_BODY[step.step] ?? step.body}
                   deliverable={step.deliverable}
-                  icon={
-                    <JourneyStageIcon
-                      iconId={PROCESS_ICONS[index] ?? "chart"}
-                      className="h-6 w-6"
-                    />
-                  }
                 />
               </li>
             ))}

@@ -109,11 +109,12 @@ function Contact() {
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
               <h2 className="text-2xl font-bold text-brand-secondary">
-                Send Us a Message
+                Request a Free 30-Minute Consultation
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Share a little about your business and the result you want.
-                We&apos;ll respond within one business day.
+                Tell us what you want to improve and how your operation works
+                today. We respond within one business day by email, or by text if
+                you opt in below for scheduling help.
               </p>
               {success ? (
                 <div className="mt-8 rounded-xl border border-brand-primary/20 bg-brand-primary-light/60 p-6">
@@ -381,7 +382,7 @@ function Contact() {
                     disabled={loading}
                     className="w-full rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {loading ? "Sending…" : PUBLIC_CTA.exploreOptions}
+                    {loading ? "Sending…" : PUBLIC_CTA.contactSubmit}
                   </button>
                 </form>
               )}
@@ -460,15 +461,13 @@ function Contact() {
             Want a Directional Read First?
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Take the free {PUBLIC_CTA.freeRevenueAssessment.toLowerCase()} to
-            see where leads, follow-up, and visibility may be costing you
-            revenue.
+            {PUBLIC_CTA.revenueLeakSupporting}
           </p>
           <a
             href={PUBLIC_CTA.assessmentHref}
             className="mt-8 inline-flex rounded-lg bg-brand-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-brand-primary-dark"
           >
-            {PUBLIC_CTA.estimateLostRevenue}
+            {PUBLIC_CTA.findMyRevenueLeaks}
           </a>
         </div>
       </section>

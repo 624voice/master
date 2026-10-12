@@ -57,21 +57,27 @@ export function JourneyStageCard({
   description,
   iconId,
   accentClass,
+  compact = false,
 }: {
   primaryLabel: string;
-  description: string;
+  description?: string;
   iconId: string;
   accentClass: string;
+  compact?: boolean;
 }) {
   return (
     <div
-      className={`flex h-full flex-col rounded-xl border p-4 shadow-sm sm:p-5 ${accentClass}`}
+      className={`flex h-full flex-col rounded-xl border p-3 shadow-sm sm:p-4 ${accentClass} ${
+        compact ? "min-h-[5.5rem]" : ""
+      }`}
     >
-      <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/70 text-brand-primary-dark shadow-sm">
+      <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/70 text-brand-primary-dark shadow-sm">
         <JourneyStageIcon iconId={iconId} className="h-6 w-6" />
       </div>
-      <p className="text-base font-bold text-brand-secondary">{primaryLabel}</p>
-      <p className="mt-2 flex-1 text-sm leading-snug text-gray-600">{description}</p>
+      <p className="text-base font-bold leading-snug text-brand-secondary">{primaryLabel}</p>
+      {!compact && description ? (
+        <p className="mt-2 flex-1 text-sm leading-snug text-gray-600">{description}</p>
+      ) : null}
     </div>
   );
 }
@@ -82,23 +88,18 @@ export function HowWeWorkStepCard({
   title,
   body,
   deliverable,
-  icon,
 }: {
   step: number;
   title: string;
   body: string;
   deliverable: string;
-  icon: ReactNode;
 }) {
   return (
-    <article className="flex h-full min-h-[220px] flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-md sm:p-8">
-      <div className="grid grid-cols-[2.5rem_2.5rem_1fr] items-center gap-3 sm:grid-cols-[2.75rem_2.75rem_1fr] sm:gap-4">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
+    <article className="flex h-full min-h-[200px] flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-md sm:p-7">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
           {step}
         </span>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-mint/30 text-brand-primary-dark">
-          {icon}
-        </div>
         <h3 className="text-lg font-semibold leading-snug text-brand-secondary">{title}</h3>
       </div>
       <p className="mt-4 flex-1 text-sm leading-relaxed text-gray-600">{body}</p>
@@ -114,26 +115,19 @@ export function ProcessStepCard({
   title,
   body,
   deliverable,
-  icon,
   note,
 }: {
   step: number;
   title: string;
   body: string;
   deliverable: string;
-  icon: ReactNode;
   note?: string;
 }) {
   return (
-    <article className="relative flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-md sm:p-7">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
-          {step}
-        </span>
-        <div className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-mint/30 text-brand-primary-dark">
-          {icon}
-        </div>
-      </div>
+    <article className="relative flex h-full flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-md sm:p-6">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
+        {step}
+      </span>
       <h3 className="mt-4 text-lg font-semibold text-brand-secondary">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-gray-600">{body}</p>
       {note ? (

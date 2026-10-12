@@ -48,7 +48,7 @@ describe("owner focus order supplement (not human A11Y-090)", () => {
 
       const tabs = await captureTabSequence(page, 5);
       const formatted = tabs.map(formatFocusDescriptor);
-      expect(formatted[3]).toMatch(/Free Revenue Assessment/i);
+      expect(formatted[3]).toMatch(/Revenue Leak Report/i);
       expect(formatted[4]).toMatch(/Explore Your Options/i);
     } finally {
       await browser.close();

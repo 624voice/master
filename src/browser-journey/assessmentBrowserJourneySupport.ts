@@ -297,7 +297,7 @@ export async function submitLeadToResults(
   await clickButtonMatching(page, "See My Full Results");
   const submitTimeoutMs = Number(process.env.BROWSER_JOURNEY_SUBMIT_TIMEOUT_MS ?? 30_000);
   await page.waitForFunction(
-    () => /Your priority areas/i.test(document.body.innerText),
+    () => /Prioritized revenue leaks/i.test(document.body.innerText),
     { timeout: submitTimeoutMs },
   );
 }

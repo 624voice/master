@@ -3,7 +3,7 @@ export const CLIENT_ENGAGEMENT_STEPS = [
   {
     step: 1,
     title: "Understand the Opportunity",
-    body: "Find where leads, time, and visibility are being lost in the business today.",
+    body: "Find where leads, time, and visibility are being lost today.",
     deliverable: "Clear problem definition",
   },
   {
@@ -30,7 +30,7 @@ export const HOW_WE_WORK_STEPS = [
   {
     step: 1,
     title: "Understand the Opportunity",
-    body: "We begin with a free AI Growth Systems Consultation focused on the result you want, how the work happens today, where friction is most visible, and which tools are already in place. You leave knowing whether the next step is a focused project or genuinely no change right now.",
+    body: "We begin with a free 30-minute consultation on the result you want, how work happens today, and where friction shows up first. Implementation starts after scope and priorities are agreed.",
     deliverable: "Recommended next step",
   },
   {

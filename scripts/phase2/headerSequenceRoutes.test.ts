@@ -11,7 +11,7 @@ const SHARED_HEADER = [
   "What We Do",
   "How We Work",
   "Live Demo",
-  "Free Revenue Assessment",
+  "Revenue Leak Report",
   "Explore Your Options",
 ];
 

@@ -35,17 +35,12 @@ function StageCard({
 }) {
   return (
     <div
-      className={`flex h-full min-h-[8.5rem] flex-col rounded-xl border p-4 shadow-sm sm:min-h-[9rem] sm:p-5 ${stage.accentClass}`}
+      className={`flex h-full min-h-[5.5rem] flex-col rounded-xl border p-3 shadow-sm sm:min-h-[6rem] sm:p-4 ${stage.accentClass}`}
     >
-      <div className="mb-2 flex items-center gap-2">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-brand-primary-dark shadow-sm">
-          <JourneyStageIcon iconId={stage.iconId} className="h-5 w-5" />
-        </span>
-        <span className="sr-only">{stage.dimensionLabel}: </span>
-        <span className="text-xs font-bold uppercase tracking-wide text-brand-primary-dark">
-          {stage.dimensionLabel}
-        </span>
+      <div className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/80 text-brand-primary-dark shadow-sm">
+        <JourneyStageIcon iconId={stage.iconId} className="h-5 w-5" />
       </div>
+      <span className="sr-only">{stage.dimensionLabel}: </span>
       <p className="text-base font-bold leading-snug text-brand-secondary">
         {stage.primaryLabel}
       </p>

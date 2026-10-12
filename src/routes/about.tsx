@@ -3,7 +3,7 @@ import { MarketingNavyHero } from "~/components/marketing/MarketingNavyHero";
 import { PUBLIC_CTA } from "~/content/publicConversion";
 
 const APPROVED_MISSION_COPY =
-  "624 helps home-service companies recover lost revenue and grow without adding office headcount by automating repetitive customer-facing work and moving every opportunity to the next right step, from first contact through repeat business, across the systems they already use.";
+  "Every home services owner deserves a business that works for them, not the other way around. 624 helps home-service companies recover lost revenue and grow without adding office headcount by automating repetitive customer-facing work and moving every opportunity to the next right step, from first contact through repeat business, across the systems they already use.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -55,7 +55,7 @@ function About() {
           </h2>
           <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
             <p>
-              The number in our name comes from Matthew 6:24 — a verse that
+              The number in our name comes from Matthew 6:24, a verse that
               uses startling language on purpose. The original Greek word for
               &ldquo;serve&rdquo; in this passage is <em>douleuō</em>, which literally means
               &ldquo;to be a slave to.&rdquo;

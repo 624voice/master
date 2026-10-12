@@ -75,6 +75,22 @@ describe("L#16 computeAllScenariosWithOverrides empty overrides", () => {
   });
 });
 
+describe("owner QA: Plumbers respond-assumption overrides", () => {
+  test("moderate scenario uses fractional missed-call rate (31.5% not 31.5)", () => {
+    const scenarios = computeAllScenariosWithOverrides("Plumbers", 300, {
+      missedCallRateOverride: 0.315,
+      avgJobValueOverride: 350,
+    });
+    const moderate = scenarios[1]!;
+    expect(moderate.totalAnnualBenefit).toBe(175_194);
+    expect(moderate.drivers.missedCallRecovery.annualValue).toBe(94_958);
+    expect(moderate.drivers.noShowReduction.annualValue).toBe(28_482);
+    expect(moderate.drivers.outboundSms.annualValue).toBe(16_800);
+    expect(moderate.drivers.jobCloserUpsells.annualValue).toBe(16_954);
+    expect(moderate.drivers.timeSavings.annualValue).toBe(18_000);
+  });
+});
+
 describe("L#30a shuffled scenarios semantic moderate selection", () => {
   test("selectModerateScenario finds scenarioIndex === 1", () => {
     const scenarios = computeAllScenarios("HVAC", 700);

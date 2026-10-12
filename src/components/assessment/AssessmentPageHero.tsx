@@ -6,12 +6,12 @@ export function AssessmentPageHero() {
     <MarketingNavyHero
       testId="assessment-hero"
       headingId="assessment-hero-heading"
-      eyebrow="Free business assessment"
+      eyebrow="Revenue Leak Report"
       meta="About 3-5 minutes."
-      supporting="Six areas where home-service businesses leak revenue and time, ranked for your trade and fleet size."
+      supporting="See where missed calls, slow follow-up and operational gaps may be costing you revenue, then discover where to start fixing them."
     >
-      <span className="text-white">Find Your </span>
-      <span className="text-brand-primary">Top Priorities</span>
+      <span className="text-white">Find the Revenue Leaks </span>
+      <span className="text-brand-primary">Costing You Jobs</span>
     </MarketingNavyHero>
   );
 }
